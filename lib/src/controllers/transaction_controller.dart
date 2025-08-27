@@ -15,8 +15,10 @@ class TransactionController extends AppController {
     showAppLoadingDialog(context);
     TransactionsDatabase sizeDatabase = TransactionsDatabase();
     await sizeDatabase.set(data: data).then((_) {
-      state.ref!.invalidate(transactionProvider);
-      closeLoading();
+     try {
+       state.ref!.invalidate(transactionProvider);
+       closeLoading();
+     } catch (_) {}
     });
   }
 

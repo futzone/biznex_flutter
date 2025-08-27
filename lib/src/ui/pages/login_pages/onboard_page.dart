@@ -3,17 +3,22 @@ import 'dart:ui';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
+import 'package:biznex/src/core/extensions/device_type.dart';
+import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/core/services/network_services.dart';
 import 'package:biznex/src/ui/pages/login_pages/login_page.dart';
 import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
+import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
+import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../screens/onboarding_screens/onboard_card.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'api_address_screen.dart';
+import 'onboard_mobile.dart';
 
 class OnboardPage extends ConsumerStatefulWidget {
   const OnboardPage({super.key});
@@ -23,6 +28,8 @@ class OnboardPage extends ConsumerStatefulWidget {
 }
 
 class _OnboardPageState extends ConsumerState<OnboardPage> {
+  final TextEditingController _controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return AppStateWrapper(
@@ -34,7 +41,61 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
               },
               loading: () => AppLoadingScreen(),
               data: (employees) {
+                if (employees.isEmpty && getDeviceType(context) == DeviceType.mobile) {
+                  return Scaffold(
+                    body: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 16,
+                          children: [
+                            Text(
+                              AppLocales.enterAddress.tr(),
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontFamily: boldFamily,
+                              ),
+                            ),
+                            AppTextField(
+                              title: "192.168.X.X",
+                              controller: _controller,
+                              theme: theme,
+                              useBorder: true,
+                              fillColor: theme.accentColor,
+                            ),
+                            AppPrimaryButton(
+                              padding: Dis.only(tb: 12),
+                              theme: theme,
+                              onPressed: () {
+                                AppModel nm = state;
+                                nm.apiUrl = _controller.text.trim();
+                                AppStateDatabase().updateApp(nm).then((_) {
+                                  ref.invalidate(appStateProvider);
+                                  ref.invalidate(employeeProvider);
+                                });
+                              },
+                              child: Text(
+                                AppLocales.login,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontFamily: boldFamily,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
                 if (employees.isEmpty) return LoginPageHarom(model: state, theme: theme, fromAdmin: true);
+                if (getDeviceType(context) == DeviceType.mobile) {
+                  return OnboardMobile(employees: employees, theme: theme, state: state);
+                }
+
                 return Scaffold(
                   body: Container(
                     height: double.infinity,

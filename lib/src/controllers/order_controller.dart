@@ -2,8 +2,6 @@ import 'dart:developer';
 import 'package:biznex/src/controllers/transaction_controller.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
 import 'package:biznex/src/providers/products_provider.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:biznex/biznex.dart'; // Assuming AppLocales is here
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
@@ -14,13 +12,11 @@ import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:biznex/src/core/model/other_models/customer_model.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
-import 'package:biznex/src/core/services/printer_multiple_services.dart';
 import 'package:biznex/src/core/services/printer_services.dart';
 import 'package:biznex/src/providers/employee_orders_provider.dart';
 import 'package:biznex/src/providers/orders_provider.dart'; // Assuming orderSetProvider is here or accessible
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
-
 import '../core/model/app_changes_model.dart';
 
 // Placeholder for AppLocales if it's not in biznex/biznex.dart

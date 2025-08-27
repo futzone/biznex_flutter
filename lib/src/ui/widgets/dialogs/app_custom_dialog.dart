@@ -1,8 +1,42 @@
+import 'dart:io';
+
+import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../biznex.dart';
+
 Future showDesktopModal({required BuildContext context, required Widget body, double? width}) async {
+  if (Platform.isAndroid) {
+    return showModalBottomSheet(
+      useSafeArea: true,
+      isScrollControlled: true,
+      context: context,
+      builder: (context) {
+        return Column(
+          children: [
+            SimpleButton(
+              onPressed: (){
+                AppRouter.close(context);
+              },
+              child: Container(
+                margin: Dis.only(tb: 16),
+                height: 4,
+                width: 32,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+            Expanded(child: body)
+          ],
+        );
+      },
+    );
+  }
+
   return showGeneralDialog(
     context: context,
     barrierDismissible: true,

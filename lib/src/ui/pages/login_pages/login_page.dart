@@ -5,6 +5,7 @@ import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/database/changes_database/changes_database.dart';
 import 'package:biznex/src/core/database/employee_database/role_database.dart';
+import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/model/app_changes_model.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
 import 'package:biznex/src/core/model/employee_models/role_model.dart';
@@ -168,7 +169,7 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
       child: Scaffold(
         body: Row(
           children: [
-            LoginHalfPage(model),
+            if (getDeviceType(context) != DeviceType.mobile) LoginHalfPage(model),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(32),
@@ -208,7 +209,9 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
                       }),
                     ),
                     PinKeyboard(
-                      maxWidth: MediaQuery.of(context).size.width * 0.3,
+                      maxWidth: getDeviceType(context) != DeviceType.mobile
+                          ? MediaQuery.of(context).size.width * 0.3
+                          : double.infinity,
                       space: MediaQuery.of(context).size.height * 0.1,
                       textColor: widget.theme.textColor,
                       length: 4,

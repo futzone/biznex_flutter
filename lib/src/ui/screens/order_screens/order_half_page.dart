@@ -1,5 +1,6 @@
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
+import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/model/category_model/category_model.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
@@ -10,6 +11,7 @@ import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 import '../../widgets/custom/app_toast.dart';
 import '../products_screens/product_card.dart';
 
@@ -100,8 +102,128 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
       return providerListener.where((el) => ctg == el.category?.id).length;
     }
 
+    final categories = ref.watch(categoryProvider).value ?? [];
+
+    final mobile = getDeviceType(context) == DeviceType.mobile;
     return AppStateWrapper(
       builder: (theme, state) {
+        if (mobile) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Padding(
+                padding: const EdgeInsets.only(bottom: 8, top: 8),
+                child: AppTextField(
+                  prefixIcon: Icon(Iconsax.search_normal_copy),
+                  onChanged: _onSearchQuery,
+                  radius: 16,
+                  title: AppLocales.searchBarHint.tr(),
+                  controller: _searchController,
+                  theme: theme,
+                ),
+              ),
+            ),
+            body: CustomScrollView(
+              slivers: [
+                SliverPinnedHeader(
+                  child: Container(
+                    color: theme.appBarColor,
+                    height: 64,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: Dis.only(lr: 16),
+                      child: Row(
+                        spacing: 16,
+                        children: [
+                          for (final category in categories)
+                            SimpleButton(
+                              onPressed: () {
+                                if (_selectedCategory == category) {
+                                  _selectedCategory = null;
+                                } else {
+                                  _selectedCategory = category;
+                                  _onCategorySelected(category.id);
+                                }
+                                setState(() {});
+                              },
+                              child: Container(
+                                padding: Dis.only(lr: 16, tb: 8),
+                                decoration: BoxDecoration(
+                                  color: _selectedCategory?.id == category.id ? theme.mainColor : Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  category.name,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontFamily: mediumFamily,
+                                    color: _selectedCategory?.id == category.id ? Colors.white : theme.textColor,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                state.whenProviderDataSliver(
+                  provider: productsProvider,
+                  builder: (products) {
+                    if (buildFilterResult().isEmpty && _searchController.text.isNotEmpty) {
+                      return SliverToBoxAdapter(
+                        child: Center(
+                            child: Padding(
+                          padding: const EdgeInsets.only(top: 100, bottom: 100),
+                          child: AppEmptyWidget(),
+                        )),
+                      );
+                    }
+
+                    products as List<Product>;
+
+                    return SliverPadding(
+                      padding: Dis.only(lr: 16, tb: 16),
+                      sliver: SliverGrid.builder(
+                        // controller: controller,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: context.s(16),
+                          crossAxisSpacing: context.s(16),
+                          childAspectRatio: 2,
+                        ),
+                        itemCount: buildFilterResult().length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final product = buildFilterResult()[index];
+                          return SimpleButton(
+                            onPressed: () {
+                              if (product.amount != -1) {
+                                orderNotifier.addItem(
+                                    OrderItem(product: product, amount: 1, placeId: widget.place.id), context);
+
+                                ShowToast.success(context, AppLocales.productAddedToSet.tr());
+                              } else {
+                                ShowToast.error(context, AppLocales.productStockError.tr());
+                              }
+                            },
+                            child: IgnorePointer(
+                              child: ProductCardNew(
+                                have: orderNotifier.haveProduct(widget.place.id, product.id),
+                                product: product,
+                                colors: theme,
+                                minimalistic: true,
+                                onPressed: () {},
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                )
+              ],
+            ),
+          );
+        }
         return Expanded(
           flex: 9,
           child: Column(
@@ -146,9 +268,9 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                                       children: [
                                         Expanded(
                                           child: AppTextField(
+                                            autofocus: true,
                                             prefixIcon: Icon(Iconsax.search_normal_copy),
                                             onChanged: _onSearchQuery,
-                                            autofocus: true,
                                             radius: 8,
                                             title: AppLocales.searchBarHint.tr(),
                                             controller: _searchController,

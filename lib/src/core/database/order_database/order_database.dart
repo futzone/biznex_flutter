@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
@@ -128,6 +129,8 @@ class OrderDatabase extends OrderDatabaseRepository {
         return order;
       }
     }
+
+    if(!Platform.isWindows) return null;
 
     final orderIsar = await isar.orderIsars.filter().closedEqualTo(false).place((pl) {
       return pl.idEqualTo(placeId);

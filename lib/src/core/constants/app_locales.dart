@@ -521,4 +521,6 @@ abstract class AppLocales {
   static var enterSumm = "enterSumm";
   static var placesCount = "placesCount";
   static var toPlaceChoose = "toPlaceChoose";
+  static var backToSet = "backToSet";
+  static var backToOrder = "backToOrder";
 }

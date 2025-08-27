@@ -1,5 +1,6 @@
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
+import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +36,8 @@ class OrderItemDetailScreen extends HookConsumerWidget {
       }
     }
 
+    final mobile  = getDeviceType(context)==DeviceType.mobile;
+
     return AppStateWrapper(builder: (theme, state) {
       return Column(
         children: [
@@ -44,7 +47,7 @@ class OrderItemDetailScreen extends HookConsumerWidget {
                 product.product.name,
                 style: TextStyle(
                   fontFamily: boldFamily,
-                  fontSize: 18,
+                  fontSize: mobile?16:18,
                 ),
               ),
               Spacer(),
@@ -52,7 +55,7 @@ class OrderItemDetailScreen extends HookConsumerWidget {
                 product.product.price.priceUZS,
                 style: TextStyle(
                   fontFamily: boldFamily,
-                  fontSize: 18,
+                  fontSize: mobile?16:18,
                 ),
               ),
               Spacer(),
@@ -90,11 +93,11 @@ class OrderItemDetailScreen extends HookConsumerWidget {
                     },
                     cursorColor: theme.mainColor,
                     readOnly: true,
-                    style: TextStyle(fontSize: 24, fontFamily: boldFamily),
+                    style: TextStyle(fontSize: mobile?16:24, fontFamily: boldFamily),
                     textAlign: TextAlign.start,
                     controller: priceController,
                     decoration: InputDecoration(
-                      contentPadding: Dis.only(tb: 24),
+                      contentPadding: Dis.only(tb: mobile?16:24),
                       border: InputBorder.none,
                       suffix: Text(
                         'UZS',
@@ -120,11 +123,11 @@ class OrderItemDetailScreen extends HookConsumerWidget {
                     },
                     cursorColor: theme.mainColor,
                     readOnly: true,
-                    style: TextStyle(fontSize: 24, fontFamily: boldFamily),
+                    style: TextStyle(fontSize: mobile?16:24, fontFamily: boldFamily),
                     textAlign: TextAlign.start,
                     controller: amountController,
                     decoration: InputDecoration(
-                      contentPadding: Dis.only(tb: 24),
+                      contentPadding: Dis.only(tb: mobile?16:24),
                       border: InputBorder.none,
                       suffix: Text(
                         product.product.measure ?? '',

@@ -31,6 +31,7 @@ class OrderItemsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
+    final mobile = getDeviceType(context) == DeviceType.mobile;
     // final orderItems = ref.watch(orderSetProvider);
     // final orderNotifier = ref.read(orderSetProvider.notifier);
 
@@ -80,12 +81,12 @@ class OrderItemsPage extends HookConsumerWidget {
           child: placeOrderItems.isEmpty
               ? AppEmptyWidget()
               : Container(
-                  margin: Dis.only(right: context.w(32), top: context.h(24)),
+                  margin: mobile ? Dis.only() : Dis.only(right: context.w(32), top: context.h(24)),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: Colors.white,
+                    color: mobile ? null : Colors.white,
                   ),
-                  padding: 16.tb,
+                  padding: mobile?null:16.tb,
                   child: SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
@@ -114,40 +115,24 @@ class OrderItemsPage extends HookConsumerWidget {
                         Container(
                           margin: Dis.only(top: context.h(16)),
                           padding: Dis.only(tb: context.h(24), lr: context.w(16)),
-                          decoration: BoxDecoration(
-                              border: Border(
-                                top: BorderSide(
-                                  color: theme.scaffoldBgColor,
-                                  width: 2,
-                                ),
-                              ),
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(24),
-                                topRight: Radius.circular(24),
-                              )),
+                          decoration: minimalistic
+                              ? null
+                              : BoxDecoration(
+                                  border: Border(
+                                    top: BorderSide(
+                                      color: theme.scaffoldBgColor,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(24),
+                                    topRight: Radius.circular(24),
+                                  )),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.start,
                             spacing: 8,
                             children: [
-                              SwitchListTile(
-                                activeColor: theme.mainColor,
-                                contentPadding: Dis.only(),
-                                value: useCheck.value,
-                                onChanged: (v) => useCheck.value = v,
-                                title: Text(
-                                  "${AppLocales.printing.tr()}:",
-                                  style: TextStyle(
-                                    fontSize: context.s(16),
-                                    fontFamily: mediumFamily,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                height: 1,
-                                margin: 8.tb,
-                                color: theme.accentColor,
-                              ),
                               Text(
                                 "${AppLocales.paymentType.tr()}:",
                                 style: TextStyle(
@@ -176,8 +161,9 @@ class OrderItemsPage extends HookConsumerWidget {
                                       label: Text(
                                         type.tr(),
                                         style: TextStyle(
-                                            color: paymentType.value == type ? Colors.white : Colors.black,
-                                            fontSize: context.s(14)),
+                                          color: paymentType.value == type ? Colors.white : Colors.black,
+                                          fontSize: context.s(14),
+                                        ),
                                       ),
                                       selected: paymentType.value == type,
                                       onSelected: (_) {
@@ -389,6 +375,8 @@ class OrderItemsPage extends HookConsumerWidget {
                               //     customerNotifier.value = null;
                               //   },
                               // ),
+
+                              if(mobile) 100.h
                             ],
                           ),
                         ),

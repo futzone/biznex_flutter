@@ -1,5 +1,6 @@
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
+import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/extensions/for_string.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
@@ -113,9 +114,97 @@ class TableChooseScreen extends HookConsumerWidget {
     final employee = ref.watch(currentEmployeeProvider);
     final selectedPlace = useState<Place?>(null);
     final fatherPlace = useState<Place?>(null);
+    final places = ref.watch(placesProvider).value ?? [];
+    final mobile = getDeviceType(context) == DeviceType.mobile;
     return AppStateWrapper(
       builder: (theme, state) {
         return Scaffold(
+          appBar: !mobile
+              ? null
+              : AppBar(
+                  title: Text(AppLocales.places.tr()),
+                  actions: [
+                    Row(
+                      spacing: context.w(16),
+                      children: [
+                        CustomPopupMenu(
+                          theme: theme,
+                          children: [
+                            CustomPopupItem(
+                              title: AppLocales.all.tr(),
+                              onPressed: () => selectedPlace.value = null,
+                              iconColor: theme.textColor,
+                              icon: Icons.list,
+                            ),
+                            for (final item in places)
+                              CustomPopupItem(
+                                title: item.name,
+                                onPressed: () => selectedPlace.value = item,
+                                icon: Icons.present_to_all,
+                                iconColor: theme.textColor,
+                              ),
+                          ],
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            spacing: context.w(8),
+                            children: [
+                              Text(
+                                selectedPlace.value == null ? AppLocales.choosePlace.tr() : selectedPlace.value!.name,
+                                style: TextStyle(
+                                  fontSize: context.s(16),
+                                  fontFamily: mediumFamily,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Icon(Iconsax.arrow_down_1_copy, size: context.s(20)),
+                              16.w,
+                            ],
+                          ),
+                        ),
+                        // CustomPopupMenu(
+                        //   theme: theme,
+                        //   children: [
+                        //     CustomPopupItem(
+                        //         title: AppLocales.all.tr(), onPressed: () => selectedFilter.value = null, icon: Ionicons.list_outline),
+                        //     CustomPopupItem(
+                        //         title: AppLocales.freeTables.tr(),
+                        //         onPressed: () {
+                        //           selectedFilter.value = AppLocales.freeTables;
+                        //           if (selectedPlace.value != null && selectedPlace.value?.children != null) {
+                        //             filteredPlaces.value = selectedPlace.value.children.where((el)=> ).toList();
+                        //           }
+                        //         }),
+                        //     CustomPopupItem(
+                        //       title: AppLocales.bronTables.tr(),
+                        //     ),
+                        //   ],
+                        //   child: Container(
+                        //     height: context.h(52),
+                        //     decoration: BoxDecoration(
+                        //       borderRadius: BorderRadius.circular(8),
+                        //       color: Colors.white,
+                        //       border: Border.all(color: theme.secondaryTextColor.withValues(alpha: 0.4)),
+                        //     ),
+                        //     padding: Dis.only(lr: context.w(14), tb: context.h(8)),
+                        //     child: Row(
+                        //       crossAxisAlignment: CrossAxisAlignment.center,
+                        //       mainAxisAlignment: MainAxisAlignment.center,
+                        //       spacing: 8,
+                        //       children: [
+                        //         Text(
+                        //           AppLocales.all.tr(),
+                        //           style: TextStyle(fontSize: 16, fontFamily: mediumFamily),
+                        //         ),
+                        //         Icon(Iconsax.arrow_down_1_copy, size: 20),
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
+                      ],
+                    )
+                  ],
+                ),
           body: state.whenProviderData(
             provider: placesProvider,
             builder: (places) {
@@ -145,7 +234,7 @@ class TableChooseScreen extends HookConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  if (onSelected == null)
+                  if (onSelected == null && !mobile)
                     Container(
                       color: Colors.white,
                       padding: Dis.only(lr: context.w(32), tb: context.h(24)),
@@ -166,7 +255,7 @@ class TableChooseScreen extends HookConsumerWidget {
                           0.w,
                           SvgPicture.asset(
                             'assets/images/Vector.svg',
-                            height: context.h(36),
+                            height: context.h(mobile ? 20 : 36),
                           ),
                           Spacer(),
                           WebButton(
@@ -237,177 +326,179 @@ class TableChooseScreen extends HookConsumerWidget {
                         ],
                       ),
                     ),
-                  Container(
-                    color: theme.scaffoldBgColor,
-                    padding: Dis.only(lr: context.w(32), tb: context.h(24)),
-                    child: Row(
-                      spacing: context.w(16),
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        if(onSelected != null)
-                          AppBackButton(),
-                        Text(
-                          AppLocales.choosePlace.tr(),
-                          style: TextStyle(
-                            fontFamily: mediumFamily,
-                            fontWeight: FontWeight.w600,
-                            fontSize: context.s(24),
-                          ),
-                        ),
-                        Row(
-                          spacing: context.w(16),
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(99),
-                                color: Colors.white,
-                              ),
-                              padding: context.s(12).all,
-                              child: Row(
-                                spacing: context.w(12),
-                                children: [
-                                  Icon(Icons.circle, color: theme.mainColor, size: context.s(16)),
-                                  Text(
-                                    AppLocales.freeTables.tr(),
-                                    style: TextStyle(
-                                      fontSize: context.s(16),
-                                      fontFamily: mediumFamily,
-                                    ),
-                                  ),
-                                ],
+                  if (mobile)
+                    Container(
+                      color: theme.scaffoldBgColor,
+                      padding: Dis.only(lr: context.w(32), tb: context.h(24)),
+                      child: Row(
+                        spacing: context.w(16),
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (onSelected != null) AppBackButton(),
+                          if (!mobile)
+                            Text(
+                              AppLocales.choosePlace.tr(),
+                              style: TextStyle(
+                                fontFamily: mediumFamily,
+                                fontWeight: FontWeight.w600,
+                                fontSize: context.s(24),
                               ),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(99),
-                                color: Colors.white,
-                              ),
-                              padding: context.s(12).all,
-                              child: Row(
-                                spacing: context.w(8),
-                                children: [
-                                  Icon(Icons.circle, color: theme.secondaryTextColor, size: context.s(16)),
-                                  Text(
-                                    AppLocales.bronTables.tr(),
-                                    style: TextStyle(
-                                      fontSize: context.s(16),
-                                      fontFamily: mediumFamily,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // Container(
-                            //   decoration: BoxDecoration(
-                            //     borderRadius: BorderRadius.circular(99),
-                            //     color: Colors.white,
-                            //   ),
-                            //   padding: 12.all,
-                            //   child: Row(
-                            //     spacing: 8,
-                            //     children: [
-                            //       Icon(Icons.circle, color: Colors.blue, size: 16),
-                            //       Text(
-                            //         AppLocales.bandTables.tr(),
-                            //         style: TextStyle(
-                            //           fontSize: 16,
-                            //           fontFamily: mediumFamily,
-                            //         ),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
-                          ],
-                        ),
-                        Row(
-                          spacing: context.w(16),
-                          children: [
-                            CustomPopupMenu(
-                              theme: theme,
-                              children: [
-                                CustomPopupItem(
-                                    title: AppLocales.all.tr(),
-                                    onPressed: () => selectedPlace.value = null,
-                                    icon: Icons.list),
-                                for (final item in places)
-                                  CustomPopupItem(
-                                      title: item.name,
-                                      onPressed: () => selectedPlace.value = item,
-                                      icon: Icons.present_to_all),
-                              ],
-                              child: Container(
-                                height: context.h(52),
+                          Row(
+                            spacing: context.w(16),
+                            children: [
+                              Container(
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(99),
                                   color: Colors.white,
-                                  border: Border.all(color: theme.secondaryTextColor.withValues(alpha: 0.4)),
                                 ),
-                                padding: Dis.only(lr: context.w(14), tb: context.h(8)),
+                                padding: context.s(12).all,
                                 child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: context.w(8),
+                                  spacing: context.w(12),
                                   children: [
+                                    Icon(Icons.circle, color: theme.mainColor, size: context.s(16)),
                                     Text(
-                                      selectedPlace.value == null
-                                          ? AppLocales.choosePlace.tr()
-                                          : selectedPlace.value!.name,
-                                      style: TextStyle(fontSize: context.s(16), fontFamily: mediumFamily),
+                                      AppLocales.freeTables.tr(),
+                                      style: TextStyle(
+                                        fontSize: context.s(16),
+                                        fontFamily: mediumFamily,
+                                      ),
                                     ),
-                                    Icon(Iconsax.arrow_down_1_copy, size: context.s(20)),
                                   ],
                                 ),
                               ),
-                            ),
-                            // CustomPopupMenu(
-                            //   theme: theme,
-                            //   children: [
-                            //     CustomPopupItem(
-                            //         title: AppLocales.all.tr(), onPressed: () => selectedFilter.value = null, icon: Ionicons.list_outline),
-                            //     CustomPopupItem(
-                            //         title: AppLocales.freeTables.tr(),
-                            //         onPressed: () {
-                            //           selectedFilter.value = AppLocales.freeTables;
-                            //           if (selectedPlace.value != null && selectedPlace.value?.children != null) {
-                            //             filteredPlaces.value = selectedPlace.value.children.where((el)=> ).toList();
-                            //           }
-                            //         }),
-                            //     CustomPopupItem(
-                            //       title: AppLocales.bronTables.tr(),
-                            //     ),
-                            //   ],
-                            //   child: Container(
-                            //     height: context.h(52),
-                            //     decoration: BoxDecoration(
-                            //       borderRadius: BorderRadius.circular(8),
-                            //       color: Colors.white,
-                            //       border: Border.all(color: theme.secondaryTextColor.withValues(alpha: 0.4)),
-                            //     ),
-                            //     padding: Dis.only(lr: context.w(14), tb: context.h(8)),
-                            //     child: Row(
-                            //       crossAxisAlignment: CrossAxisAlignment.center,
-                            //       mainAxisAlignment: MainAxisAlignment.center,
-                            //       spacing: 8,
-                            //       children: [
-                            //         Text(
-                            //           AppLocales.all.tr(),
-                            //           style: TextStyle(fontSize: 16, fontFamily: mediumFamily),
-                            //         ),
-                            //         Icon(Iconsax.arrow_down_1_copy, size: 20),
-                            //       ],
-                            //     ),
-                            //   ),
-                            // ),
-                          ],
-                        )
-                      ],
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(99),
+                                  color: Colors.white,
+                                ),
+                                padding: context.s(12).all,
+                                child: Row(
+                                  spacing: context.w(8),
+                                  children: [
+                                    Icon(Icons.circle, color: theme.secondaryTextColor, size: context.s(16)),
+                                    Text(
+                                      AppLocales.bronTables.tr(),
+                                      style: TextStyle(
+                                        fontSize: context.s(16),
+                                        fontFamily: mediumFamily,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Container(
+                              //   decoration: BoxDecoration(
+                              //     borderRadius: BorderRadius.circular(99),
+                              //     color: Colors.white,
+                              //   ),
+                              //   padding: 12.all,
+                              //   child: Row(
+                              //     spacing: 8,
+                              //     children: [
+                              //       Icon(Icons.circle, color: Colors.blue, size: 16),
+                              //       Text(
+                              //         AppLocales.bandTables.tr(),
+                              //         style: TextStyle(
+                              //           fontSize: 16,
+                              //           fontFamily: mediumFamily,
+                              //         ),
+                              //       ),
+                              //     ],
+                              //   ),
+                              // ),
+                            ],
+                          ),
+                          if (!mobile)
+                            Row(
+                              spacing: context.w(16),
+                              children: [
+                                CustomPopupMenu(
+                                  theme: theme,
+                                  children: [
+                                    CustomPopupItem(
+                                        title: AppLocales.all.tr(),
+                                        onPressed: () => selectedPlace.value = null,
+                                        icon: Icons.list),
+                                    for (final item in places)
+                                      CustomPopupItem(
+                                          title: item.name,
+                                          onPressed: () => selectedPlace.value = item,
+                                          icon: Icons.present_to_all),
+                                  ],
+                                  child: Container(
+                                    height: context.h(52),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: Colors.white,
+                                      border: Border.all(color: theme.secondaryTextColor.withValues(alpha: 0.4)),
+                                    ),
+                                    padding: Dis.only(lr: context.w(14), tb: context.h(8)),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      spacing: context.w(8),
+                                      children: [
+                                        Text(
+                                          selectedPlace.value == null
+                                              ? AppLocales.choosePlace.tr()
+                                              : selectedPlace.value!.name,
+                                          style: TextStyle(fontSize: context.s(16), fontFamily: mediumFamily),
+                                        ),
+                                        Icon(Iconsax.arrow_down_1_copy, size: context.s(20)),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                // CustomPopupMenu(
+                                //   theme: theme,
+                                //   children: [
+                                //     CustomPopupItem(
+                                //         title: AppLocales.all.tr(), onPressed: () => selectedFilter.value = null, icon: Ionicons.list_outline),
+                                //     CustomPopupItem(
+                                //         title: AppLocales.freeTables.tr(),
+                                //         onPressed: () {
+                                //           selectedFilter.value = AppLocales.freeTables;
+                                //           if (selectedPlace.value != null && selectedPlace.value?.children != null) {
+                                //             filteredPlaces.value = selectedPlace.value.children.where((el)=> ).toList();
+                                //           }
+                                //         }),
+                                //     CustomPopupItem(
+                                //       title: AppLocales.bronTables.tr(),
+                                //     ),
+                                //   ],
+                                //   child: Container(
+                                //     height: context.h(52),
+                                //     decoration: BoxDecoration(
+                                //       borderRadius: BorderRadius.circular(8),
+                                //       color: Colors.white,
+                                //       border: Border.all(color: theme.secondaryTextColor.withValues(alpha: 0.4)),
+                                //     ),
+                                //     padding: Dis.only(lr: context.w(14), tb: context.h(8)),
+                                //     child: Row(
+                                //       crossAxisAlignment: CrossAxisAlignment.center,
+                                //       mainAxisAlignment: MainAxisAlignment.center,
+                                //       spacing: 8,
+                                //       children: [
+                                //         Text(
+                                //           AppLocales.all.tr(),
+                                //           style: TextStyle(fontSize: 16, fontFamily: mediumFamily),
+                                //         ),
+                                //         Icon(Iconsax.arrow_down_1_copy, size: 20),
+                                //       ],
+                                //     ),
+                                //   ),
+                                // ),
+                              ],
+                            )
+                        ],
+                      ),
                     ),
-                  ),
                   Expanded(
                     child: Container(
-                      padding: Dis.only(lr: context.w(40)),
-                      margin: Dis.only(lr: context.w(32)),
+                      padding: mobile ? Dis.only(lr: 16) : Dis.only(lr: context.w(40)),
+                      margin: mobile ? Dis.only(lr: 0) : Dis.only(lr: context.w(32)),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(12),
@@ -419,9 +510,9 @@ class TableChooseScreen extends HookConsumerWidget {
                       child: GridView.builder(
                         padding: Dis.only(tb: context.h(40)),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 5,
-                          mainAxisSpacing: context.s(80),
-                          crossAxisSpacing: context.s(80),
+                          crossAxisCount: mobile ? 2 : 5,
+                          mainAxisSpacing: context.s(mobile ? 16 : 80),
+                          crossAxisSpacing: context.s(mobile ? 16 : 80),
                           childAspectRatio: 1.25,
                         ),
                         itemCount: selectedPlace.value == null
@@ -459,11 +550,15 @@ class TableChooseScreen extends HookConsumerWidget {
                                     } catch (_) {}
 
                                     if (onSelected != null) {
-                                        onSelected!(kPlace);
+                                      onSelected!(kPlace);
                                       return;
                                     }
 
-                                    AppRouter.go(context, MenuPage(place: kPlace, fatherPlace: fatherPlace.value));
+                                    AppRouter.go(context, MenuPage(place: kPlace, fatherPlace: fatherPlace.value))
+                                        .then((_) {
+                                      fatherPlace.value = null;
+                                      selectedPlace.value = null;
+                                    });
                                     return;
                                   }
 
@@ -484,18 +579,38 @@ class TableChooseScreen extends HookConsumerWidget {
                                     AppRouter.go(
                                       context,
                                       MenuPage(place: kPlace, fatherPlace: fatherPlace.value),
-                                    );
+                                    ).then((_) {
+                                      fatherPlace.value = null;
+                                      selectedPlace.value = null;
+                                    });
                                     return;
                                   }
 
                                   fatherPlace.value = place;
                                 },
-                                child: _buildTable(
-                                  context: context,
-                                  theme: theme,
-                                  name: place?.name ?? '',
-                                  status: order == null ? 'free' : 'bron',
-                                ),
+                                child: mobile
+                                    ? Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(12),
+                                          color: order == null ? theme.mainColor : theme.accentColor,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            place?.name ?? '',
+                                            style: TextStyle(
+                                              fontFamily: boldFamily,
+                                              color: order == null ? Colors.white : theme.textColor,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : _buildTable(
+                                        context: context,
+                                        theme: theme,
+                                        name: place?.name ?? '',
+                                        status: order == null ? 'free' : 'bron',
+                                      ),
                               );
                             },
                           );

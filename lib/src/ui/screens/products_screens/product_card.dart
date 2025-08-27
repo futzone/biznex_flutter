@@ -10,6 +10,8 @@ import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 
+import '../../../core/extensions/device_type.dart';
+
 class ProductCard extends HookConsumerWidget {
   final Product product;
   final bool miniMode;
@@ -110,10 +112,12 @@ class ProductCardNew extends StatelessWidget {
   final AppColors colors;
   final void Function() onPressed;
   final bool minimalistic;
+  final bool have;
 
   const ProductCardNew({
     super.key,
     this.minimalistic = false,
+    this.have = false,
     required this.product,
     required this.colors,
     required this.onPressed,
@@ -121,6 +125,8 @@ class ProductCardNew extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mobile = getDeviceType(context) == DeviceType.mobile;
+
     return SimpleButton(
       onPressed: onPressed,
       child: Container(
@@ -128,19 +134,27 @@ class ProductCardNew extends StatelessWidget {
         decoration: BoxDecoration(
           color: colors.white,
           borderRadius: BorderRadius.circular(context.s(12)),
+          border: have
+              ? Border.all(
+                  color: AppColors(isDark: false).mainColor,
+                )
+              : null,
         ),
         child: minimalistic
             ? Stack(
                 children: [
                   Center(
-                    child: Text(
-                      product.name,
-                      style: TextStyle(
-                        fontSize: context.s(20),
-                        fontFamily: boldFamily,
+                    child: Padding(
+                      padding: !mobile ? Dis.only() : const EdgeInsets.only(top: 24, bottom: 8),
+                      child: Text(
+                        product.name,
+                        style: TextStyle(
+                          fontSize: context.s(mobile ? 16 : 20),
+                          fontFamily: boldFamily,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Positioned(
@@ -165,28 +179,29 @@ class ProductCardNew extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: colors.secondaryColor,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(context.s(12)),
-                          bottomRight: Radius.circular(context.s(12)),
+                  if (!mobile)
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: colors.secondaryColor,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(context.s(12)),
+                            bottomRight: Radius.circular(context.s(12)),
+                          ),
                         ),
-                      ),
-                      padding: Dis.only(lr: context.w(12), tb: context.h(8)),
-                      child: Text(
-                        "${product.amount.toMeasure} ${product.measure??''}",
-                        style: TextStyle(
-                          fontSize: context.s(14),
-                          color: Colors.black,
-                          fontFamily: mediumFamily,
+                        padding: Dis.only(lr: context.w(12), tb: context.h(8)),
+                        child: Text(
+                          "${product.amount.toMeasure} ${product.measure ?? ''}",
+                          style: TextStyle(
+                            fontSize: context.s(14),
+                            color: Colors.black,
+                            fontFamily: mediumFamily,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               )
             : Column(
@@ -240,7 +255,7 @@ class ProductCardNew extends StatelessWidget {
                           child: Text(
                             product.name,
                             style: TextStyle(
-                              fontSize: context.s(20),
+                              fontSize: context.s(mobile ? 16 : 20),
                               fontFamily: mediumFamily,
                             ),
                             maxLines: 1,
@@ -251,7 +266,7 @@ class ProductCardNew extends StatelessWidget {
                         Text(
                           product.price.priceUZS,
                           style: TextStyle(
-                            fontSize: context.s(16),
+                            fontSize: context.s(mobile ? 12 : 16),
                             fontFamily: mediumFamily,
                             color: colors.mainColor,
                           ),

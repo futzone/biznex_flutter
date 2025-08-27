@@ -65,7 +65,9 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
   void deleteItem(OrderItem item, context) async {
     final order = ref.watch(ordersProvider(item.placeId)).value;
 
-    if (order != null && order.products.isNotEmpty && order.products.any((element) => element.product.id == item.product.id)) {
+    if (order != null &&
+        order.products.isNotEmpty &&
+        order.products.any((element) => element.product.id == item.product.id)) {
       final index = state.indexWhere((e) => e.product.id == item.product.id && e.placeId == item.placeId);
       if (index != -1) {
         state = [...state.where((e) => !(e.product.id == item.product.id && e.placeId == item.placeId))];
@@ -94,6 +96,10 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
 
   List<OrderItem> getItemsByPlace(String placeId) {
     return state.where((e) => e.placeId == placeId).toList();
+  }
+
+  bool haveProduct(String placeId, String productId) {
+    return state.where((e) => e.placeId == placeId && e.product.id == productId).isNotEmpty;
   }
 
   void clearPlaceItems(String placeId) {

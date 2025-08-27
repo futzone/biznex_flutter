@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
@@ -8,6 +9,7 @@ import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 
+import '../../../core/extensions/device_type.dart';
 import '../../../core/model/order_models/order_model.dart';
 import '../../widgets/custom/app_file_image.dart';
 
@@ -56,6 +58,8 @@ class OrderItemCardNew extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final mobile = getDeviceType(context) == DeviceType.mobile;
+
     final product = item.product;
     final amountController = useTextEditingController(text: _formatDecimal(item.amount));
     final totalPriceController = useTextEditingController(text: _formatDecimal(item.amount * product.price));
@@ -113,6 +117,211 @@ class OrderItemCardNew extends HookConsumerWidget {
     }
 
     return AppStateWrapper(builder: (theme, _) {
+      if (mobile) {
+        return Padding(
+          padding: Dis.only(lr: 16, tb: 8),
+          child: MaterialButton(
+            padding: Dis.all(12),
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            onPressed: () {
+              showDesktopModal(
+                width: 600,
+                context: context,
+                body: Padding(
+                  padding: Dis.only(lr: 16, top: 16, bottom: 32),
+                  child: OrderItemDetailScreen(
+                    product: item,
+                    onDeletePressed: () {
+                      orderNotifier.deleteItem(item, context);
+                    },
+                    onUpdateItemDetails: (amount, price) {
+                      OrderItem kOrderItem = item;
+                      kOrderItem.amount = amount;
+                      kOrderItem.customPrice = price;
+                      orderNotifier.updateItem(kOrderItem);
+                    },
+                  ),
+                ),
+              );
+            },
+            child: Dismissible(
+              onDismissed: (_) {
+                orderNotifier.deleteItem(item, context);
+              },
+              background: Container(
+                color: Colors.red,
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.only(left: 20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Icon(
+                        Iconsax.trash_copy,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              direction: DismissDirection.endToStart,
+              key: Key(item.placeId + item.product.id),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  AppFileImage(
+                    name: product.name,
+                    path: product.images?.firstOrNull,
+                    size: context.s(80),
+                  ),
+                  12.w,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontFamily: mediumFamily,
+                          ),
+                        ),
+                        2.h,
+                        Text(
+                          product.price.priceUZS + (product.measure != null ? "/ ${product.measure}" : ""),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontFamily: boldFamily,
+                          ),
+                        ),
+                        2.h,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SimpleButton(
+                              onPressed: () {
+                                updateAmount(item.amount + 1);
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(40),
+                                  color: theme.mainColor,
+                                  border: Border.all(color: theme.mainColor),
+                                ),
+                                height: context.s(36),
+                                width: context.s(36),
+                                child: Center(
+                                  child: Text(
+                                    "+1",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: boldFamily,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SimpleButton(
+                              onPressed: () {
+                                updateAmount(item.amount + 0.1);
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(40),
+                                  color: theme.mainColor,
+                                  border: Border.all(color: theme.mainColor),
+                                ),
+                                height: context.s(36),
+                                width: context.s(36),
+                                child: Center(
+                                  child: Center(
+                                    child: Text(
+                                      "+0.1",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: boldFamily,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              item.amount.toMeasure + (" ${product.measure != null ? product.measure! : ''}"),
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontFamily: boldFamily,
+                              ),
+                            ),
+                            SimpleButton(
+                              onPressed: () {
+                                if (item.amount >= 1) updateAmount(item.amount - 1);
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(40),
+                                  color: theme.red,
+                                  border: Border.all(color: theme.red),
+                                ),
+                                height: context.s(36),
+                                width: context.s(36),
+                                child: Center(
+                                  child: Center(
+                                    child: Text(
+                                      "-1",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: boldFamily,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SimpleButton(
+                              onPressed: () {
+                                if (item.amount >= 0.1) updateAmount(item.amount - 0.1);
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(40),
+                                  color: theme.red,
+                                  border: Border.all(color: theme.red),
+                                ),
+                                height: context.s(36),
+                                width: context.s(36),
+                                child: Center(
+                                  child: Text(
+                                    "-0.1",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: boldFamily,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
       return SimpleButton(
         onPressed: minimalistic
             ? () {
