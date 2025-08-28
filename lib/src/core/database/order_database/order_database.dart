@@ -92,6 +92,7 @@ class OrderDatabase extends OrderDatabaseRepository {
       await isar.writeTxn(() async {
         OrderIsar orderIsar = order.toIsar();
         orderIsar.closed = true;
+        orderIsar.status = Order.completed;
         await isar.orderIsars.put(orderIsar);
       });
     } else {
@@ -99,10 +100,14 @@ class OrderDatabase extends OrderDatabaseRepository {
       await isar.writeTxn(() async {
         OrderIsar orderIsar = order.toIsar();
         orderIsar.closed = true;
+        orderIsar.status = Order.completed;
         orderIsar.isarId = placeOrder.isarId;
         await isar.orderIsars.put(orderIsar);
       });
     }
+
+    await _onUpdateAmounts(order);
+
 
     try {
       final model = await AppStateDatabase().getApp();
@@ -130,9 +135,9 @@ class OrderDatabase extends OrderDatabaseRepository {
       }
     }
 
-    if(!Platform.isWindows) return null;
+    if (!Platform.isWindows) return null;
 
-    final orderIsar = await isar.orderIsars.filter().closedEqualTo(false).place((pl) {
+    final orderIsar = await isar.orderIsars.filter().statusEqualTo(Order.opened).closedEqualTo(false).place((pl) {
       return pl.idEqualTo(placeId);
     }).findFirst();
 
@@ -157,11 +162,14 @@ class OrderDatabase extends OrderDatabaseRepository {
     });
   }
 
-  Future<void> setPlaceOrder({required data, required String placeId}) async {
+  Future<void> setPlaceOrder({required data, required String placeId, bool disablePrint = false}) async {
     if (data is! Order) return;
 
     if ((await connectionStatus()) != null) {
-      await postRemote(path: 'order/$placeId', data: jsonEncode(data.toJson()));
+      final dataMap = data.toJson();
+      dataMap['disablePrint'] = disablePrint;
+
+      await postRemote(path: 'order/$placeId', data: jsonEncode(dataMap));
       return;
     }
 
@@ -173,6 +181,8 @@ class OrderDatabase extends OrderDatabaseRepository {
     });
 
     try {
+      if (disablePrint) return;
+
       PrinterMultipleServices printerMultipleServices = PrinterMultipleServices();
       await printerMultipleServices.printForBack(productInfo, productInfo.products);
     } catch (_) {
@@ -223,7 +233,10 @@ class OrderDatabase extends OrderDatabaseRepository {
     }
 
     final order = await getPlaceOrder(placeId);
+    log("Save order: ${order?.id}");
     if (order != null) {
+
+
       await _onUpdateAmounts(order);
       await saveOrder(order);
     }
@@ -234,12 +247,18 @@ class OrderDatabase extends OrderDatabaseRepository {
       ProductDatabase productDatabase = ProductDatabase();
       for (final item in order.products) {
         Product product = item.product;
-        if (product.amount == 1) continue;
-
-        product.amount = product.amount - item.amount;
+        if (product.amount <= item.amount) {
+          product.amount = 0;
+        } else {
+          product.amount = product.amount - item.amount;
+        }
         await productDatabase.update(key: product.id, data: product);
       }
+
+      log("Update amounts completed for: ${order.id}");
     } catch (_) {
+      log("Error on update amounts: ", error: _);
+
       ///
     }
   }

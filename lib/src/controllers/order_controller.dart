@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:biznex/src/controllers/transaction_controller.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
 import 'package:biznex/src/providers/products_provider.dart';
@@ -15,6 +16,8 @@ import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/services/printer_services.dart';
 import 'package:biznex/src/providers/employee_orders_provider.dart';
 import 'package:biznex/src/providers/orders_provider.dart'; // Assuming orderSetProvider is here or accessible
+import 'package:biznex/src/ui/pages/order_pages/menu_page.dart';
+import 'package:biznex/src/ui/pages/order_pages/table_choose_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import '../core/model/app_changes_model.dart';
@@ -198,7 +201,8 @@ class OrderController {
     finalOrder = finalOrder.copyWith(status: Order.completed, updatedDate: DateTime.now().toIso8601String());
 
     await _database.saveOrder(finalOrder);
-    await _onUpdateAmounts(finalOrder, ref);
+
+    // if (model.apiUrl == null || (model.apiUrl ?? '').isEmpty) await _onUpdateAmounts(finalOrder, ref);
     await _database.closeOrder(placeId: place.id);
     await _database.changesDatabase.set(
       data: Change(
@@ -208,31 +212,37 @@ class OrderController {
       ),
     );
 
-    if (!context.mounted) return;
-    AppRouter.close(context);
+    try {
+      AppRouter.close(context);
+      ref.invalidate(ordersProvider(place.id));
+      ref.invalidate(ordersProvider);
+      ref.invalidate(productsProvider);
+      ref.invalidate(employeeOrdersProvider);
+      final notifier = ref.read(orderSetProvider.notifier);
+      notifier.clearPlaceItems(place.id);
 
-    ref.invalidate(ordersProvider(place.id));
-    ref.invalidate(ordersProvider);
-    ref.invalidate(employeeOrdersProvider);
-    final notifier = ref.read(orderSetProvider.notifier);
-    notifier.clearPlaceItems(place.id);
+      TransactionController transactionController = TransactionController(context: context, state: model);
+      Transaction transaction = Transaction(
+        value: finalOrder.price,
+        order: finalOrder,
+        employee: finalOrder.employee,
+        paymentType: paymentType ?? Transaction.cash,
+        note: AppLocales.byOrder.tr(),
+      );
+      transactionController.create(transaction);
 
-    TransactionController transactionController = TransactionController(context: context, state: model);
-    Transaction transaction = Transaction(
-      value: finalOrder.price,
-      order: finalOrder,
-      employee: finalOrder.employee,
-      paymentType: paymentType ?? Transaction.cash,
-      note: AppLocales.byOrder.tr(),
-    );
-    transactionController.create(transaction);
-
-    ShowToast.success(context, AppLocales.orderClosedSuccessfully.tr());
-
+      ShowToast.success(context, AppLocales.orderClosedSuccessfully.tr());
+    } catch (_) {
+      AppRouter.close(context);
+    }
     // if (!useCheck) return;
     //
     // PrinterServices printerServices = PrinterServices(order: finalOrder, model: model);
     // printerServices.printOrderCheck();
+
+    if (!Platform.isWindows) {
+      AppRouter.open(context, TableChooseScreen());
+    }
   }
 
   Future<void> _onUpdateAmounts(Order order, ref) async {

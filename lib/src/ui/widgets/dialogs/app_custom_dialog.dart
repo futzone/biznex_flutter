@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import '../../../../biznex.dart';
 
 Future showDesktopModal({required BuildContext context, required Widget body, double? width}) async {
-  if (Platform.isAndroid) {
+  if (!Platform.isWindows) {
     return showModalBottomSheet(
       useSafeArea: true,
       isScrollControlled: true,

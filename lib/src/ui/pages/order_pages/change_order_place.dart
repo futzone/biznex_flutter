@@ -41,7 +41,7 @@ class ChangeOrderPlace extends HookConsumerWidget {
           Order updatedOrder = order;
           updatedOrder.products = list;
           order.place = newPlace;
-          await orderDatabase.setPlaceOrder(data: updatedOrder, placeId: newPlace.id).then((_) async {
+          await orderDatabase.setPlaceOrder(data: updatedOrder, placeId: newPlace.id, disablePrint: true).then((_) async {
             ref.watch(orderSetProvider.notifier).addMultiple(list);
           });
         }
@@ -57,7 +57,7 @@ class ChangeOrderPlace extends HookConsumerWidget {
           Order updatedOrder = orderNewPlace;
           updatedOrder.products = list;
           orderNewPlace.place = place;
-          await orderDatabase.setPlaceOrder(data: updatedOrder, placeId: place.id).then((_) async {
+          await orderDatabase.setPlaceOrder(data: updatedOrder, placeId: place.id, disablePrint: true).then((_) async {
             ref.watch(orderSetProvider.notifier).addMultiple(list);
           });
         }

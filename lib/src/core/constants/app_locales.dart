@@ -523,4 +523,5 @@ abstract class AppLocales {
   static var toPlaceChoose = "toPlaceChoose";
   static var backToSet = "backToSet";
   static var backToOrder = "backToOrder";
+  static var revert = "revert";
 }

@@ -1,4 +1,5 @@
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/model/category_model/category_model.dart';
@@ -12,6 +13,7 @@ import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:sliver_tools/sliver_tools.dart';
+import '../../../providers/place_status_provider.dart';
 import '../../widgets/custom/app_toast.dart';
 import '../products_screens/product_card.dart';
 
@@ -195,7 +197,20 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                         itemBuilder: (BuildContext context, int index) {
                           final product = buildFilterResult()[index];
                           return SimpleButton(
-                            onPressed: () {
+                            onPressed: () async {
+                              final status = ref.watch(placeStatusProvider)[widget.place.id] ?? false;
+                              if (!status) {
+                                final placeState = await OrderDatabase().getPlaceOrder(widget.place.id);
+                                if (placeState == null) {
+                                  orderNotifier.clearPlaceItems(widget.place.id);
+                                }
+
+                                ref.read(placeStatusProvider.notifier).update((state) {
+                                  state[widget.place.id] = true;
+                                  return state;
+                                });
+                              }
+
                               if (product.amount != -1) {
                                 orderNotifier.addItem(
                                     OrderItem(product: product, amount: 1, placeId: widget.place.id), context);
@@ -455,7 +470,20 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                         itemBuilder: (BuildContext context, int index) {
                           final product = buildFilterResult()[index];
                           return SimpleButton(
-                            onPressed: () {
+                            onPressed: () async {
+                              final status = ref.watch(placeStatusProvider)[widget.place.id] ?? false;
+                              if (!status) {
+                                final placeState = await OrderDatabase().getPlaceOrder(widget.place.id);
+                                if (placeState == null) {
+                                  orderNotifier.clearPlaceItems(widget.place.id);
+                                }
+
+                                ref.read(placeStatusProvider.notifier).update((state) {
+                                  state[widget.place.id] = true;
+                                  return state;
+                                });
+                              }
+
                               if (product.amount != -1) {
                                 orderNotifier.addItem(
                                     OrderItem(product: product, amount: 1, placeId: widget.place.id), context);

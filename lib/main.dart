@@ -110,8 +110,9 @@ void main() async {
   if (Platform.isWindows) {
     final appDir = await getApplicationSupportDirectory();
     final dir = Directory(path.join(appDir.path, 'database'));
+    final isarDir = Directory(path.join(appDir.path));
     Hive.init(dir.path);
-    await IsarDatabase.instance.init(dir.path);
+    await IsarDatabase.instance.init(isarDir.path);
     startServer();
   } else {
     final appDir = await getApplicationDocumentsDirectory();

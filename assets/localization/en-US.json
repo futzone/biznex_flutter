@@ -417,5 +417,12 @@
   "telegramNotificationFields": "Parameters for Telegram notifications",
   "botToken": "Enter bot token",
   "channelAddress": "Enter channel address",
-  "productLimitNotification": "Limit for product"
+  "productLimitNotification": "Limit for product",
+  "exitSumm": "Withdrawing from checkout",
+  "enterSumm": "Putting into checkout",
+  "placesCount": "Number of places",
+  "toPlaceChoose": "Choose a place to move",
+  "backToSet": "Back to order",
+  "backToOrder": "Back to order",
+  "revert": "Cancelled"
 }

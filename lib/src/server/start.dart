@@ -5,6 +5,7 @@ import 'package:biznex/src/core/database/customer_database/customer_database.dar
 import 'package:biznex/src/core/database/employee_database/employee_database.dart';
 import 'package:biznex/src/core/database/employee_database/role_database.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
+import 'package:biznex/src/core/database/order_database/order_percent_database.dart';
 import 'package:biznex/src/core/database/place_database/place_database.dart';
 import 'package:biznex/src/core/database/product_database/product_database.dart';
 import 'package:biznex/src/core/database/transactions_database/transactions_database.dart';
@@ -289,7 +290,10 @@ void startServer() async {
     final jsonString = await request.readAsString();
     final jsonData = jsonDecode(jsonString);
     final data = Order.fromJson(jsonData is String ? jsonDecode(jsonData) : jsonData);
-    await orderDatabase.setPlaceOrder(data: data, placeId: placeId);
+    final disablePrint = (jsonData is String ? jsonDecode(jsonData) : jsonData)['disablePrint'] ?? false;
+    log("disable: $disablePrint");
+    log("jsonData: $jsonData");
+    await orderDatabase.setPlaceOrder(data: data, placeId: placeId, disablePrint: disablePrint);
     return Response(200, body: jsonEncode({'message': 'success'}));
   });
 
@@ -332,6 +336,12 @@ void startServer() async {
     final data = Order.fromJson(jsonData);
     await orderDatabase.updatePlaceOrder(data: data, placeId: placeId);
     return Response(200, body: jsonEncode({'message': 'success'}));
+  });
+
+  app.get('/api/v2/percents', (Request request) async {
+    OrderPercentDatabase percentDatabase = OrderPercentDatabase();
+    final percents = await percentDatabase.get();
+    return Response(200, body: jsonEncode([for (final item in percents) item.toJson()]));
   });
 
   ///

@@ -5,6 +5,7 @@ import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/extensions/for_string.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
 import 'package:biznex/src/providers/minimalistic_menu_provider.dart';
+import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/ui/pages/login_pages/onboard_page.dart';
 import 'package:biznex/src/ui/pages/order_pages/employee_orders_page.dart';
 import 'package:biznex/src/ui/pages/order_pages/table_choose_screen.dart';
@@ -171,6 +172,10 @@ class MenuPage extends HookConsumerWidget {
                                 }
                               });
                               // ref.read(orderSetProvider.notifier).addMultiple(order.products);
+
+                              try {
+                                ref.invalidate(productsProvider);
+                               } catch (_) {}
                             },
                             builder: (focused) {
                               return Container(

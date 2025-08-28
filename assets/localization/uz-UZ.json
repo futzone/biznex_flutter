@@ -517,5 +517,10 @@
   "channelAddress": "Kanal manzilini kiriting",
   "productLimitNotification": "Mahsulot uchun limit",
   "exitSumm": "Kassadan olinmoqda",
-  "enterSumm": "Kassaga qo'yilmoqda"
+  "enterSumm": "Kassaga qo'yilmoqda",
+  "placesCount": "Joylar soni",
+  "toPlaceChoose": "Ko'chirish uchun joyni tanlang",
+  "backToSet": "Buyurtmaga qaytish",
+  "backToOrder": "Buyurtmaga qaytish",
+  "revert": "Bekor qilindi"
 }

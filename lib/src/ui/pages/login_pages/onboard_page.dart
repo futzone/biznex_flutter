@@ -2,11 +2,14 @@ import 'dart:developer';
 import 'dart:ui';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
+import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
+import 'package:biznex/src/core/network/api.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/core/services/network_services.dart';
+import 'package:biznex/src/server/constants/api_endpoints.dart';
 import 'package:biznex/src/ui/pages/login_pages/login_page.dart';
 import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
@@ -15,6 +18,8 @@ import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fullscreen_window/fullscreen_window.dart';
+import '../../../core/database/app_database/app_screen_database.dart';
 import '../../screens/onboarding_screens/onboard_card.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'api_address_screen.dart';
@@ -75,6 +80,8 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                   ref.invalidate(appStateProvider);
                                   ref.invalidate(employeeProvider);
                                 });
+
+                                // if(ApiBase().get(baseUrl: , path: path))
                               },
                               child: Text(
                                 AppLocales.login,
@@ -125,6 +132,10 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                     SvgPicture.asset("assets/images/Vector.svg"),
                                     Spacer(),
                                     IconButton(
+                                      onLongPress: () async {
+                                        state.apiUrl = null;
+                                        AppStateDatabase().updateApp(state);
+                                      },
                                       onPressed: () async {
                                         showDesktopModal(context: context, body: ApiAddressScreen(), width: 400);
                                       },
@@ -135,11 +146,12 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                       ),
                                     ),
                                     IconButton(
+                                      // onLongPress: ,
                                       onPressed: () async {
-                                        // final status = await windowManager.isFullScreen();
-                                        // await windowManager.setFullScreen(!status);
-                                        // state.apiUrl = null;
-                                        // AppStateDatabase().updateApp(state);
+                                        final isFullScreen = await ScreenDatabase.get();
+                                        await FullScreenWindow.setFullScreen(!isFullScreen).then((_) async {
+                                          await ScreenDatabase.set();
+                                        });
                                       },
                                       icon: Icon(
                                         Icons.fullscreen,

@@ -26,7 +26,9 @@ class PrinterMultipleServices {
 
     for (final item in categoryGroup.values) {
       final product = item.firstOrNull;
-      if (product == null || product.product.category == null || product.product.category?.printerParams == null) continue;
+      if (product == null || product.product.category == null || product.product.category?.printerParams == null) {
+        continue;
+      }
 
       final params = await _getPrinter(product.product.category!.id);
       log(params.toString());
@@ -87,21 +89,32 @@ class PrinterMultipleServices {
         for (final item in products)
           pw.Padding(
             padding: const pw.EdgeInsets.only(top: 2, bottom: 2),
-            child: pw.Row(
+            child: pw.Column(
               children: [
-                pw.Expanded(
-                  child: pw.Text(
-                    "${item.product.name}: ",
-                    style: pdfTheme,
-                    overflow: pw.TextOverflow.clip,
-                    maxLines: 2,
+                if (item.amount < 0) pw.SizedBox(height: 4),
+                if (item.amount < 0)
+                  pw.Text(
+                    AppLocales.revert.tr(),
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10, font: ttf),
                   ),
-                ),
-                pw.SizedBox(width: 8),
-                pw.Text(
-                  "${item.amount.toMeasure} ${item.product.measure} * ${item.product.price.price} UZS",
-                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10, font: ttf),
-                ),
+                if (item.amount < 0) pw.SizedBox(height: 2),
+                pw.Row(
+                  children: [
+                    pw.Expanded(
+                      child: pw.Text(
+                        "${item.product.name}: ",
+                        style: pdfTheme,
+                        overflow: pw.TextOverflow.clip,
+                        maxLines: 2,
+                      ),
+                    ),
+                    pw.SizedBox(width: 8),
+                    pw.Text(
+                      "${item.amount.toMeasure} ${item.product.measure} * ${item.product.price.price} UZS",
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10, font: ttf),
+                    ),
+                  ],
+                )
               ],
             ),
           ),
@@ -156,7 +169,7 @@ class PrinterMultipleServices {
             ),
             pw.SizedBox(width: 8),
             pw.Text(
-              "${order.place.father != null ? order.place.father?.name == null ? '' : order.place.father!.name : ''}${order.place.name}",
+              "${order.place.father != null ? order.place.father?.name == null ? '' : order.place.father!.name : ''} ${order.place.name}",
               style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10, font: ttf),
             ),
           ],
@@ -187,7 +200,8 @@ class PrinterMultipleServices {
 
     doc.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat(72 * PdfPageFormat.mm, pageHeight * PdfPageFormat.mm, marginAll: 5 * PdfPageFormat.mm),
+        pageFormat:
+            PdfPageFormat(72 * PdfPageFormat.mm, pageHeight * PdfPageFormat.mm, marginAll: 5 * PdfPageFormat.mm),
         build: (pw.Context context) => content,
       ),
     );

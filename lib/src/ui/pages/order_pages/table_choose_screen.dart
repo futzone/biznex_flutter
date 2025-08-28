@@ -93,7 +93,7 @@ class TableChooseScreen extends HookConsumerWidget {
                           color: textColor,
                           fontFamily: mediumFamily,
                         ),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -608,7 +608,7 @@ class TableChooseScreen extends HookConsumerWidget {
                                     : _buildTable(
                                         context: context,
                                         theme: theme,
-                                        name: place?.name ?? '',
+                                        name: (place?.name ?? '')+(order!=null?"\n${order.employee.fullname}":''),
                                         status: order == null ? 'free' : 'bron',
                                       ),
                               );

@@ -98,6 +98,8 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
 
   void _localChangesSync() async {
     if (!(await Network().isConnected())) return;
+
+    if(widget.ref.watch(appStateProvider).value?.apiUrl != null) return;
     log('syncing saved changes');
     final changesList = await _changesDatabase.get();
     for (final item in changesList) {

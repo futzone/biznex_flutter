@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
+import 'package:biznex/src/core/database/app_database/app_database.dart';
+import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/network/endpoints.dart';
 import 'package:biznex/src/core/network/password.dart';
 import 'package:dio/dio.dart';
@@ -19,11 +21,18 @@ class Network {
     ),
   );
 
-  Future<bool> isConnected() async {
-    return false;
+  Future<bool> isConnected({bool skipPassword = false}) async {
+    final AppStateDatabase stateDatabase = AppStateDatabase();
+    final state = await stateDatabase.getApp();
+    if (state.apiUrl == null || (state.apiUrl ?? '').isEmpty) return false;
+
+    if (!Platform.isWindows) return false;
+
     try {
-      final password = await _password();
-      if (password.isEmpty || password == '0000') return false;
+      if (!skipPassword) {
+        final password = await _password();
+        if (password.isEmpty || password == '0000') return false;
+      }
 
       final result = await InternetAddress.lookup('google.com').timeout(Duration(seconds: 2));
       return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
@@ -71,9 +80,9 @@ class Network {
     }
   }
 
-  Future<bool> post(String url, {Map<String, dynamic>? body, String? password}) async {
+  Future<bool> post(String url, {bool skipPassword = false, Map<String, dynamic>? body, String? password}) async {
     try {
-      if (!(await isConnected())) return false;
+      if (!(await isConnected(skipPassword: skipPassword))) return false;
       await dio.post(
         url,
         data: body,
@@ -87,7 +96,7 @@ class Network {
       );
       return true;
     } on TimeoutException catch (error) {
-      log("Method: GET | Path: $url");
+      log("Method: POST | Path: $url");
       log("TimeoutException: $error");
       return false;
     } on DioException catch (error, stackTrace) {

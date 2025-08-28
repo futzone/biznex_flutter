@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:biznex/src/core/network/api.dart';
 import 'package:biznex/src/core/network/response.dart';
 import '../app_database/app_state_database.dart';
@@ -22,9 +24,12 @@ abstract class OrderDatabaseRepository {
   ApiBase apiBase = ApiBase();
 
   Future<dynamic> getRemote({required String path}) async {
+    if (path == 'percents') log("base url: $baseUrl");
     if (baseUrl == null) return null;
     final response = await apiBase.get(baseUrl: "http://$baseUrl:8080", path: '/api/v2/$path');
+    if (path == 'percents') log("percents: ${response?.statusCode} | ${response?.data}");
     if (response.success) return response?.data;
+    // log("${response?.data}\n${response?.statusCode}");
     return null;
   }
 

@@ -511,5 +511,12 @@
   "telegramNotificationFields": "Параметры уведомлений Telegram",
   "botToken": "Введите токен бота",
   "channelAddress": "Введите адрес канала",
-  "productLimitNotification": "Ограничение для продукта"
+  "productLimitNotification": "Ограничение для продукта",
+  "exitSumm": "Снятие с оформления заказа",
+  "enterSumm": "Внесение в оформление заказа",
+  "placesCount": "Количество мест",
+  "toPlaceChoose": "Выберите место для перемещения",
+  "backToSet": "Вернуться к заказу",
+  "backToOrder": "Вернуться к заказу",
+  "revert": "Отменено"
 }

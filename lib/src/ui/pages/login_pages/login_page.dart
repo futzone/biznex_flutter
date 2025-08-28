@@ -20,6 +20,9 @@ import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:flutter/services.dart';
 import 'package:pin_keyboard/pin_keyboard.dart';
 
+import '../../widgets/dialogs/app_custom_dialog.dart';
+import 'api_address_screen.dart';
+
 class LoginPageHarom extends ConsumerStatefulWidget {
   final AppModel model;
   final AppColors theme;
@@ -232,27 +235,65 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
                       // onBiometric: () {},
                     ),
                     0.h,
-                    AppPrimaryButton(
-                      theme: theme,
-                      onPressed: () {
-                        onNextPressed(currentEmployee.pincode, currentEmployee);
-                      },
-                      child: Row(
-                        spacing: 8,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            AppLocales.login.tr(),
-                            style: TextStyle(
-                              fontFamily: mediumFamily,
-                              fontSize: 18,
+                    Row(
+                      spacing: 16,
+                      children: [
+                        if (model.pincode.isEmpty)
+                          Expanded(
+                            child: AppPrimaryButton(
                               color: Colors.white,
+                              border: Border.all(color: Colors.white),
+                              theme: theme,
+                              onPressed: () {
+                                showDesktopModal(context: context, body: ApiAddressScreen(), width: 400);
+                              },
+                              child: Row(
+                                spacing: 8,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    AppLocales.enterAddress.tr(),
+                                    style: TextStyle(
+                                      fontFamily: mediumFamily,
+                                      fontSize: 18,
+                                      color: theme.textColor,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.language_outlined,
+                                    size: 20,
+                                    color: theme.textColor,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                          Icon(Icons.arrow_forward, size: 20, color: Colors.white),
-                        ],
-                      ),
+                        Expanded(
+                          child: AppPrimaryButton(
+                            theme: theme,
+                            onPressed: () {
+                              onNextPressed(currentEmployee.pincode, currentEmployee);
+                            },
+                            child: Row(
+                              spacing: 8,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  AppLocales.login.tr(),
+                                  style: TextStyle(
+                                    fontFamily: mediumFamily,
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Icon(Icons.arrow_forward, size: 20, color: Colors.white),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

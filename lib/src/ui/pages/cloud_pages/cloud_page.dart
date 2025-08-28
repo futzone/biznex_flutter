@@ -7,7 +7,9 @@ import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/extensions/for_dynamic.dart';
 import 'package:biznex/src/core/model/cloud_models/client.dart';
 import 'package:biznex/src/core/network/network_services.dart';
+import 'package:biznex/src/core/services/license_services.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
+import 'package:biznex/src/ui/pages/main_pages/main_page.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
@@ -50,12 +52,24 @@ class CloudPage extends HookConsumerWidget {
                         spacing: context.h(16),
                         children: [
                           Center(
-                            child: Text(
-                              "Biznex Owner",
-                              style: TextStyle(
-                                fontSize: context.s(24),
-                                fontFamily: boldFamily,
-                                color: theme.mainColor,
+                            child: GestureDetector(
+                              onLongPress: () async {
+                                final deviceID = await LicenseServices().getDeviceId();
+                                CloudDataController cloudDataController = CloudDataController();
+                                cloudDataController.networkServices.deleteClient(
+                                  deviceID ?? '',
+                                  passwordController.text.trim(),
+                                ).then((_){
+                                  AppRouter.open(context, MainPage());
+                                });
+                              },
+                              child: Text(
+                                "Biznex Owner",
+                                style: TextStyle(
+                                  fontSize: context.s(24),
+                                  fontFamily: boldFamily,
+                                  color: theme.mainColor,
+                                ),
                               ),
                             ),
                           ),
@@ -220,12 +234,15 @@ class CloudPage extends HookConsumerWidget {
                                 children: [
                                   Row(
                                     children: [
-                                      if (jsonDecode(client.name) is Map && jsonDecode(client.name)['token'].toString().isNotEmpty)
+                                      if (jsonDecode(client.name) is Map &&
+                                          jsonDecode(client.name)['token'].toString().isNotEmpty)
                                         Icon(
                                           Ionicons.checkmark_done_circle_outline,
                                           color: theme.mainColor,
                                         ),
-                                      if (jsonDecode(client.name) is Map && jsonDecode(client.name)['token'].toString().isNotEmpty) 12.w,
+                                      if (jsonDecode(client.name) is Map &&
+                                          jsonDecode(client.name)['token'].toString().isNotEmpty)
+                                        12.w,
                                       Text(
                                         AppLocales.telegramNotificationFields.tr(),
                                         style: TextStyle(
@@ -292,7 +309,9 @@ class CloudPage extends HookConsumerWidget {
                                         "channel": channelAddressController.text.trim().isEmpty
                                             ? (oldMap["channel"] ?? '')
                                             : channelAddressController.text.trim(),
-                                        "token": tokenController.text.trim().isEmpty ? (oldMap["token"] ?? '') : tokenController.text.trim(),
+                                        "token": tokenController.text.trim().isEmpty
+                                            ? (oldMap["token"] ?? '')
+                                            : tokenController.text.trim(),
                                         "count": int.tryParse(countController.text.trim()) ?? 10,
                                       });
 

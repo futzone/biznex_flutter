@@ -7,6 +7,7 @@ class NetworkServices {
 
   Future<bool> createClient(Client client, String password) async {
     final response = await network.post(
+      skipPassword: true,
       ApiEndpoints.client,
       body: client.toJson(),
       password: password,
@@ -28,8 +29,8 @@ class NetworkServices {
     return Client.fromJson(response);
   }
 
-  Future<bool> deleteClient(String id) async {
-    final response = await network.delete(ApiEndpoints.clientOne(id));
+  Future<bool> deleteClient(String id, String password) async {
+    final response = await network.delete(ApiEndpoints.clientOne(id), password: password);
     return response;
   }
 }

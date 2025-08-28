@@ -1,9 +1,17 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:biznex/src/core/database/app_database/app_database.dart';
+import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/core/model/app_changes_model.dart';
 import 'package:biznex/src/core/model/order_models/percent_model.dart';
+import 'package:biznex/src/core/network/endpoints.dart';
+
+import '../../model/order_models/order_model.dart';
 
 class OrderPercentDatabase extends AppDatabase {
   final String boxName = 'percent';
+  final OrderDatabase orderDatabase = OrderDatabase();
 
   @override
   Future delete({required String key}) async {
@@ -25,10 +33,22 @@ class OrderPercentDatabase extends AppDatabase {
 
   @override
   Future<List<Percent>> get() async {
+    final List<Percent> productInfoList = [];
+    if ((await connectionStatus()) != null) {
+      await orderDatabase.connectionStatus();
+      final response = await orderDatabase.getRemote(path: 'percents');
+      if (response != null) {
+        for (final item in jsonDecode(response)) {
+          productInfoList.add(Percent.fromJson(item));
+        }
+
+        return productInfoList;
+      }
+    }
+
     final box = await openBox(boxName);
     final boxData = box.values;
 
-    final List<Percent> productInfoList = [];
     for (final item in boxData) {
       productInfoList.add(Percent.fromJson(item));
     }
@@ -46,7 +66,7 @@ class OrderPercentDatabase extends AppDatabase {
     final box = await openBox(boxName);
     await box.put(productInfo.id, productInfo.toJson());
 
-        await changesDatabase.set(
+    await changesDatabase.set(
       data: Change(
         database: boxName,
         method: 'create',

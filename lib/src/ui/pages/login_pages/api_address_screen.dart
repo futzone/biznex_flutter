@@ -1,6 +1,7 @@
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
+import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
@@ -35,6 +36,9 @@ class ApiAddressScreen extends HookConsumerWidget {
                   AppRouter.close(context);
                   ShowToast.success(context, AppLocales.savedSuccessfully.tr());
                 }
+                
+                ref.invalidate(employeeProvider);
+                // AppRouter.open(context, OnB)
               });
             },
           ),
