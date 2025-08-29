@@ -18,7 +18,9 @@ import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
+import '../../../controllers/monitoring_controller.dart';
 import '../../../core/model/order_models/order_model.dart';
+import '../../widgets/helpers/app_decorated_button.dart';
 
 class MonitoringPage extends StatefulHookConsumerWidget {
   const MonitoringPage({super.key});
@@ -145,6 +147,34 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                         ),
                       ),
                       0.w,
+                      AppPrimaryButton(
+                        onPressed: () {
+                          showDatePicker(
+                            context: context,
+                            firstDate: DateTime(2025),
+                            lastDate: DateTime.now(),
+                          ).then((date) async {
+                            if (date == null) return;
+
+                            MonitoringController mc = MonitoringController(state: state, context: context, ref: ref);
+                            await mc.onPrintDayMonitoring(date);
+                          });
+                        },
+                        color: Colors.white,
+                        border: Border.all(color: Colors.white),
+                        padding: Dis.only(lr: context.w(20), tb: context.h(12)),
+                        theme: theme,
+                        child: Row(
+                          spacing: 8,
+                          children: [
+                            Icon(Iconsax.printer_copy, color: Colors.black, size: 20),
+                            Text(
+                              AppLocales.monitoringCheckPrint.tr(),
+                              style: TextStyle(fontFamily: mediumFamily, color: Colors.black, fontSize: 16),
+                            )
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 ),

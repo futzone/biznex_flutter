@@ -526,4 +526,5 @@ abstract class AppLocales {
   static var revert = "revert";
   static var cloudDataSynchronising = "cloudDataSynchronising";
   static var cloudDataSynchronisingInfo = "cloudDataSynchronisingInfo";
+  static var monitoringCheckPrint = "monitoringCheckPrint";
 }
