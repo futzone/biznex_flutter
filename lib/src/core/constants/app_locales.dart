@@ -524,4 +524,6 @@ abstract class AppLocales {
   static var backToSet = "backToSet";
   static var backToOrder = "backToOrder";
   static var revert = "revert";
+  static var cloudDataSynchronising = "cloudDataSynchronising";
+  static var cloudDataSynchronisingInfo = "cloudDataSynchronisingInfo";
 }

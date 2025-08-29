@@ -12,6 +12,53 @@ showAppLoadingDialog(BuildContext context) {
   );
 }
 
+showAppLoadingTitleDialog(BuildContext context) {
+  showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (context) {
+      return Center(
+        child: Container(
+          padding: 40.all,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: Colors.white,
+          ),
+          constraints: BoxConstraints(maxWidth: 600),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                AppLocales.cloudDataSynchronising.tr(),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontFamily: boldFamily,
+                ),
+              ),
+              12.h,
+              Text(
+                AppLocales.cloudDataSynchronisingInfo.tr(),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: mediumFamily,
+                ),
+              ),
+              12.h,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: LinearProgressIndicator(
+                  minHeight: 8,
+                  color: AppColors(isDark: false).mainColor,
+                ),
+              )
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
 showAppProgressDialog(BuildContext context, ValueNotifier<double> progressNotifier) {
   showDialog(
     context: context,

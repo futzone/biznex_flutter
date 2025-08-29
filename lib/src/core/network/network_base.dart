@@ -24,7 +24,7 @@ class Network {
   Future<bool> isConnected({bool skipPassword = false}) async {
     final AppStateDatabase stateDatabase = AppStateDatabase();
     final state = await stateDatabase.getApp();
-    if (state.apiUrl == null || (state.apiUrl ?? '').isEmpty) return false;
+    if (!(state.apiUrl == null || (state.apiUrl ?? '').isEmpty)) return false;
 
     if (!Platform.isWindows) return false;
 
@@ -111,6 +111,8 @@ class Network {
   Future<bool> delete(String url, {String? password, dynamic body}) async {
     try {
       if (!(await isConnected())) return false;
+
+      log("delete cl");
       await dio.delete(
         url,
         options: Options(
