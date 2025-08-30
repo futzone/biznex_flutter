@@ -106,10 +106,14 @@ class CloudPage extends HookConsumerWidget {
                             theme: theme,
                             title: AppLocales.login.tr(),
                             onPressed: () async {
+                              if (passwordController.text.isEmpty) return;
+                              if (expireDateController.text.length < 4) return;
+
                               showAppLoadingDialog(context);
 
                               CloudDataController cdc = CloudDataController();
-                              await cdc.createCloudAccount(
+                              await cdc
+                                  .createCloudAccount(
                                 passwordController.text,
                                 expireDateController.text,
                               )

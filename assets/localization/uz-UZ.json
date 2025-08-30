@@ -522,5 +522,8 @@
   "toPlaceChoose": "Ko'chirish uchun joyni tanlang",
   "backToSet": "Buyurtmaga qaytish",
   "backToOrder": "Buyurtmaga qaytish",
-  "revert": "Bekor qilindi"
+  "revert": "Bekor qilindi",
+  "cloudDataSynchronising": "Online ma'lumotlar yangilanmoqda",
+  "cloudDataSynchronisingInfo": "Bu ma'lumotlar hajmiga qarab, 1-5 daqiqa vaqt oladi. Iltimos, kuting.",
+  "monitoringCheckPrint": "Kunlik hisobot cheki"
 }
