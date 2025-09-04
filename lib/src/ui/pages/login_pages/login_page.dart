@@ -1,14 +1,11 @@
 import 'dart:developer';
-
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/database/changes_database/changes_database.dart';
-import 'package:biznex/src/core/database/employee_database/role_database.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/model/app_changes_model.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
-import 'package:biznex/src/core/model/employee_models/role_model.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/ui/pages/login_pages/login_half_page.dart';
@@ -19,7 +16,6 @@ import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:flutter/services.dart';
 import 'package:pin_keyboard/pin_keyboard.dart';
-
 import '../../widgets/dialogs/app_custom_dialog.dart';
 import 'api_address_screen.dart';
 
