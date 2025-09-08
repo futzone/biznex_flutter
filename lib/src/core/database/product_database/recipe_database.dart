@@ -1,0 +1,73 @@
+import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
+import 'package:biznex/src/core/model/product_models/recipe_model.dart';
+import 'package:hive/hive.dart';
+
+class RecipeDatabase {
+  final String _recipeBox = "recipe";
+  final String _ingredientsBox = "ingredients";
+
+  Future<List<Recipe>> getRecipe() async {
+    final box = await Hive.openBox(_recipeBox);
+    final data = box.values;
+
+    List<Recipe> list = [];
+    for (final item in data) {
+      try {
+        list.add(Recipe.fromJson(item));
+      } catch (_) {
+        continue;
+      }
+    }
+
+    return list;
+  }
+
+  Future<List<Ingredient>> getIngredients() async {
+    final box = await Hive.openBox(_ingredientsBox);
+    final data = box.values;
+
+    List<Ingredient> list = [];
+    for (final item in data) {
+      try {
+        list.add(Ingredient.fromMap(item));
+      } catch (_) {
+        continue;
+      }
+    }
+
+    return list;
+  }
+
+  Future<Ingredient?> getIngredient(id) async {
+    final box = await Hive.openBox(_ingredientsBox);
+    final data = await box.get(id);
+    if (data == null) return null;
+    try {
+      return Ingredient.fromMap(data);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<Recipe?> productRecipe(String id) async {
+    final box = await Hive.openBox(_ingredientsBox);
+    final data = await box.get(id);
+    if (data == null) return null;
+    try {
+      return Recipe.fromJson(data);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> saveRecipe(Recipe recipe) async {
+    final box = await Hive.openBox(_recipeBox);
+    await box.put(recipe.id, recipe.toJson());
+  }
+
+  Future<void> saveIngredient(Ingredient ing) async {
+    final box = await Hive.openBox(_ingredientsBox);
+    await box.put(ing.id, ing.toMap());
+  }
+}

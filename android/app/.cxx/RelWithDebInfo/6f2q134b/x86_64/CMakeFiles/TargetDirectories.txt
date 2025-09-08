@@ -1,0 +1,2 @@
+C:/Users/1/StudioProjects/biznex_backup/android/app/.cxx/RelWithDebInfo/6f2q134b/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/1/StudioProjects/biznex_backup/android/app/.cxx/RelWithDebInfo/6f2q134b/x86_64/CMakeFiles/rebuild_cache.dir
