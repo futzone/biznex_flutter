@@ -28,7 +28,7 @@ class Shopping {
     };
   }
 
-  factory Shopping.fromMap(Map<String, dynamic> map) {
+  factory Shopping.fromMap(map) {
     return Shopping(
       id: map['id'] as String,
       createdDate: DateTime.parse(map['createdDate'] as String),
@@ -36,7 +36,7 @@ class Shopping {
       totalPrice: (map['totalPrice'] as num).toDouble(),
       items: List<RecipeItem>.from(
         (map['items'] as List).map(
-          (x) => RecipeItem.fromMap(x as Map<String, dynamic>),
+          (x) => RecipeItem.fromMap(x),
         ),
       ),
       note: map['note'] as String?,

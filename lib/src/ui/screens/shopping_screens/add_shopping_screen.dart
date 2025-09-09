@@ -1,11 +1,10 @@
 import 'package:biznex/src/controllers/recipe_controller.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
-import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/model/product_models/recipe_item_model.dart';
-import 'package:biznex/src/core/model/product_models/recipe_model.dart';
+import 'package:biznex/src/core/model/product_models/shopping_model.dart';
+import 'package:biznex/src/providers/recipe_providers.dart';
 import 'package:biznex/src/ui/screens/shopping_screens/choose_ingredient_screen.dart';
-import 'package:biznex/src/ui/screens/shopping_screens/choose_product_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_file_image.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
@@ -15,44 +14,35 @@ import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../biznex.dart';
 
-class AddRecipePage extends HookConsumerWidget {
-  final Recipe? recipe;
+class AddShoppingScreen extends HookConsumerWidget {
+  final Shopping? shopping;
 
-  const AddRecipePage({super.key, this.recipe});
+  const AddShoppingScreen({super.key, this.shopping});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedProduct = useState(recipe?.product);
     final selectedIngredient = useState<Ingredient?>(null);
-    final items = useState(<RecipeItem>[...(recipe?.items??[])]);
+    final items = useState(<RecipeItem>[...(shopping?.items ?? [])]);
     final priceController = useTextEditingController();
     final totalPriceController = useTextEditingController();
     final amountController = useTextEditingController();
+    final noteController = useTextEditingController(text: shopping?.note ?? '');
+    final addTransactions = useState(true);
+    final updatePrice = useState(true);
+    final customPriceController =
+        useTextEditingController(text: (shopping?.totalPrice ?? 0.0).price);
+
+    void onEditCustomPrice() {
+      customPriceController.text = items.value
+          .fold(0.0, (total, el) => total += (el.amount * (el.price ?? 0.0)))
+          .price;
+    }
+
     return AppStateWrapper(builder: (theme, state) {
       return SingleChildScrollView(
         child: Column(
           spacing: 16,
           children: [
-            AppTextField(
-              title: AppLocales.products.tr(),
-              controller:
-                  TextEditingController(text: selectedProduct.value?.name),
-              theme: theme,
-              onlyRead: true,
-              onTap: () {
-                showDesktopModal(
-                  context: context,
-                  width: 600,
-                  body: ChooseProductScreen(
-                    theme: theme,
-                    onSelectedProduct: (Product product) {
-                      selectedProduct.value = product;
-                    },
-                  ),
-                );
-              },
-            ),
-            0.h,
             if (items.value.isNotEmpty)
               Container(
                 decoration: BoxDecoration(
@@ -145,6 +135,8 @@ class AddRecipePage extends HookConsumerWidget {
                                 ...items.value.where((el) =>
                                     el.ingredient.id != item.ingredient.id)
                               ];
+
+                              onEditCustomPrice();
                             },
                             child: Container(
                               decoration: BoxDecoration(
@@ -160,6 +152,42 @@ class AddRecipePage extends HookConsumerWidget {
                             ),
                           ),
                         ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            if (items.value.isNotEmpty)
+              Container(
+                decoration: BoxDecoration(
+                  color: theme.scaffoldBgColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: Dis.only(lr: 12, tb: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      // flex: 5,
+                      child: Text(
+                        "${AppLocales.totalPrice.tr()}: ",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: mediumFamily,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: AppTextField(
+                        useBorder: false,
+                        align: TextAlign.end,
+                        title: AppLocales.price.tr(),
+                        controller: customPriceController,
+                        theme: theme,
+                        suffixIcon: Column(
+                          // crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [Text("UZS")],
+                        ),
                       ),
                     )
                   ],
@@ -301,6 +329,7 @@ class AddRecipePage extends HookConsumerWidget {
                           priceController.clear();
                           amountController.clear();
                           totalPriceController.clear();
+                          onEditCustomPrice();
                         },
                         color: Colors.transparent,
                         border: Border.all(color: theme.red),
@@ -337,6 +366,8 @@ class AddRecipePage extends HookConsumerWidget {
                           priceController.clear();
                           amountController.clear();
                           totalPriceController.clear();
+
+                          onEditCustomPrice();
                         },
                         title: AppLocales.add.tr(),
                         padding: Dis.only(tb: 8, lr: 24),
@@ -346,28 +377,58 @@ class AddRecipePage extends HookConsumerWidget {
                 ],
               ),
             ),
+            // 16.h,
+            Container(
+              decoration: BoxDecoration(
+                color: theme.scaffoldBgColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: Dis.only(lr: 12, tb: 8),
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    activeThumbColor: theme.mainColor,
+                    contentPadding: Dis.only(),
+                    value: addTransactions.value,
+                    onChanged: (v) => addTransactions.value = v,
+                    title: Text(AppLocales.addToTransactions.tr()),
+                  ),
+                  Container(
+                    color: Colors.white,
+                    height: 1,
+                    margin: Dis.only(tb: 8),
+                  ),
+                  SwitchListTile(
+                    activeThumbColor: theme.mainColor,
+                    contentPadding: Dis.only(),
+                    value: updatePrice.value,
+                    onChanged: (v) => updatePrice.value = v,
+                    title: Text(AppLocales.updateIngredientData.tr()),
+                  ),
+                ],
+              ),
+            ),
+            AppTextField(
+              title: AppLocales.note.tr(),
+              controller: noteController,
+              theme: theme,
+              minLines: 3,
+            ),
             16.h,
             ConfirmCancelButton(
-              onConfirm: () {
-                if (selectedProduct.value == null) {
-                  return ShowToast.error(
-                      context, AppLocales.selectProductError.tr());
-                }
-
-                if (items.value.isEmpty) {
-                  return ShowToast.error(
-                      context, AppLocales.recipeItemsError.tr());
-                }
-
-                RecipeController recipeController =
-                    RecipeController(context: context);
-
-                recipeController
-                    .saveRecipe(
-                      ref: ref,
-                      product: selectedProduct.value!,
-                      items: items.value,
-                    )
+              onConfirm: () async {
+                RecipeController rc = RecipeController(context: context);
+                await rc
+                    .saveShopping(
+                        ref: ref,
+                        items: items.value,
+                        price: double.tryParse(
+                          customPriceController.text.trim().replaceAll(" ", ""),
+                        ),
+                        note: noteController.text.trim().isEmpty
+                            ? null
+                            : noteController.text,
+                        id: shopping?.id)
                     .then((_) => AppRouter.close(context));
               },
               // onCancel: (){},

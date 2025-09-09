@@ -12,6 +12,7 @@ import 'package:uuid/uuid.dart';
 
 import '../core/model/product_models/product_model.dart';
 import '../core/model/product_models/recipe_item_model.dart';
+import '../core/model/product_models/shopping_model.dart';
 
 class RecipeController {
   final BuildContext context;
@@ -108,6 +109,48 @@ class RecipeController {
     ref.invalidate(productRecipeProvider);
     ref.invalidate(productRecipeProvider(product.id));
     ref.invalidate(recipesProvider);
+    return;
+  }
+
+  Future<void> saveShopping({
+    required WidgetRef ref,
+    String? note,
+    String? id,
+    double? price,
+    List<RecipeItem>? items,
+  }) async {
+    if (id == null && (items == null || items.isEmpty)) {
+      return ShowToast.error(context, AppLocales.shoppingItemsError.tr());
+    }
+
+    if (id != null) {
+      final old = await shoppingDatabase.getShopping(id);
+      if (old != null) {
+        old.updatedDate = DateTime.now();
+        if (note != null) old.note = note;
+        if (price != null) old.totalPrice = price;
+        if (items != null) old.items = items;
+
+        await shoppingDatabase.createShopping(old);
+        ref.invalidate(shoppingProvider);
+        return;
+      }
+    }
+
+    final Shopping shopping = Shopping(
+      id: Uuid().v4(),
+      createdDate: DateTime.now(),
+      updatedDate: DateTime.now(),
+      totalPrice: price ??
+          ((items ?? []).fold(0.0, (tot, el) {
+            return tot += el.amount * (el.price ?? 0.0);
+          })),
+      items: items ?? [],
+      note: note,
+    );
+
+    await shoppingDatabase.createShopping(shopping);
+    ref.invalidate(shoppingProvider);
     return;
   }
 }

@@ -103,10 +103,16 @@ class RecipePage extends HookConsumerWidget {
                       final ingredient = recipe[index];
                       return Container(
                         margin: Dis.only(lr: context.s(24)),
-                        padding: Dis.only(lr: context.w(20), tb: context.h(12)),
+                        padding: Dis.only(
+                          lr: context.w(20),
+                          tb: context.h(12),
+                        ),
                         decoration: BoxDecoration(
                           border: Border(
-                              bottom: BorderSide(color: theme.scaffoldBgColor)),
+                            bottom: BorderSide(
+                              color: theme.scaffoldBgColor,
+                            ),
+                          ),
                           color: theme.white,
                         ),
                         child: Row(
@@ -142,7 +148,10 @@ class RecipePage extends HookConsumerWidget {
                               flex: 2,
                               child: Center(
                                 child: Text(
-                                  "Haaa",
+                                  ingredient.items
+                                      .fold(
+                                          0.0, (a, b) => a += (b.price ?? 0.0))
+                                      .priceUZS,
                                 ),
                               ),
                             ),
@@ -163,8 +172,9 @@ class RecipePage extends HookConsumerWidget {
                                 spacing: 8,
                                 children: [
                                   Text(
-                                    DateFormat("yyyy.MM.dd  HH:mm")
-                                        .format(ingredient.updatedDate),
+                                    DateFormat("yyyy.MM.dd  HH:mm").format(
+                                        ingredient.updatedDate ??
+                                            DateTime.now()),
                                   ),
                                 ],
                               ),
@@ -176,11 +186,10 @@ class RecipePage extends HookConsumerWidget {
                               children: [
                                 SimpleButton(
                                   onPressed: () {
-                                    // showDesktopModal(
-                                    //   context: context,
-                                    //   body: AddIngredientScreen(
-                                    //       ingredient: ingredient),
-                                    // );
+                                    showDesktopModal(
+                                      context: context,
+                                      body: AddRecipePage(recipe: ingredient),
+                                    );
                                   },
                                   child: Container(
                                     height: context.s(36),

@@ -538,4 +538,11 @@ abstract class AppLocales {
   static var productAlreadyAdd = "productAlreadyAdd";
   static var mealName = "mealName";
   static var unitPrice = "unitPrice";
+  static var warehouseCalculating = "warehouseCalculating";
+  static var warehouseCalculatingInfo = "warehouseCalculatingInfo";
+  static var afterReport = "afterReport";
+  static var becomeReport = "becomeReport";
+  static var addToTransactions = "addToTransactions";
+  static var updateIngredientData = "updateIngredientData";
+  static var shoppingItemsError = "shoppingItemsError";
 }

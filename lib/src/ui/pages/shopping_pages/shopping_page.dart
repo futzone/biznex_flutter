@@ -30,8 +30,12 @@ class ShoppingPage extends HookConsumerWidget {
             loading: RefLoadingScreen,
           );
     }
-    ;
-    return MarketPage(theme);
+
+    return ref.watch(shoppingProvider).when(
+          data: (data) => MarketPage(theme, shoppingList: data),
+          error: RefErrorScreen,
+          loading: RefLoadingScreen,
+        );
   }
 
   @override

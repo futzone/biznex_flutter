@@ -525,5 +525,22 @@
   "revert": "Bekor qilindi",
   "cloudDataSynchronising": "Online ma'lumotlar yangilanmoqda",
   "cloudDataSynchronisingInfo": "Bu ma'lumotlar hajmiga qarab, 1-5 daqiqa vaqt oladi. Iltimos, kuting.",
-  "monitoringCheckPrint": "Kunlik hisobot cheki"
+  "monitoringCheckPrint": "Kunlik hisobot cheki",
+  "recipeItemsError": "Retseptning mahsulotlari kiritilmagan!",
+  "warehouse": "Omborxona",
+  "recipes": "Retseptlar",
+  "shopping": "Xaridlar",
+  "calory": "Kaloriyasi",
+  "totalPrice": "Umumiy summa",
+  "selectProductError": "Mahsulot tanlanmadi!",
+  "productAlreadyAdd": "Mahsulot allaqachon qo'shilgan!",
+  "mealName": "Taom nomi",
+  "unitPrice": "Tannarxi",
+  "warehouseCalculating": "Omborxona hisobotlari",
+  "warehouseCalculatingInfo": "\"Avval hisoblash\" - bunda taomlarning soni kiritilganda omborxonadagi hisoblashlar amalga oshiriladi.\n\"Keyin hisoblash\" - bunda taom sotilganida omborxonadagi hisoblash amalga oshiriladi.",
+  "afterReport": "Keyin hisoblash",
+  "becomeReport": "Avval hisoblash",
+  "addToTransactions": "Umumiy hisobotlarga qo'shish",
+  "updateIngredientData": "Masalliqlar ma'lumotlarini yangilash",
+  "shoppingItemsError": "Xarid qilingan mahsulotlar kiritilmadi!"
 }

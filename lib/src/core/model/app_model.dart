@@ -11,6 +11,7 @@ const mediumFamily = "Medium";
 const bool appRoleState = false;
 
 class AppModel {
+  bool after;
   bool isServerApp;
   String baseUrl;
   String? apiUrl;
@@ -57,6 +58,7 @@ class AppModel {
   }
 
   AppModel({
+    this.after = true,
     this.baseUrl = '',
     this.currentEmployee,
     this.isServerApp = false,
@@ -112,6 +114,7 @@ class AppModel {
       licenseKey: json['licenseKey'] ?? '',
       baseUrl: json['baseUrl'] ?? '',
       apiUrl: json['apiUrl'],
+      after: json['after'] ?? true,
     );
   }
 
@@ -129,7 +132,9 @@ class AppModel {
     return 16;
   }
 
-  Widget whenProviderData({required dynamic provider, required Widget Function(dynamic data) builder}) {
+  Widget whenProviderData(
+      {required dynamic provider,
+      required Widget Function(dynamic data) builder}) {
     if (ref == null) return const SizedBox();
 
     return ref!.watch(provider as FutureProvider).when(
@@ -142,14 +147,17 @@ class AppModel {
         );
   }
 
-  Widget whenProviderDataSliver({required dynamic provider, required Widget Function(dynamic data) builder}) {
+  Widget whenProviderDataSliver(
+      {required dynamic provider,
+      required Widget Function(dynamic data) builder}) {
     if (ref == null) return const SliverToBoxAdapter();
 
     return ref!.watch(provider as FutureProvider).when(
           loading: () => const SliverToBoxAdapter(child: AppLoadingScreen()),
           error: (error, stackTrace) {
             log("$provider error: ", error: error, stackTrace: stackTrace);
-            return const SliverToBoxAdapter(child: Center(child: Text("An Unknown Error")));
+            return const SliverToBoxAdapter(
+                child: Center(child: Text("An Unknown Error")));
           },
           data: (data) => builder(data),
         );
@@ -157,6 +165,7 @@ class AppModel {
 
   Map<String, dynamic> toJson() {
     return {
+      "after": after,
       "isDark": isDark,
       "token": token,
       "role": role,

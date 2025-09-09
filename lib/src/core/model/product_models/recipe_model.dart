@@ -1,11 +1,10 @@
-import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/model/product_models/recipe_item_model.dart';
 
 class Recipe {
   final String id;
   final DateTime createdDate;
-  DateTime updatedDate;
+  DateTime? updatedDate;
   final Product product;
     List<RecipeItem> items;
 
@@ -13,10 +12,11 @@ class Recipe {
     id,
     required this.items,
     required this.product,
+    this.updatedDate,
     DateTime? createdDate,
-    DateTime? updatedDate,
+    // DateTime? updatedDate,
   })  : id = product.id,
-        updatedDate = DateTime.now(),
+
         createdDate = DateTime.now();
 
   factory Recipe.fromJson(map) {
@@ -34,6 +34,6 @@ class Recipe {
         'items': [for (final item in items) item.toJson()],
         'product': product.toJson(),
         'createdDate': createdDate.toIso8601String(),
-        'updatedDate': updatedDate.toIso8601String(),
+        'updatedDate': updatedDate?.toIso8601String(),
       };
 }

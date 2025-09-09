@@ -25,11 +25,13 @@ class AppTextField extends StatelessWidget {
   final Color? enabledColor;
   final bool useBorder;
   final int? maxLength;
+  final TextAlign align;
 
   const AppTextField({
     this.suffix,
     this.hideBorder = false,
     super.key,
+    this.align = TextAlign.start,
     this.maxLength,
     this.fillColor = Colors.transparent,
     this.radius = 14,
@@ -54,6 +56,7 @@ class AppTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      textAlign: align,
       maxLength: maxLength,
       textInputAction: textInputAction,
       onSubmitted: (String text) {

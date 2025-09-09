@@ -11,6 +11,8 @@ import 'package:biznex/src/core/release/auto_update.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:biznex/src/providers/price_percent_provider.dart';
 import 'package:biznex/src/providers/printer_devices_provider.dart';
+import 'package:biznex/src/ui/screens/settings_screen/network_interface_screen.dart';
+import 'package:biznex/src/ui/screens/settings_screen/warehouse_type_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
 import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_file_image.dart';
@@ -26,7 +28,9 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:printing/printing.dart';
 import '../../../../biznex.dart';
 import '../../../core/network/endpoints.dart';
+import '../../../providers/network_interface_provider.dart';
 import '../../widgets/dialogs/app_custom_dialog.dart';
+import 'language_settings_screen.dart';
 
 class SettingsPageScreen extends HookConsumerWidget {
   const SettingsPageScreen({super.key});
@@ -610,125 +614,18 @@ class SettingsPageScreen extends HookConsumerWidget {
                 24.h,
                 AppLanguageBar(),
                 24.h,
+                WarehouseTypeScreen(),
+                24.h,
+                if ((ref.watch(networkInterfaceProvider).value ?? [])
+                    .isNotEmpty)
+                  NetworkInterfaceScreen(),
+                24.h,
               ],
             ),
           ),
         );
       },
     );
-  }
-}
-
-class AppLanguageBar extends StatefulWidget {
-  const AppLanguageBar({super.key});
-
-  @override
-  State<AppLanguageBar> createState() => _AppLanguageBarState();
-}
-
-class _AppLanguageBarState extends State<AppLanguageBar> {
-  @override
-  Widget build(BuildContext context) {
-    return AppStateWrapper(builder: (theme, state) {
-      return Container(
-        padding: context.s(20).all,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
-          color: Colors.white,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          spacing: 24,
-          children: [
-            Text(
-              AppLocales.changeLanguage.tr(),
-              style: TextStyle(
-                fontSize: context.s(24),
-                fontFamily: mediumFamily,
-                color: Colors.black,
-              ),
-            ),
-            Row(
-              spacing: 24,
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: SimpleButton(
-                    onPressed: () {
-                      context.setLocale(Locale('uz', 'UZ')).then((_) {
-                        setState(() {});
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: theme.scaffoldBgColor,
-                      ),
-                      padding: Dis.only(lr: 12, tb: 12),
-                      child: Row(
-                        spacing: 12,
-                        children: [
-                          Icon(
-                            context.locale.languageCode == 'uz'
-                                ? Icons.check_circle_outline
-                                : Icons.circle_outlined,
-                            color: theme.mainColor,
-                          ),
-                          Text(
-                            "O'zbekcha",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: mediumFamily,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: SimpleButton(
-                    onPressed: () {
-                      context.setLocale(Locale('ru', 'RU')).then((_) {
-                        setState(() {});
-                      });
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: theme.scaffoldBgColor,
-                      ),
-                      padding: Dis.only(lr: 12, tb: 12),
-                      child: Row(
-                        spacing: 12,
-                        children: [
-                          Icon(
-                            context.locale.languageCode == 'ru'
-                                ? Icons.check_circle_outline
-                                : Icons.circle_outlined,
-                            color: theme.mainColor,
-                          ),
-                          Text(
-                            "Русский",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: mediumFamily,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    });
   }
 }
 

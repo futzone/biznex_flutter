@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/model/product_models/shopping_model.dart';
 
@@ -16,11 +18,23 @@ class ShoppingDatabase {
     for (final item in data) {
       try {
         list.add(Shopping.fromMap(item));
-      } catch (_) {
+      } catch (kd) {
+        log("Shopping fromMap():", error: kd);
         continue;
       }
     }
 
     return list;
+  }
+
+  Future<Shopping?> getShopping(id) async {
+    final box = await Hive.openBox(_boxName);
+    final data = box.get(id);
+    if (data == null) return null;
+    try {
+      return Shopping.fromMap(data);
+    } catch (_) {
+      return null;
+    }
   }
 }
