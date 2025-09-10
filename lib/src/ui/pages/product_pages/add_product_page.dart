@@ -57,8 +57,10 @@ class _AddProductPageState extends State<AddProductPage> {
   final TextEditingController percentController = TextEditingController();
   final TextEditingController resultPriceController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController productTagnumberController = TextEditingController();
-  final TextEditingController productBarcodeController = TextEditingController();
+  final TextEditingController productTagnumberController =
+      TextEditingController();
+  final TextEditingController productBarcodeController =
+      TextEditingController();
   final List<String> _imagesList = [];
   final List<ProductInfo> _productInformations = [];
 
@@ -112,16 +114,23 @@ class _AddProductPageState extends State<AddProductPage> {
       amountController.text = product.amount.toStringAsFixed(1);
       resultPriceController.text = product.price.toStringAsFixed(1);
       percentController.text = product.percent.toStringAsFixed(1);
-      priceController.text = ((100 * product.price) / (100 + product.percent)).toStringAsFixed(1);
+      priceController.text =
+          ((100 * product.price) / (100 + product.percent)).toStringAsFixed(1);
       productTagnumberController.text = product.tagnumber ?? '';
       productBarcodeController.text = product.barcode ?? '';
-      _productSize = product.size == null ? null : ProductSize(name: product.size ?? '');
-      _productColor = product.color == null ? null : ProductColor(name: product.color ?? '');
-      _productMeasure = product.measure == null ? null : ProductMeasure(name: product.measure ?? '');
+      _productSize =
+          product.size == null ? null : ProductSize(name: product.size ?? '');
+      _productColor = product.color == null
+          ? null
+          : ProductColor(name: product.color ?? '');
+      _productMeasure = product.measure == null
+          ? null
+          : ProductMeasure(name: product.measure ?? '');
       _category = product.category;
       _descriptionController.text = product.description ?? '';
       if (product.images != null) _imagesList.addAll(product.images ?? []);
-      if (product.informations != null) _productInformations.addAll(product.informations ?? []);
+      if (product.informations != null)
+        _productInformations.addAll(product.informations ?? []);
       setState(() {});
     }
   }
@@ -184,7 +193,8 @@ class _AddProductPageState extends State<AddProductPage> {
     return [
       Container(
         padding: context.s(24).all,
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: Colors.white),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16), color: Colors.white),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -210,10 +220,13 @@ class _AddProductPageState extends State<AddProductPage> {
                     theme: theme,
                     // prefixIcon: !state.isDesktop ? null : Icon(Icons.attach_money),
                     onChanged: (char) {
-                      if (num.tryParse(percentController.text.trim()) != null && num.tryParse(char) != null) {
-                        final percent = num.parse(percentController.text.trim());
+                      if (num.tryParse(percentController.text.trim()) != null &&
+                          num.tryParse(char) != null) {
+                        final percent =
+                            num.parse(percentController.text.trim());
                         final price = num.parse(char.trim());
-                        resultPriceController.text = (price * (1 + (percent / 100))).toStringAsFixed(1);
+                        resultPriceController.text =
+                            (price * (1 + (percent / 100))).toStringAsFixed(1);
                         setState(() {});
                       }
                     },
@@ -226,10 +239,12 @@ class _AddProductPageState extends State<AddProductPage> {
                     theme: theme,
                     // prefixIcon: !state.isDesktop ? null : Icon(Icons.percent),
                     onChanged: (char) {
-                      if (num.tryParse(priceController.text.trim()) != null && num.tryParse(char) != null) {
+                      if (num.tryParse(priceController.text.trim()) != null &&
+                          num.tryParse(char) != null) {
                         final price = num.parse(priceController.text.trim());
                         final percent = num.parse(char.trim());
-                        resultPriceController.text = (price * (1 + (percent / 100))).toStringAsFixed(1);
+                        resultPriceController.text =
+                            (price * (1 + (percent / 100))).toStringAsFixed(1);
                         setState(() {});
                       }
                     },
@@ -242,10 +257,13 @@ class _AddProductPageState extends State<AddProductPage> {
                     theme: theme,
                     // prefixIcon: !state.isDesktop ? null : Icon(Icons.calculate_outlined),
                     onChanged: (char) {
-                      if (num.tryParse(priceController.text.trim()) != null && num.tryParse(char) != null) {
+                      if (num.tryParse(priceController.text.trim()) != null &&
+                          num.tryParse(char) != null) {
                         final price = num.parse(priceController.text.trim());
                         final resultPrice = num.parse(char.trim());
-                        percentController.text = (((resultPrice - price) * 100) / price).toStringAsFixed(1);
+                        percentController.text =
+                            (((resultPrice - price) * 100) / price)
+                                .toStringAsFixed(1);
                         setState(() {});
                       }
                     },
@@ -278,7 +296,8 @@ class _AddProductPageState extends State<AddProductPage> {
                           for (final item in measures)
                             CustomPopupItem(
                               title: item.name,
-                              onPressed: () => setState(() => _productMeasure = item),
+                              onPressed: () =>
+                                  setState(() => _productMeasure = item),
                             ),
                         ],
                         child: IgnorePointer(
@@ -286,7 +305,8 @@ class _AddProductPageState extends State<AddProductPage> {
                           child: AppTextField(
                             onlyRead: true,
                             title: AppLocales.measures.tr(),
-                            controller: TextEditingController(text: _productMeasure?.name),
+                            controller: TextEditingController(
+                                text: _productMeasure?.name),
                             theme: theme,
                             // prefixIcon: Icon(Icons.scale_outlined),
                           ),
@@ -453,7 +473,8 @@ class _AddProductPageState extends State<AddProductPage> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: theme.secondaryTextColor),
                   // color: theme.accentColor,
-                  image: DecorationImage(image: FileImage(File(image)), fit: BoxFit.cover),
+                  image: DecorationImage(
+                      image: FileImage(File(image)), fit: BoxFit.cover),
                 ),
                 padding: 4.all,
                 child: Align(
@@ -473,8 +494,11 @@ class _AddProductPageState extends State<AddProductPage> {
             SimpleButton(
               onPressed: () async {
                 ImagePicker imagePicker = ImagePicker();
-                await imagePicker.pickImage(source: ImageSource.gallery).then((images) {
-                  if (images != null) setState(() => _imagesList.add(images.path));
+                await imagePicker
+                    .pickImage(source: ImageSource.gallery)
+                    .then((images) {
+                  if (images != null)
+                    setState(() => _imagesList.add(images.path));
                 });
               },
               child: Container(
@@ -527,7 +551,8 @@ class _AddProductPageState extends State<AddProductPage> {
                     child: AppTextField(
                       onlyRead: true,
                       title: AppLocales.productSizeHint.tr(),
-                      controller: TextEditingController(text: _productSize?.name),
+                      controller:
+                          TextEditingController(text: _productSize?.name),
                       theme: theme,
                       prefixIcon: Icon(Icons.expand),
                     ),
@@ -557,7 +582,8 @@ class _AddProductPageState extends State<AddProductPage> {
                     child: AppTextField(
                       onlyRead: true,
                       title: AppLocales.productColorHint.tr(),
-                      controller: TextEditingController(text: _productColor?.name),
+                      controller:
+                          TextEditingController(text: _productColor?.name),
                       theme: theme,
                       prefixIcon: Icon(
                         Icons.circle,
@@ -593,7 +619,9 @@ class _AddProductPageState extends State<AddProductPage> {
 
                     setState(() {});
                   },
-                  icon: _productInformations.contains(item) ? Icons.check_box : Icons.check_box_outline_blank_sharp,
+                  icon: _productInformations.contains(item)
+                      ? Icons.check_box
+                      : Icons.check_box_outline_blank_sharp,
                 ),
             ],
             child: IgnorePointer(
@@ -601,7 +629,11 @@ class _AddProductPageState extends State<AddProductPage> {
               child: AppTextField(
                 onlyRead: true,
                 title: AppLocales.addProductInfoHint.tr(),
-                controller: TextEditingController(text: _productInformations.map((e) => e.name).toList().join(', ')),
+                controller: TextEditingController(
+                    text: _productInformations
+                        .map((e) => e.name)
+                        .toList()
+                        .join(', ')),
                 theme: theme,
                 prefixIcon: Icon(Icons.info_outline),
               ),

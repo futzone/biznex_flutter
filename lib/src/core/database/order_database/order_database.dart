@@ -13,6 +13,7 @@ import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../biznex.dart';
+import '../../../controllers/warehouse_monitoring_controller.dart';
 import '../../model/product_models/product_model.dart';
 import '../../services/printer_multiple_services.dart';
 import '../../services/printer_services.dart';
@@ -73,7 +74,8 @@ class OrderDatabase extends OrderDatabaseRepository {
 
   Future<void> deleteOrder(String id) async {
     await isar.writeTxn(() async {
-      final orderIsar = await isar.orderIsars.filter().idEqualTo(id).findFirst();
+      final orderIsar =
+          await isar.orderIsars.filter().idEqualTo(id).findFirst();
       if (orderIsar != null) {
         await isar.orderIsars.delete(orderIsar.isarId);
       }
@@ -108,10 +110,10 @@ class OrderDatabase extends OrderDatabaseRepository {
 
     await _onUpdateAmounts(order);
 
-
     try {
       final model = await AppStateDatabase().getApp();
-      PrinterServices printerServices = PrinterServices(order: order, model: model);
+      PrinterServices printerServices =
+          PrinterServices(order: order, model: model);
       printerServices.printOrderCheck();
     } catch (e) {
       log("$e");
@@ -119,7 +121,8 @@ class OrderDatabase extends OrderDatabaseRepository {
   }
 
   Future<OrderIsar?> getPlaceOrderIsar(String placeId) async {
-    final orderIsar = await isar.orderIsars.filter().closedEqualTo(false).place((pl) {
+    final orderIsar =
+        await isar.orderIsars.filter().closedEqualTo(false).place((pl) {
       return pl.idEqualTo(placeId);
     }).findFirst();
 
@@ -137,7 +140,11 @@ class OrderDatabase extends OrderDatabaseRepository {
 
     if (!Platform.isWindows) return null;
 
-    final orderIsar = await isar.orderIsars.filter().statusEqualTo(Order.opened).closedEqualTo(false).place((pl) {
+    final orderIsar = await isar.orderIsars
+        .filter()
+        .statusEqualTo(Order.opened)
+        .closedEqualTo(false)
+        .place((pl) {
       return pl.idEqualTo(placeId);
     }).findFirst();
 
@@ -152,7 +159,8 @@ class OrderDatabase extends OrderDatabaseRepository {
       return;
     }
 
-    final orderIsar = await isar.orderIsars.filter().closedEqualTo(false).place((pl) {
+    final orderIsar =
+        await isar.orderIsars.filter().closedEqualTo(false).place((pl) {
       return pl.idEqualTo(placeId);
     }).findFirst();
     await isar.writeTxn(() async {
@@ -162,7 +170,10 @@ class OrderDatabase extends OrderDatabaseRepository {
     });
   }
 
-  Future<void> setPlaceOrder({required data, required String placeId, bool disablePrint = false}) async {
+  Future<void> setPlaceOrder(
+      {required data,
+      required String placeId,
+      bool disablePrint = false}) async {
     if (data is! Order) return;
 
     if ((await connectionStatus()) != null) {
@@ -183,14 +194,17 @@ class OrderDatabase extends OrderDatabaseRepository {
     try {
       if (disablePrint) return;
 
-      PrinterMultipleServices printerMultipleServices = PrinterMultipleServices();
-      await printerMultipleServices.printForBack(productInfo, productInfo.products);
+      PrinterMultipleServices printerMultipleServices =
+          PrinterMultipleServices();
+      await printerMultipleServices.printForBack(
+          productInfo, productInfo.products);
     } catch (_) {
       ///
     }
   }
 
-  Future<void> updatePlaceOrder({required data, required String placeId}) async {
+  Future<void> updatePlaceOrder(
+      {required data, required String placeId}) async {
     if (data is! Order) return;
 
     if ((await connectionStatus()) != null) {
@@ -198,7 +212,8 @@ class OrderDatabase extends OrderDatabaseRepository {
       return;
     }
 
-    final orderIsar = await isar.orderIsars.filter().closedEqualTo(false).place((pl) {
+    final orderIsar =
+        await isar.orderIsars.filter().closedEqualTo(false).place((pl) {
       return pl.idEqualTo(placeId);
     }).findFirst();
 
@@ -215,8 +230,10 @@ class OrderDatabase extends OrderDatabaseRepository {
 
     try {
       if (orderIsar == null) return;
-      PrinterMultipleServices printerMultipleServices = PrinterMultipleServices();
-      final List<OrderItem> changes = _onGetChanges(order.products, Order.fromIsar(orderIsar));
+      PrinterMultipleServices printerMultipleServices =
+          PrinterMultipleServices();
+      final List<OrderItem> changes =
+          _onGetChanges(order.products, Order.fromIsar(orderIsar));
 
       log('changes: ${changes.length}');
 
@@ -235,10 +252,20 @@ class OrderDatabase extends OrderDatabaseRepository {
     final order = await getPlaceOrder(placeId);
     log("Save order: ${order?.id}");
     if (order != null) {
-
-
       await _onUpdateAmounts(order);
       await saveOrder(order);
+
+      try {
+        final state = await AppStateDatabase().getApp();
+        WarehouseMonitoringController warehouseMonitoringController =
+            WarehouseMonitoringController(state);
+
+        await warehouseMonitoringController.updateIngredientDetails(
+          products: order.products,
+        );
+      } catch (_) {
+        return;
+      }
     }
   }
 
@@ -272,10 +299,13 @@ class OrderDatabase extends OrderDatabaseRepository {
   getBoxName(String s) => 'orders';
 }
 
-List<OrderItem> _onGetChanges(List<OrderItem> newItemsList, Order oldOrderState) {
+List<OrderItem> _onGetChanges(
+    List<OrderItem> newItemsList, Order oldOrderState) {
   final List<OrderItem> changes = [];
 
-  final oldItemsMap = {for (var item in oldOrderState.products) item.product.id: item};
+  final oldItemsMap = {
+    for (var item in oldOrderState.products) item.product.id: item
+  };
   final newItemsMap = {for (var item in newItemsList) item.product.id: item};
 
   for (final newItem in newItemsList) {

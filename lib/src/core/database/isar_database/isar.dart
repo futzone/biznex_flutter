@@ -1,4 +1,5 @@
 import 'package:biznex/src/core/database/order_database/order_database.dart';
+import 'package:biznex/src/core/model/ingredient_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:isar/isar.dart';
 
@@ -13,7 +14,7 @@ class IsarDatabase {
 
   Future<Isar> init(String dir) async {
     isar = await Isar.open(
-      [OrderIsarSchema],
+      [OrderIsarSchema, IngredientTransactionSchema],
       inspector: true,
       directory: dir,
     );
