@@ -73,7 +73,13 @@ class Product {
   }
 
   factory Product.fromJson(json) {
-    // if (json['name'].toString().contains("Kos")) log(json.toString()); // Keep if needed for debugging
+    double safeDouble(num? value, {double fallback = 0.0}) {
+      if (value == null) return fallback;
+      final d = value.toDouble();
+      if (d.isNaN || d.isInfinite) return fallback;
+      return d;
+    }
+
     return Product(
       name: json['name'],
       barcode: json['barcode'],
@@ -91,9 +97,9 @@ class Product {
       color: json['color'],
       colorCode: json['colorCode'],
       size: json['size'],
-      price: (json['price'] as num).toDouble(),
-      amount: (json['amount'] as num? ?? 1.0).toDouble(),
-      percent: (json['percent'] as num? ?? 0.0).toDouble(),
+      price: safeDouble(json['price'], fallback: 0.0),
+      amount: safeDouble(json['amount'], fallback: 1.0),
+      percent: safeDouble(json['percent'], fallback: 0.0),
       id: json['id'] ?? '',
       productId: json['productId'],
       category:

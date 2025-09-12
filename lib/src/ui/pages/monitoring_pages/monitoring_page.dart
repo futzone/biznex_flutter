@@ -4,6 +4,7 @@ import 'package:biznex/biznex.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/price_percent_provider.dart';
 import 'package:biznex/src/providers/products_provider.dart';
+import 'package:biznex/src/providers/recipe_providers.dart';
 import 'package:biznex/src/providers/transaction_provider.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/providers/employee_orders_provider.dart';
@@ -52,14 +53,18 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
 
     final ordersList = orders.where((order) {
       final createdDate = DateTime.parse(order.createdDate);
-      return _startDate!.isBefore(createdDate) && _endDate!.isAfter(createdDate);
+      return _startDate!.isBefore(createdDate) &&
+          _endDate!.isAfter(createdDate);
     }).toList();
 
-    final percent = (ref.watch(orderPercentProvider).value ?? []).fold(0.0, (perc, item) => perc += item.percent);
+    final percent = (ref.watch(orderPercentProvider).value ?? [])
+        .fold(0.0, (perc, item) => perc += item.percent);
 
     for (final order in ordersList) {
       final productOldPrice = order.products.fold(0.0, (value, product) {
-        final kPrice = (product.amount * (product.product.price * (1 - (100 / (100 + product.product.percent)))));
+        final kPrice = (product.amount *
+            (product.product.price *
+                (1 - (100 / (100 + product.product.percent)))));
 
         return value += kPrice;
       });
@@ -78,11 +83,14 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
   Widget build(BuildContext context) {
     final date = DateTime.now();
     final data = ref.watch(ordersFilterProvider(_filter)).value ?? [];
-    final percent = (ref.watch(orderPercentProvider).value ?? []).fold(0.0, (perc, item) => perc + item.percent);
+    final percent = (ref.watch(orderPercentProvider).value ?? [])
+        .fold(0.0, (perc, item) => perc + item.percent);
 
     final ordersList = data.where((order) {
       final createdDate = DateTime.parse(order.createdDate);
-      return date.day == createdDate.day && date.month == createdDate.month && date.year == createdDate.year;
+      return date.day == createdDate.day &&
+          date.month == createdDate.month &&
+          date.year == createdDate.year;
     }).toList();
 
     double ordersSumm = 0.0;
@@ -110,7 +118,9 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
 
     for (final order in ordersList) {
       final productOldPrice = order.products.fold(0.0, (value, product) {
-        final kPrice = (product.amount * (product.product.price * (1 - (100 / (100 + product.product.percent)))));
+        final kPrice = (product.amount *
+            (product.product.price *
+                (1 - (100 / (100 + product.product.percent)))));
         return value + kPrice;
       });
 
@@ -156,7 +166,8 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                           ).then((date) async {
                             if (date == null) return;
 
-                            MonitoringController mc = MonitoringController(state: state, context: context, ref: ref);
+                            MonitoringController mc = MonitoringController(
+                                state: state, context: context, ref: ref);
                             await mc.onPrintDayMonitoring(date);
                           });
                         },
@@ -167,10 +178,14 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                         child: Row(
                           spacing: 8,
                           children: [
-                            Icon(Iconsax.printer_copy, color: Colors.black, size: 20),
+                            Icon(Iconsax.printer_copy,
+                                color: Colors.black, size: 20),
                             Text(
                               AppLocales.monitoringCheckPrint.tr(),
-                              style: TextStyle(fontFamily: mediumFamily, color: Colors.black, fontSize: 16),
+                              style: TextStyle(
+                                  fontFamily: mediumFamily,
+                                  color: Colors.black,
+                                  fontSize: 16),
                             )
                           ],
                         ),
@@ -197,7 +212,9 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                             children: [
                               if (_textForRange) ...[
                                 Text(
-                                  DateFormat('yyyy, dd-MMMM', context.locale.languageCode).format(_startDate ?? DateTime.now()),
+                                  DateFormat('yyyy, dd-MMMM',
+                                          context.locale.languageCode)
+                                      .format(_startDate ?? DateTime.now()),
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontFamily: boldFamily,
@@ -205,7 +222,9 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                 ),
                                 4.w,
                                 Text(
-                                  DateFormat('yyyy, dd-MMMM', context.locale.languageCode).format(_endDate ?? DateTime.now()),
+                                  DateFormat('yyyy, dd-MMMM',
+                                          context.locale.languageCode)
+                                      .format(_endDate ?? DateTime.now()),
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontFamily: boldFamily,
@@ -220,7 +239,9 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                 ),
                               ] else ...[
                                 Text(
-                                  DateFormat('yyyy, dd-MMMM', context.locale.languageCode).format(_currentDate ?? DateTime.now()),
+                                  DateFormat('yyyy, dd-MMMM',
+                                          context.locale.languageCode)
+                                      .format(_currentDate ?? DateTime.now()),
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontFamily: boldFamily,
@@ -249,16 +270,33 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                     _totalSumm = 0.0;
                                     _percentsSumm = 0.0;
                                     final ordersList = data.where((order) {
-                                      final createdDate = DateTime.parse(order.createdDate);
-                                      return date.day == createdDate.day && date.month == createdDate.month && date.year == createdDate.year;
+                                      final createdDate =
+                                          DateTime.parse(order.createdDate);
+                                      return date.day == createdDate.day &&
+                                          date.month == createdDate.month &&
+                                          date.year == createdDate.year;
                                     }).toList();
 
-                                    final percent = (ref.watch(orderPercentProvider).value ?? []).fold(0.0, (perc, item) => perc += item.percent);
+                                    final percent = (ref
+                                                .watch(orderPercentProvider)
+                                                .value ??
+                                            [])
+                                        .fold(
+                                            0.0,
+                                            (perc, item) =>
+                                                perc += item.percent);
 
                                     for (final order in ordersList) {
                                       order as Order;
-                                      final productOldPrice = order.products.fold(0.0, (value, product) {
-                                        final kPrice = (product.amount * (product.product.price * (1 - (100 / (100 + product.product.percent)))));
+                                      final productOldPrice = order.products
+                                          .fold(0.0, (value, product) {
+                                        final kPrice = (product.amount *
+                                            (product.product.price *
+                                                (1 -
+                                                    (100 /
+                                                        (100 +
+                                                            product.product
+                                                                .percent)))));
 
                                         return value += kPrice;
                                       });
@@ -266,7 +304,8 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                       _ordersSumm += order.price;
                                       _totalSumm += productOldPrice;
                                       if (!order.place.percentNull) {
-                                        _percentsSumm += (order.price * (1 - (100 / (100 + percent))));
+                                        _percentsSumm += (order.price *
+                                            (1 - (100 / (100 + percent))));
                                       }
                                     }
 
@@ -328,13 +367,15 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                               Expanded(
                                 child: Text(
                                   "${AppLocales.totalOrderSumm.tr()}: ${getOrdersSumm().priceUZS}",
-                                  style: TextStyle(fontSize: 20, fontFamily: boldFamily),
+                                  style: TextStyle(
+                                      fontSize: 20, fontFamily: boldFamily),
                                 ),
                               ),
                               Expanded(
                                 child: Text(
                                   "${AppLocales.totalProfit.tr()}: ${getTotalProfit().priceUZS}",
-                                  style: TextStyle(fontSize: 20, fontFamily: boldFamily),
+                                  style: TextStyle(
+                                      fontSize: 20, fontFamily: boldFamily),
                                 ),
                               ),
                             ],
@@ -345,13 +386,15 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                               Expanded(
                                 child: Text(
                                   "${AppLocales.profitFromProducts.tr()}: ${getTotalSumm().priceUZS}",
-                                  style: TextStyle(fontSize: 20, fontFamily: boldFamily),
+                                  style: TextStyle(
+                                      fontSize: 20, fontFamily: boldFamily),
                                 ),
                               ),
                               Expanded(
                                 child: Text(
                                   "${AppLocales.profitFromPercents.tr()}: ${getPercentsSumm().priceUZS}",
-                                  style: TextStyle(fontSize: 20, fontFamily: boldFamily),
+                                  style: TextStyle(
+                                      fontSize: 20, fontFamily: boldFamily),
                                 ),
                               ),
                             ],
@@ -382,7 +425,9 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                     title: AppLocales.employees.tr(),
                                     onPressed: () {
                                       showDesktopModal(
-                                        width: MediaQuery.of(context).size.width * 0.8,
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.8,
                                         context: context,
                                         body: MonitoringEmployeesPage(),
                                       );
@@ -402,7 +447,9 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                     title: AppLocales.products.tr(),
                                     onPressed: () {
                                       showDesktopModal(
-                                        width: MediaQuery.of(context).size.width * 0.8,
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.8,
                                         context: context,
                                         body: MonitoringProductsPage(),
                                       );
@@ -427,7 +474,9 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                     title: AppLocales.orders.tr(),
                                     onPressed: () {
                                       showDesktopModal(
-                                        width: MediaQuery.of(context).size.width * 0.8,
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.8,
                                         context: context,
                                         body: MonitoringOrdersPage(),
                                       );
@@ -446,7 +495,58 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                     title: AppLocales.transactions.tr(),
                                     onPressed: () {
                                       showDesktopModal(
-                                        width: MediaQuery.of(context).size.width * 0.8,
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.8,
+                                        context: context,
+                                        body: MonitoringTransactionsPage(),
+                                      );
+                                    },
+                                    count: trs.length,
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          spacing: context.w(24),
+                          children: [
+                            Expanded(
+                              child: state.whenProviderData(
+                                provider: ingredientsProvider,
+                                builder: (ord) {
+                                  return MonitoringCard(
+                                    count: ord.length,
+                                    icon: Icons.set_meal,
+                                    theme: theme,
+                                    title: AppLocales.ingredients.tr(),
+                                    onPressed: () {
+                                      showDesktopModal(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.8,
+                                        context: context,
+                                        body: MonitoringOrdersPage(),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                            Expanded(
+                              child: state.whenProviderData(
+                                provider: shoppingProvider,
+                                builder: (trs) {
+                                  return MonitoringCard(
+                                    icon: Icons.shop_2_outlined,
+                                    theme: theme,
+                                    title: AppLocales.shopping.tr(),
+                                    onPressed: () {
+                                      showDesktopModal(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.8,
                                         context: context,
                                         body: MonitoringTransactionsPage(),
                                       );

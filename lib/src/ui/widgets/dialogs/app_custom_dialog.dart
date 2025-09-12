@@ -24,7 +24,8 @@ Future showDesktopModal({required BuildContext context, required Widget body, do
                 margin: Dis.only(tb: 16),
                 height: 4,
                 width: 32,
-                decoration: BoxDecoration(
+                decoration: BoxDecoration
+                  (
                   borderRadius: BorderRadius.circular(4),
                   color: Colors.grey,
                 ),

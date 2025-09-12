@@ -545,4 +545,5 @@ abstract class AppLocales {
   static var addToTransactions = "addToTransactions";
   static var updateIngredientData = "updateIngredientData";
   static var shoppingItemsError = "shoppingItemsError";
+  static var ingredients = "ingredients";
 }
