@@ -18,7 +18,8 @@ class AppSidebar extends HookConsumerWidget {
 
   const AppSidebar(this.pageNotifier, {super.key});
 
-  Widget _buildSidebarItem(BuildContext context, String name, dynamic icon, bool selected, onPressed, bool opened) {
+  Widget _buildSidebarItem(BuildContext context, String name, dynamic icon,
+      bool selected, onPressed, bool opened) {
     return WebButton(
       onPressed: onPressed,
       builder: (focused) {
@@ -55,7 +56,8 @@ class AppSidebar extends HookConsumerWidget {
                     context.w(12).w,
                     Text(
                       name,
-                      style: TextStyle(color: Colors.white, fontSize: context.s(14)),
+                      style: TextStyle(
+                          color: Colors.white, fontSize: context.s(14)),
                     ),
                   ],
                 )
@@ -101,8 +103,12 @@ class AppSidebar extends HookConsumerWidget {
         color: theme.sidebarBG,
         width: context.w(openedValue.value ? 320 : 96),
         child: Column(
-          crossAxisAlignment: openedValue.value ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-          mainAxisAlignment: openedValue.value ? MainAxisAlignment.start : MainAxisAlignment.center,
+          crossAxisAlignment: openedValue.value
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.center,
+          mainAxisAlignment: openedValue.value
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.center,
           children: [
             SimpleButton(
               onPressed: () {
@@ -118,7 +124,10 @@ class AppSidebar extends HookConsumerWidget {
                       ),
                     )
                   : Padding(
-                      padding: Dis.only(top: context.h(36), left: context.w(24), right: context.w(16)),
+                      padding: Dis.only(
+                          top: context.h(36),
+                          left: context.w(24),
+                          right: context.w(16)),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -147,7 +156,44 @@ class AppSidebar extends HookConsumerWidget {
                       ),
                     ),
             ),
-            56.h,
+
+            state.whenProviderData(
+                provider: appExpireProvider,
+                builder: (data) {
+                  log(data.toString());
+                  if (data <= 3) {
+                    return Container(
+                      margin: Dis.only(top: 24, lr: 24),
+                      padding: Dis.only(lr: 16, tb: 16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: theme.amber),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        spacing: 12,
+                        children: [
+                          Icon(
+                            Ionicons.warning_outline,
+                            color: theme.amber,
+                            size: 32,
+                          ),
+                          Expanded(
+                            child: Text(
+                              AppLocales.subscriptionPaymentText.tr(),
+                              style: TextStyle(
+                                fontFamily: mediumFamily,
+                                color: theme.amber,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return 32.h;
+                }),
+            24.h,
             Expanded(
               child: SingleChildScrollView(
                 padding: Dis.only(lr: context.w(16)),
@@ -158,34 +204,44 @@ class AppSidebar extends HookConsumerWidget {
                     // sidebarItemBuilder("assets/icons/pie.svg", AppLocales.overview.tr(), 0),
                     // sidebarItemBuilder("assets/icons/shopping.svg", AppLocales.set.tr(), 1),
                     sidebarItemBuilder(Iconsax.bag, AppLocales.orders.tr(), 2),
-                    sidebarItemBuilder(Iconsax.card, AppLocales.transactions.tr(), 9),
-                    sidebarItemBuilder(Iconsax.reserve, AppLocales.products.tr(), 4),
-                    sidebarItemBuilder("assets/svg/warehouse.svg", AppLocales.warehouse.tr(), 12),
-                    sidebarItemBuilder(Iconsax.grid_3, AppLocales.categories.tr(), 3),
+                    sidebarItemBuilder(
+                        Iconsax.card, AppLocales.transactions.tr(), 9),
+                    sidebarItemBuilder(
+                        Iconsax.reserve, AppLocales.products.tr(), 4),
+                    sidebarItemBuilder("assets/svg/warehouse.svg",
+                        AppLocales.warehouse.tr(), 12),
+                    sidebarItemBuilder(
+                        Iconsax.grid_3, AppLocales.categories.tr(), 3),
                     // sidebarItemBuilder("assets/icons/verified.svg", AppLocales.promos.tr(), 3),
-                    sidebarItemBuilder("assets/icons/dining-table.svg", AppLocales.places.tr(), 10),
+                    sidebarItemBuilder("assets/icons/dining-table.svg",
+                        AppLocales.places.tr(), 10),
                     // sidebarItemBuilder(Iconsax.info_circle, AppLocales.productInformation.tr(), 5),
-                    sidebarItemBuilder(Iconsax.setting_4, AppLocales.productParams.tr(), 6),
+                    sidebarItemBuilder(
+                        Iconsax.setting_4, AppLocales.productParams.tr(), 6),
                     // sidebarItemBuilder("assets/icons/hanger.svg", AppLocales.productSizes.tr(), 6),
-                    sidebarItemBuilder(Iconsax.chart_square, AppLocales.reports.tr(), 7),
-                    sidebarItemBuilder(Iconsax.profile_2user, AppLocales.employees.tr(), 8),
+                    sidebarItemBuilder(
+                        Iconsax.chart_square, AppLocales.reports.tr(), 7),
+                    sidebarItemBuilder(
+                        Iconsax.profile_2user, AppLocales.employees.tr(), 8),
                     state.whenProviderData(
                       provider: clientStateProvider,
                       builder: (data) {
-                        return sidebarItemBuilder(Iconsax.cloud_copy, AppLocales.cloudData.tr(), 11);
+                        return sidebarItemBuilder(
+                            Iconsax.cloud_copy, AppLocales.cloudData.tr(), 11);
                       },
                     ),
                     SimpleButton(
                       onPressed: () async {
-
                         final isFullScreen = await ScreenDatabase.get();
-                        await FullScreenWindow.setFullScreen(!isFullScreen).then((_) async {
+                        await FullScreenWindow.setFullScreen(!isFullScreen)
+                            .then((_) async {
                           await ScreenDatabase.set();
                         });
                       },
                       child: IgnorePointer(
                         ignoring: true,
-                        child: sidebarItemBuilder("assets/icons/fullscreen.svg", AppLocales.fullScreen.tr(), -1),
+                        child: sidebarItemBuilder("assets/icons/fullscreen.svg",
+                            AppLocales.fullScreen.tr(), -1),
                       ),
                     ),
 
@@ -195,7 +251,8 @@ class AppSidebar extends HookConsumerWidget {
                       },
                       child: IgnorePointer(
                         ignoring: true,
-                        child: sidebarItemBuilder(Iconsax.logout_copy, AppLocales.logout.tr(), -1),
+                        child: sidebarItemBuilder(
+                            Iconsax.logout_copy, AppLocales.logout.tr(), -1),
                       ),
                     ),
                     // sidebarItemBuilder("assets/icons/printer-svgrepo-com.svg", AppLocales.printing.tr(), 9),

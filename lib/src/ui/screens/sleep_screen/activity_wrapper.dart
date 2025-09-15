@@ -94,7 +94,7 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
     _resetInactivityTimer();
   }
 
-  void _autoUpdateCall() async => await checkAndUpdate(updateNotifier, lastVersion, widget.ref);
+  // void _autoUpdateCall() async => await checkAndUpdate(updateNotifier, lastVersion, widget.ref);
 
   void _localChangesSync() async {
     if (!(await Network().isConnected())) return;
@@ -124,7 +124,7 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
   @override
   void initState() {
     super.initState();
-    _autoUpdateCall();
+    // _autoUpdateCall();
     _localChangesSync();
     _focusNode = FocusNode();
     WidgetsBinding.instance.addPostFrameCallback((_) {

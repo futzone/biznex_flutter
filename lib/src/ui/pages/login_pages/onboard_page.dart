@@ -34,6 +34,7 @@ class OnboardPage extends ConsumerStatefulWidget {
 
 class _OnboardPageState extends ConsumerState<OnboardPage> {
   final TextEditingController _controller = TextEditingController();
+  bool showWarning = true;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +47,8 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
               },
               loading: () => AppLoadingScreen(),
               data: (employees) {
-                if (employees.isEmpty && getDeviceType(context) == DeviceType.mobile) {
+                if (employees.isEmpty &&
+                    getDeviceType(context) == DeviceType.mobile) {
                   return Scaffold(
                     body: Center(
                       child: Padding(
@@ -98,9 +100,13 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                     ),
                   );
                 }
-                if (employees.isEmpty) return LoginPageHarom(model: state, theme: theme, fromAdmin: true);
+                if (employees.isEmpty) {
+                  return LoginPageHarom(
+                      model: state, theme: theme, fromAdmin: true);
+                }
                 if (getDeviceType(context) == DeviceType.mobile) {
-                  return OnboardMobile(employees: employees, theme: theme, state: state);
+                  return OnboardMobile(
+                      employees: employees, theme: theme, state: state);
                 }
 
                 return Scaffold(
@@ -109,7 +115,8 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage('assets/images/0307ca967f3a160c45813e6188ae5bf31a7a7ecf.png'),
+                        image: AssetImage(
+                            'assets/images/0307ca967f3a160c45813e6188ae5bf31a7a7ecf.png'),
                         filterQuality: FilterQuality.low,
                         fit: BoxFit.cover,
                       ),
@@ -118,6 +125,76 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                       color: Colors.black.withValues(alpha: 0.2),
                       child: Column(
                         children: [
+                          state.whenProviderData(
+                              provider: appExpireProvider,
+                              builder: (data) {
+                                log(data.toString());
+                                if (data <= 3 && showWarning) {
+                                  return Container(
+                                    padding: Dis.only(lr: 16, tb: 16),
+                                    decoration: BoxDecoration(
+                                      color: theme.scaffoldBgColor,
+                                      // borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      spacing: 12,
+                                      children: [
+                                        Icon(
+                                          Ionicons.warning_outline,
+                                          color: theme.amber,
+                                          size: 24,
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            AppLocales.subscriptionPaymentText
+                                                .tr(),
+                                            style: TextStyle(
+                                              fontFamily: mediumFamily,
+                                              color: theme.amber,
+                                            ),
+                                          ),
+                                        ),
+                                        SimpleButton(
+                                          onPressed: () => setState(
+                                              () => showWarning = false),
+                                          child: Container(
+                                            padding: Dis.only(lr: 12, tb: 4),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              border: Border.all(
+                                                color: theme.secondaryTextColor,
+                                              ),
+                                            ),
+                                            child: Row(
+                                              spacing: 8,
+                                              children: [
+                                                Icon(
+                                                  Icons.close,
+                                                  size: 16,
+                                                  color:
+                                                      theme.secondaryTextColor,
+                                                ),
+                                                Text(
+                                                  AppLocales.close.tr(),
+                                                  style: TextStyle(
+                                                    fontFamily: regularFamily,
+                                                    fontSize: 12,
+                                                    color: theme
+                                                        .secondaryTextColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+
+                                return 0.h;
+                              }),
                           ClipRRect(
                             child: BackdropFilter(
                               filter: ImageFilter.blur(
@@ -127,9 +204,11 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                               child: Container(
                                 padding: Dis.only(lr: 24, tb: 8),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    SvgPicture.asset("assets/images/Vector.svg"),
+                                    SvgPicture.asset(
+                                        "assets/images/Vector.svg"),
                                     Spacer(),
                                     IconButton(
                                       onLongPress: () async {
@@ -137,7 +216,10 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                         AppStateDatabase().updateApp(state);
                                       },
                                       onPressed: () async {
-                                        showDesktopModal(context: context, body: ApiAddressScreen(), width: 400);
+                                        showDesktopModal(
+                                            context: context,
+                                            body: ApiAddressScreen(),
+                                            width: 400);
                                       },
                                       icon: Icon(
                                         Icons.language,
@@ -148,8 +230,11 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                     IconButton(
                                       // onLongPress: ,
                                       onPressed: () async {
-                                        final isFullScreen = await ScreenDatabase.get();
-                                        await FullScreenWindow.setFullScreen(!isFullScreen).then((_) async {
+                                        final isFullScreen =
+                                            await ScreenDatabase.get();
+                                        await FullScreenWindow.setFullScreen(
+                                                !isFullScreen)
+                                            .then((_) async {
                                           await ScreenDatabase.set();
                                         });
                                       },
@@ -167,13 +252,16 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                           Expanded(
                             child: GridView.builder(
                               padding: 16.all,
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 4,
                                 mainAxisSpacing: 16,
                                 crossAxisSpacing: 16,
                                 childAspectRatio: 2.0,
                               ),
-                              itemCount: state.apiUrl == null ? employees.length + 1 : employees.length,
+                              itemCount: state.apiUrl == null
+                                  ? employees.length + 1
+                                  : employees.length,
                               itemBuilder: (context, index) {
                                 if (index == 0 && state.apiUrl == null) {
                                   return OnboardCard(
@@ -182,18 +270,29 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                     fullname: "Admin",
                                     onPressed: () {
                                       AppRouter.go(
-                                          context, LoginPageHarom(model: state, theme: theme, fromAdmin: true));
+                                          context,
+                                          LoginPageHarom(
+                                              model: state,
+                                              theme: theme,
+                                              fromAdmin: true));
                                     },
                                   );
                                 }
-                                final employee = employees[state.apiUrl == null ? (index - 1) : index];
+                                final employee = employees[
+                                    state.apiUrl == null ? (index - 1) : index];
                                 return OnboardCard(
                                   theme: theme,
                                   roleName: employee.roleName,
                                   fullname: employee.fullname,
                                   onPressed: () {
-                                    ref.read(currentEmployeeProvider.notifier).update((state) => employee);
-                                    AppRouter.go(context, LoginPageHarom(model: state, theme: theme));
+                                    ref
+                                        .read(currentEmployeeProvider.notifier)
+                                        .update((state) => employee);
+                                    AppRouter.go(
+                                      context,
+                                      LoginPageHarom(
+                                          model: state, theme: theme),
+                                    );
                                   },
                                 );
                               },

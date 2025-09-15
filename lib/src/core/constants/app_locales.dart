@@ -546,4 +546,9 @@ abstract class AppLocales {
   static var updateIngredientData = "updateIngredientData";
   static var shoppingItemsError = "shoppingItemsError";
   static var ingredients = "ingredients";
+  static var alreadyLastVersion = "alreadyLastVersion";
+  static var test = "test";
+  static var stable = "stable";
+  static var updateAppError = "updateAppError";
+  static var subscriptionPaymentText = "subscriptionPaymentText";
 }

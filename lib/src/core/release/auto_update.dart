@@ -10,8 +10,8 @@ import 'package:process_run/shell.dart';
 import 'package:pub_semver/pub_semver.dart';
 import '../../../main.dart';
 
-const updateDataUrl =
-    "https://raw.githubusercontent.com/futzone/biznex-offline/refs/heads/main/assets/releases/release.json";
+final String updateApiUrl =
+    'https://noco.biznex.uz/api/collections/updates/records/?filter=fastfood=false&sort=-created&perPage=1';
 
 class AppUpdate {
   String text;
@@ -31,8 +31,8 @@ class AppUpdate {
   });
 }
 
-Future<void> checkAndUpdate(
-    ValueNotifier<AppUpdate> appUpdate, ValueNotifier<String> lastVersion, WidgetRef ref) async {
+Future<void> checkAndUpdate(ValueNotifier<AppUpdate> appUpdate,
+    ValueNotifier<String> lastVersion, WidgetRef ref) async {
   if (ref.watch(_checkerProvider)) return;
   if (!(await isConnected())) {
     appUpdate.value = AppUpdate(
@@ -46,14 +46,16 @@ Future<void> checkAndUpdate(
   }
 
   log("checking for updates");
-  final response = await http.get(Uri.parse(updateDataUrl));
+  final response = await http.get(Uri.parse(updateApiUrl));
 
   if (response.statusCode == 200 || response.statusCode == 201) {
     final data = jsonDecode(response.body);
-    log(data.toString());
 
-    final latest = Version.parse(data['version']);
-    lastVersion.value = data['version'];
+    if(data['items'].length == 0)return;
+    final latestVersion = data['items'][0];
+
+    final latest = Version.parse(latestVersion['version']);
+    lastVersion.value = latestVersion['version'];
     final currentVersion = await _getVersion();
     final current = Version.parse(currentVersion);
 
@@ -66,7 +68,6 @@ Future<void> checkAndUpdate(
         haveUpdate: true,
         step: AppUpdate.updatingStep,
       );
-      log("have new updates. downloading...");
       final url = data['url'];
       final client = http.Client();
       final request = http.Request('GET', Uri.parse(url));
@@ -143,5 +144,5 @@ Future<bool> isConnected() async {
   }
 }
 
-final appVersionProvider = FutureProvider((ref) async => await _getVersion());
+// final appVersionProvider = FutureProvider((ref) async => await _getVersion());
 final _checkerProvider = StateProvider((ref) => false);

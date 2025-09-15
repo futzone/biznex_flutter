@@ -11,6 +11,7 @@ import 'package:biznex/src/core/release/auto_update.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:biznex/src/providers/price_percent_provider.dart';
 import 'package:biznex/src/providers/printer_devices_provider.dart';
+import 'package:biznex/src/ui/screens/settings_screen/app_updater_screen.dart';
 import 'package:biznex/src/ui/screens/settings_screen/network_interface_screen.dart';
 import 'package:biznex/src/ui/screens/settings_screen/warehouse_type_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
@@ -77,13 +78,24 @@ class SettingsPageScreen extends HookConsumerWidget {
                         ),
                       ),
                       state.whenProviderData(
-                        provider: appVersionProvider,
-                        builder: (version) {
+                        provider: appUpdaterProvider,
+                        builder: (data) {
+                          final current = data['current'];
+                          final version = data['version'];
                           return SimpleButton(
                             onLongPress: () {
                               showDesktopModal(
                                 body: NetworkConnection(),
                                 context: context,
+                              );
+                            },
+                            onPressed: () {
+                              showDesktopModal(
+                                context: context,
+                                body: AppUpdaterScreen(
+                                  version: version,
+                                  theme: theme,
+                                ),
                               );
                             },
                             child: Container(
@@ -93,7 +105,7 @@ class SettingsPageScreen extends HookConsumerWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                "${AppLocales.appVersions.tr()}: v$version",
+                                "${AppLocales.appVersions.tr()}: v$current",
                                 style: TextStyle(
                                   fontSize: context.s(14),
                                   fontFamily: mediumFamily,

@@ -1,7 +1,7 @@
 import 'dart:developer';
+import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/services/device_id_service.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
-
 
 class LicenseServices {
   final String _key =
@@ -14,6 +14,7 @@ class LicenseServices {
   }
 
   Future<bool> verifyLicense(String inputKey) async {
+    log(inputKey);
     try {
       final jwt = JWT.verify(inputKey, SecretKey(_key));
       final id = await getDeviceId();
@@ -23,5 +24,21 @@ class LicenseServices {
       log(error.toString());
       return false;
     }
+  }
+
+  Future<int> getJwtDaysLeft() async {
+    try {
+      final token = await AppStateDatabase().getApp();
+      final decoded = JWT.decode(token.licenseKey).payload;
+      if (decoded.containsKey("exp")) {
+        int exp = decoded["exp"];
+        DateTime expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+        Duration diff = expiryDate.difference(DateTime.now());
+        return diff.inDays;
+      }
+    } catch (e) {
+      print("JWT decode error: $e");
+    }
+    return -1;
   }
 }
