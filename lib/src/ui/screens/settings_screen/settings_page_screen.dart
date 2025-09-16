@@ -626,8 +626,6 @@ class SettingsPageScreen extends HookConsumerWidget {
                 24.h,
                 AppLanguageBar(),
                 24.h,
-                WarehouseTypeScreen(),
-                24.h,
                 if ((ref.watch(networkInterfaceProvider).value ?? [])
                     .isNotEmpty)
                   NetworkInterfaceScreen(),

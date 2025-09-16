@@ -35,7 +35,7 @@ class RecipeController {
     double? calory,
   }) async {
     String? imageUrl;
-    if (image != null) {
+    if (image != null && image.isNotEmpty) {
       imageUrl = await ImageService.copyImageToAppFolder(image);
     }
 

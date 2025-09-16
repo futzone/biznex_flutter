@@ -1,8 +1,11 @@
+import 'dart:developer';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/product_database/recipe_database.dart';
 import 'package:biznex/src/core/database/product_database/shopping_database.dart';
 import 'package:biznex/src/core/model/ingredient_models/ingredient_model.dart';
+import 'package:biznex/src/core/model/order_models/order.dart';
+import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:isar/isar.dart';
 
 final productRecipeProvider = FutureProvider.family((ref, String id) async {
@@ -29,8 +32,13 @@ final shoppingProvider = FutureProvider((ref) async {
   return data;
 });
 
-final ingredientTransactionsProvider = FutureProvider((ref) async {
+final ingredientTransactionsProvider =
+    FutureProvider.family((ref, String id) async {
   final isar = IsarDatabase.instance.isar;
-  final data = await isar.ingredientTransactions.where().findAll();
+
+  final data = await isar.ingredientTransactions
+      .filter()
+      .product((pr) => pr.idEqualTo(id))
+      .findAll();
   return data;
 });

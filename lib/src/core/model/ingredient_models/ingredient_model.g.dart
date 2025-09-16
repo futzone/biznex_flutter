@@ -28,19 +28,24 @@ const IngredientTransactionSchema = CollectionSchema(
       name: r'createdDate',
       type: IsarType.string,
     ),
-    r'id': PropertySchema(
+    r'fromShopping': PropertySchema(
       id: 2,
+      name: r'fromShopping',
+      type: IsarType.bool,
+    ),
+    r'id': PropertySchema(
+      id: 3,
       name: r'id',
       type: IsarType.string,
     ),
     r'product': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'product',
       type: IsarType.object,
       target: r'ProductIsar',
     ),
     r'updatedDate': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'updatedDate',
       type: IsarType.string,
     )
@@ -86,14 +91,15 @@ void _ingredientTransactionSerialize(
 ) {
   writer.writeDouble(offsets[0], object.amount);
   writer.writeString(offsets[1], object.createdDate);
-  writer.writeString(offsets[2], object.id);
+  writer.writeBool(offsets[2], object.fromShopping);
+  writer.writeString(offsets[3], object.id);
   writer.writeObject<ProductIsar>(
-    offsets[3],
+    offsets[4],
     allOffsets,
     ProductIsarSchema.serialize,
     object.product,
   );
-  writer.writeString(offsets[4], object.updatedDate);
+  writer.writeString(offsets[5], object.updatedDate);
 }
 
 IngredientTransaction _ingredientTransactionDeserialize(
@@ -105,15 +111,16 @@ IngredientTransaction _ingredientTransactionDeserialize(
   final object = IngredientTransaction();
   object.amount = reader.readDouble(offsets[0]);
   object.createdDate = reader.readString(offsets[1]);
-  object.id = reader.readString(offsets[2]);
+  object.fromShopping = reader.readBoolOrNull(offsets[2]);
+  object.id = reader.readString(offsets[3]);
   object.isarId = id;
   object.product = reader.readObjectOrNull<ProductIsar>(
-        offsets[3],
+        offsets[4],
         ProductIsarSchema.deserialize,
         allOffsets,
       ) ??
       ProductIsar();
-  object.updatedDate = reader.readString(offsets[4]);
+  object.updatedDate = reader.readString(offsets[5]);
   return object;
 }
 
@@ -129,15 +136,17 @@ P _ingredientTransactionDeserializeProp<P>(
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readBoolOrNull(offset)) as P;
     case 3:
+      return (reader.readString(offset)) as P;
+    case 4:
       return (reader.readObjectOrNull<ProductIsar>(
             offset,
             ProductIsarSchema.deserialize,
             allOffsets,
           ) ??
           ProductIsar()) as P;
-    case 4:
+    case 5:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -441,6 +450,34 @@ extension IngredientTransactionQueryFilter on QueryBuilder<
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'createdDate',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientTransaction, IngredientTransaction,
+      QAfterFilterCondition> fromShoppingIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'fromShopping',
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientTransaction, IngredientTransaction,
+      QAfterFilterCondition> fromShoppingIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'fromShopping',
+      ));
+    });
+  }
+
+  QueryBuilder<IngredientTransaction, IngredientTransaction,
+      QAfterFilterCondition> fromShoppingEqualTo(bool? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'fromShopping',
+        value: value,
       ));
     });
   }
@@ -822,6 +859,20 @@ extension IngredientTransactionQuerySortBy
   }
 
   QueryBuilder<IngredientTransaction, IngredientTransaction, QAfterSortBy>
+      sortByFromShopping() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fromShopping', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IngredientTransaction, IngredientTransaction, QAfterSortBy>
+      sortByFromShoppingDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fromShopping', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IngredientTransaction, IngredientTransaction, QAfterSortBy>
       sortById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -877,6 +928,20 @@ extension IngredientTransactionQuerySortThenBy
       thenByCreatedDateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IngredientTransaction, IngredientTransaction, QAfterSortBy>
+      thenByFromShopping() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fromShopping', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IngredientTransaction, IngredientTransaction, QAfterSortBy>
+      thenByFromShoppingDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'fromShopping', Sort.desc);
     });
   }
 
@@ -940,6 +1005,13 @@ extension IngredientTransactionQueryWhereDistinct
   }
 
   QueryBuilder<IngredientTransaction, IngredientTransaction, QDistinct>
+      distinctByFromShopping() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'fromShopping');
+    });
+  }
+
+  QueryBuilder<IngredientTransaction, IngredientTransaction, QDistinct>
       distinctById({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'id', caseSensitive: caseSensitive);
@@ -973,6 +1045,13 @@ extension IngredientTransactionQueryProperty on QueryBuilder<
       createdDateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'createdDate');
+    });
+  }
+
+  QueryBuilder<IngredientTransaction, bool?, QQueryOperations>
+      fromShoppingProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'fromShopping');
     });
   }
 

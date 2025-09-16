@@ -8,12 +8,11 @@ import 'package:biznex/src/core/database/transactions_database/transactions_data
 import 'package:biznex/src/core/model/ingredient_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
-import 'package:biznex/src/providers/recipe_providers.dart';
-import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
+import 'package:isar/isar.dart';
 
 class WarehouseMonitoringController {
-   final AppModel model;
+  final AppModel model;
 
   WarehouseMonitoringController(this.model);
 
@@ -80,6 +79,7 @@ class WarehouseMonitoringController {
         ..createdDate = DateTime.now().toIso8601String()
         ..amount = decrease
         ..product = product.toIsar()
+        ..fromShopping = false
         ..id = Uuid().v4();
 
       await isarDatabase.writeTxn(() async {

@@ -24,7 +24,7 @@ class AddRecipePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedProduct = useState(recipe?.product);
     final selectedIngredient = useState<Ingredient?>(null);
-    final items = useState(<RecipeItem>[...(recipe?.items??[])]);
+    final items = useState(<RecipeItem>[...(recipe?.items ?? [])]);
     final priceController = useTextEditingController();
     final totalPriceController = useTextEditingController();
     final amountController = useTextEditingController();
@@ -203,6 +203,9 @@ class AddRecipePage extends HookConsumerWidget {
                                   }
 
                                   selectedIngredient.value = product;
+                                  priceController.text =
+                                      product.unitPrice?.toStringAsFixed(2) ??
+                                          '';
                                 },
                               ),
                             );
@@ -228,64 +231,16 @@ class AddRecipePage extends HookConsumerWidget {
                               ],
                             ),
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 16,
-                    children: [
-                      Expanded(
-                        child: AppTextField(
-                          title: AppLocales.price.tr(),
-                          controller: priceController,
-                          theme: theme,
-                          onChanged: (char) {
-                            final priceValue = double.tryParse(char.trim());
-                            final amountValue =
-                                double.tryParse(amountController.text.trim());
-                            totalPriceController.text =
-                                ((priceValue ?? 0.0) * (amountValue ?? 0.0))
-                                    .toStringAsFixed(4);
-                          },
-                          suffixIcon: Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text("UZS"),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: AppTextField(
-                          title: AppLocales.totalPrice.tr(),
-                          controller: totalPriceController,
-                          theme: theme,
-                          onChanged: (str) {
-                            final totalPriceValue = double.tryParse(str.trim());
-                            final amountValue =
-                                double.tryParse(amountController.text.trim());
-
-                            if ((amountValue ?? 0.0) != 0.0) {
-                              priceController.text = ((totalPriceValue ?? 0.0) /
-                                      (amountValue ?? 0.0))
-                                  .toStringAsFixed(4);
+                          onChanged: (val) {
+                            final amountVal = double.tryParse(val.trim());
+                            if (amountVal != null) {
+                              priceController.text =
+                                  ((selectedIngredient.value?.unitPrice ??
+                                              0.0) *
+                                          (amountVal))
+                                      .toStringAsFixed(2);
                             }
                           },
-                          suffixIcon: Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text("UZS"),
-                              ],
-                            ),
-                          ),
                         ),
                       ),
                     ],

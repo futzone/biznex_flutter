@@ -16,11 +16,11 @@ import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/services/printer_services.dart';
 import 'package:biznex/src/providers/employee_orders_provider.dart';
 import 'package:biznex/src/providers/orders_provider.dart'; // Assuming orderSetProvider is here or accessible
-import 'package:biznex/src/ui/pages/order_pages/menu_page.dart';
 import 'package:biznex/src/ui/pages/order_pages/table_choose_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import '../core/model/app_changes_model.dart';
+import '../providers/recipe_providers.dart';
 
 // Placeholder for AppLocales if it's not in biznex/biznex.dart
 // class AppLocales {
@@ -232,6 +232,7 @@ class OrderController {
       ref.invalidate(ordersProvider);
       ref.invalidate(productsProvider);
       ref.invalidate(employeeOrdersProvider);
+      ref.invalidate(ingredientTransactionsProvider);
       final notifier = ref.read(orderSetProvider.notifier);
       notifier.clearPlaceItems(place.id);
 

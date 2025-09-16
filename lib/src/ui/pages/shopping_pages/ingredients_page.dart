@@ -8,6 +8,7 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
 import '../../../../biznex.dart';
+import 'ingredient_detail_screen.dart';
 
 class IngredientsPage extends HookConsumerWidget {
   final AppColors theme;
@@ -101,104 +102,114 @@ class IngredientsPage extends HookConsumerWidget {
                     childCount: ingredients.length,
                     (context, index) {
                       final ingredient = ingredients[index];
-                      return Container(
-                        margin: Dis.only(lr: context.s(24)),
-                        padding: Dis.only(lr: context.w(20), tb: context.h(12)),
-                        decoration: BoxDecoration(
-                          border: Border(
-                              bottom: BorderSide(color: theme.scaffoldBgColor)),
-                          color: theme.white,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  AppFileImage(
-                                    name: ingredient.name,
-                                    path: ingredient.image,
-                                    size: 48,
+                      return SimpleButton(
+                        onPressed: () {
+                          showDesktopModal(
+                            context: context,
+                            body: IngredientDetailScreen(ingredient, theme),
+                          );
+                        },
+                        child: Container(
+                          margin: Dis.only(lr: context.s(24)),
+                          padding:
+                              Dis.only(lr: context.w(20), tb: context.h(12)),
+                          decoration: BoxDecoration(
+                            border: Border(
+                                bottom:
+                                    BorderSide(color: theme.scaffoldBgColor)),
+                            color: theme.white,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    AppFileImage(
+                                      name: ingredient.name,
+                                      path: ingredient.image,
+                                      size: 48,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                flex: 3,
+                                child: Center(child: Text(ingredient.name)),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: Text(
+                                    "${ingredient.quantity.toMeasure} ${ingredient.measure ?? ""}",
+                                    // textAlign: TextAlign.start,
                                   ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              flex: 3,
-                              child: Center(child: Text(ingredient.name)),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Center(
-                                child: Text(
-                                  "${ingredient.quantity.toMeasure} ${ingredient.measure ?? ""}",
-                                  // textAlign: TextAlign.start,
                                 ),
                               ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Center(
-                                child: Text(
-                                  ingredient.unitPrice == null
-                                      ? "-"
-                                      : ingredient.unitPrice!.priceUZS,
+                              Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: Text(
+                                    ingredient.unitPrice == null
+                                        ? "-"
+                                        : ingredient.unitPrice!.priceUZS,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Center(
-                                child: Text(
-                                  DateFormat("yyyy.MM.dd")
-                                      .format(ingredient.createdAt),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                spacing: 8,
-                                children: [
-                                  Text(
-                                    DateFormat("yyyy.MM.dd  HH:mm")
+                              Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: Text(
+                                    DateFormat("yyyy.MM.dd")
                                         .format(ingredient.createdAt),
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                            Expanded(
+                              Expanded(
+                                flex: 2,
                                 child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                SimpleButton(
-                                  onPressed: () {
-                                    showDesktopModal(
-                                      context: context,
-                                      body: AddIngredientScreen(
-                                          ingredient: ingredient),
-                                    );
-                                  },
-                                  child: Container(
-                                    height: context.s(36),
-                                    width: context.s(36),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: theme.scaffoldBgColor,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  spacing: 8,
+                                  children: [
+                                    Text(
+                                      DateFormat("yyyy.MM.dd  HH:mm")
+                                          .format(ingredient.createdAt),
                                     ),
-                                    padding: Dis.all(context.s(8)),
-                                    child: Icon(
-                                      Iconsax.edit_copy,
-                                      size: context.s(20),
-                                      color: theme.secondaryTextColor,
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                  child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  SimpleButton(
+                                    onPressed: () {
+                                      showDesktopModal(
+                                        context: context,
+                                        body: AddIngredientScreen(
+                                            ingredient: ingredient),
+                                      );
+                                    },
+                                    child: Container(
+                                      height: context.s(36),
+                                      width: context.s(36),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        color: theme.scaffoldBgColor,
+                                      ),
+                                      padding: Dis.all(context.s(8)),
+                                      child: Icon(
+                                        Iconsax.edit_copy,
+                                        size: context.s(20),
+                                        color: theme.secondaryTextColor,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ))
-                          ],
+                                ],
+                              ))
+                            ],
+                          ),
                         ),
                       );
                     },

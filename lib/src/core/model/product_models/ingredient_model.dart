@@ -12,18 +12,16 @@ class Ingredient {
   String? measure;
 
   Ingredient({
-    id,
+    required this.id,
     this.image,
     this.calory,
     required this.name,
     required this.quantity,
     this.unitPrice,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    required this.createdAt,
+    required this.updatedAt,
     this.measure,
-  })  : createdAt = createdAt ?? DateTime.now(),
-        id = Uuid().v4(),
-        updatedAt = updatedAt ?? DateTime.now();
+  });
 
   Map<String, dynamic> toMap() {
     return {

@@ -11,4 +11,5 @@ class IngredientTransaction {
   late String updatedDate;
   late double amount;
   late ProductIsar product;
+  late bool? fromShopping;
 }
