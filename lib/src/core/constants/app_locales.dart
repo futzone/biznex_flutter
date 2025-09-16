@@ -551,4 +551,5 @@ abstract class AppLocales {
   static var stable = "stable";
   static var updateAppError = "updateAppError";
   static var subscriptionPaymentText = "subscriptionPaymentText";
+  static var deliveryAddress = "deliveryAddress";
 }

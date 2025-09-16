@@ -13,8 +13,8 @@ import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
+import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-
 import '../../../providers/orders_provider.dart';
 
 class OrderItemsPage extends HookConsumerWidget {
@@ -69,7 +69,8 @@ class OrderItemsPage extends HookConsumerWidget {
 
     final totalPrice = placeOrderItems.fold<double>(
       0,
-      (sum, item) => sum + (item.customPrice ?? item.amount * item.product.price),
+      (sum, item) =>
+          sum + (item.customPrice ?? item.amount * item.product.price),
     );
 
     return orderAsyncValue.when(
@@ -78,12 +79,16 @@ class OrderItemsPage extends HookConsumerWidget {
       data: (order) {
         final noteController = useTextEditingController(text: order?.note);
         final customerNotifier = useState<Customer?>(order?.customer);
+        final addressController = useTextEditingController();
+        final phoneController = useTextEditingController();
         return Expanded(
           flex: getDeviceType(context) == DeviceType.tablet ? 6 : 4,
           child: placeOrderItems.isEmpty
               ? AppEmptyWidget()
               : Container(
-                  margin: mobile ? Dis.only() : Dis.only(right: context.w(32), top: context.h(24)),
+                  margin: mobile
+                      ? Dis.only()
+                      : Dis.only(right: context.w(32), top: context.h(24)),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: mobile ? null : Colors.white,
@@ -116,7 +121,8 @@ class OrderItemsPage extends HookConsumerWidget {
                         // ),
                         Container(
                           margin: Dis.only(top: context.h(16)),
-                          padding: Dis.only(tb: context.h(24), lr: context.w(16)),
+                          padding:
+                              Dis.only(tb: context.h(24), lr: context.w(16)),
                           decoration: minimalistic
                               ? null
                               : BoxDecoration(
@@ -159,11 +165,15 @@ class OrderItemsPage extends HookConsumerWidget {
                                       backgroundColor: theme.scaffoldBgColor,
                                       selectedColor: theme.mainColor,
                                       padding: Dis.only(),
-                                      checkmarkColor: paymentType.value == type ? Colors.white : Colors.black,
+                                      checkmarkColor: paymentType.value == type
+                                          ? Colors.white
+                                          : Colors.black,
                                       label: Text(
                                         type.tr(),
                                         style: TextStyle(
-                                          color: paymentType.value == type ? Colors.white : Colors.black,
+                                          color: paymentType.value == type
+                                              ? Colors.white
+                                              : Colors.black,
                                           fontSize: context.s(14),
                                         ),
                                       ),
@@ -182,9 +192,29 @@ class OrderItemsPage extends HookConsumerWidget {
                                 color: theme.accentColor,
                               ),
 
+                              AppTextField(
+                                prefixIcon: Icon(Iconsax.call_copy),
+                                title: AppLocales.customerPhone.tr(),
+                                controller: phoneController,
+                                theme: theme,
+                              ),
+                              0.h,
+                              AppTextField(
+                                prefixIcon: Icon(Iconsax.location_copy),
+                                title: AppLocales.deliveryAddress.tr(),
+                                controller: addressController,
+                                theme: theme,
+                              ),
+                              Container(
+                                height: 1,
+                                margin: 16.tb,
+                                color: theme.accentColor,
+                              ),
+
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     "${AppLocales.total.tr()}:",
@@ -207,10 +237,12 @@ class OrderItemsPage extends HookConsumerWidget {
                                 theme: theme,
                                 onPressed: () async {
                                   showAppLoadingDialog(context);
-                                  OrderController orderController = OrderController(
+                                  OrderController orderController =
+                                      OrderController(
                                     model: state,
                                     place: place,
-                                    employee: ref.watch(currentEmployeeProvider),
+                                    employee:
+                                        ref.watch(currentEmployeeProvider),
                                   );
 
                                   log((place.father == null).toString());
@@ -221,7 +253,10 @@ class OrderItemsPage extends HookConsumerWidget {
                                       ref,
                                       placeOrderItems,
                                       note: noteController.text.trim(),
-                                      customer: customerNotifier.value,
+                                      customer: Customer(
+                                        name: addressController.text,
+                                        phone: phoneController.text,
+                                      ),
                                       scheduledDate: scheduledTime.value,
                                     );
                                     AppRouter.close(context);
@@ -234,17 +269,29 @@ class OrderItemsPage extends HookConsumerWidget {
                                     placeOrderItems,
                                     order,
                                     note: noteController.text.trim(),
-                                    customer: customerNotifier.value,
+                                    customer: Customer(
+                                      name: addressController.text,
+                                      phone: phoneController.text,
+                                    ),
                                     scheduledDate: scheduledTime.value,
                                   );
                                   try {
-                                    await Future.delayed(Duration(milliseconds: 300));
+                                    await Future.delayed(
+                                        Duration(milliseconds: 300));
 
-                                    await ref.refresh(ordersProvider(place.id).future).then((order) {
+                                    await ref
+                                        .refresh(
+                                            ordersProvider(place.id).future)
+                                        .then((order) {
                                       if (order != null) {
-                                        ref.read(orderSetProvider.notifier).clearPlaceItems(place.id);
-                                        Future.delayed(Duration(milliseconds: 100));
-                                        ref.read(orderSetProvider.notifier).addMultiple(order.products);
+                                        ref
+                                            .read(orderSetProvider.notifier)
+                                            .clearPlaceItems(place.id);
+                                        Future.delayed(
+                                            Duration(milliseconds: 100));
+                                        ref
+                                            .read(orderSetProvider.notifier)
+                                            .addMultiple(order.products);
                                       } else {
                                         // ref.read(orderSetProvider.notifier).clear();
                                       }
@@ -259,25 +306,35 @@ class OrderItemsPage extends HookConsumerWidget {
                                 title: AppLocales.add.tr(),
                               ),
 
-                              if (!(state.apiUrl != null && state.apiUrl!.isNotEmpty)) 8.h,
-                              if (!(state.apiUrl != null && state.apiUrl!.isNotEmpty))
+                              if (!(state.apiUrl != null &&
+                                  state.apiUrl!.isNotEmpty))
+                                8.h,
+                              if (!(state.apiUrl != null &&
+                                  state.apiUrl!.isNotEmpty))
                                 AppPrimaryButton(
                                   theme: theme,
                                   onPressed: () async {
-                                    OrderController orderController = OrderController(
+                                    OrderController orderController =
+                                        OrderController(
                                       model: state,
                                       place: place,
-                                      employee: ref.watch(currentEmployeeProvider),
+                                      employee:
+                                          ref.watch(currentEmployeeProvider),
                                     );
 
                                     await orderController.printCheck(
                                       context,
                                       ref,
                                       note: noteController.text.trim(),
-                                      customer: customerNotifier.value,
+                                      customer: Customer(
+                                        name: addressController.text,
+                                        phone: phoneController.text,
+                                      ),
                                       scheduledDate: scheduledTime.value,
                                       paymentType: paymentType.value,
                                       useCheck: useCheck.value,
+                                      phone: phoneController.text,
+                                      address: addressController.text,
                                     );
                                   },
                                   textColor: theme.mainColor,
@@ -286,7 +343,8 @@ class OrderItemsPage extends HookConsumerWidget {
                                   // title: AppLocales.print.tr(),
                                   // icon: Icons.close,
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     spacing: 8,
                                     children: [
@@ -310,20 +368,27 @@ class OrderItemsPage extends HookConsumerWidget {
                               AppPrimaryButton(
                                 theme: theme,
                                 onPressed: () async {
-                                  OrderController orderController = OrderController(
+                                  OrderController orderController =
+                                      OrderController(
                                     model: state,
                                     place: place,
-                                    employee: ref.watch(currentEmployeeProvider),
+                                    employee:
+                                        ref.watch(currentEmployeeProvider),
                                   );
 
                                   await orderController.closeOrder(
                                     context,
                                     ref,
                                     note: noteController.text.trim(),
-                                    customer: customerNotifier.value,
+                                    customer: Customer(
+                                      name: addressController.text,
+                                      phone: phoneController.text,
+                                    ),
                                     scheduledDate: scheduledTime.value,
                                     paymentType: paymentType.value,
                                     useCheck: useCheck.value,
+                                    phone: phoneController.text,
+                                    address: addressController.text,
                                   );
 
                                   noteController.clear();

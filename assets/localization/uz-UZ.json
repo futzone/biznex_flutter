@@ -542,5 +542,12 @@
   "becomeReport": "Avval hisoblash",
   "addToTransactions": "Umumiy hisobotlarga qo'shish",
   "updateIngredientData": "Masalliqlar ma'lumotlarini yangilash",
-  "shoppingItemsError": "Xarid qilingan mahsulotlar kiritilmadi!"
+  "shoppingItemsError": "Xarid qilingan mahsulotlar kiritilmadi!",
+  "ingredients": "Masalliqlar",
+  "alreadyLastVersion": "Siz allaqachon ilovaning eng so'nggi versiyasidan foydalanmoqdasiz!",
+  "test": "Sinov rejimida",
+  "stable": "Barqaror",
+  "updateAppError": "Ilovani yangilashda xatolik yuz berdi. Internetga ulanishni tekshiring yoki qayta urinib ko'ring.",
+  "subscriptionPaymentText": "Hurmatli foydalanuvchi, obunangiz muddati yakunlanmoqda. Iltimos, obuna to‘lovini o'z vaqtida to'lang!",
+  "deliveryAddress": "Yetkazib berish manzili"
 }

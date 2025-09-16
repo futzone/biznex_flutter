@@ -112,18 +112,23 @@ class OrderController {
       return;
     }
 
-    Order updatedOrder = currentState.copyWith(products: List<OrderItem>.from(newItemsList));
+    Order updatedOrder =
+        currentState.copyWith(products: List<OrderItem>.from(newItemsList));
 
     double totalPrice = newItemsList.fold(0.0, (oldValue, element) {
       return oldValue + (element.amount * element.product.price);
     });
     updatedOrder = updatedOrder.copyWith(price: totalPrice);
 
-    if (customer != null) updatedOrder = updatedOrder.copyWith(customer: customer);
+    if (customer != null)
+      updatedOrder = updatedOrder.copyWith(customer: customer);
     if (note != null) updatedOrder = updatedOrder.copyWith(note: note);
-    if (scheduledDate != null) updatedOrder = updatedOrder.copyWith(scheduledDate: scheduledDate.toIso8601String());
+    if (scheduledDate != null)
+      updatedOrder =
+          updatedOrder.copyWith(scheduledDate: scheduledDate.toIso8601String());
 
-    updatedOrder = updatedOrder.copyWith(updatedDate: DateTime.now().toIso8601String());
+    updatedOrder =
+        updatedOrder.copyWith(updatedDate: DateTime.now().toIso8601String());
 
     await _database.updatePlaceOrder(data: updatedOrder, placeId: place.id);
 
@@ -156,6 +161,8 @@ class OrderController {
     DateTime? scheduledDate,
     String? paymentType,
     bool useCheck = true,
+    String? address,
+    String? phone,
   }) async {
     if (!context.mounted) return;
     showAppLoadingDialog(context);
@@ -165,7 +172,8 @@ class OrderController {
 
     if (currentOrderData == null) {
       final orderItemsFromProvider = ref.read(orderSetProvider);
-      final productsForNewOrder = orderItemsFromProvider.where((e) => e.placeId == place.id).toList();
+      final productsForNewOrder =
+          orderItemsFromProvider.where((e) => e.placeId == place.id).toList();
 
       double totalPrice = productsForNewOrder.fold(0.0, (oldValue, element) {
         return oldValue + (element.amount * element.product.price);
@@ -175,6 +183,7 @@ class OrderController {
         place: place,
         employee: employee,
         price: totalPrice,
+        customer: customer,
         products: productsForNewOrder,
         createdDate: DateTime.now().toIso8601String(),
         updatedDate: DateTime.now().toIso8601String(),
@@ -190,15 +199,20 @@ class OrderController {
     if (!place.percentNull) {
       log(place.toJson().toString());
       // log("${!place.percentNull}");
-      final totalPercent = percents.map((e) => e.percent).fold(0.0, (a, b) => a + b);
-      finalOrder = finalOrder.copyWith(price: finalOrder.price + (finalOrder.price * (totalPercent / 100)));
+      final totalPercent =
+          percents.map((e) => e.percent).fold(0.0, (a, b) => a + b);
+      finalOrder = finalOrder.copyWith(
+          price: finalOrder.price + (finalOrder.price * (totalPercent / 100)));
     }
 
     if (customer != null) finalOrder = finalOrder.copyWith(customer: customer);
     if (note != null) finalOrder = finalOrder.copyWith(note: note);
-    if (scheduledDate != null) finalOrder = finalOrder.copyWith(scheduledDate: scheduledDate.toIso8601String());
+    if (scheduledDate != null)
+      finalOrder =
+          finalOrder.copyWith(scheduledDate: scheduledDate.toIso8601String());
 
-    finalOrder = finalOrder.copyWith(status: Order.completed, updatedDate: DateTime.now().toIso8601String());
+    finalOrder = finalOrder.copyWith(
+        status: Order.completed, updatedDate: DateTime.now().toIso8601String());
 
     await _database.saveOrder(finalOrder);
 
@@ -221,7 +235,8 @@ class OrderController {
       final notifier = ref.read(orderSetProvider.notifier);
       notifier.clearPlaceItems(place.id);
 
-      TransactionController transactionController = TransactionController(context: context, state: model);
+      TransactionController transactionController =
+          TransactionController(context: context, state: model);
       Transaction transaction = Transaction(
         value: finalOrder.price,
         order: finalOrder,
@@ -251,7 +266,8 @@ class OrderController {
       Product product = item.product;
       if (product.amount == 1) continue;
 
-      Product updatedProduct = product.copyWith(amount: product.amount - item.amount);
+      Product updatedProduct =
+          product.copyWith(amount: product.amount - item.amount);
       await productDatabase.update(key: product.id, data: updatedProduct);
     }
 
@@ -259,10 +275,15 @@ class OrderController {
     ref.refresh(productsProvider);
   }
 
-  List<OrderItem> _onGetChanges(List<OrderItem> newItemsList, Order oldOrderState) {
+  List<OrderItem> _onGetChanges(
+      List<OrderItem> newItemsList, Order oldOrderState) {
     final List<OrderItem> changes = [];
-    final Map<String, OrderItem> oldItemsMap = {for (var item in oldOrderState.products) item.product.id: item};
-    final Map<String, OrderItem> newItemsMap = {for (var item in newItemsList) item.product.id: item};
+    final Map<String, OrderItem> oldItemsMap = {
+      for (var item in oldOrderState.products) item.product.id: item
+    };
+    final Map<String, OrderItem> newItemsMap = {
+      for (var item in newItemsList) item.product.id: item
+    };
 
     // Check for added or modified items
     for (final newItem in newItemsList) {
@@ -273,7 +294,8 @@ class OrderController {
       } else {
         // Item existed, check if amount changed
         if (newItem.amount != oldItem.amount) {
-          changes.add(newItem.copyWith(amount: newItem.amount - oldItem.amount));
+          changes
+              .add(newItem.copyWith(amount: newItem.amount - oldItem.amount));
         }
       }
     }
@@ -282,7 +304,8 @@ class OrderController {
     for (final oldItem in oldOrderState.products) {
       if (!newItemsMap.containsKey(oldItem.product.id)) {
         // Item removed
-        changes.add(oldItem.copyWith(amount: -oldItem.amount)); // Negative amount indicates removal
+        changes.add(oldItem.copyWith(
+            amount: -oldItem.amount)); // Negative amount indicates removal
       }
     }
     return changes;
@@ -296,6 +319,8 @@ class OrderController {
     DateTime? scheduledDate,
     String? paymentType,
     bool useCheck = true,
+    String? phone,
+    String? address,
   }) async {
     if (!context.mounted) return;
     showAppLoadingDialog(context);
@@ -305,7 +330,8 @@ class OrderController {
 
     if (currentOrderData == null) {
       final orderItemsFromProvider = ref.read(orderSetProvider);
-      final productsForNewOrder = orderItemsFromProvider.where((e) => e.placeId == place.id).toList();
+      final productsForNewOrder =
+          orderItemsFromProvider.where((e) => e.placeId == place.id).toList();
 
       double totalPrice = productsForNewOrder.fold(0.0, (oldValue, element) {
         return oldValue + (element.amount * element.product.price);
@@ -330,15 +356,20 @@ class OrderController {
     if (!place.percentNull) {
       log(place.toJson().toString());
       // log("${!place.percentNull}");
-      final totalPercent = percents.map((e) => e.percent).fold(0.0, (a, b) => a + b);
-      finalOrder = finalOrder.copyWith(price: finalOrder.price + (finalOrder.price * (totalPercent / 100)));
+      final totalPercent =
+          percents.map((e) => e.percent).fold(0.0, (a, b) => a + b);
+      finalOrder = finalOrder.copyWith(
+          price: finalOrder.price + (finalOrder.price * (totalPercent / 100)));
     }
 
     if (customer != null) finalOrder = finalOrder.copyWith(customer: customer);
     if (note != null) finalOrder = finalOrder.copyWith(note: note);
-    if (scheduledDate != null) finalOrder = finalOrder.copyWith(scheduledDate: scheduledDate.toIso8601String());
+    if (scheduledDate != null)
+      finalOrder =
+          finalOrder.copyWith(scheduledDate: scheduledDate.toIso8601String());
 
-    finalOrder = finalOrder.copyWith(status: Order.completed, updatedDate: DateTime.now().toIso8601String());
+    finalOrder = finalOrder.copyWith(
+        status: Order.completed, updatedDate: DateTime.now().toIso8601String());
     try {
       AppRouter.close(context);
     } catch (_) {
@@ -348,8 +379,9 @@ class OrderController {
         ///
       }
     }
-    PrinterServices printerServices = PrinterServices(order: finalOrder, model: model);
-    printerServices.printOrderCheck();
+    PrinterServices printerServices =
+        PrinterServices(order: finalOrder, model: model);
+    printerServices.printOrderCheck(phone: phone, address: address);
   }
 }
 

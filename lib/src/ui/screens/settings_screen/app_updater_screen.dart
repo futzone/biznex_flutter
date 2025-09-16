@@ -36,7 +36,7 @@ class AppUpdaterScreen extends HookWidget {
             onPressed: () {
               AppRouter.close(context);
             },
-            child: Text(AppLocales.close),
+            child: Text(AppLocales.close.tr()),
           ),
         ],
       );

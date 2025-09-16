@@ -25,7 +25,7 @@ class PrinterServices {
     return await imageFile.readAsBytes();
   }
 
-  void printOrderCheck() async {
+  void printOrderCheck({String? phone, String? address}) async {
     log("printing started");
 
     final fontData = await rootBundle.load('assets/fonts/DejaVuSans.ttf');
@@ -36,25 +36,37 @@ class PrinterServices {
 
     final pdfTheme = pw.TextStyle(font: font, fontSize: 8);
     final headerStyle = pw.TextStyle(font: font, fontSize: 16);
-    final boldStyle = pw.TextStyle(font: font, fontSize: 10);
+    final boldStyle =
+        pw.TextStyle(font: font, fontSize: 8, fontWeight: pw.FontWeight.bold);
 
     final image = await shopLogoImage();
 
     final content = pw.Column(
       mainAxisAlignment: pw.MainAxisAlignment.start,
-      crossAxisAlignment: pw.CrossAxisAlignment.center,
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         if (image != null) pw.Center(child: pw.Image(pw.MemoryImage(image))),
         if (image != null) pw.SizedBox(height: 2),
-        pw.Text(
-          model.shopName == null || model.shopName!.isEmpty ? 'Biznex' : model.shopName!,
-          style: headerStyle,
+        pw.Center(
+          child: pw.Text(
+            model.shopName == null || model.shopName!.isEmpty
+                ? 'Biznex'
+                : model.shopName!,
+            style: headerStyle,
+          ),
         ),
         pw.SizedBox(height: 2),
-        if (model.shopAddress != null) pw.Text(model.shopAddress ?? '', style: pdfTheme),
+        if (model.shopAddress != null)
+          pw.Center(
+            child: pw.Text(model.shopAddress ?? '', style: pdfTheme),
+          ),
         if (model.shopAddress != null) pw.SizedBox(height: 3),
-        pw.Text('${AppLocales.orderNumber.tr()}: ${order.orderNumber ?? DateTime.now().millisecondsSinceEpoch}',
-            style: pdfTheme),
+        pw.Center(
+          child: pw.Text(
+            '${AppLocales.orderNumber.tr()}: ${order.orderNumber ?? DateTime.now().millisecondsSinceEpoch}',
+            style: pdfTheme,
+          ),
+        ),
         pw.SizedBox(height: 4),
         pw.Container(color: PdfColor.fromHex("#000000"), height: 1),
         pw.SizedBox(height: 4),
@@ -105,6 +117,51 @@ class PrinterServices {
               ),
             ),
         ],
+        if (order.customer != null &&
+            (order.customer!.name.isNotEmpty ||
+                order.customer!.phone.isNotEmpty)) ...[
+          pw.SizedBox(height: 4),
+          pw.Container(color: PdfColor.fromHex("#000000"), height: 1),
+          pw.SizedBox(height: 4),
+          if (order.customer?.name != null && order.customer!.name.isNotEmpty)
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              mainAxisAlignment: pw.MainAxisAlignment.start,
+              children: [
+                pw.Text(
+                  "${AppLocales.deliveryAddress.tr()}:",
+                  style: pdfTheme,
+                  overflow: pw.TextOverflow.clip,
+                  maxLines: 2,
+                ),
+                pw.SizedBox(height: 4),
+                pw.Text(
+                  order.customer?.name ?? '',
+                  style: boldStyle,
+                ),
+              ],
+            ),
+          if (order.customer?.phone != null && order.customer!.phone.isNotEmpty)
+            pw.SizedBox(height: 4),
+          if (order.customer?.phone != null && order.customer!.phone.isNotEmpty)
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              mainAxisAlignment: pw.MainAxisAlignment.start,
+              children: [
+                pw.Text(
+                  "${AppLocales.customerPhone.tr()}:",
+                  style: pdfTheme,
+                  overflow: pw.TextOverflow.clip,
+                  maxLines: 2,
+                ),
+                pw.SizedBox(height: 4),
+                pw.Text(
+                  order.customer?.phone ?? '',
+                  style: boldStyle,
+                ),
+              ],
+            ),
+        ],
         pw.SizedBox(height: 4),
         pw.Container(color: PdfColor.fromHex("#000000"), height: 1),
         pw.SizedBox(height: 4),
@@ -143,6 +200,7 @@ class PrinterServices {
             ),
           ],
         ),
+        if (model.printPhone != null) pw.SizedBox(height: 4),
         if (model.printPhone != null)
           pw.Row(
             children: [
@@ -174,18 +232,28 @@ class PrinterServices {
             ),
             pw.SizedBox(width: 8),
             pw.Text(
-              DateFormat('yyyy.MM.dd HH:mm').format(DateTime.parse(order.updatedDate)),
+              DateFormat('yyyy.MM.dd HH:mm')
+                  .format(DateTime.parse(order.updatedDate)),
               style: boldStyle,
             ),
           ],
         ),
         pw.SizedBox(height: 6),
-        pw.Text("${order.price.price} UZS", style: pw.TextStyle(font: font, fontSize: 18)),
+        pw.Center(
+          child: pw.Text(
+            "${order.price.price} UZS",
+            style: pw.TextStyle(font: font, fontSize: 18),
+          ),
+        ),
         pw.SizedBox(height: 6),
         if (model.byeText == null || model.byeText!.isEmpty)
-          pw.Text(AppLocales.thanksForOrder.tr(), style: pdfTheme)
+          pw.Center(
+            child: pw.Text(AppLocales.thanksForOrder.tr(), style: pdfTheme),
+          )
         else
-          pw.Text(model.byeText!, style: pdfTheme),
+          pw.Center(
+            child: pw.Text(model.byeText!, style: pdfTheme),
+          ),
         pw.SizedBox(height: 4),
       ],
     );
@@ -194,8 +262,9 @@ class PrinterServices {
 
     doc.addPage(
       pw.Page(
-        pageFormat:
-            PdfPageFormat(72 * PdfPageFormat.mm, pageHeight * PdfPageFormat.mm, marginAll: 5 * PdfPageFormat.mm),
+        pageFormat: PdfPageFormat(
+            72 * PdfPageFormat.mm, pageHeight * PdfPageFormat.mm,
+            marginAll: 5 * PdfPageFormat.mm),
         build: (pw.Context context) => content,
       ),
     );
