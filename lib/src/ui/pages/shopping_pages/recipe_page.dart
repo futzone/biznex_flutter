@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/model/product_models/recipe_model.dart';
 import 'package:sliver_tools/sliver_tools.dart';
@@ -101,6 +103,8 @@ class RecipePage extends HookConsumerWidget {
                     childCount: recipe.length,
                     (context, index) {
                       final ingredient = recipe[index];
+                      log("${ingredient.product.id} ${ingredient.product.name}");
+                      log(ingredient.id);
                       return Container(
                         margin: Dis.only(lr: context.s(24)),
                         padding: Dis.only(

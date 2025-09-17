@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/isar_database/isar_extension.dart';
@@ -8,6 +10,7 @@ import 'package:biznex/src/core/database/transactions_database/transactions_data
 import 'package:biznex/src/core/model/ingredient_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
+import 'package:biznex/src/core/model/product_models/recipe_item_model.dart';
 import 'package:uuid/uuid.dart';
 import 'package:isar/isar.dart';
 
@@ -20,54 +23,52 @@ class WarehouseMonitoringController {
   final RecipeDatabase recipeDatabase = RecipeDatabase();
   final TransactionsDatabase transactionsDatabase = TransactionsDatabase();
   final ShoppingDatabase shoppingDatabase = ShoppingDatabase();
-  final Isar isarDatabase = IsarDatabase.instance.isar;
+  static final Isar isarDatabase = IsarDatabase.instance.isar;
 
-  Future<void> updateIngredientDetails(
-      {List<OrderItem>? products, Product? product}) async {
-    if (model.after) {
-      await _updateAfterOrder(products ?? []);
-      return;
-    }
+  static Future<void> updateFromShopping(
+      RecipeItem item, String message) async {
+    IngredientTransaction ingredientTransaction = IngredientTransaction()
+      ..updatedDate = DateTime.now().toIso8601String()
+      ..createdDate = DateTime.now().toIso8601String()
+      ..amount = item.amount
+      ..product = Product(name: message, price: 0.0).toIsar()
+      ..fromShopping = true
+      ..id = item.ingredient.id;
 
-    if (product == null) return;
-
-    await _updateBeforeOrder(product);
+    await isarDatabase.writeTxn(() async {
+      await isarDatabase.ingredientTransactions.put(ingredientTransaction);
+    });
   }
 
-  Future<void> _updateAfterOrder(List<OrderItem> products) async {
-    for (final item in products) {
-      final recipe = await recipeDatabase.productRecipe(item.product.id);
-      if (recipe == null) continue;
+  Future<void> updateIngredientDetails({
+    List<OrderItem>? products,
+    Product? product,
+    bool fromShopping = false,
+  }) async {
+    if (product != null) {
+      await _updateProduct(product, shopping: fromShopping);
+    }
 
-      for (final ingredient in recipe.items) {
-        Ingredient? updatedIngredient =
-            await recipeDatabase.getIngredient(ingredient.ingredient.id);
-
-        if (updatedIngredient == null) continue;
-
-        updatedIngredient.updatedAt = DateTime.now();
-
-        final decrease = ingredient.amount * item.amount;
-        updatedIngredient.quantity = (updatedIngredient.quantity - decrease > 0)
-            ? (updatedIngredient.quantity - decrease)
-            : 0;
-
-        await recipeDatabase.saveIngredient(updatedIngredient);
+    if (products != null) {
+      for (final item in products) {
+        await _updateProduct(item.product, shopping: fromShopping);
       }
     }
   }
 
-  Future<void> _updateBeforeOrder(Product product) async {
+  Future<void> _updateProduct(Product product, {bool shopping = false}) async {
     final recipe = await recipeDatabase.productRecipe(product.id);
     if (recipe == null) return;
     for (final ingredient in recipe.items) {
       Ingredient? updatedIngredient =
           await recipeDatabase.getIngredient(ingredient.ingredient.id);
 
+
       if (updatedIngredient == null) continue;
       updatedIngredient.updatedAt = DateTime.now();
 
       final decrease = ingredient.amount * product.amount;
+
       updatedIngredient.quantity =
           (decrease > (updatedIngredient.quantity - decrease))
               ? 0
@@ -79,8 +80,8 @@ class WarehouseMonitoringController {
         ..createdDate = DateTime.now().toIso8601String()
         ..amount = decrease
         ..product = product.toIsar()
-        ..fromShopping = false
-        ..id = Uuid().v4();
+        ..fromShopping = shopping
+        ..id = ingredient.ingredient.id;
 
       await isarDatabase.writeTxn(() async {
         await isarDatabase.ingredientTransactions.put(ingredientTransaction);

@@ -53,11 +53,14 @@ class AppModel {
   AppScreen screen;
   final bool isTablet = false;
 
+  bool offline;
+
   void console(dynamic data, {Object? error, StackTrace? stackTrace}) {
     log("$data", error: error, stackTrace: stackTrace);
   }
 
   AppModel({
+    this.offline = true,
     this.after = true,
     this.baseUrl = '',
     this.currentEmployee,
@@ -115,6 +118,7 @@ class AppModel {
       baseUrl: json['baseUrl'] ?? '',
       apiUrl: json['apiUrl'],
       after: json['after'] ?? true,
+      offline: json['offline'] ?? true,
     );
   }
 
@@ -190,6 +194,7 @@ class AppModel {
       "isServerApp": isServerApp,
       "baseUrl": baseUrl,
       "apiUrl": apiUrl,
+      "offline": offline,
     };
   }
 }

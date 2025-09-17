@@ -36,9 +36,8 @@ final ingredientTransactionsProvider =
     FutureProvider.family((ref, String id) async {
   final isar = IsarDatabase.instance.isar;
 
-  final data = await isar.ingredientTransactions
-      .filter()
-      .product((pr) => pr.idEqualTo(id))
-      .findAll();
+
+  final data =
+      await isar.ingredientTransactions.filter().idEqualTo(id).findAll();
   return data;
 });

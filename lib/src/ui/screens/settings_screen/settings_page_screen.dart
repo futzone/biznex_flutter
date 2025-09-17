@@ -626,6 +626,24 @@ class SettingsPageScreen extends HookConsumerWidget {
                 24.h,
                 AppLanguageBar(),
                 24.h,
+                Container(
+                  padding: context.s(20).all,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade200),
+                    color: Colors.white,
+                  ),
+                  child: SwitchListTile(
+                    value: appState.offline,
+                    onChanged: (val) {
+                      appState.offline = val;
+                      AppStateDatabase().updateApp(appState).then((_) {
+                        ref.invalidate(appStateProvider);
+                      });
+                    },
+                  ),
+                ),
+                24.h,
                 if ((ref.watch(networkInterfaceProvider).value ?? [])
                     .isNotEmpty)
                   NetworkInterfaceScreen(),

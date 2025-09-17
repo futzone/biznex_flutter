@@ -49,13 +49,13 @@ class IngredientDetailScreen extends HookConsumerWidget {
                             child: Center(
                                 child: Text(AppLocales.productName.tr()))),
                         Expanded(
-                            child:
-                            Center(child: Text(AppLocales.amount.tr()))),
+                            child: Center(child: Text(AppLocales.amount.tr()))),
                         Expanded(
                             child: Center(
                                 child: Text(AppLocales.createdDate.tr()))),
                       ],
                     ),
+                    Divider(height: 1, color: theme.accentColor),
                   ],
                 ),
               ),
@@ -63,19 +63,47 @@ class IngredientDetailScreen extends HookConsumerWidget {
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 childCount: transactions.length,
-                    (context, index) {
-                  final transaction = transactions.length;
-                  return Row(
-                    children: [
-                      Expanded(
+                (context, index) {
+                  final transaction = transactions[index];
+                  return Container(
+                    padding: Dis.only(tb: 8),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: theme.accentColor,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
                           child: Center(
-                              child: Text(AppLocales.productName.tr()))),
-                      Expanded(
-                          child: Center(child: Text(AppLocales.amount.tr()))),
-                      Expanded(
+                            child: Text(
+                              "${transaction.fromShopping == true ? '* ' : ''}${transaction.product.name.tr()}",
+                              style: TextStyle(
+                                fontFamily: mediumFamily,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
                           child: Center(
-                              child: Text(AppLocales.createdDate.tr()))),
-                    ],
+                            child: Text(
+                              "${transaction.amount.toMeasure} ${ingredient.measure ?? ""}",
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              DateFormat("yyyy.MM.dd HH:mm").format(
+                                DateTime.parse(transaction.createdDate),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),

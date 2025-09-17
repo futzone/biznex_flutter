@@ -552,4 +552,8 @@ abstract class AppLocales {
   static var updateAppError = "updateAppError";
   static var subscriptionPaymentText = "subscriptionPaymentText";
   static var deliveryAddress = "deliveryAddress";
+  static var shoppingUpdated = "shoppingUpdated";
+  static var createIngredient = "createIngredient";
+  static var updateIngredient = "updateIngredient";
+  static var productUpdate = "productUpdate";
 }

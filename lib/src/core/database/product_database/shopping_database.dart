@@ -1,29 +1,37 @@
 import 'dart:developer';
-
+import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/model/product_models/shopping_model.dart';
-
-import '../../model/ingredient_models/ingredient_model.dart';
+import '../../../controllers/warehouse_monitoring_controller.dart';
 
 class ShoppingDatabase {
   final String _boxName = "shopping";
 
   Future<void> createShopping(Shopping shopping) async {
+    final oldShopping = await getShopping(shopping.id);
+    if (oldShopping == null) {
+      for (final item in shopping.items) {
+        await WarehouseMonitoringController.updateFromShopping(
+          item,
+          AppLocales.shopping,
+        );
+      }
+    } else {
+      for (final item in shopping.items) {
+        final itemChanges = oldShopping.items
+            .where((el) => el.ingredient.id == item.ingredient.id)
+            .firstOrNull;
+        if (itemChanges == null) continue;
 
-    for(final item in shopping.items) {
-      // IngredientTransaction ingredientTransaction = IngredientTransaction()
-      //   ..updatedDate = DateTime.now().toIso8601String()
-      //   ..createdDate = DateTime.now().toIso8601String()
-      //   ..amount = decrease
-      //   ..product = product.toIsar()
-      //   ..id = Uuid().v4();
-      //
-      // await isarDatabase.writeTxn(() async {
-      //   await isarDatabase.ingredientTransactions.put(ingredientTransaction);
-      // });
+        final decrease = itemChanges.amount - item.amount;
+        item.amount = decrease.abs();
+
+        await WarehouseMonitoringController.updateFromShopping(
+          item,
+          AppLocales.shoppingUpdated.tr(),
+        );
+      }
     }
-
-
 
     final box = await Hive.openBox(_boxName);
     await box.put(shopping.id, shopping.toMap());

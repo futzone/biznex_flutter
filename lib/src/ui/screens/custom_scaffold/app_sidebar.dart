@@ -157,42 +157,43 @@ class AppSidebar extends HookConsumerWidget {
                     ),
             ),
 
-            state.whenProviderData(
-                provider: appExpireProvider,
-                builder: (data) {
-                  log(data.toString());
-                  if (data <= 3) {
-                    return Container(
-                      margin: Dis.only(top: 24, lr: 24),
-                      padding: Dis.only(lr: 16, tb: 16),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: theme.amber),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        spacing: 12,
-                        children: [
-                          Icon(
-                            Ionicons.warning_outline,
-                            color: theme.amber,
-                            size: 32,
-                          ),
-                          Expanded(
-                            child: Text(
-                              AppLocales.subscriptionPaymentText.tr(),
-                              style: TextStyle(
-                                fontFamily: mediumFamily,
-                                color: theme.amber,
+            if (openedValue.value)
+              state.whenProviderData(
+                  provider: appExpireProvider,
+                  builder: (data) {
+                    log(data.toString());
+                    if (data <= 3) {
+                      return Container(
+                        margin: Dis.only(top: 24, lr: 24),
+                        padding: Dis.only(lr: 16, tb: 16),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: theme.amber),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          spacing: 12,
+                          children: [
+                            Icon(
+                              Ionicons.warning_outline,
+                              color: theme.amber,
+                              size: 32,
+                            ),
+                            Expanded(
+                              child: Text(
+                                AppLocales.subscriptionPaymentText.tr(),
+                                style: TextStyle(
+                                  fontFamily: mediumFamily,
+                                  color: theme.amber,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
+                          ],
+                        ),
+                      );
+                    }
 
-                  return 32.h;
-                }),
+                    return 32.h;
+                  }),
             24.h,
             Expanded(
               child: SingleChildScrollView(

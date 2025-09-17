@@ -111,6 +111,18 @@ class OrderDatabase extends OrderDatabaseRepository {
     await _onUpdateAmounts(order);
 
     try {
+      final state = await AppStateDatabase().getApp();
+      WarehouseMonitoringController warehouseMonitoringController =
+          WarehouseMonitoringController(state);
+
+      await warehouseMonitoringController.updateIngredientDetails(
+        products: order.products,
+      );
+    } catch (error) {
+      return;
+    }
+
+    try {
       final model = await AppStateDatabase().getApp();
       PrinterServices printerServices =
           PrinterServices(order: order, model: model);
@@ -255,17 +267,7 @@ class OrderDatabase extends OrderDatabaseRepository {
       await _onUpdateAmounts(order);
       await saveOrder(order);
 
-      try {
-        final state = await AppStateDatabase().getApp();
-        WarehouseMonitoringController warehouseMonitoringController =
-            WarehouseMonitoringController(state);
-
-        await warehouseMonitoringController.updateIngredientDetails(
-          products: order.products,
-        );
-      } catch (_) {
-        return;
-      }
+      log('AAA message');
     }
   }
 

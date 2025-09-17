@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:biznex/src/controllers/transaction_controller.dart';
+import 'package:biznex/src/controllers/warehouse_monitoring_controller.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
 import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/biznex.dart'; // Assuming AppLocales is here
@@ -19,6 +20,7 @@ import 'package:biznex/src/providers/orders_provider.dart'; // Assuming orderSet
 import 'package:biznex/src/ui/pages/order_pages/table_choose_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
+import '../core/database/app_database/app_state_database.dart';
 import '../core/model/app_changes_model.dart';
 import '../providers/recipe_providers.dart';
 
@@ -251,6 +253,8 @@ class OrderController {
     } catch (_) {
       AppRouter.close(context);
     }
+
+
     // if (!useCheck) return;
     //
     // PrinterServices printerServices = PrinterServices(order: finalOrder, model: model);

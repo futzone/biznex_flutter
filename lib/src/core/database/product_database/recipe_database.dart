@@ -1,7 +1,10 @@
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
+import 'package:biznex/src/core/model/product_models/recipe_item_model.dart';
 import 'package:biznex/src/core/model/product_models/recipe_model.dart';
 import 'package:hive/hive.dart';
+
+import '../../../controllers/warehouse_monitoring_controller.dart';
 
 class RecipeDatabase {
   final String _recipeBox = "recipe";
@@ -51,7 +54,7 @@ class RecipeDatabase {
   }
 
   Future<Recipe?> productRecipe(String id) async {
-    final box = await Hive.openBox(_ingredientsBox);
+    final box = await Hive.openBox(_recipeBox);
     final data = await box.get(id);
     if (data == null) return null;
     try {
@@ -68,6 +71,22 @@ class RecipeDatabase {
 
   Future<void> saveIngredient(Ingredient ing) async {
     final box = await Hive.openBox(_ingredientsBox);
+    final old = await getIngredient(ing.id);
+    if (old == null) {
+      await WarehouseMonitoringController.updateFromShopping(
+        RecipeItem(ingredient: ing, amount: ing.quantity),
+        AppLocales.createIngredient.tr(),
+      );
+    } else {
+      await WarehouseMonitoringController.updateFromShopping(
+        RecipeItem(
+          ingredient: ing,
+          amount: (ing.quantity - old.quantity).abs(),
+        ),
+        AppLocales.updateIngredient.tr(),
+      );
+    }
+
     await box.put(ing.id, ing.toMap());
   }
 }

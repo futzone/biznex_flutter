@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/controllers/app_controller.dart';
 import 'package:biznex/src/controllers/warehouse_monitoring_controller.dart';
 import 'package:biznex/src/core/database/product_database/product_database.dart';
+import 'package:biznex/src/core/database/product_database/recipe_database.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/services/image_service.dart';
 import 'package:biznex/src/providers/products_provider.dart';
@@ -10,12 +13,30 @@ import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 
 class ProductController extends AppController {
   final void Function()? onClose;
+  final RecipeDatabase recipeDatabase = RecipeDatabase();
 
   ProductController({
     this.onClose,
     required super.context,
     required super.state,
   });
+
+  Future _onUpdateChanges(Product product) async {
+    final recipe = await recipeDatabase.productRecipe(product.id);
+    if (recipe == null) {
+      log("Recipe not found for product: ${product.id}");
+      return;
+    }
+
+    for (final item in recipe.items) {
+      await WarehouseMonitoringController.updateFromShopping(
+        item,
+        AppLocales.productUpdate.tr(),
+      );
+
+      log("updated for: ${item.ingredient.name}");
+    }
+  }
 
   @override
   Future<void> create(data) async {
@@ -45,17 +66,6 @@ class ProductController extends AppController {
       closeLoading();
       if (onClose != null) onClose!();
     });
-
-    try {
-      WarehouseMonitoringController warehouseMonitoringController =
-          WarehouseMonitoringController(state);
-
-      await warehouseMonitoringController.updateIngredientDetails(
-        product: kProduct,
-      );
-    } catch (_) {
-      return;
-    }
   }
 
   @override
@@ -95,22 +105,12 @@ class ProductController extends AppController {
 
     kProduct.images = kImages;
     ProductDatabase sizeDatabase = ProductDatabase();
-    await sizeDatabase.update(data: kProduct, key: data.id).then((_) {
+    await sizeDatabase.update(data: kProduct, key: data.id).then((_) async {
+      await _onUpdateChanges(kProduct);
       state.ref!.invalidate(productsProvider);
       closeLoading();
       if (onClose != null) onClose!();
     });
-
-    try {
-      WarehouseMonitoringController warehouseMonitoringController =
-          WarehouseMonitoringController(state);
-
-      await warehouseMonitoringController.updateIngredientDetails(
-        product: kProduct,
-      );
-    } catch (_) {
-      return;
-    }
   }
 
   static Future<void> onDeleteProduct({

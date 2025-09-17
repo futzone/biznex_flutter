@@ -108,6 +108,8 @@ class ProductDatabase extends AppDatabase {
         itemId: key,
       ),
     );
+
+
   }
 
   Future<List<Product>> getAll() async {
