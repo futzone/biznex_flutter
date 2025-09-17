@@ -111,14 +111,11 @@ class OrderDatabase extends OrderDatabaseRepository {
     await _onUpdateAmounts(order);
 
     try {
-      final state = await AppStateDatabase().getApp();
-      WarehouseMonitoringController warehouseMonitoringController =
-          WarehouseMonitoringController(state);
-
-      await warehouseMonitoringController.updateIngredientDetails(
+      await WarehouseMonitoringController.updateIngredientDetails(
         products: order.products,
       );
     } catch (error) {
+      log("Error on save AAA: $error");
       return;
     }
 

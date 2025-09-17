@@ -634,6 +634,8 @@ class SettingsPageScreen extends HookConsumerWidget {
                     color: Colors.white,
                   ),
                   child: SwitchListTile(
+                    contentPadding: Dis.only(),
+                    title: Text(AppLocales.offlineFormat.tr()),
                     value: appState.offline,
                     onChanged: (val) {
                       appState.offline = val;

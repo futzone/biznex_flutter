@@ -20,7 +20,7 @@ class WarehouseMonitoringController {
   WarehouseMonitoringController(this.model);
 
   final ProductDatabase productDatabase = ProductDatabase();
-  final RecipeDatabase recipeDatabase = RecipeDatabase();
+  static final RecipeDatabase recipeDatabase = RecipeDatabase();
   final TransactionsDatabase transactionsDatabase = TransactionsDatabase();
   final ShoppingDatabase shoppingDatabase = ShoppingDatabase();
   static final Isar isarDatabase = IsarDatabase.instance.isar;
@@ -40,15 +40,10 @@ class WarehouseMonitoringController {
     });
   }
 
-  Future<void> updateIngredientDetails({
+  static Future<void> updateIngredientDetails({
     List<OrderItem>? products,
-    Product? product,
     bool fromShopping = false,
   }) async {
-    if (product != null) {
-      await _updateProduct(product, shopping: fromShopping);
-    }
-
     if (products != null) {
       for (final item in products) {
         await _updateProduct(item.product, shopping: fromShopping);
@@ -56,15 +51,13 @@ class WarehouseMonitoringController {
     }
   }
 
-  Future<void> _updateProduct(Product product, {bool shopping = false}) async {
+  static Future<void> _updateProduct(Product product,
+      {bool shopping = false}) async {
     final recipe = await recipeDatabase.productRecipe(product.id);
     if (recipe == null) return;
     for (final ingredient in recipe.items) {
-      Ingredient? updatedIngredient =
-          await recipeDatabase.getIngredient(ingredient.ingredient.id);
+      final updatedIngredient = ingredient.ingredient;
 
-
-      if (updatedIngredient == null) continue;
       updatedIngredient.updatedAt = DateTime.now();
 
       final decrease = ingredient.amount * product.amount;
@@ -73,7 +66,6 @@ class WarehouseMonitoringController {
           (decrease > (updatedIngredient.quantity - decrease))
               ? 0
               : (updatedIngredient.quantity - decrease);
-      await recipeDatabase.saveIngredient(updatedIngredient);
 
       IngredientTransaction ingredientTransaction = IngredientTransaction()
         ..updatedDate = DateTime.now().toIso8601String()
@@ -86,6 +78,8 @@ class WarehouseMonitoringController {
       await isarDatabase.writeTxn(() async {
         await isarDatabase.ingredientTransactions.put(ingredientTransaction);
       });
+
+      await recipeDatabase.saveIngredient(updatedIngredient, product: product);
     }
   }
 }

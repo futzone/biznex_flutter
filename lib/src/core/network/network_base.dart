@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/network/endpoints.dart';
 import 'package:biznex/src/core/network/password.dart';
@@ -24,6 +23,9 @@ class Network {
   Future<bool> isConnected({bool skipPassword = false}) async {
     final AppStateDatabase stateDatabase = AppStateDatabase();
     final state = await stateDatabase.getApp();
+
+    if (state.offline) return false;
+
     if (!(state.apiUrl == null || (state.apiUrl ?? '').isEmpty)) return false;
 
     if (!Platform.isWindows) return false;
@@ -34,7 +36,8 @@ class Network {
         if (password.isEmpty || password == '0000') return false;
       }
 
-      final result = await InternetAddress.lookup('google.com').timeout(Duration(seconds: 2));
+      final result = await InternetAddress.lookup('google.com')
+          .timeout(Duration(seconds: 2));
       return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
     } on TimeoutException catch (_) {
       return false;
@@ -52,7 +55,8 @@ class Network {
     return password;
   }
 
-  Future<dynamic> get(String url, {Map<String, dynamic>? body, String? password}) async {
+  Future<dynamic> get(String url,
+      {Map<String, dynamic>? body, String? password}) async {
     try {
       if (!(await isConnected())) return null;
 
@@ -80,7 +84,10 @@ class Network {
     }
   }
 
-  Future<bool> post(String url, {bool skipPassword = false, Map<String, dynamic>? body, String? password}) async {
+  Future<bool> post(String url,
+      {bool skipPassword = false,
+      Map<String, dynamic>? body,
+      String? password}) async {
     try {
       if (!(await isConnected(skipPassword: skipPassword))) return false;
       await dio.post(
@@ -137,7 +144,8 @@ class Network {
     }
   }
 
-  Future<bool> patch(String url, {Map<String, dynamic>? body, String? password}) async {
+  Future<bool> patch(String url,
+      {Map<String, dynamic>? body, String? password}) async {
     try {
       if (!(await isConnected())) return false;
       await dio.patch(
@@ -164,7 +172,8 @@ class Network {
     }
   }
 
-  Future<bool> put(String url, {Map<String, dynamic>? body, String? password}) async {
+  Future<bool> put(String url,
+      {Map<String, dynamic>? body, String? password}) async {
     try {
       if (!(await isConnected())) return false;
       await dio.put(

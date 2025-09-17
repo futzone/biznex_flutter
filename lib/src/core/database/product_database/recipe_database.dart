@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
+import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/model/product_models/recipe_item_model.dart';
 import 'package:biznex/src/core/model/product_models/recipe_model.dart';
 import 'package:hive/hive.dart';
@@ -49,6 +52,7 @@ class RecipeDatabase {
     try {
       return Ingredient.fromMap(data);
     } catch (_) {
+      log("Get in error:", error: _);
       return null;
     }
   }
@@ -69,22 +73,26 @@ class RecipeDatabase {
     await box.put(recipe.id, recipe.toJson());
   }
 
-  Future<void> saveIngredient(Ingredient ing) async {
+  Future<void> saveIngredient(Ingredient ing, {Product? product}) async {
     final box = await Hive.openBox(_ingredientsBox);
     final old = await getIngredient(ing.id);
     if (old == null) {
-      await WarehouseMonitoringController.updateFromShopping(
-        RecipeItem(ingredient: ing, amount: ing.quantity),
-        AppLocales.createIngredient.tr(),
-      );
+      if (product == null) {
+        await WarehouseMonitoringController.updateFromShopping(
+          RecipeItem(ingredient: ing, amount: ing.quantity),
+          AppLocales.createIngredient.tr(),
+        );
+      }
     } else {
-      await WarehouseMonitoringController.updateFromShopping(
-        RecipeItem(
-          ingredient: ing,
-          amount: (ing.quantity - old.quantity).abs(),
-        ),
-        AppLocales.updateIngredient.tr(),
-      );
+      if (product == null) {
+        await WarehouseMonitoringController.updateFromShopping(
+          RecipeItem(
+            ingredient: ing,
+            amount: (ing.quantity - old.quantity).abs(),
+          ),
+          AppLocales.updateIngredient.tr(),
+        );
+      }
     }
 
     await box.put(ing.id, ing.toMap());

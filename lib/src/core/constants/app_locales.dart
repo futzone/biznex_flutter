@@ -556,4 +556,5 @@ abstract class AppLocales {
   static var createIngredient = "createIngredient";
   static var updateIngredient = "updateIngredient";
   static var productUpdate = "productUpdate";
+  static var offlineFormat = "offlineFormat";
 }
