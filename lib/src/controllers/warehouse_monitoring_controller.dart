@@ -27,17 +27,17 @@ class WarehouseMonitoringController {
 
   static Future<void> updateFromShopping(
       RecipeItem item, String message) async {
-    IngredientTransaction ingredientTransaction = IngredientTransaction()
-      ..updatedDate = DateTime.now().toIso8601String()
-      ..createdDate = DateTime.now().toIso8601String()
-      ..amount = item.amount
-      ..product = Product(name: message, price: 0.0).toIsar()
-      ..fromShopping = true
-      ..id = item.ingredient.id;
-
-    await isarDatabase.writeTxn(() async {
-      await isarDatabase.ingredientTransactions.put(ingredientTransaction);
-    });
+    // IngredientTransaction ingredientTransaction = IngredientTransaction()
+    //   ..updatedDate = DateTime.now().toIso8601String()
+    //   ..createdDate = DateTime.now().toIso8601String()
+    //   ..amount = item.amount
+    //   ..product = Product(name: message, price: 0.0).toIsar()
+    //   ..fromShopping = true
+    //   ..id = item.ingredient.id;
+    //
+    // await isarDatabase.writeTxn(() async {
+    //   await isarDatabase.ingredientTransactions.put(ingredientTransaction);
+    // });
   }
 
   static Future<void> updateIngredientDetails({

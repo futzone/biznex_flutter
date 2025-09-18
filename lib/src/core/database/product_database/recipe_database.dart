@@ -51,8 +51,8 @@ class RecipeDatabase {
     if (data == null) return null;
     try {
       return Ingredient.fromMap(data);
-    } catch (_) {
-      log("Get in error:", error: _);
+    } catch (e) {
+      log("Get in error:", error: e);
       return null;
     }
   }
