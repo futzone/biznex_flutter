@@ -46,7 +46,9 @@ class WarehouseMonitoringController {
   }) async {
     if (products != null) {
       for (final item in products) {
-        await _updateProduct(item.product, shopping: fromShopping);
+        Product product = item.product;
+        product.amount = item.amount;
+        await _updateProduct(product, shopping: fromShopping);
       }
     }
   }
@@ -56,7 +58,9 @@ class WarehouseMonitoringController {
     final recipe = await recipeDatabase.productRecipe(product.id);
     if (recipe == null) return;
     for (final ingredient in recipe.items) {
-      final updatedIngredient = ingredient.ingredient;
+      final updatedIngredient =
+          await recipeDatabase.getIngredient(ingredient.ingredient.id);
+      if (updatedIngredient == null) continue;
 
       updatedIngredient.updatedAt = DateTime.now();
 

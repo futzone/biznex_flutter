@@ -6,6 +6,11 @@ import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
 class TransactionsDatabase extends AppDatabase {
   final String boxName = 'transactions';
 
+  Future<void> clear() async {
+    final box = await openBox(boxName);
+    await box.clear();
+  }
+
   @override
   Future delete({required String key}) async {
     final box = await openBox(boxName);

@@ -7,6 +7,11 @@ import '../../../controllers/warehouse_monitoring_controller.dart';
 class ShoppingDatabase {
   final String _boxName = "shopping";
 
+  Future<void> clear() async {
+    final box = await Hive.openBox(_boxName);
+    await box.clear();
+  }
+
   Future<void> createShopping(Shopping shopping) async {
     final oldShopping = await getShopping(shopping.id);
     if (oldShopping == null) {

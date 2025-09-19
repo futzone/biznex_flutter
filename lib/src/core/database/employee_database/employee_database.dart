@@ -105,4 +105,9 @@ class EmployeeDatabase extends AppDatabase {
     if (boxData == null) return null;
     return Employee.fromJson(boxData);
   }
+
+  Future<void> clear() async {
+    final box = await openBox(boxName);
+    await box.clear();
+  }
 }

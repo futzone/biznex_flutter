@@ -444,5 +444,17 @@
   "becomeReport": "Before calculation",
   "addToTransactions": "Add to general reports",
   "updateIngredientData": "Update ingredient data",
-  "shoppingItemsError": "Shopped items not entered!"
+  "shoppingItemsError": "Shopped items not entered!",
+  "shoppingUpdated": "Shopping updated",
+  "createIngredient": "Ingredient created",
+  "updateIngredient": "Ingredient updated",
+  "productUpdate": "Product updated",
+  "offlineFormat": "Offline mode (much faster)",
+  "clearCache": "Clear cache",
+  "clearCacheWarningText": "Warning! This will delete all data in the database you selected and cannot be restored!",
+  "clearCacheInfoText": "This will speed up the application.",
+  "selectDatabase": "Select databases",
+  "clear": "Clear",
+  "recipe": "Recipe",
+  "clearCacheSuccess": "Clearing caches is complete!"
 }

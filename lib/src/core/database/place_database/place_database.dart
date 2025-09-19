@@ -7,6 +7,11 @@ import 'package:biznex/src/core/model/place_models/place_model.dart';
 class PlaceDatabase extends AppDatabase {
   final String boxName = 'places';
 
+  Future<void> clear() async {
+    final box = await openBox(boxName);
+    await box.clear();
+  }
+
   String get endpoint => '/api/v2/$boxName';
 
   @override

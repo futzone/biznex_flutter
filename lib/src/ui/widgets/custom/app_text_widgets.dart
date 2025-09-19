@@ -20,7 +20,7 @@ class AppText {
   static Widget $18Bold(String text, {EdgeInsets? padding, TextStyle? style, int? maxlines}) {
     return Padding(
       padding: padding ?? Dis.only(),
-      child: Text(text, style: style ?? TextStyle(fontSize: 18, fontFamily: mediumFamily), maxLines: maxlines),
+      child: Text(text, style: style ?? TextStyle(fontSize: 18, fontFamily: boldFamily), maxLines: maxlines),
     );
   }
 

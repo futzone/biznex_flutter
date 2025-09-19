@@ -538,5 +538,17 @@
   "becomeReport": "До расчёта",
   "addToTransactions": "Добавить в общие отчёты",
   "updateIngredientData": "Обновить данные об ингредиентах",
-  "shoppingItemsError": "Не внесён список купленных товаров!"
+  "shoppingItemsError": "Не внесён список купленных товаров!",
+  "shoppingUpdated": "Покупки обновлены",
+  "createIngredient": "Ингредиент создан",
+  "updateIngredient": "Ингредиент обновлён",
+  "productUpdate": "Товар обновлён",
+  "offlineFormat": "Автономный режим (гораздо быстрее)",
+  "clearCache": "Очистить кэш",
+  "clearCacheWarningText": "Внимание! Это удалит все данные в выбранной вами базе данных и не сможет их восстановить!",
+  "clearCacheInfoText": "Это ускорит работу приложения",
+  "selectDatabase": "Выберите базы данных",
+  "clear": "Очистить",
+  "recipe": "Рецепт",
+  "clearCacheSuccess": "Очистка кэшей завершена!"
 }

@@ -132,7 +132,15 @@ class RecipeController {
         if (items != null) old.items = items;
 
         await shoppingDatabase.createShopping(old);
+        for (final item in items ?? <RecipeItem>[]) {
+          final ingredient = item.ingredient;
+          ingredient.quantity += item.amount;
+          ingredient.updatedAt = DateTime.now();
+          if (item.price != null) ingredient.unitPrice = item.price;
+          await recipeDatabase.saveIngredient(ingredient);
+        }
         ref.invalidate(shoppingProvider);
+        ref.invalidate(ingredientsProvider);
         return;
       }
     }
@@ -150,7 +158,17 @@ class RecipeController {
     );
 
     await shoppingDatabase.createShopping(shopping);
+    for (final item in items ?? <RecipeItem>[]) {
+      final ingredient = item.ingredient;
+      ingredient.quantity += item.amount;
+      ingredient.updatedAt = DateTime.now();
+      if (item.price != null) ingredient.unitPrice = item.price;
+      await recipeDatabase.saveIngredient(ingredient);
+    }
+
     ref.invalidate(shoppingProvider);
+    ref.invalidate(ingredientsProvider);
+
     return;
   }
 }

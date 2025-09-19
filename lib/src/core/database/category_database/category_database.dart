@@ -6,6 +6,11 @@ import 'package:biznex/src/core/model/category_model/category_model.dart';
 class CategoryDatabase extends AppDatabase {
   final String boxName = 'categories';
 
+  Future<void> clear() async {
+    final box = await openBox(boxName);
+    await box.clear();
+  }
+
   String get endpoint => '/api/v2/$boxName';
 
   @override

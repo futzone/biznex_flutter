@@ -8,6 +8,11 @@ import 'package:biznex/src/core/utils/product_utils.dart';
 class ProductDatabase extends AppDatabase {
   final String boxName = 'products';
 
+  Future<void> clear() async {
+    final box = await openBox(boxName);
+    await box.clear();
+  }
+
   String get endpoint => '/api/v2/$boxName';
 
   @override
@@ -108,8 +113,6 @@ class ProductDatabase extends AppDatabase {
         itemId: key,
       ),
     );
-
-
   }
 
   Future<List<Product>> getAll() async {

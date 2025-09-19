@@ -549,5 +549,17 @@
   "stable": "Barqaror",
   "updateAppError": "Ilovani yangilashda xatolik yuz berdi. Internetga ulanishni tekshiring yoki qayta urinib ko'ring.",
   "subscriptionPaymentText": "Hurmatli foydalanuvchi, obunangiz muddati yakunlanmoqda. Iltimos, obuna to‘lovini o'z vaqtida to'lang!",
-  "deliveryAddress": "Yetkazib berish manzili"
+  "deliveryAddress": "Yetkazib berish manzili",
+  "shoppingUpdated": "Xaridlar yangilandi",
+  "createIngredient": "Masalliq yaratildi",
+  "updateIngredient": "Masalliq yangilandi",
+  "productUpdate": "Mahsulot yangilandi",
+  "offlineFormat": "Offline rejim (ancha tezroq)",
+  "clearCache": "Kesh tozalash",
+  "clearCacheWarningText": "Diqqat! Bunda siz tanlagan bazadagi barcha ma'lumotlar o'chib ketadi va ularni qayta tiklab bo'lmaydi!",
+  "clearCacheInfoText": "Bu ilova ishlashini tezlashtiradi.",
+  "selectDatabase": "Bazalarni tanlang",
+  "clear": "Tozalash",
+  "recipe": "Retsept",
+  "clearCacheSuccess": "Keshlarni tozalash yakunlandi!"
 }

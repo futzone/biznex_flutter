@@ -31,6 +31,7 @@ import '../../../../biznex.dart';
 import '../../../core/network/endpoints.dart';
 import '../../../providers/network_interface_provider.dart';
 import '../../widgets/dialogs/app_custom_dialog.dart';
+import 'cache_settings_screen.dart';
 import 'language_settings_screen.dart';
 
 class SettingsPageScreen extends HookConsumerWidget {
@@ -626,24 +627,82 @@ class SettingsPageScreen extends HookConsumerWidget {
                 24.h,
                 AppLanguageBar(),
                 24.h,
-                Container(
-                  padding: context.s(20).all,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade200),
-                    color: Colors.white,
-                  ),
-                  child: SwitchListTile(
-                    contentPadding: Dis.only(),
-                    title: Text(AppLocales.offlineFormat.tr()),
-                    value: appState.offline,
-                    onChanged: (val) {
-                      appState.offline = val;
-                      AppStateDatabase().updateApp(appState).then((_) {
-                        ref.invalidate(appStateProvider);
-                      });
-                    },
-                  ),
+                Row(
+                  spacing: 24,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: context.s(20).all,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade200),
+                          color: Colors.white,
+                        ),
+                        child: SwitchListTile(
+                          contentPadding: Dis.only(),
+                          title: Text(AppLocales.offlineFormat.tr()),
+                          value: appState.offline,
+                          onChanged: (val) {
+                            appState.offline = val;
+                            AppStateDatabase().updateApp(appState).then((_) {
+                              ref.invalidate(appStateProvider);
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: SimpleButton(
+                        onPressed: () {
+                          showDesktopModal(
+                            context: context,
+                            body: CacheSettingsScreen(),
+                          );
+                        },
+                        child: Container(
+                            padding: context.s(20).all,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade200),
+                              color: Colors.white,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    spacing: 4,
+                                    children: [
+                                      Text(
+                                        AppLocales.clearCache.tr(),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontFamily: boldFamily,
+                                        ),
+                                      ),
+                                      Text(
+                                        AppLocales.clearCacheInfoText.tr(),
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontFamily: regularFamily,
+                                        ),
+                                        maxLines: 1,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Center(
+                                  child: Icon(
+                                    Icons.cleaning_services_rounded,
+                                  ),
+                                )
+                              ],
+                            )),
+                      ),
+                    ),
+                  ],
                 ),
                 24.h,
                 if ((ref.watch(networkInterfaceProvider).value ?? [])

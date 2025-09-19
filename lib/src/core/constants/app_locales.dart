@@ -557,4 +557,10 @@ abstract class AppLocales {
   static var updateIngredient = "updateIngredient";
   static var productUpdate = "productUpdate";
   static var offlineFormat = "offlineFormat";
+  static var clearCache = "clearCache";
+  static var clearCacheWarningText = "clearCacheWarningText";
+  static var clearCacheInfoText = "clearCacheInfoText";
+  static var selectDatabase = "selectDatabase";
+  static var clear = "clear";
+  static var clearCacheSuccess = "clearCacheSuccess";
 }

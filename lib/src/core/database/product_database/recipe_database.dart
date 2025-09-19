@@ -97,4 +97,14 @@ class RecipeDatabase {
 
     await box.put(ing.id, ing.toMap());
   }
+
+  Future<void> clearRecipe() async {
+    final box = await Hive.openBox(_recipeBox);
+    await box.clear();
+  }
+
+  Future<void> clearIngredients() async {
+    final box = await Hive.openBox(_ingredientsBox);
+    await box.clear();
+  }
 }

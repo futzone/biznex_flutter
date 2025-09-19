@@ -173,7 +173,7 @@ class IngredientsPage extends HookConsumerWidget {
                                   children: [
                                     Text(
                                       DateFormat("yyyy.MM.dd  HH:mm")
-                                          .format(ingredient.createdAt),
+                                          .format(ingredient.updatedAt),
                                     ),
                                   ],
                                 ),
