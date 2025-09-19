@@ -5,6 +5,8 @@ import 'package:biznex/src/providers/license_status_provider.dart';
 import 'package:biznex/src/server/start.dart';
 import 'package:biznex/src/ui/pages/login_pages/onboard_page.dart';
 import 'package:biznex/src/ui/screens/sleep_screen/activity_wrapper.dart';
+import 'package:biznex/src/ui/screens/warehouse_charts/ingredient_daily_stats.dart';
+import 'package:biznex/src/ui/screens/warehouse_charts/ingredient_food_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -172,7 +174,7 @@ class MyApp extends ConsumerWidget {
             home: getDeviceType(context) == DeviceType.mobile
                 ? OnboardPage()
                 : ActivityWrapper(ref: ref, child: LicenseStatusWrapper()),
-          ),
+           ),
         );
       },
     );
