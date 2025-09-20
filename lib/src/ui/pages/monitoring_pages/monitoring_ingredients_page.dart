@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/model/excel_models/orders_excel_model.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
+import 'package:biznex/src/core/services/warehouse_printer_services.dart';
 import 'package:biznex/src/core/utils/date_utils.dart';
 import 'package:biznex/src/providers/recipe_providers.dart';
 import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
@@ -39,6 +42,78 @@ class MonitoringIngredientsPage extends HookConsumerWidget {
                 ),
               ),
               Spacer(),
+              CustomPopupMenu(
+                theme: theme,
+                children: [
+                  CustomPopupItem(
+                    onPressed: () {
+                      showDatePicker(
+                        context: context,
+                        firstDate: DateTime(2025),
+                        lastDate: DateTime.now(),
+                      ).then(
+                        (selected) {
+                          if (selected != null) {
+                            WarehousePrinterServices.printIngredientUsage(
+                              ref: ref,
+                              selectedDateTime: selected,
+                              selectedDate: DateTime(
+                                filterType.value,
+                                selectedMonth.value,
+                              ),
+                            );
+                          }
+                        },
+                      );
+                    },
+                    title: AppLocales.daily.tr(),
+                  ),
+                  CustomPopupItem(
+                      title: AppLocales.monthly.tr(),
+                      onPressed: () {
+                        WarehousePrinterServices.printIngredientUsage(
+                          ref: ref,
+                          selectedDate: DateTime(
+                            filterType.value,
+                            selectedMonth.value,
+                          ),
+                        );
+                      }),
+                  CustomPopupItem(
+                      title: AppLocales.all.tr(),
+                      onPressed: () {
+                        WarehousePrinterServices.printIngredientUsage(
+                          ref: ref,
+                          selectedDate: DateTime(
+                            filterType.value,
+                            selectedMonth.value,
+                          ),
+                          allTime: true,
+                        );
+                      }),
+                ],
+                child: Container(
+                  padding: Dis.only(lr: context.w(16), tb: context.h(13)),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: theme.accentColor,
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        AppLocales.print.tr(),
+                        style: TextStyle(
+                          fontFamily: mediumFamily,
+                          fontSize: 16,
+                        ),
+                      ),
+                      8.w,
+                      Icon(Iconsax.printer_copy, size: 20)
+                    ],
+                  ),
+                ),
+              ),
+              16.w,
               CustomPopupMenu(
                 theme: theme,
                 children: [

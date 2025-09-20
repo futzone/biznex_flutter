@@ -3,7 +3,6 @@ import 'package:biznex/src/core/model/ingredient_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
 import 'package:biznex/src/providers/recipe_providers.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
-
 import '../../../core/model/product_models/shopping_model.dart';
 import '../../../core/utils/date_utils.dart';
 import 'ingredient_daily_stats.dart';
@@ -94,7 +93,7 @@ class IngredientChartsScreen extends ConsumerWidget {
               height: MediaQuery.of(context).size.height * 0.4,
               child: IngredientFoodScreen(
                 chartData: _buildMealsList(),
-                measure: ingredient.measure,
+                ingredient: ingredient,
               ),
             ),
             SizedBox(

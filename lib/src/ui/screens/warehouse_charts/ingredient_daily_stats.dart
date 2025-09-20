@@ -1,10 +1,12 @@
 import 'package:biznex/src/core/model/ingredient_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
+import 'package:biznex/src/core/services/warehouse_printer_services.dart';
 import 'package:biznex/src/core/utils/date_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../../biznex.dart';
+import 'ingredient_food_screen.dart';
 
 class IngredientDailyStats extends StatelessWidget {
   final Ingredient ingredient;
@@ -32,9 +34,11 @@ class IngredientDailyStats extends StatelessWidget {
         children: [
           SfCartesianChart(
             primaryXAxis: DateTimeAxis(
+              labelAlignment: LabelAlignment.start,
               intervalType: DateTimeIntervalType.days,
               dateFormat: DateFormat('dd-MMMM', context.locale.languageCode),
               title: AxisTitle(text: AppLocales.days.tr()),
+              // tickPosition: TickPosition.inside,
             ),
             primaryYAxis: NumericAxis(
               title: AxisTitle(
@@ -59,7 +63,20 @@ class IngredientDailyStats extends StatelessWidget {
             bottom: 0,
             left: 0,
             child: ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                WarehousePrinterServices.ingredientUsagePrint(
+                  ingredient: ingredient,
+                  data: [
+                    for (final item in salesData)
+                      ChartData(
+                        DateFormat("yyyy, dd-MMMM", context.locale.languageCode)
+                            .format(item.date),
+                        item.sales,
+                      ),
+                  ],
+                  shopping: shopping,
+                );
+              },
               icon: Icon(Ionicons.print_outline),
               label: Text(AppLocales.print.tr()),
               // child: Text("print"),

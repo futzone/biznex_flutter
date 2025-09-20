@@ -224,6 +224,8 @@ class AppSidebar extends HookConsumerWidget {
                         Iconsax.chart_square, AppLocales.reports.tr(), 7),
                     sidebarItemBuilder(
                         Iconsax.profile_2user, AppLocales.employees.tr(), 8),
+
+                    if(!state.offline)
                     state.whenProviderData(
                       provider: clientStateProvider,
                       builder: (data) {

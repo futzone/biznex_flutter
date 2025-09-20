@@ -527,27 +527,28 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                               },
                             ),
                           ),
-                          Expanded(
-                            child: state.whenProviderData(
-                              provider: shoppingProvider,
-                              builder: (trs) {
-                                return MonitoringCard(
-                                  icon: Icons.shop_2_outlined,
-                                  theme: theme,
-                                  title: AppLocales.shopping.tr(),
-                                  onPressed: () {
-                                    showDesktopModal(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.8,
-                                      context: context,
-                                      body: MonitoringTransactionsPage(),
-                                    );
-                                  },
-                                  count: trs.length,
-                                );
-                              },
-                            ),
-                          ),
+                          // Expanded(
+                          //   child: state.whenProviderData(
+                          //     provider: shoppingProvider,
+                          //     builder: (trs) {
+                          //       return MonitoringCard(
+                          //         icon: Icons.shop_2_outlined,
+                          //         theme: theme,
+                          //         title: AppLocales.shopping.tr(),
+                          //         onPressed: () {
+                          //           showDesktopModal(
+                          //             width: MediaQuery.of(context).size.width *
+                          //                 0.8,
+                          //             context: context,
+                          //             body: MonitoringTransactionsPage(),
+                          //           );
+                          //         },
+                          //         count: trs.length,
+                          //       );
+                          //     },
+                          //   ),
+                          // ),
+                          Expanded(child: SizedBox())
                         ],
                       )
                     ],

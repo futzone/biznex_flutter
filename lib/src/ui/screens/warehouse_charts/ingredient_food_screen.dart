@@ -1,13 +1,18 @@
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
+import 'package:biznex/src/core/services/warehouse_printer_services.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class IngredientFoodScreen extends StatelessWidget {
   final List<ChartData> chartData;
-  final String? measure;
+  final Ingredient ingredient;
 
-  const IngredientFoodScreen(
-      {super.key, this.measure, required this.chartData});
+  const IngredientFoodScreen({
+    super.key,
+    required this.ingredient,
+    required this.chartData,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +65,7 @@ class IngredientFoodScreen extends StatelessWidget {
                 ),
                 dataLabelMapper: (ChartData data, _) {
                   final percent = (data.y).toStringAsFixed(1);
-                  return "${data.x}\n$percent ${measure ?? ''}";
+                  return "${data.x}\n$percent ${ingredient.measure ?? ''}";
                 },
               )
             ],
@@ -69,7 +74,12 @@ class IngredientFoodScreen extends StatelessWidget {
             bottom: 16,
             left: 16,
             child: ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                WarehousePrinterServices.ingredientForFoodPrint(
+                  ingredient: ingredient,
+                  data: chartData,
+                );
+              },
               icon: Icon(Ionicons.print_outline),
               label: Text(AppLocales.print.tr()),
               // child: Text("print"),
