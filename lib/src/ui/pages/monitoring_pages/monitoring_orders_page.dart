@@ -32,13 +32,21 @@ class MonitoringOrdersPage extends HookConsumerWidget {
               16.w,
               Text(
                 AppLocales.orders.tr(),
-                style: TextStyle(fontSize: context.s(24), fontFamily: mediumFamily, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: context.s(24),
+                  fontFamily: mediumFamily,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Spacer(),
               CustomPopupMenu(
                 theme: theme,
                 children: [
-                  for (final item in [DateTime.now().year - 1, DateTime.now().year, DateTime.now().year + 1])
+                  for (final item in [
+                    DateTime.now().year - 1,
+                    DateTime.now().year,
+                    DateTime.now().year + 1
+                  ])
                     CustomPopupItem(
                       title: item.toString(),
                       onPressed: () {
@@ -48,12 +56,17 @@ class MonitoringOrdersPage extends HookConsumerWidget {
                 ],
                 child: Container(
                   padding: Dis.only(lr: context.w(16), tb: context.h(13)),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: theme.accentColor),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: theme.accentColor),
                   child: Row(
                     children: [
                       Text(
                         filterType.value.toString(),
-                        style: TextStyle(fontFamily: mediumFamily, fontSize: 16),
+                        style: TextStyle(
+                          fontFamily: mediumFamily,
+                          fontSize: 16,
+                        ),
                       ),
                       8.w,
                       Icon(Iconsax.arrow_down_1_copy, size: 20)
@@ -75,12 +88,15 @@ class MonitoringOrdersPage extends HookConsumerWidget {
                 ],
                 child: Container(
                   padding: Dis.only(lr: context.w(16), tb: context.h(13)),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: theme.accentColor),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: theme.accentColor),
                   child: Row(
                     children: [
                       Text(
                         AppDateUtils.getMonth(selectedMonth.value),
-                        style: TextStyle(fontFamily: mediumFamily, fontSize: 16),
+                        style:
+                            TextStyle(fontFamily: mediumFamily, fontSize: 16),
                       ),
                       8.w,
                       Icon(Iconsax.arrow_down_1_copy, size: 20)
@@ -92,28 +108,43 @@ class MonitoringOrdersPage extends HookConsumerWidget {
               SimpleButton(
                 onPressed: () {
                   showAppLoadingDialog(context);
-                  final orders = ref.watch(ordersFilterProvider(orderFilterModel)).value ?? [];
+                  final orders =
+                      ref.watch(ordersFilterProvider(orderFilterModel)).value ??
+                          [];
                   final List<OrdersExcelModel> list = [];
-                  for (final day in AppDateUtils.getAllDaysInMonth(filterType.value, selectedMonth.value)) {
-                    final double ordersSumm = orders.fold(0.0, (value, element) {
+                  for (final day in AppDateUtils.getAllDaysInMonth(
+                      filterType.value, selectedMonth.value)) {
+                    final double ordersSumm =
+                        orders.fold(0.0, (value, element) {
                       final createdDate = DateTime.parse(element.createdDate);
 
-                      if (createdDate.year == day.year && createdDate.month == day.month && createdDate.day == day.day) return value += element.price;
+                      if (createdDate.year == day.year &&
+                          createdDate.month == day.month &&
+                          createdDate.day == day.day) {
+                        return value += element.price;
+                      }
                       return value;
                     });
 
                     final int ordersCount = orders.fold(0, (value, element) {
                       final createdDate = DateTime.parse(element.createdDate);
 
-                      if (createdDate.year == day.year && createdDate.month == day.month && createdDate.day == day.day) return value += 1;
+                      if (createdDate.year == day.year &&
+                          createdDate.month == day.month &&
+                          createdDate.day == day.day) {
+                        return value += 1;
+                      }
                       return value;
                     });
 
                     OrdersExcelModel excel = OrdersExcelModel(
                       ordersCount: ordersCount,
                       ordersSumm: ordersSumm,
-                      dateTime: DateFormat('d-MMMM, yyyy', context.locale.languageCode).format(day),
-                      day: DateFormat('EEEE', context.locale.languageCode).format(day),
+                      dateTime: DateFormat(
+                              'd-MMMM, yyyy', context.locale.languageCode)
+                          .format(day),
+                      day: DateFormat('EEEE', context.locale.languageCode)
+                          .format(day),
                     );
 
                     list.add(excel);
@@ -124,15 +155,21 @@ class MonitoringOrdersPage extends HookConsumerWidget {
                 },
                 child: Container(
                   padding: Dis.only(lr: context.w(16), tb: context.h(13)),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: theme.mainColor),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: theme.mainColor),
                   child: Row(
                     children: [
                       Text(
                         AppLocales.export.tr(),
-                        style: TextStyle(fontFamily: mediumFamily, fontSize: 16, color: Colors.white),
+                        style: TextStyle(
+                            fontFamily: mediumFamily,
+                            fontSize: 16,
+                            color: Colors.white),
                       ),
                       8.w,
-                      Icon(Iconsax.document_download, size: 20, color: Colors.white)
+                      Icon(Iconsax.document_download,
+                          size: 20, color: Colors.white)
                     ],
                   ),
                 ),
@@ -147,21 +184,33 @@ class MonitoringOrdersPage extends HookConsumerWidget {
                 orders as List<Order>;
 
                 return ListView.builder(
-                  itemCount: AppDateUtils.getAllDaysInMonth(filterType.value, selectedMonth.value).length,
+                  itemCount: AppDateUtils.getAllDaysInMonth(
+                          filterType.value, selectedMonth.value)
+                      .length,
                   itemBuilder: (context, index) {
-                    final day = AppDateUtils.getAllDaysInMonth(filterType.value, selectedMonth.value)[index];
+                    final day = AppDateUtils.getAllDaysInMonth(
+                        filterType.value, selectedMonth.value)[index];
 
-                    final double ordersSumm = orders.fold(0.0, (value, element) {
+                    final double ordersSumm =
+                        orders.fold(0.0, (value, element) {
                       final createdDate = DateTime.parse(element.createdDate);
 
-                      if (createdDate.year == day.year && createdDate.month == day.month && createdDate.day == day.day) return value += element.price;
+                      if (createdDate.year == day.year &&
+                          createdDate.month == day.month &&
+                          createdDate.day == day.day) {
+                        return value += element.price;
+                      }
                       return value;
                     });
 
                     final int ordersCount = orders.fold(0, (value, element) {
                       final createdDate = DateTime.parse(element.createdDate);
 
-                      if (createdDate.year == day.year && createdDate.month == day.month && createdDate.day == day.day) return value += 1;
+                      if (createdDate.year == day.year &&
+                          createdDate.month == day.month &&
+                          createdDate.day == day.day) {
+                        return value += 1;
+                      }
                       return value;
                     });
 
@@ -180,8 +229,14 @@ class MonitoringOrdersPage extends HookConsumerWidget {
                               children: [
                                 Icon(Iconsax.calendar, color: theme.mainColor),
                                 Text(
-                                  DateFormat('d-MMMM, yyyy', context.locale.languageCode).format(day),
-                                  style: TextStyle(fontSize: 16, fontFamily: boldFamily),
+                                  DateFormat(
+                                    'd-MMMM, yyyy',
+                                    context.locale.languageCode,
+                                  ).format(day),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: boldFamily,
+                                  ),
                                 ),
                               ],
                             ),
@@ -192,10 +247,19 @@ class MonitoringOrdersPage extends HookConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               spacing: 8,
                               children: [
-                                Icon(Iconsax.calendar_1, color: theme.mainColor),
+                                Icon(
+                                  Iconsax.calendar_1,
+                                  color: theme.mainColor,
+                                ),
                                 Text(
-                                  DateFormat('EEEE', context.locale.languageCode).format(day).capitalize,
-                                  style: TextStyle(fontSize: 16, fontFamily: boldFamily),
+                                  DateFormat(
+                                    'EEEE',
+                                    context.locale.languageCode,
+                                  ).format(day).capitalize,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: boldFamily,
+                                  ),
                                 ),
                               ],
                             ),
@@ -207,7 +271,13 @@ class MonitoringOrdersPage extends HookConsumerWidget {
                               spacing: 8,
                               children: [
                                 Icon(Iconsax.bag, color: theme.mainColor),
-                                Text("${AppLocales.orders.tr()}: $ordersCount", style: TextStyle(fontSize: 16, fontFamily: boldFamily)),
+                                Text(
+                                  "${AppLocales.orders.tr()}: $ordersCount",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: boldFamily,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -218,7 +288,13 @@ class MonitoringOrdersPage extends HookConsumerWidget {
                               spacing: 8,
                               children: [
                                 Icon(Iconsax.wallet, color: theme.mainColor),
-                                Text(ordersSumm.priceUZS, style: TextStyle(fontSize: 16, fontFamily: boldFamily))
+                                Text(
+                                  ordersSumm.priceUZS,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: boldFamily,
+                                  ),
+                                )
                               ],
                             ),
                           ),

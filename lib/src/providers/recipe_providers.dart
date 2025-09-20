@@ -41,3 +41,4 @@ final ingredientTransactionsProvider =
       await isar.ingredientTransactions.filter().idEqualTo(id).findAll();
   return data;
 });
+

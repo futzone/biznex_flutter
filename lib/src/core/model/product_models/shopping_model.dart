@@ -17,6 +17,15 @@ class Shopping {
     this.note,
   });
 
+  double getTotalAmount(String ingredientId) {
+    double amount = 0.0;
+    for (final item in items.where((el) => el.ingredient.id == ingredientId)) {
+      amount += item.amount;
+    }
+
+    return amount;
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,

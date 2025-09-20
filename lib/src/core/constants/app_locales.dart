@@ -563,4 +563,8 @@ abstract class AppLocales {
   static var selectDatabase = "selectDatabase";
   static var clear = "clear";
   static var clearCacheSuccess = "clearCacheSuccess";
+  static var usage = "usage";
+  static var ingredientFoodChartTitle = "ingredientFoodChartTitle";
+  static var  meals = "meals";
+  static var days = "days";
 }

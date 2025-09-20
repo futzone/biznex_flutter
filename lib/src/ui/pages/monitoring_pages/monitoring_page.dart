@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/price_percent_provider.dart';
@@ -18,10 +16,10 @@ import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:sliver_tools/sliver_tools.dart';
-
 import '../../../controllers/monitoring_controller.dart';
 import '../../../core/model/order_models/order_model.dart';
 import '../../widgets/helpers/app_decorated_button.dart';
+import 'monitoring_ingredients_page.dart';
 
 class MonitoringPage extends StatefulHookConsumerWidget {
   const MonitoringPage({super.key});
@@ -406,161 +404,156 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                 },
               ),
               SliverPadding(
-                  padding: Dis.only(lr: context.w(24)),
-                  sliver: SliverToBoxAdapter(
-                    child: Column(
-                      spacing: context.h(24),
-                      children: [
-                        Row(
-                          spacing: context.w(24),
-                          children: [
-                            Expanded(
-                              child: state.whenProviderData(
-                                provider: employeeProvider,
-                                builder: (emp) {
-                                  return MonitoringCard(
-                                    count: emp.length,
-                                    icon: Iconsax.profile_2user,
-                                    theme: theme,
-                                    title: AppLocales.employees.tr(),
-                                    onPressed: () {
-                                      showDesktopModal(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.8,
-                                        context: context,
-                                        body: MonitoringEmployeesPage(),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
+                padding: Dis.only(lr: context.w(24)),
+                sliver: SliverToBoxAdapter(
+                  child: Column(
+                    spacing: context.h(24),
+                    children: [
+                      Row(
+                        spacing: context.w(24),
+                        children: [
+                          Expanded(
+                            child: state.whenProviderData(
+                              provider: employeeProvider,
+                              builder: (emp) {
+                                return MonitoringCard(
+                                  count: emp.length,
+                                  icon: Iconsax.profile_2user,
+                                  theme: theme,
+                                  title: AppLocales.employees.tr(),
+                                  onPressed: () {
+                                    showDesktopModal(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.8,
+                                      context: context,
+                                      body: MonitoringEmployeesPage(),
+                                    );
+                                  },
+                                );
+                              },
                             ),
-                            Expanded(
-                              child: state.whenProviderData(
-                                provider: productsProvider,
-                                builder: (prd) {
-                                  return MonitoringCard(
-                                    count: prd.length,
-                                    icon: Iconsax.reserve,
-                                    theme: theme,
-                                    title: AppLocales.products.tr(),
-                                    onPressed: () {
-                                      showDesktopModal(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.8,
-                                        context: context,
-                                        body: MonitoringProductsPage(),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
+                          ),
+                          Expanded(
+                            child: state.whenProviderData(
+                              provider: productsProvider,
+                              builder: (prd) {
+                                return MonitoringCard(
+                                  count: prd.length,
+                                  icon: Iconsax.reserve,
+                                  theme: theme,
+                                  title: AppLocales.products.tr(),
+                                  onPressed: () {
+                                    showDesktopModal(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.8,
+                                      context: context,
+                                      body: MonitoringProductsPage(),
+                                    );
+                                  },
+                                );
+                              },
                             ),
-                          ],
-                        ),
-                        Row(
-                          spacing: context.w(24),
-                          children: [
-                            Expanded(
-                              child: state.whenProviderData(
-                                provider: ordersFilterProvider(_filter),
-                                builder: (ord) {
-                                  return MonitoringCard(
-                                    count: ord.length,
-                                    icon: Iconsax.bag_happy,
-                                    theme: theme,
-                                    title: AppLocales.orders.tr(),
-                                    onPressed: () {
-                                      showDesktopModal(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.8,
-                                        context: context,
-                                        body: MonitoringOrdersPage(),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: context.w(24),
+                        children: [
+                          Expanded(
+                            child: state.whenProviderData(
+                              provider: ordersFilterProvider(_filter),
+                              builder: (ord) {
+                                return MonitoringCard(
+                                  count: ord.length,
+                                  icon: Iconsax.bag_happy,
+                                  theme: theme,
+                                  title: AppLocales.orders.tr(),
+                                  onPressed: () {
+                                    showDesktopModal(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.8,
+                                      context: context,
+                                      body: MonitoringOrdersPage(),
+                                    );
+                                  },
+                                );
+                              },
                             ),
-                            Expanded(
-                              child: state.whenProviderData(
-                                provider: transactionProvider,
-                                builder: (trs) {
-                                  return MonitoringCard(
-                                    icon: Iconsax.send_sqaure_2,
-                                    theme: theme,
-                                    title: AppLocales.transactions.tr(),
-                                    onPressed: () {
-                                      showDesktopModal(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.8,
-                                        context: context,
-                                        body: MonitoringTransactionsPage(),
-                                      );
-                                    },
-                                    count: trs.length,
-                                  );
-                                },
-                              ),
+                          ),
+                          Expanded(
+                            child: state.whenProviderData(
+                              provider: transactionProvider,
+                              builder: (trs) {
+                                return MonitoringCard(
+                                  icon: Iconsax.send_sqaure_2,
+                                  theme: theme,
+                                  title: AppLocales.transactions.tr(),
+                                  onPressed: () {
+                                    showDesktopModal(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.8,
+                                      context: context,
+                                      body: MonitoringTransactionsPage(),
+                                    );
+                                  },
+                                  count: trs.length,
+                                );
+                              },
                             ),
-                          ],
-                        ),
-                        Row(
-                          spacing: context.w(24),
-                          children: [
-                            Expanded(
-                              child: state.whenProviderData(
-                                provider: ingredientsProvider,
-                                builder: (ord) {
-                                  return MonitoringCard(
-                                    count: ord.length,
-                                    icon: Icons.set_meal,
-                                    theme: theme,
-                                    title: AppLocales.ingredients.tr(),
-                                    onPressed: () {
-                                      showDesktopModal(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.8,
-                                        context: context,
-                                        body: MonitoringOrdersPage(),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: context.w(24),
+                        children: [
+                          Expanded(
+                            child: state.whenProviderData(
+                              provider: ingredientsProvider,
+                              builder: (ord) {
+                                return MonitoringCard(
+                                  count: ord.length,
+                                  icon: Icons.set_meal,
+                                  theme: theme,
+                                  title: AppLocales.ingredients.tr(),
+                                  onPressed: () {
+                                    showDesktopModal(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.8,
+                                      context: context,
+                                      body: MonitoringIngredientsPage(),
+                                    );
+                                  },
+                                );
+                              },
                             ),
-                            Expanded(
-                              child: state.whenProviderData(
-                                provider: shoppingProvider,
-                                builder: (trs) {
-                                  return MonitoringCard(
-                                    icon: Icons.shop_2_outlined,
-                                    theme: theme,
-                                    title: AppLocales.shopping.tr(),
-                                    onPressed: () {
-                                      showDesktopModal(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.8,
-                                        context: context,
-                                        body: MonitoringTransactionsPage(),
-                                      );
-                                    },
-                                    count: trs.length,
-                                  );
-                                },
-                              ),
+                          ),
+                          Expanded(
+                            child: state.whenProviderData(
+                              provider: shoppingProvider,
+                              builder: (trs) {
+                                return MonitoringCard(
+                                  icon: Icons.shop_2_outlined,
+                                  theme: theme,
+                                  title: AppLocales.shopping.tr(),
+                                  onPressed: () {
+                                    showDesktopModal(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.8,
+                                      context: context,
+                                      body: MonitoringTransactionsPage(),
+                                    );
+                                  },
+                                  count: trs.length,
+                                );
+                              },
                             ),
-                          ],
-                        )
-                      ],
-                    ),
-                  )),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         );

@@ -1,22 +1,48 @@
+import 'package:biznex/biznex.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class IngredientFoodScreen extends StatelessWidget {
-  const IngredientFoodScreen({super.key});
+  final List<ChartData> chartData;
+  final String? measure;
+
+  const IngredientFoodScreen(
+      {super.key, this.measure, required this.chartData});
 
   @override
   Widget build(BuildContext context) {
-    final List<ChartData> chartData = [
-      ChartData('David', 25),
-      ChartData('Steve', 38),
-      ChartData('Jack', 34),
-      ChartData('Others', 52)
-    ];
-    return Scaffold(
-      body: Center(
-        child: Container(
-          // color: Colors.red,
-          child: SfCircularChart(
+    final theme = AppColors(isDark: false);
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: theme.accentColor,
+      ),
+      child: Stack(
+        children: [
+          SfCircularChart(
+            title: ChartTitle(
+              text: AppLocales.ingredientFoodChartTitle.tr(),
+              textStyle: TextStyle(fontFamily: boldFamily),
+            ),
+            tooltipBehavior: TooltipBehavior(
+              enable: true,
+              textStyle: TextStyle(fontFamily: mediumFamily),
+            ),
+            legend: Legend(
+              toggleSeriesVisibility: true,
+              title: LegendTitle(
+                text: AppLocales.meals.tr(),
+                textStyle: TextStyle(fontFamily: boldFamily, fontSize: 16),
+              ),
+              isVisible: true,
+              position: LegendPosition.right,
+              overflowMode: LegendItemOverflowMode.wrap,
+              textStyle: TextStyle(
+                fontFamily: mediumFamily,
+                fontWeight: FontWeight.bold,
+                color: theme.textColor,
+              ),
+            ),
             series: <CircularSeries>[
               // Render pie chart
               PieSeries<ChartData, String>(
@@ -24,22 +50,32 @@ class IngredientFoodScreen extends StatelessWidget {
                 pointColorMapper: (ChartData data, _) => data.color,
                 xValueMapper: (ChartData data, _) => data.x,
                 yValueMapper: (ChartData data, _) => data.y,
-                dataLabelSettings: const DataLabelSettings(
+                dataLabelSettings: DataLabelSettings(
                   isVisible: true,
                   labelPosition: ChartDataLabelPosition.inside,
                   textStyle: TextStyle(
-                    color: Colors.white,
+                    color: theme.textColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 dataLabelMapper: (ChartData data, _) {
                   final percent = (data.y).toStringAsFixed(1);
-                  return "${data.x}\n\n$percent%";
+                  return "${data.x}\n$percent ${measure ?? ''}";
                 },
               )
             ],
           ),
-        ),
+          Positioned(
+            bottom: 16,
+            left: 16,
+            child: ElevatedButton.icon(
+              onPressed: () {},
+              icon: Icon(Ionicons.print_outline),
+              label: Text(AppLocales.print.tr()),
+              // child: Text("print"),
+            ),
+          ),
+        ],
       ),
     );
   }
