@@ -14,7 +14,8 @@ class OrderCard extends StatelessWidget {
   final AppColors theme;
   final Color? color;
 
-  const OrderCard({super.key, this.color, required this.order, required this.theme});
+  const OrderCard(
+      {super.key, this.color, required this.order, required this.theme});
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +89,8 @@ class OrderCard extends StatelessWidget {
                   border: Border.all(
                     color: colorFromStatus(order.status.toString()),
                   ),
-                  color: colorFromStatus(order.status.toString()).withValues(alpha: 0.1),
+                  color: colorFromStatus(order.status.toString())
+                      .withValues(alpha: 0.1),
                 ),
                 child: Text(
                   order.status.toString().tr(),
@@ -108,7 +110,8 @@ class OrderCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                DateFormat('dd.MM.yyyy').format(DateTime.parse(order.createdDate)),
+                DateFormat('dd.MM.yyyy')
+                    .format(DateTime.parse(order.createdDate)),
                 style: TextStyle(
                   fontSize: context.s(12),
                   fontFamily: mediumFamily,
@@ -125,7 +128,8 @@ class OrderCard extends StatelessWidget {
               )
             ],
           ),
-          Container(height: 1, color: Colors.grey.shade200, width: double.infinity),
+          Container(
+              height: 1, color: Colors.grey.shade200, width: double.infinity),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -148,7 +152,9 @@ class OrderCard extends StatelessWidget {
               )
             ],
           ),
-          for (int i = 0; i < (order.products.length > 3 ? 3 : order.products.length); i++)
+          for (int i = 0;
+              i < (order.products.length > 3 ? 3 : order.products.length);
+              i++)
             Row(
               spacing: context.w(12),
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -174,7 +180,8 @@ class OrderCard extends StatelessWidget {
                 )
               ],
             ),
-          Container(height: 1, color: Colors.grey.shade200, width: double.infinity),
+          Container(
+              height: 1, color: Colors.grey.shade200, width: double.infinity),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -202,31 +209,36 @@ class OrderCard extends StatelessWidget {
             children: [
               Expanded(
                 flex: 2,
-                child: WebButton(onPressed: () {
-                  OrderDetail.show(context, order);
-                }, builder: (focused) {
-                  return Container(
-                    padding: Dis.tb(context.h(12)),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black),
-                      borderRadius: BorderRadius.circular(12),
-                      color: focused ? theme.mainColor.withValues(alpha: 0.2) : null,
-                    ),
-                    child: Center(
-                      child: Text(
-                        AppLocales.about.tr(),
-                        style: TextStyle(
-                          fontSize: context.s(16),
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                          fontFamily: mediumFamily,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                child: WebButton(
+                  onPressed: () {
+                    OrderDetail.show(context, order);
+                  },
+                  builder: (focused) {
+                    return Container(
+                      padding: Dis.tb(context.h(12)),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.circular(12),
+                        color: focused
+                            ? theme.mainColor.withValues(alpha: 0.2)
+                            : null,
                       ),
-                    ),
-                  );
-                }),
+                      child: Center(
+                        child: Text(
+                          AppLocales.about.tr(),
+                          style: TextStyle(
+                            fontSize: context.s(16),
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                            fontFamily: mediumFamily,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
 
               if (order.status != Order.completed)

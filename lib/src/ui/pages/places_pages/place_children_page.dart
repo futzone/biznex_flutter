@@ -43,7 +43,8 @@ class PlaceChildrenPage extends ConsumerWidget {
                   spacing: 8,
                   children: [
                     Icon(Icons.add, size: 18, color: Colors.white),
-                    Text(AppLocales.addPlace.tr(), style: TextStyle(color: Colors.white)),
+                    Text(AppLocales.addPlace.tr(),
+                        style: TextStyle(color: Colors.white)),
                   ],
                 ),
               )
@@ -53,7 +54,8 @@ class PlaceChildrenPage extends ConsumerWidget {
             child: place.children == null || place.children!.isEmpty
                 ? AppEmptyWidget()
                 : ListView.builder(
-                    itemCount: place.children == null ? 0 : place.children?.length,
+                    itemCount:
+                        place.children == null ? 0 : place.children?.length,
                     itemBuilder: (context, index) {
                       final category = place.children![index];
                       return Container(
@@ -92,13 +94,27 @@ class PlaceChildrenPage extends ConsumerWidget {
                                       fontFamily: mediumFamily,
                                     ),
                                   ),
-                                  Text(
-                                    "${AppLocales.places.tr()}: ${category.children == null ? 0 : category.children?.length}",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontFamily: regularFamily,
-                                      color: theme.secondaryTextColor,
-                                    ),
+                                  Row(
+                                    spacing: 24,
+                                    children: [
+                                      Text(
+                                        "${AppLocales.places.tr()}: ${category.children == null ? 0 : category.children?.length}",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontFamily: regularFamily,
+                                          color: theme.secondaryTextColor,
+                                        ),
+                                      ),
+                                      if (category.price != null)
+                                        Text(
+                                          "${AppLocales.price.tr()}: ${category.price!.priceUZS}",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: regularFamily,
+                                            color: theme.secondaryTextColor,
+                                          ),
+                                        ),
+                                    ],
                                   )
                                 ],
                               ),
@@ -129,8 +145,13 @@ class PlaceChildrenPage extends ConsumerWidget {
                             ),
                             SimpleButton(
                               onPressed: () async {
-                                PlaceController placeController = PlaceController(context: context, state: state);
-                                await placeController.delete(category.id, father: place, ref: ref).then((_) {});
+                                PlaceController placeController =
+                                    PlaceController(
+                                        context: context, state: state);
+                                await placeController
+                                    .delete(category.id,
+                                        father: place, ref: ref)
+                                    .then((_) {});
                               },
                               child: Container(
                                 height: 36,

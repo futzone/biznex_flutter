@@ -26,7 +26,7 @@ class PrinterServices {
   }
 
   void printOrderCheck({String? phone, String? address}) async {
-    log("printing started");
+    log("printing started: ${order.place.price} ${order.place.name}");
 
     final fontData = await rootBundle.load('assets/fonts/DejaVuSans.ttf');
     final font = pw.Font.ttf(fontData);
@@ -91,7 +91,8 @@ class PrinterServices {
               ],
             ),
           ),
-        if (percents.isNotEmpty && !order.place.percentNull) ...[
+        if ((percents.isNotEmpty && !order.place.percentNull) ||
+            order.place.price != null) ...[
           pw.SizedBox(height: 4),
           pw.Container(color: PdfColor.fromHex("#000000"), height: 1),
           pw.SizedBox(height: 4),
@@ -111,6 +112,27 @@ class PrinterServices {
                   pw.SizedBox(width: 8),
                   pw.Text(
                     "${item.percent} %",
+                    style: boldStyle,
+                  ),
+                ],
+              ),
+            ),
+          if (order.place.price != null)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 2, bottom: 2),
+              child: pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: pw.Text(
+                      "${AppLocales.placePrice.tr()}: ",
+                      style: pdfTheme,
+                      overflow: pw.TextOverflow.clip,
+                      maxLines: 2,
+                    ),
+                  ),
+                  pw.SizedBox(width: 8),
+                  pw.Text(
+                    "${order.place.price?.priceUZS}",
                     style: boldStyle,
                   ),
                 ],

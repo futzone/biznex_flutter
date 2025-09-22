@@ -4402,6 +4402,11 @@ const PlaceIsarSchema = Schema(
       id: 5,
       name: r'percentNull',
       type: IsarType.bool,
+    ),
+    r'price': PropertySchema(
+      id: 6,
+      name: r'price',
+      type: IsarType.double,
     )
   },
   estimateSize: _placeIsarEstimateSize,
@@ -4471,6 +4476,7 @@ void _placeIsarSerialize(
   writer.writeString(offsets[3], object.image);
   writer.writeString(offsets[4], object.name);
   writer.writeBool(offsets[5], object.percentNull);
+  writer.writeDouble(offsets[6], object.price);
 }
 
 PlaceIsar _placeIsarDeserialize(
@@ -4495,6 +4501,7 @@ PlaceIsar _placeIsarDeserialize(
   object.image = reader.readStringOrNull(offsets[3]);
   object.name = reader.readString(offsets[4]);
   object.percentNull = reader.readBool(offsets[5]);
+  object.price = reader.readDoubleOrNull(offsets[6]);
   return object;
 }
 
@@ -4526,6 +4533,8 @@ P _placeIsarDeserializeProp<P>(
       return (reader.readString(offset)) as P;
     case 5:
       return (reader.readBool(offset)) as P;
+    case 6:
+      return (reader.readDoubleOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -5066,6 +5075,84 @@ extension PlaceIsarQueryFilter
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'percentNull',
         value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<PlaceIsar, PlaceIsar, QAfterFilterCondition> priceIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'price',
+      ));
+    });
+  }
+
+  QueryBuilder<PlaceIsar, PlaceIsar, QAfterFilterCondition> priceIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'price',
+      ));
+    });
+  }
+
+  QueryBuilder<PlaceIsar, PlaceIsar, QAfterFilterCondition> priceEqualTo(
+    double? value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'price',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<PlaceIsar, PlaceIsar, QAfterFilterCondition> priceGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'price',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<PlaceIsar, PlaceIsar, QAfterFilterCondition> priceLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'price',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<PlaceIsar, PlaceIsar, QAfterFilterCondition> priceBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'price',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }

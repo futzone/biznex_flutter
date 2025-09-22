@@ -550,5 +550,12 @@
   "selectDatabase": "Выберите базы данных",
   "clear": "Очистить",
   "recipe": "Рецепт",
-  "clearCacheSuccess": "Очистка кэшей завершена!"
+  "clearCacheSuccess": "Очистка кэшей завершена!",
+  "usage": "Использовано",
+  "ingredientFoodChartTitle": "Ингредиенты и блюда",
+  "meals": "Приемы пищи",
+  "days": "Дни",
+  "placePrice": "Цена места",
+  "placePriceHint": "Введите цену места",
+  "productEnded": "Нет"
 }

@@ -31,21 +31,29 @@ class TableChooseScreen extends HookConsumerWidget {
   Widget _buildHorCursi(BuildContext context) {
     return Container(
       height: context.h(12),
-      width: context.w(30),
+      width: context.w(56),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors(isDark: false).secondaryTextColor.withValues(alpha: 0.4), width: 2),
+        border: Border.all(
+            color: AppColors(isDark: false)
+                .secondaryTextColor
+                .withValues(alpha: 0.4),
+            width: 2),
       ),
     );
   }
 
   Widget _buildVerCursi(BuildContext context) {
     return Container(
-      height: context.h(30),
+      height: context.h(56),
       width: context.w(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors(isDark: false).secondaryTextColor.withValues(alpha: 0.4), width: 2),
+        border: Border.all(
+            color: AppColors(isDark: false)
+                .secondaryTextColor
+                .withValues(alpha: 0.4),
+            width: 2),
       ),
     );
   }
@@ -53,10 +61,14 @@ class TableChooseScreen extends HookConsumerWidget {
   Widget _buildTable({
     required AppColors theme,
     required String name,
+    required String? employee,
+    required double? price,
     required String status,
     required BuildContext context,
   }) {
-    final cColor = status == 'free' ? theme.mainColor.withValues(alpha: 0.8) : theme.secondaryTextColor;
+    final cColor = status == 'free'
+        ? theme.mainColor.withValues(alpha: 0.8)
+        : theme.secondaryTextColor;
     final textColor = status == 'free' ? theme.mainColor : theme.textColor;
 
     return Column(
@@ -74,27 +86,82 @@ class TableChooseScreen extends HookConsumerWidget {
               _buildVerCursi(context),
               Expanded(
                 child: Container(
-                  padding: context.s(20).all,
+                  padding: context.s(12).all,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: cColor,
-                    border: Border.all(color: theme.secondaryTextColor.withValues(alpha: 0.4)),
+                    border: Border.all(
+                        color: theme.secondaryTextColor.withValues(alpha: 0.4)),
                   ),
                   child: Container(
+                    padding: context.s(8).all,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(32),
                     ),
                     child: Center(
-                      child: Text(
-                        name,
-                        style: TextStyle(
-                          fontSize: context.s(20),
-                          color: textColor,
-                          fontFamily: mediumFamily,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Text(
+                            name,
+                            style: TextStyle(
+                              fontSize: context.s(20),
+                              color: textColor,
+                              fontFamily: mediumFamily,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (price != null && price != 0.0)
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              spacing: context.w(4),
+                              children: [
+                                Icon(
+                                  Ionicons.wallet_outline,
+                                  size: context.s(16),
+                                  color: theme.secondaryTextColor,
+                                ),
+                                Text(
+                                  price.priceUZS,
+                                  style: TextStyle(
+                                    fontSize: context.s(12),
+                                    color: theme.secondaryTextColor,
+                                    fontFamily: mediumFamily,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          if (employee != null && employee.isNotEmpty)
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              // spacing: 8,
+                              spacing: context.w(4),
+                              children: [
+                                Icon(
+                                  Iconsax.user_copy,
+                                  size: context.s(16),
+                                  color: theme.secondaryTextColor,
+                                ),
+                                Text(
+                                  employee,
+                                  style: TextStyle(
+                                    fontSize: context.s(12),
+                                    color: theme.secondaryTextColor,
+                                    fontFamily: mediumFamily,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            )
+                        ],
                       ),
                     ),
                   ),
@@ -150,14 +217,17 @@ class TableChooseScreen extends HookConsumerWidget {
                             spacing: context.w(8),
                             children: [
                               Text(
-                                selectedPlace.value == null ? AppLocales.choosePlace.tr() : selectedPlace.value!.name,
+                                selectedPlace.value == null
+                                    ? AppLocales.choosePlace.tr()
+                                    : selectedPlace.value!.name,
                                 style: TextStyle(
                                   fontSize: context.s(16),
                                   fontFamily: mediumFamily,
                                   color: Colors.white,
                                 ),
                               ),
-                              Icon(Iconsax.arrow_down_1_copy, size: context.s(20)),
+                              Icon(Iconsax.arrow_down_1_copy,
+                                  size: context.s(20)),
                               16.w,
                             ],
                           ),
@@ -245,7 +315,11 @@ class TableChooseScreen extends HookConsumerWidget {
                         children: [
                           AppBackButton(
                             onPressed: () {
-                              if (ref.watch(currentEmployeeProvider).roleName.toLowerCase() == 'admin') {
+                              if (ref
+                                      .watch(currentEmployeeProvider)
+                                      .roleName
+                                      .toLowerCase() ==
+                                  'admin') {
                                 AppRouter.open(context, MainPage());
                                 return;
                               }
@@ -261,19 +335,25 @@ class TableChooseScreen extends HookConsumerWidget {
                           WebButton(
                             onPressed: () {
                               ref.invalidate(ordersProvider);
-                              ref.invalidate(ordersProvider(selectedPlace.value?.id ?? ""));
-                              ref.invalidate(ordersProvider(fatherPlace.value?.id ?? ""));
+                              ref.invalidate(ordersProvider(
+                                  selectedPlace.value?.id ?? ""));
+                              ref.invalidate(
+                                  ordersProvider(fatherPlace.value?.id ?? ""));
                             },
                             builder: (focused) {
                               return Container(
                                 height: context.s(48),
                                 width: context.s(48),
                                 decoration: BoxDecoration(
-                                  color: focused ? theme.mainColor.withValues(alpha: 0.1) : null,
+                                  color: focused
+                                      ? theme.mainColor.withValues(alpha: 0.1)
+                                      : null,
                                   borderRadius: BorderRadius.circular(48),
-                                  border: Border.all(color: theme.secondaryTextColor),
+                                  border: Border.all(
+                                      color: theme.secondaryTextColor),
                                 ),
-                                child: Icon(Ionicons.refresh, size: context.s(24)),
+                                child:
+                                    Icon(Ionicons.refresh, size: context.s(24)),
                               );
                             },
                           ),
@@ -290,24 +370,32 @@ class TableChooseScreen extends HookConsumerWidget {
                                 height: context.s(48),
                                 width: context.s(48),
                                 decoration: BoxDecoration(
-                                  color: focused ? theme.mainColor.withValues(alpha: 0.1) : null,
+                                  color: focused
+                                      ? theme.mainColor.withValues(alpha: 0.1)
+                                      : null,
                                   borderRadius: BorderRadius.circular(48),
-                                  border: Border.all(color: theme.secondaryTextColor),
+                                  border: Border.all(
+                                      color: theme.secondaryTextColor),
                                 ),
-                                child: Icon(Ionicons.list_outline, size: context.s(24)),
+                                child: Icon(Ionicons.list_outline,
+                                    size: context.s(24)),
                               );
                             },
                           ),
                           WebButton(
                             onPressed: () {
-                              showDesktopModal(context: context, body: EmployeeSettingsScreen());
+                              showDesktopModal(
+                                  context: context,
+                                  body: EmployeeSettingsScreen());
                             },
                             builder: (focused) {
                               return Container(
                                 height: context.s(48),
                                 width: context.s(48),
                                 decoration: BoxDecoration(
-                                  color: focused ? theme.mainColor.withValues(alpha: 0.1) : null,
+                                  color: focused
+                                      ? theme.mainColor.withValues(alpha: 0.1)
+                                      : null,
                                   borderRadius: BorderRadius.circular(48),
                                   border: Border.all(color: theme.mainColor),
                                 ),
@@ -357,7 +445,9 @@ class TableChooseScreen extends HookConsumerWidget {
                                 child: Row(
                                   spacing: context.w(12),
                                   children: [
-                                    Icon(Icons.circle, color: theme.mainColor, size: context.s(16)),
+                                    Icon(Icons.circle,
+                                        color: theme.mainColor,
+                                        size: context.s(16)),
                                     Text(
                                       AppLocales.freeTables.tr(),
                                       style: TextStyle(
@@ -377,7 +467,9 @@ class TableChooseScreen extends HookConsumerWidget {
                                 child: Row(
                                   spacing: context.w(8),
                                   children: [
-                                    Icon(Icons.circle, color: theme.secondaryTextColor, size: context.s(16)),
+                                    Icon(Icons.circle,
+                                        color: theme.secondaryTextColor,
+                                        size: context.s(16)),
                                     Text(
                                       AppLocales.bronTables.tr(),
                                       style: TextStyle(
@@ -419,12 +511,14 @@ class TableChooseScreen extends HookConsumerWidget {
                                   children: [
                                     CustomPopupItem(
                                         title: AppLocales.all.tr(),
-                                        onPressed: () => selectedPlace.value = null,
+                                        onPressed: () =>
+                                            selectedPlace.value = null,
                                         icon: Icons.list),
                                     for (final item in places)
                                       CustomPopupItem(
                                           title: item.name,
-                                          onPressed: () => selectedPlace.value = item,
+                                          onPressed: () =>
+                                              selectedPlace.value = item,
                                           icon: Icons.present_to_all),
                                   ],
                                   child: Container(
@@ -432,21 +526,29 @@ class TableChooseScreen extends HookConsumerWidget {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
                                       color: Colors.white,
-                                      border: Border.all(color: theme.secondaryTextColor.withValues(alpha: 0.4)),
+                                      border: Border.all(
+                                          color: theme.secondaryTextColor
+                                              .withValues(alpha: 0.4)),
                                     ),
-                                    padding: Dis.only(lr: context.w(14), tb: context.h(8)),
+                                    padding: Dis.only(
+                                        lr: context.w(14), tb: context.h(8)),
                                     child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       spacing: context.w(8),
                                       children: [
                                         Text(
                                           selectedPlace.value == null
                                               ? AppLocales.choosePlace.tr()
                                               : selectedPlace.value!.name,
-                                          style: TextStyle(fontSize: context.s(16), fontFamily: mediumFamily),
+                                          style: TextStyle(
+                                              fontSize: context.s(16),
+                                              fontFamily: mediumFamily),
                                         ),
-                                        Icon(Iconsax.arrow_down_1_copy, size: context.s(20)),
+                                        Icon(Iconsax.arrow_down_1_copy,
+                                            size: context.s(20)),
                                       ],
                                     ),
                                   ),
@@ -497,14 +599,20 @@ class TableChooseScreen extends HookConsumerWidget {
                     ),
                   Expanded(
                     child: Container(
-                      padding: mobile ? Dis.only(lr: 16) : Dis.only(lr: context.w(40)),
-                      margin: mobile ? Dis.only(lr: 0) : Dis.only(lr: context.w(32)),
+                      padding: mobile
+                          ? Dis.only(lr: 16)
+                          : Dis.only(lr: context.w(40)),
+                      margin: mobile
+                          ? Dis.only(lr: 0)
+                          : Dis.only(lr: context.w(32)),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(12),
                           topRight: Radius.circular(12),
                         ),
-                        border: Border.all(color: theme.secondaryTextColor.withValues(alpha: 0.4)),
+                        border: Border.all(
+                            color: theme.secondaryTextColor
+                                .withValues(alpha: 0.4)),
                         color: Colors.white,
                       ),
                       child: GridView.builder(
@@ -535,8 +643,10 @@ class TableChooseScreen extends HookConsumerWidget {
                                 onPressed: () {
                                   if (order != null &&
                                       order.employee.id != employee.id &&
-                                      employee.roleName.toLowerCase() != 'admin') {
-                                    ShowToast.error(context, AppLocales.otherEmployeeOrder.tr());
+                                      employee.roleName.toLowerCase() !=
+                                          'admin') {
+                                    ShowToast.error(context,
+                                        AppLocales.otherEmployeeOrder.tr());
                                     return;
                                   }
                                   selectedPlace.value = place;
@@ -554,7 +664,11 @@ class TableChooseScreen extends HookConsumerWidget {
                                       return;
                                     }
 
-                                    AppRouter.go(context, MenuPage(place: kPlace, fatherPlace: fatherPlace.value))
+                                    AppRouter.go(
+                                            context,
+                                            MenuPage(
+                                                place: kPlace,
+                                                fatherPlace: fatherPlace.value))
                                         .then((_) {
                                       fatherPlace.value = null;
                                       selectedPlace.value = null;
@@ -562,7 +676,8 @@ class TableChooseScreen extends HookConsumerWidget {
                                     return;
                                   }
 
-                                  if (place.children == null || place.children!.isEmpty) {
+                                  if (place.children == null ||
+                                      place.children!.isEmpty) {
                                     Place kPlace = place;
                                     kPlace.father = fatherPlace.value;
 
@@ -578,7 +693,9 @@ class TableChooseScreen extends HookConsumerWidget {
 
                                     AppRouter.go(
                                       context,
-                                      MenuPage(place: kPlace, fatherPlace: fatherPlace.value),
+                                      MenuPage(
+                                          place: kPlace,
+                                          fatherPlace: fatherPlace.value),
                                     ).then((_) {
                                       fatherPlace.value = null;
                                       selectedPlace.value = null;
@@ -591,15 +708,20 @@ class TableChooseScreen extends HookConsumerWidget {
                                 child: mobile
                                     ? Container(
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(12),
-                                          color: order == null ? theme.mainColor : theme.accentColor,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          color: order == null
+                                              ? theme.mainColor
+                                              : theme.accentColor,
                                         ),
                                         child: Center(
                                           child: Text(
                                             place?.name ?? '',
                                             style: TextStyle(
                                               fontFamily: boldFamily,
-                                              color: order == null ? Colors.white : theme.textColor,
+                                              color: order == null
+                                                  ? Colors.white
+                                                  : theme.textColor,
                                               fontSize: 16,
                                             ),
                                           ),
@@ -608,8 +730,13 @@ class TableChooseScreen extends HookConsumerWidget {
                                     : _buildTable(
                                         context: context,
                                         theme: theme,
-                                        name: (place?.name ?? '')+(order!=null?"\n${order.employee.fullname}":''),
+                                        name: (place?.name ?? '') +
+                                            (order != null
+                                                ? "\n${order.employee.fullname}"
+                                                : ''),
                                         status: order == null ? 'free' : 'bron',
+                                        employee: order?.employee.fullname,
+                                        price: place?.price,
                                       ),
                               );
                             },

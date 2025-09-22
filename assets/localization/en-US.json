@@ -456,5 +456,12 @@
   "selectDatabase": "Select databases",
   "clear": "Clear",
   "recipe": "Recipe",
-  "clearCacheSuccess": "Clearing caches is complete!"
+  "clearCacheSuccess": "Clearing caches is complete!",
+  "usage": "Used",
+  "ingredientFoodChartTitle": "Ingredients and Meals",
+  "meals": "Meals",
+  "days": "Days",
+  "placePrice": "Place Price",
+  "placePriceHint": "Enter a price for a place",
+  "productEnded": "Ended"
 }

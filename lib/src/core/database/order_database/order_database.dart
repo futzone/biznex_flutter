@@ -91,13 +91,16 @@ class OrderDatabase extends OrderDatabaseRepository {
     final placeOrder = await getPlaceOrderIsar(order.place.id);
     if (placeOrder == null) {
       order.id = generateID;
+      log("Saving place price: ${order.place.price}");
       await isar.writeTxn(() async {
         OrderIsar orderIsar = order.toIsar();
         orderIsar.closed = true;
         orderIsar.status = Order.completed;
+        log("Saving place price (isar): ${orderIsar.place.price}");
         await isar.orderIsars.put(orderIsar);
       });
     } else {
+      log("2 Saving place price: ${order.place.price}");
       order.id = placeOrder.id;
       await isar.writeTxn(() async {
         OrderIsar orderIsar = order.toIsar();
@@ -105,6 +108,7 @@ class OrderDatabase extends OrderDatabaseRepository {
         orderIsar.status = Order.completed;
         orderIsar.isarId = placeOrder.isarId;
         await isar.orderIsars.put(orderIsar);
+        log("2 Saving place price (isar): ${orderIsar.place.price}");
       });
     }
 

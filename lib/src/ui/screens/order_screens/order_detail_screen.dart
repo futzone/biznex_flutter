@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/extensions/for_string.dart';
@@ -28,6 +30,9 @@ class OrderDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    log("Order place price: ${order.place.price}");
+
     return AppStateWrapper(builder: (theme, state) {
       return SingleChildScrollView(
         padding: Dis.all(context.s(16)),
@@ -254,6 +259,30 @@ class OrderDetail extends StatelessWidget {
                 ),
               ],
             ),
+
+            if(order.place.price !=null)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppLocales.placePrice.tr(),
+                    style: TextStyle(
+                      fontSize: context.s(16),
+                      fontFamily: mediumFamily,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                  Text(
+                    "${order.place.price?.priceUZS}",
+                    style: TextStyle(
+                      fontSize: context.s(16),
+                      fontFamily: mediumFamily,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
             if (!order.place.percentNull)
               state.whenProviderData(
                 provider: orderPercentProvider,

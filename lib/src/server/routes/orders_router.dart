@@ -10,6 +10,7 @@ import 'package:biznex/src/core/model/order_models/order_set_model.dart';
 import 'package:biznex/src/core/model/other_models/customer_model.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
+
 // import 'package:biznex/src/core/services/printer_multiple_services.dart';
 import 'package:biznex/src/core/utils/product_utils.dart';
 import 'package:biznex/src/server/app_response.dart';
@@ -32,9 +33,12 @@ class OrdersRouter {
   OrderDatabase orderDatabase = OrderDatabase();
 
   Future<AppResponse> getEmployeeOrders() async {
-    final employee = await databaseMiddleware(orderDatabase.getBoxName('all')).employeeState();
-    if (employee == null) return AppResponse(statusCode: 403, error: ResponseMessages.unauthorized);
-    final box = await databaseMiddleware(orderDatabase.getBoxName('all')).openBox();
+    final employee = await databaseMiddleware(orderDatabase.getBoxName('all'))
+        .employeeState();
+    if (employee == null)
+      return AppResponse(statusCode: 403, error: ResponseMessages.unauthorized);
+    final box =
+        await databaseMiddleware(orderDatabase.getBoxName('all')).openBox();
     List responseList = [];
     for (final item in box.values) {
       if (item['employee']['id'] == employee.id) {
@@ -46,16 +50,20 @@ class OrdersRouter {
   }
 
   Future<AppResponse> getPlaceState(String id) async {
-    final employee = await databaseMiddleware(orderDatabase.getBoxName('all')).employeeState();
-    if (employee == null) return AppResponse(statusCode: 403, error: ResponseMessages.unauthorized);
+    final employee = await databaseMiddleware(orderDatabase.getBoxName('all'))
+        .employeeState();
+    if (employee == null)
+      return AppResponse(statusCode: 403, error: ResponseMessages.unauthorized);
     final state = await orderDatabase.getPlaceOrder(id);
 
     return AppResponse(statusCode: 200, data: state?.toJson());
   }
 
   Future<AppResponse> openOrder(Request request) async {
-    final employee = await databaseMiddleware(orderDatabase.getBoxName('all')).employeeState();
-    if (employee == null) return AppResponse(statusCode: 403, error: ResponseMessages.unauthorized);
+    final employee = await databaseMiddleware(orderDatabase.getBoxName('all'))
+        .employeeState();
+    if (employee == null)
+      return AppResponse(statusCode: 403, error: ResponseMessages.unauthorized);
     final body = await request.readAsString();
     final bodyJson = jsonDecode(body);
     OrderModel orderModel = OrderModel.fromJson(bodyJson);
@@ -65,12 +73,15 @@ class OrdersRouter {
   }
 
   Future<AppResponse> closeOrder(Request request) async {
-    final employee = await databaseMiddleware(orderDatabase.getBoxName('all')).employeeState();
-    if (employee == null) return AppResponse(statusCode: 403, error: ResponseMessages.unauthorized);
+    final employee = await databaseMiddleware(orderDatabase.getBoxName('all'))
+        .employeeState();
+    if (employee == null)
+      return AppResponse(statusCode: 403, error: ResponseMessages.unauthorized);
     final body = await request.readAsString();
     final bodyJson = jsonDecode(body);
     if (bodyJson['placeId'] == null) {
-      return AppResponse(statusCode: 400, error: ResponseMessages.placeIdRequired);
+      return AppResponse(
+          statusCode: 400, error: ResponseMessages.placeIdRequired);
     }
 
     final placeId = bodyJson['placeId'];
@@ -78,10 +89,15 @@ class OrdersRouter {
 
     Order newOrder = placeState!;
 
-    if(!newOrder.place.percentNull) {
-    final percents = await OrderPercentDatabase().get();
-    final totalPercent = percents.map((e) => e.percent).fold(0.0, (a, b) => a + b);
-    newOrder.price = placeState.price + (placeState.price * (totalPercent / 100));
+    if (!newOrder.place.percentNull) {
+      final percents = await OrderPercentDatabase().get();
+      final totalPercent =
+          percents.map((e) => e.percent).fold(0.0, (a, b) => a + b);
+      newOrder.price =
+          placeState.price + (placeState.price * (totalPercent / 100));
+    }
+    if (newOrder.place.price != null) {
+      newOrder.price = newOrder.price + (newOrder.place.price ?? 0.0);
     }
 
     final database = OrderDatabase();
@@ -117,27 +133,42 @@ class OrdersRouter {
     Place? fatherPlace;
     final places = await PlaceDatabase().get();
     if (order.placeFatherId != null) {
-      fatherPlace = places.firstWhere((el) => el.id == order.placeFatherId, orElse: () => Place(name: '-', id: '='));
+      fatherPlace = places.firstWhere((el) => el.id == order.placeFatherId,
+          orElse: () => Place(name: '-', id: '=', price: null));
     }
 
     if (fatherPlace != null && fatherPlace.id == '=') {
-      return AppResponse(statusCode: 404, data: order.placeFatherId, error: ResponseMessages.fatherPlaceNotFound);
+      return AppResponse(
+          statusCode: 404,
+          data: order.placeFatherId,
+          error: ResponseMessages.fatherPlaceNotFound);
     }
 
-    if (fatherPlace != null && fatherPlace.children != null && fatherPlace.children!.isNotEmpty) {
-      place = fatherPlace.children?.firstWhere((el) => el.id == order.placeId, orElse: () => Place(name: '-', id: '='));
+    if (fatherPlace != null &&
+        fatherPlace.children != null &&
+        fatherPlace.children!.isNotEmpty) {
+      place = fatherPlace.children?.firstWhere((el) => el.id == order.placeId,
+          orElse: () => Place(name: '-', id: '=', price: null));
     }
 
     if (place != null && place.id == '=') {
-      return AppResponse(statusCode: 404, data: order.placeId, error: ResponseMessages.placeNotFound);
+      return AppResponse(
+          statusCode: 404,
+          data: order.placeId,
+          error: ResponseMessages.placeNotFound);
     }
 
     if (order.placeFatherId == null) {
-      place = places.firstWhere((el) => el.id == order.placeId, orElse: () => Place(name: '-', id: '='));
+      place = places.firstWhere((el) => el.id == order.placeId,
+          orElse: () => Place(name: '-', id: '=', price: null));
     }
 
     if (place != null && place.id == '=') {
-      return AppResponse(statusCode: 404, data: order.placeId, error: ResponseMessages.placeNotFound);
+      return AppResponse(
+        statusCode: 404,
+        data: order.placeId,
+        error: ResponseMessages.placeNotFound,
+      );
     }
 
     final products = await ProductDatabase().get();
@@ -145,7 +176,8 @@ class OrdersRouter {
     Map<String, Product> productsMap = {};
 
     for (final item in order.items) {
-      final productState = products.firstWhere((el) => el.id == item.productId, orElse: () => Product(name: '', price: 0, amount: 0));
+      final productState = products.firstWhere((el) => el.id == item.productId,
+          orElse: () => Product(name: '', price: 0, amount: 0));
       if (productState.amount < item.amount) {
         stockError = productState;
         break;
@@ -155,7 +187,10 @@ class OrdersRouter {
     }
 
     if (stockError != null) {
-      return AppResponse(statusCode: 404, data: stockError.toJson(), error: ResponseMessages.productStockError);
+      return AppResponse(
+          statusCode: 404,
+          data: stockError.toJson(),
+          error: ResponseMessages.productStockError);
     }
 
     double totalPrice = order.items.fold(0, (oldValue, element) {
@@ -174,7 +209,12 @@ class OrdersRouter {
         place: place,
         employee: employee,
         price: totalPrice,
-        products: order.items.map((el) => OrderItem(product: productsMap[el.productId]!, amount: el.amount, placeId: place!.id)).toList(),
+        products: order.items
+            .map((el) => OrderItem(
+                product: productsMap[el.productId]!,
+                amount: el.amount,
+                placeId: place!.id))
+            .toList(),
         createdDate: DateTime.now().toIso8601String(),
         updatedDate: DateTime.now().toIso8601String(),
         customer: order.customerName != null
@@ -192,13 +232,19 @@ class OrdersRouter {
 
       // PrinterMultipleServices printerMultipleServices = PrinterMultipleServices();
       // printerMultipleServices.printForBack(newOrder, newOrder.products);
-      return AppResponse(statusCode: 201, message: ResponseMessages.orderOpened);
+      return AppResponse(
+          statusCode: 201, message: ResponseMessages.orderOpened);
     }
 
     final Order? olState = await orderDatabase.getPlaceOrder(place.id);
 
     placeState.updatedDate = DateTime.now().toIso8601String();
-    placeState.products = order.items.map((el) => OrderItem(product: productsMap[el.productId]!, amount: el.amount, placeId: place!.id)).toList();
+    placeState.products = order.items
+        .map((el) => OrderItem(
+            product: productsMap[el.productId]!,
+            amount: el.amount,
+            placeId: place!.id))
+        .toList();
     placeState.customer = order.customerName != null
         ? Customer(
             name: order.customerName!,
@@ -220,17 +266,21 @@ class OrdersRouter {
     await orderDatabase.updatePlaceOrder(data: placeState, placeId: place.id);
 
     // PrinterMultipleServices printerMultipleServices = PrinterMultipleServices();
-    final List<OrderItem> productChanges = _onGetChanges(placeState.products, olState!);
+    final List<OrderItem> productChanges =
+        _onGetChanges(placeState.products, olState!);
 
     // log('changes: ${productChanges.length}');
     // printerMultipleServices.printForBack(placeState, productChanges);
     return AppResponse(statusCode: 200, message: ResponseMessages.orderUpdated);
   }
 
-  List<OrderItem> _onGetChanges(List<OrderItem> newItemsList, Order oldOrderState) {
+  List<OrderItem> _onGetChanges(
+      List<OrderItem> newItemsList, Order oldOrderState) {
     final List<OrderItem> changes = [];
 
-    final oldItemsMap = {for (var item in oldOrderState.products) item.product.id: item};
+    final oldItemsMap = {
+      for (var item in oldOrderState.products) item.product.id: item
+    };
     final newItemsMap = {for (var item in newItemsList) item.product.id: item};
 
     for (final newItem in newItemsList) {
@@ -251,7 +301,6 @@ class OrdersRouter {
     return changes;
   }
 
-
   static ApiRequest orders() => ApiRequest(
         name: 'Get Orders',
         path: ApiEndpoints.orders,
@@ -267,7 +316,12 @@ class OrdersRouter {
               "id": "950708f0-19fa-11f0-80b6-5b844bb28dff",
               "image": null,
               "children": [],
-              "father": {"name": "redy", "id": "8b880130-19fa-11f0-80b6-5b844bb28dff", "image": null, "father": null}
+              "father": {
+                "name": "redy",
+                "id": "8b880130-19fa-11f0-80b6-5b844bb28dff",
+                "image": null,
+                "father": null
+              }
             },
             "id": "8eed1a50-1b5c-11f0-8e81-79294647df32",
             "createdDate": "2025-04-17T12:21:19.707097",
@@ -310,7 +364,12 @@ class OrdersRouter {
                   "id": "0a176730-1aa4-11f0-8fa3-998087b4fdae",
                   "productId": null,
                   "variants": null,
-                  "category": {"name": "Dessert", "id": "26c32500-1aa3-11f0-8fa3-998087b4fdae", "parentId": null, "printerParams": {}}
+                  "category": {
+                    "name": "Dessert",
+                    "id": "26c32500-1aa3-11f0-8fa3-998087b4fdae",
+                    "parentId": null,
+                    "printerParams": {}
+                  }
                 },
                 "amount": 1.0,
                 "customPrice": null
@@ -336,7 +395,12 @@ class OrdersRouter {
                   "id": "980aee50-1aa3-11f0-8fa3-998087b4fdae",
                   "productId": null,
                   "variants": null,
-                  "category": {"name": "Shurpa", "id": "2a1de8c0-1aa3-11f0-8fa3-998087b4fdae", "parentId": null, "printerParams": {}}
+                  "category": {
+                    "name": "Shurpa",
+                    "id": "2a1de8c0-1aa3-11f0-8fa3-998087b4fdae",
+                    "parentId": null,
+                    "printerParams": {}
+                  }
                 },
                 "amount": 1.0,
                 "customPrice": null
@@ -362,7 +426,12 @@ class OrdersRouter {
                   "id": "b665c640-1aa3-11f0-8fa3-998087b4fdae",
                   "productId": null,
                   "variants": null,
-                  "category": {"name": "Meal", "id": "2321bb50-1aa3-11f0-8fa3-998087b4fdae", "parentId": null, "printerParams": {}}
+                  "category": {
+                    "name": "Meal",
+                    "id": "2321bb50-1aa3-11f0-8fa3-998087b4fdae",
+                    "parentId": null,
+                    "printerParams": {}
+                  }
                 },
                 "amount": 1.0,
                 "customPrice": null
@@ -387,7 +456,12 @@ class OrdersRouter {
             "id": "950708f0-19fa-11f0-80b6-5b844bb28dff",
             "image": null,
             "children": [],
-            "father": {"name": "redy", "id": "8b880130-19fa-11f0-80b6-5b844bb28dff", "image": null, "father": null}
+            "father": {
+              "name": "redy",
+              "id": "8b880130-19fa-11f0-80b6-5b844bb28dff",
+              "image": null,
+              "father": null
+            }
           },
           "id": "bf3e7570-1b5f-11f0-8c85-1f38c19c7799",
           "createdDate": "2025-04-17T12:44:09.287983",
@@ -430,7 +504,12 @@ class OrdersRouter {
                 "id": "b665c640-1aa3-11f0-8fa3-998087b4fdae",
                 "productId": null,
                 "variants": null,
-                "category": {"name": "Meal", "id": "2321bb50-1aa3-11f0-8fa3-998087b4fdae", "parentId": null, "printerParams": {}}
+                "category": {
+                  "name": "Meal",
+                  "id": "2321bb50-1aa3-11f0-8fa3-998087b4fdae",
+                  "parentId": null,
+                  "printerParams": {}
+                }
               },
               "amount": 1.0,
               "customPrice": null

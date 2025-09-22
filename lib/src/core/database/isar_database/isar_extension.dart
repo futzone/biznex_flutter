@@ -90,6 +90,7 @@ extension PlaceToIsarSafe on Place {
       return PlaceIsar()
         ..id = id
         ..name = name
+        ..price = price
         ..percentNull = percentNull;
     }
 
@@ -99,6 +100,7 @@ extension PlaceToIsarSafe on Place {
       ..id = id
       ..name = name
       ..image = image
+      ..price = price
       ..percentNull = percentNull;
 
     p.children = children?.map((c) => c.toIsar(visited: visited)).toList();

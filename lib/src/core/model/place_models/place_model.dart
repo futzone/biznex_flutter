@@ -7,6 +7,7 @@ class Place {
   List<Place>? children;
   Place? father;
   bool percentNull;
+  double? price;
 
   Place({
     this.father,
@@ -15,6 +16,7 @@ class Place {
     this.children,
     this.id = '',
     this.percentNull = false,
+    this.price,
   });
 
   factory Place.fromIsar(PlaceIsar isar, {bool includeFather = true}) {
@@ -23,8 +25,13 @@ class Place {
       id: isar.id,
       image: isar.image,
       percentNull: isar.percentNull,
-      children: isar.children?.map((e) => Place.fromIsar(e, includeFather: false)).toList(),
-      father: includeFather && isar.father != null ? Place.fromIsar(isar.father!, includeFather: false) : null,
+      price: isar.price,
+      children: isar.children
+          ?.map((e) => Place.fromIsar(e, includeFather: false))
+          .toList(),
+      father: includeFather && isar.father != null
+          ? Place.fromIsar(isar.father!, includeFather: false)
+          : null,
     );
   }
 
@@ -32,20 +39,26 @@ class Place {
     return Place(
       father: json['father'] == null ? null : Place.fromJson(json['father']),
       name: json['name'] ?? '',
+      price: json['price'],
       id: json['id'] ?? '',
       image: json['image'],
       percentNull: json['percentNull'] ?? false,
-      children: (json['children'] as List?)?.map((mp) => Place.fromJson(mp, fatherId: json['id'] ?? '')).toList(),
+      children: (json['children'] as List?)
+          ?.map((mp) => Place.fromJson(mp, fatherId: json['id'] ?? ''))
+          .toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'name': name,
+      'price': price,
       'id': id,
       'image': image,
       'percentNull': percentNull,
-      'children': children != null ? children!.map((mp) => mp.toJsonWithoutChildren()).toList() : [],
+      'children': children != null
+          ? children!.map((mp) => mp.toJsonWithoutChildren()).toList()
+          : [],
       'father': father?.toJsonWithoutChildren(),
     };
   }
@@ -53,6 +66,7 @@ class Place {
   Map<String, dynamic> toJsonWithoutChildren() {
     return {
       'name': name,
+      'price': price,
       'id': id,
       'image': image,
       'percentNull': percentNull,

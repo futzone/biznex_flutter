@@ -18,7 +18,8 @@ class CategoryPage extends HookConsumerWidget {
   final ValueNotifier<AppBar> appbar;
   final ValueNotifier<FloatingActionButton?> floatingActionButton;
 
-  const CategoryPage(this.floatingActionButton, {super.key, required this.appbar});
+  const CategoryPage(this.floatingActionButton,
+      {super.key, required this.appbar});
 
   static void onShowSubcategories(BuildContext context, Category category) {
     showDesktopModal(
@@ -42,8 +43,10 @@ class CategoryPage extends HookConsumerWidget {
     );
   }
 
-  static void onDeleteCategory(BuildContext context, Category category, AppModel state) {
-    CategoryController controller = CategoryController(context: context, state: state);
+  static void onDeleteCategory(
+      BuildContext context, Category category, AppModel state) {
+    CategoryController controller =
+        CategoryController(context: context, state: state);
     controller.delete(category.id);
   }
 
@@ -106,7 +109,8 @@ class CategoryPage extends HookConsumerWidget {
                     ],
                   ),
                   child: Center(
-                    child: Icon(Iconsax.add_copy, color: Colors.white, size: focused ? 40 : 32),
+                    child: Icon(Iconsax.add_copy,
+                        color: Colors.white, size: focused ? 40 : 32),
                   ),
                 ),
               ),
@@ -120,7 +124,10 @@ class CategoryPage extends HookConsumerWidget {
                         boxShadow: [
                           BoxShadow(
                             offset: Offset(0, 2),
-                            color: !pinned.value ? Colors.transparent : theme.secondaryTextColor.withValues(alpha: 0.5),
+                            color: !pinned.value
+                                ? Colors.transparent
+                                : theme.secondaryTextColor
+                                    .withValues(alpha: 0.5),
                             spreadRadius: 5,
                             blurRadius: 5,
                           ),
@@ -150,7 +157,10 @@ class CategoryPage extends HookConsumerWidget {
                               controller: searchController,
                               onChanged: (_) {
                                 list.value = categories.where((el) {
-                                  return el.name.trim().toLowerCase().contains(searchController.text.trim().toLowerCase());
+                                  return el.name.trim().toLowerCase().contains(
+                                      searchController.text
+                                          .trim()
+                                          .toLowerCase());
                                 }).toList();
                               },
                               theme: theme,
@@ -162,7 +172,8 @@ class CategoryPage extends HookConsumerWidget {
                       ),
                     ),
                   ),
-                  if (list.value.isEmpty && searchController.text.trim().isNotEmpty)
+                  if (list.value.isEmpty &&
+                      searchController.text.trim().isNotEmpty)
                     SliverPadding(
                       padding: 80.all,
                       sliver: SliverToBoxAdapter(
@@ -171,13 +182,21 @@ class CategoryPage extends HookConsumerWidget {
                     ),
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      childCount: searchController.text.trim().isEmpty ? categories.length : list.value.length,
+                      childCount: searchController.text.trim().isEmpty
+                          ? categories.length
+                          : list.value.length,
                       (context, index) {
-                        final ctg = searchController.text.trim().isEmpty ? categories[index] : list.value[index];
-                        return CategoryCard(ctg, count: providerListener.where((el) => ctg.id == el.category?.id).length);
+                        final ctg = searchController.text.trim().isEmpty
+                            ? categories[index]
+                            : list.value[index];
+                        return CategoryCard(ctg,
+                            count: providerListener
+                                .where((el) => ctg.id == el.category?.id)
+                                .length);
                       },
                     ),
                   ),
+                  SliverPadding(padding: 100.tb),
                 ],
               ),
             );

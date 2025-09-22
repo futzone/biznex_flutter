@@ -22,6 +22,7 @@ class AddPlace extends HookWidget {
     final nameController = useTextEditingController(text: editCategory?.name);
     final percentNull = useState(editCategory?.percentNull ?? false);
     final numberController = useTextEditingController();
+    final priceController = useTextEditingController();
     return AppStateWrapper(
       builder: (theme, state) {
         return SingleChildScrollView(
@@ -29,11 +30,20 @@ class AddPlace extends HookWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              AppText.$18Bold(AppLocales.placeNameLabel.tr(), padding: 8.bottom),
+              AppText.$18Bold(AppLocales.placeNameLabel.tr(),
+                  padding: 8.bottom),
               AppTextField(
                 title: AppLocales.placeNameHint.tr(),
                 controller: nameController,
                 theme: theme,
+              ),
+              24.h,
+              AppText.$18Bold(AppLocales.placePrice.tr(), padding: 8.bottom),
+              AppTextField(
+                title: AppLocales.placePriceHint.tr(),
+                controller: priceController,
+                theme: theme,
+                textInputType: TextInputType.number,
               ),
               24.h,
               AppText.$18Bold(AppLocales.placesCount.tr(), padding: 8.bottom),
@@ -45,7 +55,8 @@ class AddPlace extends HookWidget {
               ),
               24.h,
               SwitchListTile(
-                title: AppText.$18Bold(AppLocales.percentIsNullLabel.tr(), padding: 8.bottom),
+                title: AppText.$18Bold(AppLocales.percentIsNullLabel.tr(),
+                    padding: 8.bottom),
                 value: percentNull.value,
                 onChanged: (v) => percentNull.value = v,
               ),
@@ -54,9 +65,12 @@ class AddPlace extends HookWidget {
                 cancelColor: Colors.white,
                 onConfirm: () async {
                   final count = int.tryParse(numberController.text.trim());
-                  PlaceController controller = PlaceController(context: context, state: state);
+                  final price = double.tryParse(priceController.text.trim());
+                  PlaceController controller =
+                      PlaceController(context: context, state: state);
                   if (nameController.text.trim().isEmpty) {
-                    return controller.error(AppLocales.placeNameInputError.tr());
+                    return controller
+                        .error(AppLocales.placeNameInputError.tr());
                   }
 
                   if (addSubcategoryTo != null && editCategory == null) {
@@ -65,14 +79,27 @@ class AddPlace extends HookWidget {
                     place.percentNull = percentNull.value;
 
                     if (count == null) {
-                      place.children!.add(Place(name: nameController.text.tr(), id: ProductUtils.generateID));
+                      place.children!.add(
+                        Place(
+                          price: price,
+                          name: nameController.text.tr(),
+                          id: ProductUtils.generateID,
+                        ),
+                      );
                     } else {
                       for (int i = 1; i <= count; i++) {
-                        place.children!
-                            .add(Place(name: "$i - ${nameController.text.tr()}", id: ProductUtils.generateID));
+                        place.children!.add(
+                          Place(
+                            price: price,
+                            name: "$i - ${nameController.text.tr()}",
+                            id: ProductUtils.generateID,
+                          ),
+                        );
                       }
                     }
-                    await controller.update(place, place.id).then((_) => AppRouter.close(context));
+                    await controller
+                        .update(place, place.id)
+                        .then((_) => AppRouter.close(context));
                     return;
                   }
 
@@ -81,10 +108,12 @@ class AddPlace extends HookWidget {
                     Place place = editCategory!;
                     place.name = nameController.text.trim();
                     place.percentNull = percentNull.value;
+                    place.price = price;
                     father.children ??= [];
                     father.children = [
                       place,
-                      ...father.children!.where((el) => el.id != editCategory?.id),
+                      ...father.children!
+                          .where((el) => el.id != editCategory?.id),
                     ];
 
                     controller.update(father, father.id);
@@ -97,15 +126,16 @@ class AddPlace extends HookWidget {
                         name: nameController.text,
                         percentNull: percentNull.value,
                         father: addSubcategoryTo,
+                        price: price,
                       );
                       controller.create(category);
                     } else {
                       for (int i = 1; i <= count; i++) {
                         Place category = Place(
-                          name: "$i - ${nameController.text}",
-                          percentNull: percentNull.value,
-                          father: addSubcategoryTo,
-                        );
+                            name: "$i - ${nameController.text}",
+                            percentNull: percentNull.value,
+                            father: addSubcategoryTo,
+                            price: price);
                         controller.create(category, multiple: true);
                       }
                     }
@@ -114,6 +144,7 @@ class AddPlace extends HookWidget {
 
                   Place category = editCategory!;
                   category.name = nameController.text;
+                  category.price = price;
                   category.percentNull = percentNull.value;
                   await controller.update(category, category.id);
                 },

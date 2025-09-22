@@ -5,8 +5,6 @@ import 'package:biznex/src/providers/license_status_provider.dart';
 import 'package:biznex/src/server/start.dart';
 import 'package:biznex/src/ui/pages/login_pages/onboard_page.dart';
 import 'package:biznex/src/ui/screens/sleep_screen/activity_wrapper.dart';
-import 'package:biznex/src/ui/screens/warehouse_charts/ingredient_daily_stats.dart';
-import 'package:biznex/src/ui/screens/warehouse_charts/ingredient_food_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +15,7 @@ import 'package:toastification/toastification.dart';
 import 'package:path/path.dart' as path;
 
 bool debugMode = true;
-const appVersion = '2.2.17';
+const appVersion = '2.3.2';
 
 void main() async {
   // runZonedGuarded(() async {

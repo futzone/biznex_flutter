@@ -51,7 +51,8 @@ class MenuPage extends HookConsumerWidget {
                     children: [
                       Text(
                         place.name +
-                            ((place.father?.name == null || place.father!.name.isEmpty)
+                            ((place.father?.name == null ||
+                                    place.father!.name.isEmpty)
                                 ? ''
                                 : ', ${place.father!.name}'),
                         style: TextStyle(
@@ -61,7 +62,8 @@ class MenuPage extends HookConsumerWidget {
                         ),
                       ),
                       8.w,
-                      Icon(Icons.edit, color: theme.secondaryTextColor, size: context.s(20))
+                      Icon(Icons.edit,
+                          color: theme.secondaryTextColor, size: context.s(20))
                     ],
                   ),
                 ),
@@ -72,17 +74,24 @@ class MenuPage extends HookConsumerWidget {
                 backgroundColor: theme.mainColor,
                 child: Icon(Iconsax.add_copy, size: 32, color: Colors.white),
                 onPressed: () {
-                  AppRouter.go(context, OrderHalfPage(place, minimalistic: minimalistic));
+                  AppRouter.go(context,
+                      OrderHalfPage(place, minimalistic: minimalistic));
                 },
               ),
         body: mobile
             ? RefreshIndicator(
                 onRefresh: () async {
-                  await ref.refresh(ordersProvider(place.id).future).then((order) {
+                  await ref
+                      .refresh(ordersProvider(place.id).future)
+                      .then((order) {
                     if (order != null) {
-                      ref.read(orderSetProvider.notifier).clearPlaceItems(place.id);
+                      ref
+                          .read(orderSetProvider.notifier)
+                          .clearPlaceItems(place.id);
                       Future.delayed(Duration(milliseconds: 100));
-                      ref.read(orderSetProvider.notifier).addMultiple(order.products);
+                      ref
+                          .read(orderSetProvider.notifier)
+                          .addMultiple(order.products);
                     } else {
                       // ref.read(orderSetProvider.notifier).clear();
                     }
@@ -108,7 +117,8 @@ class MenuPage extends HookConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           AppBackButton(
-                            onPressed: () => AppRouter.open(context, TableChooseScreen()),
+                            onPressed: () =>
+                                AppRouter.open(context, TableChooseScreen()),
                           ),
                           0.w,
                           SvgPicture.asset(
@@ -124,21 +134,40 @@ class MenuPage extends HookConsumerWidget {
                                 width: MediaQuery.of(context).size.width * 0.96,
                               );
                             },
-                            child: Row(
+                            child: Column(
                               children: [
-                                Text(
-                                  place.name +
-                                      ((place.father?.name == null || place.father!.name.isEmpty)
-                                          ? ''
-                                          : ', ${place.father!.name}'),
-                                  style: TextStyle(
-                                    fontSize: context.s(20),
-                                    fontFamily: boldFamily,
-                                    color: Colors.black,
-                                  ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      place.name +
+                                          ((place.father?.name == null ||
+                                                  place.father!.name.isEmpty)
+                                              ? ''
+                                              : ', ${place.father!.name}'),
+                                      style: TextStyle(
+                                        fontSize: context.s(20),
+                                        fontFamily: boldFamily,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    8.w,
+                                    Icon(Icons.edit,
+                                        color: theme.secondaryTextColor,
+                                        size: 20)
+                                  ],
                                 ),
-                                8.w,
-                                Icon(Icons.edit, color: theme.secondaryTextColor, size: 20)
+                                if (place.price != null) 4.h,
+                                if (place.price != null)
+                                  if (place.price != null)
+                                    Center(
+                                      child: Text(
+                                        "${AppLocales.placePrice.tr()}: ${place.price?.priceUZS}",
+                                        style: TextStyle(
+                                          fontSize: context.s(14),
+                                          color: theme.secondaryTextColor,
+                                        ),
+                                      ),
+                                    )
                               ],
                             ),
                           ),
@@ -152,21 +181,31 @@ class MenuPage extends HookConsumerWidget {
                                 height: context.s(48),
                                 width: context.s(48),
                                 decoration: BoxDecoration(
-                                  color: focused ? theme.mainColor.withValues(alpha: 0.1) : null,
+                                  color: focused
+                                      ? theme.mainColor.withValues(alpha: 0.1)
+                                      : null,
                                   borderRadius: BorderRadius.circular(48),
-                                  border: Border.all(color: theme.secondaryTextColor),
+                                  border: Border.all(
+                                      color: theme.secondaryTextColor),
                                 ),
-                                child: Icon(Iconsax.home_copy, size: context.s(24)),
+                                child: Icon(Iconsax.home_copy,
+                                    size: context.s(24)),
                               );
                             },
                           ),
                           WebButton(
                             onPressed: () async {
-                              await ref.refresh(ordersProvider(place.id).future).then((order) {
+                              await ref
+                                  .refresh(ordersProvider(place.id).future)
+                                  .then((order) {
                                 if (order != null) {
-                                  ref.read(orderSetProvider.notifier).clearPlaceItems(place.id);
+                                  ref
+                                      .read(orderSetProvider.notifier)
+                                      .clearPlaceItems(place.id);
                                   Future.delayed(Duration(milliseconds: 100));
-                                  ref.read(orderSetProvider.notifier).addMultiple(order.products);
+                                  ref
+                                      .read(orderSetProvider.notifier)
+                                      .addMultiple(order.products);
                                 } else {
                                   // ref.read(orderSetProvider.notifier).clear();
                                 }
@@ -175,32 +214,41 @@ class MenuPage extends HookConsumerWidget {
 
                               try {
                                 ref.invalidate(productsProvider);
-                               } catch (_) {}
+                              } catch (_) {}
                             },
                             builder: (focused) {
                               return Container(
                                 height: context.s(48),
                                 width: context.s(48),
                                 decoration: BoxDecoration(
-                                  color: focused ? theme.mainColor.withValues(alpha: 0.1) : null,
+                                  color: focused
+                                      ? theme.mainColor.withValues(alpha: 0.1)
+                                      : null,
                                   borderRadius: BorderRadius.circular(48),
-                                  border: Border.all(color: theme.secondaryTextColor),
+                                  border: Border.all(
+                                      color: theme.secondaryTextColor),
                                 ),
-                                child: Icon(Ionicons.refresh, size: context.s(24)),
+                                child:
+                                    Icon(Ionicons.refresh, size: context.s(24)),
                               );
                             },
                           ),
                           WebButton(
-                            onPressed: () async => await setMenuMode(ref, !minimalistic),
+                            onPressed: () async =>
+                                await setMenuMode(ref, !minimalistic),
                             builder: (focused) {
                               return Container(
                                 height: context.s(48),
                                 width: context.s(48),
                                 decoration: BoxDecoration(
-                                  color: focused ? theme.mainColor.withValues(alpha: 0.1) : null,
+                                  color: focused
+                                      ? theme.mainColor.withValues(alpha: 0.1)
+                                      : null,
                                   borderRadius: BorderRadius.circular(48),
                                   border: Border.all(
-                                    color: minimalistic ? theme.mainColor : theme.secondaryTextColor,
+                                    color: minimalistic
+                                        ? theme.mainColor
+                                        : theme.secondaryTextColor,
                                   ),
                                 ),
                                 child: Icon(
@@ -224,24 +272,32 @@ class MenuPage extends HookConsumerWidget {
                                 height: context.s(48),
                                 width: context.s(48),
                                 decoration: BoxDecoration(
-                                  color: focused ? theme.mainColor.withValues(alpha: 0.1) : null,
+                                  color: focused
+                                      ? theme.mainColor.withValues(alpha: 0.1)
+                                      : null,
                                   borderRadius: BorderRadius.circular(48),
-                                  border: Border.all(color: theme.secondaryTextColor),
+                                  border: Border.all(
+                                      color: theme.secondaryTextColor),
                                 ),
-                                child: Icon(Ionicons.list_outline, size: context.s(24)),
+                                child: Icon(Ionicons.list_outline,
+                                    size: context.s(24)),
                               );
                             },
                           ),
                           WebButton(
                             onPressed: () {
-                              showDesktopModal(context: context, body: EmployeeSettingsScreen());
+                              showDesktopModal(
+                                  context: context,
+                                  body: EmployeeSettingsScreen());
                             },
                             builder: (focused) {
                               return Container(
                                 height: context.s(48),
                                 width: context.s(48),
                                 decoration: BoxDecoration(
-                                  color: focused ? theme.mainColor.withValues(alpha: 0.1) : null,
+                                  color: focused
+                                      ? theme.mainColor.withValues(alpha: 0.1)
+                                      : null,
                                   borderRadius: BorderRadius.circular(48),
                                   border: Border.all(color: theme.mainColor),
                                 ),

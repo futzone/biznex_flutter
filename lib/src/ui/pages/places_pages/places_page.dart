@@ -18,7 +18,8 @@ class PlacesPage extends HookConsumerWidget {
   final ValueNotifier<AppBar> appbar;
   final ValueNotifier<FloatingActionButton?> floatingActionButton;
 
-  const PlacesPage(this.floatingActionButton, {super.key, required this.appbar});
+  const PlacesPage(this.floatingActionButton,
+      {super.key, required this.appbar});
 
   @override
   Widget build(BuildContext context, ref) {
@@ -64,7 +65,8 @@ class PlacesPage extends HookConsumerWidget {
                     ],
                   ),
                   child: Center(
-                    child: Icon(Iconsax.add_copy, color: Colors.white, size: focused ? 40 : 32),
+                    child: Icon(Iconsax.add_copy,
+                        color: Colors.white, size: focused ? 40 : 32),
                   ),
                 ),
               ),
@@ -82,13 +84,15 @@ class PlacesPage extends HookConsumerWidget {
                                   offset: Offset(0, 2),
                                   color: !pinned.value
                                       ? Colors.transparent
-                                      : theme.secondaryTextColor.withValues(alpha: 0.5),
+                                      : theme.secondaryTextColor
+                                          .withValues(alpha: 0.5),
                                   spreadRadius: 5,
                                   blurRadius: 5,
                                 ),
                               ],
                             ),
-                            padding: Dis.only(lr: context.w(24), tb: context.h(24)),
+                            padding:
+                                Dis.only(lr: context.w(24), tb: context.h(24)),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               spacing: context.w(16),
@@ -107,12 +111,16 @@ class PlacesPage extends HookConsumerWidget {
                                 SizedBox(
                                   width: context.w(400),
                                   child: AppTextField(
-                                    prefixIcon: Icon(Iconsax.search_normal_copy),
+                                    prefixIcon:
+                                        Icon(Iconsax.search_normal_copy),
                                     title: AppLocales.search.tr(),
                                     controller: searchController,
                                     onChanged: (str) {
-                                      filteredCategories.value = categories.where((ctg) {
-                                        return (ctg.name.toLowerCase().contains(str.toLowerCase()));
+                                      filteredCategories.value =
+                                          categories.where((ctg) {
+                                        return (ctg.name
+                                            .toLowerCase()
+                                            .contains(str.toLowerCase()));
                                       }).toList();
                                     },
                                     theme: theme,
@@ -124,7 +132,8 @@ class PlacesPage extends HookConsumerWidget {
                             ),
                           ),
                         ),
-                        if (filteredCategories.value.isEmpty && searchController.text.trim().isNotEmpty)
+                        if (filteredCategories.value.isEmpty &&
+                            searchController.text.trim().isNotEmpty)
                           SliverPadding(
                             padding: 80.all,
                             sliver: SliverToBoxAdapter(
@@ -138,9 +147,10 @@ class PlacesPage extends HookConsumerWidget {
                                   ? filteredCategories.value.length
                                   : categories.length,
                               (context, index) {
-                                Place category = (filteredCategories.value.isNotEmpty
-                                    ? filteredCategories.value
-                                    : categories)[index];
+                                Place category =
+                                    (filteredCategories.value.isNotEmpty
+                                        ? filteredCategories.value
+                                        : categories)[index];
                                 /*  return AppListTile(
                           title: category.name,
                           theme: theme,
@@ -159,14 +169,19 @@ class PlacesPage extends HookConsumerWidget {
 
                                 return WebButton(
                                   onPressed: () {
-                                    showDesktopModal(context: context, body: PlaceChildrenPage(category));
+                                    showDesktopModal(
+                                        context: context,
+                                        body: PlaceChildrenPage(category));
                                   },
                                   builder: (focused) => Container(
                                     margin: Dis.only(lr: context.w(24), tb: 8),
                                     padding: 12.all,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(12),
-                                      color: focused ? theme.mainColor.withValues(alpha: 0.1) : Colors.white,
+                                      color: focused
+                                          ? theme.mainColor
+                                              .withValues(alpha: 0.1)
+                                          : Colors.white,
                                     ),
                                     child: Row(
                                       spacing: 16,
@@ -175,7 +190,8 @@ class PlacesPage extends HookConsumerWidget {
                                           height: 48,
                                           width: 48,
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                             color: theme.scaffoldBgColor,
                                           ),
                                           padding: 8.all,
@@ -186,8 +202,10 @@ class PlacesPage extends HookConsumerWidget {
                                         ),
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
                                             spacing: 2,
                                             children: [
                                               Text(
@@ -197,26 +215,47 @@ class PlacesPage extends HookConsumerWidget {
                                                   fontFamily: mediumFamily,
                                                 ),
                                               ),
-                                              Text(
-                                                "${AppLocales.places.tr()}: ${category.children == null ? 0 : category.children?.length}",
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontFamily: regularFamily,
-                                                  color: theme.secondaryTextColor,
-                                                ),
+                                              Row(
+                                                spacing: 24,
+                                                children: [
+                                                  Text(
+                                                    "${AppLocales.places.tr()}: ${category.children == null ? 0 : category.children?.length}",
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      fontFamily: regularFamily,
+                                                      color: theme
+                                                          .secondaryTextColor,
+                                                    ),
+                                                  ),
+                                                  if (category.price != null)
+                                                    Text(
+                                                      "${AppLocales.price.tr()}: ${category.price!.priceUZS}",
+                                                      style: TextStyle(
+                                                        fontSize: 14,
+                                                        fontFamily:
+                                                            regularFamily,
+                                                        color: theme
+                                                            .secondaryTextColor,
+                                                      ),
+                                                    ),
+                                                ],
                                               )
                                             ],
                                           ),
                                         ),
                                         SimpleButton(
                                           onPressed: () {
-                                            showDesktopModal(context: context, body: AddPlace(editCategory: category));
+                                            showDesktopModal(
+                                                context: context,
+                                                body: AddPlace(
+                                                    editCategory: category));
                                           },
                                           child: Container(
                                             height: 36,
                                             width: 36,
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                               color: theme.scaffoldBgColor,
                                             ),
                                             child: Icon(
@@ -229,14 +268,18 @@ class PlacesPage extends HookConsumerWidget {
                                         SimpleButton(
                                           onPressed: () {
                                             PlaceController placeController =
-                                                PlaceController(context: context, state: state);
-                                            placeController.delete(category.id, ref: ref);
+                                                PlaceController(
+                                                    context: context,
+                                                    state: state);
+                                            placeController.delete(category.id,
+                                                ref: ref);
                                           },
                                           child: Container(
                                             height: 36,
                                             width: 36,
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(8),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                               color: theme.scaffoldBgColor,
                                             ),
                                             child: Icon(

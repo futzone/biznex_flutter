@@ -33,8 +33,10 @@ class ProductCard extends HookConsumerWidget {
           padding: Dis.only(lr: 16, tb: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: focused ? theme.mainColor : theme.accentColor),
-            color: focused ? theme.mainColor.withOpacity(0.1) : theme.accentColor,
+            border: Border.all(
+                color: focused ? theme.mainColor : theme.accentColor),
+            color:
+                focused ? theme.mainColor.withOpacity(0.1) : theme.accentColor,
           ),
           child: Row(
             spacing: 16,
@@ -49,9 +51,12 @@ class ProductCard extends HookConsumerWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
                       color: theme.scaffoldBgColor,
-                      image: (product.images != null && product.images!.isNotEmpty)
-                          ? DecorationImage(image: FileImage(File(product.images!.first)), fit: BoxFit.cover)
-                          : null,
+                      image:
+                          (product.images != null && product.images!.isNotEmpty)
+                              ? DecorationImage(
+                                  image: FileImage(File(product.images!.first)),
+                                  fit: BoxFit.cover)
+                              : null,
                     ),
                     child: !(product.images == null || product.images!.isEmpty)
                         ? null
@@ -70,13 +75,27 @@ class ProductCard extends HookConsumerWidget {
               ),
               Expanded(
                 flex: 2,
-                child: Center(child: Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                child: Center(
+                    child: Text(product.name,
+                        maxLines: 1, overflow: TextOverflow.ellipsis)),
               ),
-              Expanded(flex: 1, child: Center(child: Text(product.price.priceUZS))),
-              Expanded(flex: 1, child: Center(child: Text("${product.amount.price} ${product.measure ?? ''}"))),
-              Expanded(flex: 1, child: Center(child: Text(product.size ?? ' - '))),
-              if (!miniMode) Expanded(flex: 1, child: Center(child: Text(product.barcode ?? ' - '))),
-              if (!miniMode) Expanded(flex: 1, child: Center(child: Text(product.tagnumber ?? ' - '))),
+              Expanded(
+                  flex: 1, child: Center(child: Text(product.price.priceUZS))),
+              Expanded(
+                  flex: 1,
+                  child: Center(
+                      child: Text(
+                          "${product.amount.price} ${product.measure ?? ''}"))),
+              Expanded(
+                  flex: 1, child: Center(child: Text(product.size ?? ' - '))),
+              if (!miniMode)
+                Expanded(
+                    flex: 1,
+                    child: Center(child: Text(product.barcode ?? ' - '))),
+              if (!miniMode)
+                Expanded(
+                    flex: 1,
+                    child: Center(child: Text(product.tagnumber ?? ' - '))),
               if (!miniMode)
                 Expanded(
                   flex: 1,
@@ -145,7 +164,9 @@ class ProductCardNew extends StatelessWidget {
                 children: [
                   Center(
                     child: Padding(
-                      padding: !mobile ? Dis.only() : const EdgeInsets.only(top: 24, bottom: 8),
+                      padding: !mobile
+                          ? Dis.only(top: context.s(24))
+                          : const EdgeInsets.only(top: 24, bottom: 8),
                       child: Text(
                         product.name,
                         style: TextStyle(
@@ -185,7 +206,9 @@ class ProductCardNew extends StatelessWidget {
                       left: 0,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: colors.secondaryColor,
+                          color: product.amount == 0
+                              ? colors.red
+                              : colors.secondaryColor,
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(context.s(12)),
                             bottomRight: Radius.circular(context.s(12)),
@@ -193,10 +216,14 @@ class ProductCardNew extends StatelessWidget {
                         ),
                         padding: Dis.only(lr: context.w(12), tb: context.h(8)),
                         child: Text(
-                          "${product.amount.toMeasure} ${product.measure ?? ''}",
+                          product.amount == 0
+                              ? AppLocales.productEnded.tr()
+                              : "${product.amount.toMeasure} ${product.measure ?? ''}",
                           style: TextStyle(
                             fontSize: context.s(14),
-                            color: Colors.black,
+                            color: product.amount == 0
+                                ? colors.white
+                                : Colors.black,
                             fontFamily: mediumFamily,
                           ),
                         ),
@@ -233,7 +260,8 @@ class ProductCardNew extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 spacing: context.w(8),
                                 children: [
-                                  Icon(Iconsax.reserve_copy, color: Colors.white, size: context.s(24)),
+                                  Icon(Iconsax.reserve_copy,
+                                      color: Colors.white, size: context.s(24)),
                                   Text(
                                     "${product.amount.toMeasure} ${product.measure ?? ''}",
                                     style: TextStyle(
@@ -275,7 +303,8 @@ class ProductCardNew extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (product.description != null && (product.description ?? '').isNotEmpty)
+                    if (product.description != null &&
+                        (product.description ?? '').isNotEmpty)
                       Text(
                         product.description ?? '',
                         style: TextStyle(
@@ -299,12 +328,15 @@ class ProductCardNew extends StatelessWidget {
                             child: Row(
                               spacing: context.w(4),
                               children: [
-                                Icon(Icons.numbers, size: context.s(18), color: Colors.black),
+                                Icon(Icons.numbers,
+                                    size: context.s(18), color: Colors.black),
                                 Expanded(
                                   child: Text(
                                     product.barcode.toString(),
                                     style: TextStyle(
-                                        fontFamily: mediumFamily, color: Colors.black, fontSize: context.s(14)),
+                                        fontFamily: mediumFamily,
+                                        color: Colors.black,
+                                        fontSize: context.s(14)),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -322,7 +354,8 @@ class ProductCardNew extends StatelessWidget {
                           child: Row(
                             spacing: context.w(4),
                             children: [
-                              Icon(Ionicons.receipt_outline, size: context.s(18), color: Colors.black),
+                              Icon(Ionicons.receipt_outline,
+                                  size: context.s(18), color: Colors.black),
                               Text(
                                 product.tagnumber.toString(),
                                 style: TextStyle(

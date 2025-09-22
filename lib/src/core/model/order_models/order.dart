@@ -66,6 +66,7 @@ class PlaceIsar {
   List<PlaceIsar>? children;
   PlaceIsar? father;
   bool percentNull = false;
+  double? price;
 }
 
 @embedded

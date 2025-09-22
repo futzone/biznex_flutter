@@ -1,10 +1,9 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:biznex/src/controllers/transaction_controller.dart';
-import 'package:biznex/src/controllers/warehouse_monitoring_controller.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
 import 'package:biznex/src/providers/products_provider.dart';
-import 'package:biznex/biznex.dart'; // Assuming AppLocales is here
+import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/core/database/order_database/order_percent_database.dart';
@@ -16,32 +15,12 @@ import 'package:biznex/src/core/model/place_models/place_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/services/printer_services.dart';
 import 'package:biznex/src/providers/employee_orders_provider.dart';
-import 'package:biznex/src/providers/orders_provider.dart'; // Assuming orderSetProvider is here or accessible
+import 'package:biznex/src/providers/orders_provider.dart';
 import 'package:biznex/src/ui/pages/order_pages/table_choose_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
-import '../core/database/app_database/app_state_database.dart';
 import '../core/model/app_changes_model.dart';
 import '../providers/recipe_providers.dart';
-
-// Placeholder for AppLocales if it's not in biznex/biznex.dart
-// class AppLocales {
-//   static String get orderCreatedSuccessfully => 'Order created successfully';
-//   static String get orderClosedSuccessfully => 'Order closed successfully';
-// }
-// extension StringExtension on String {
-//   String tr() => this; // Placeholder
-// }
-// Placeholder for orderSetProvider
-// final orderSetProvider = StateNotifierProvider<OrderSetNotifier, List<OrderItem>>((ref) {
-//   return OrderSetNotifier();
-// });
-// class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
-//   OrderSetNotifier() : super([]);
-//   void clearPlaceItems(String placeId) {
-//     state = state.where((item) => item.placeId != placeId).toList();
-//   }
-// }
 
 class OrderController {
   final Employee employee;
@@ -122,12 +101,14 @@ class OrderController {
     });
     updatedOrder = updatedOrder.copyWith(price: totalPrice);
 
-    if (customer != null)
+    if (customer != null) {
       updatedOrder = updatedOrder.copyWith(customer: customer);
+    }
     if (note != null) updatedOrder = updatedOrder.copyWith(note: note);
-    if (scheduledDate != null)
+    if (scheduledDate != null) {
       updatedOrder =
           updatedOrder.copyWith(scheduledDate: scheduledDate.toIso8601String());
+    }
 
     updatedOrder =
         updatedOrder.copyWith(updatedDate: DateTime.now().toIso8601String());
@@ -138,13 +119,6 @@ class OrderController {
     ref.invalidate(ordersProvider(place.id));
     ref.invalidate(ordersProvider);
     AppRouter.close(context);
-
-    // PrinterMultipleServices printerMultipleServices = PrinterMultipleServices();
-    // final List<OrderItem> changes = _onGetChanges(newItemsList, oldOrderState);
-    //
-    // log('changes: ${changes.length}');
-    //
-    // printerMultipleServices.printForBack(updatedOrder, changes);
   }
 
   static Future<Order?> getCurrentOrder(String placeId) async {
@@ -199,26 +173,31 @@ class OrderController {
 
     final percents = await OrderPercentDatabase().get();
     if (!place.percentNull) {
-      log(place.toJson().toString());
-      // log("${!place.percentNull}");
       final totalPercent =
           percents.map((e) => e.percent).fold(0.0, (a, b) => a + b);
       finalOrder = finalOrder.copyWith(
           price: finalOrder.price + (finalOrder.price * (totalPercent / 100)));
     }
 
+    if (place.price != null) {
+      finalOrder = finalOrder.copyWith(price: finalOrder.price + place.price!);
+    }
+
     if (customer != null) finalOrder = finalOrder.copyWith(customer: customer);
     if (note != null) finalOrder = finalOrder.copyWith(note: note);
-    if (scheduledDate != null)
+    if (scheduledDate != null) {
       finalOrder =
           finalOrder.copyWith(scheduledDate: scheduledDate.toIso8601String());
+    }
 
     finalOrder = finalOrder.copyWith(
-        status: Order.completed, updatedDate: DateTime.now().toIso8601String());
+      place: place,
+      status: Order.completed,
+      updatedDate: DateTime.now().toIso8601String(),
+    );
 
     await _database.saveOrder(finalOrder);
 
-    // if (model.apiUrl == null || (model.apiUrl ?? '').isEmpty) await _onUpdateAmounts(finalOrder, ref);
     await _database.closeOrder(placeId: place.id);
     await _database.changesDatabase.set(
       data: Change(
@@ -255,18 +234,12 @@ class OrderController {
       AppRouter.close(context);
     }
 
-
-    // if (!useCheck) return;
-    //
-    // PrinterServices printerServices = PrinterServices(order: finalOrder, model: model);
-    // printerServices.printOrderCheck();
-
     if (!Platform.isWindows) {
       AppRouter.open(context, TableChooseScreen());
     }
   }
 
-  Future<void> _onUpdateAmounts(Order order, ref) async {
+  Future<void> onUpdateAmounts(Order order, ref) async {
     ProductDatabase productDatabase = ProductDatabase();
     for (final item in order.products) {
       Product product = item.product;
@@ -281,7 +254,7 @@ class OrderController {
     ref.refresh(productsProvider);
   }
 
-  List<OrderItem> _onGetChanges(
+  List<OrderItem> onGetChanges(
       List<OrderItem> newItemsList, Order oldOrderState) {
     final List<OrderItem> changes = [];
     final Map<String, OrderItem> oldItemsMap = {
@@ -291,14 +264,11 @@ class OrderController {
       for (var item in newItemsList) item.product.id: item
     };
 
-    // Check for added or modified items
     for (final newItem in newItemsList) {
       final oldItem = oldItemsMap[newItem.product.id];
       if (oldItem == null) {
-        // Item added
-        changes.add(newItem.copyWith()); // Add full new item
+        changes.add(newItem.copyWith());
       } else {
-        // Item existed, check if amount changed
         if (newItem.amount != oldItem.amount) {
           changes
               .add(newItem.copyWith(amount: newItem.amount - oldItem.amount));
@@ -306,12 +276,9 @@ class OrderController {
       }
     }
 
-    // Check for removed items
     for (final oldItem in oldOrderState.products) {
       if (!newItemsMap.containsKey(oldItem.product.id)) {
-        // Item removed
-        changes.add(oldItem.copyWith(
-            amount: -oldItem.amount)); // Negative amount indicates removal
+        changes.add(oldItem.copyWith(amount: -oldItem.amount));
       }
     }
     return changes;
@@ -361,7 +328,6 @@ class OrderController {
     final percents = await OrderPercentDatabase().get();
     if (!place.percentNull) {
       log(place.toJson().toString());
-      // log("${!place.percentNull}");
       final totalPercent =
           percents.map((e) => e.percent).fold(0.0, (a, b) => a + b);
       finalOrder = finalOrder.copyWith(
@@ -370,9 +336,10 @@ class OrderController {
 
     if (customer != null) finalOrder = finalOrder.copyWith(customer: customer);
     if (note != null) finalOrder = finalOrder.copyWith(note: note);
-    if (scheduledDate != null)
+    if (scheduledDate != null) {
       finalOrder =
           finalOrder.copyWith(scheduledDate: scheduledDate.toIso8601String());
+    }
 
     finalOrder = finalOrder.copyWith(
         status: Order.completed, updatedDate: DateTime.now().toIso8601String());
@@ -390,41 +357,3 @@ class OrderController {
     printerServices.printOrderCheck(phone: phone, address: address);
   }
 }
-
-// How to call from widget (example):
-/*
-// Inside a ConsumerWidget's build method or ConsumerStatefulWidget's State:
-// final WidgetRef ref; (available)
-// final BuildContext context; (available)
-
-onCancel: () async {
-  final currentEmployee = ref.watch(currentEmployeeProvider); // Or ref.read if it won't change
-  if (currentEmployee == null) {
-    // Handle case where employee is not available
-    ShowToast.error(context, "Current employee not found.");
-    return;
-  }
-
-  OrderController orderController = OrderController(
-    place: place, // 'place' should be available in this scope
-    employee: currentEmployee,
-  );
-
-  final localContext = context; // Capture before await
-  final localRef = ref; // Capture before await
-
-  await orderController.closeOrder(
-    localContext,
-    localRef,
-    note: noteController.text.trim(),
-    customer: customerNotifier.value,
-    scheduledDate: scheduledTime.value,
-  );
-
-  if (localContext.mounted) {
-    noteController.clear();
-    customerNotifier.value = null;
-    // scheduledTime.value = null; // Be careful if this is a ValueNotifier and widget might be disposed
-  }
-},
-*/

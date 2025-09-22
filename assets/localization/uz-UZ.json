@@ -561,5 +561,14 @@
   "selectDatabase": "Bazalarni tanlang",
   "clear": "Tozalash",
   "recipe": "Retsept",
-  "clearCacheSuccess": "Keshlarni tozalash yakunlandi!"
+  "clearCacheSuccess": "Keshlarni tozalash yakunlandi!",
+  "usage": "Ishlatilgan",
+  "ingredientFoodChartTitle": "Masalliq va taomlar",
+  "meals": "Taomlar",
+  "days": "Kunlar",
+  "placePrice": "Joy narxi",
+  "placePriceHint": "Joy uchun narx kiriting",
+  "productEnded": "Tugagan"
+
+
 }

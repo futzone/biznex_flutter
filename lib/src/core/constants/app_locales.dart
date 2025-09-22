@@ -565,6 +565,9 @@ abstract class AppLocales {
   static var clearCacheSuccess = "clearCacheSuccess";
   static var usage = "usage";
   static var ingredientFoodChartTitle = "ingredientFoodChartTitle";
-  static var  meals = "meals";
+  static var meals = "meals";
   static var days = "days";
+  static var placePrice = "placePrice";
+  static var placePriceHint = "placePriceHint";
+  static var productEnded = "productEnded";
 }
