@@ -141,7 +141,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                       children: [
                                         Icon(
                                           Ionicons.warning_outline,
-                                          color: theme.amber,
+                                          color: Colors.amber.shade700,
                                           size: 24,
                                         ),
                                         Expanded(
@@ -150,7 +150,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                                 .tr(),
                                             style: TextStyle(
                                               fontFamily: mediumFamily,
-                                              color: theme.amber,
+                                              color: Colors.amber.shade700,
                                             ),
                                           ),
                                         ),

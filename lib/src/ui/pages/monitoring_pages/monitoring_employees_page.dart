@@ -12,8 +12,10 @@ import 'package:biznex/src/providers/price_percent_provider.dart';
 import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
+import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../widgets/helpers/app_back_button.dart';
+import '../employee_pages/employee_monitoring_page.dart';
 
 class MonitoringEmployeesPage extends HookConsumerWidget {
   MonitoringEmployeesPage({super.key});
@@ -24,7 +26,8 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedDate = useState<DateTime?>(null);
     final filterType = useState<String>('all');
-    final percents = (ref.watch(orderPercentProvider).value ?? []).fold(0.0, (kf, element) {
+    final percents =
+        (ref.watch(orderPercentProvider).value ?? []).fold(0.0, (kf, element) {
       return kf += element.percent;
     });
 
@@ -37,7 +40,10 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
               16.w,
               Text(
                 AppLocales.employees.tr(),
-                style: TextStyle(fontSize: context.s(24), fontFamily: mediumFamily, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: context.s(24),
+                    fontFamily: mediumFamily,
+                    fontWeight: FontWeight.bold),
               ),
               Spacer(),
               CustomPopupMenu(
@@ -54,12 +60,15 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                 ],
                 child: Container(
                   padding: Dis.only(lr: context.w(16), tb: context.h(13)),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: theme.accentColor),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: theme.accentColor),
                   child: Row(
                     children: [
                       Text(
                         filterType.value.tr(),
-                        style: TextStyle(fontFamily: mediumFamily, fontSize: 16),
+                        style:
+                            TextStyle(fontFamily: mediumFamily, fontSize: 16),
                       ),
                       8.w,
                       Icon(Iconsax.arrow_down_1_copy, size: 20)
@@ -70,20 +79,32 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
               16.w,
               SimpleButton(
                 onPressed: () {
-                  showDatePicker(context: context, firstDate: DateTime(2025, 1), lastDate: DateTime.now()).then((date) {
+                  showDatePicker(
+                          context: context,
+                          firstDate: DateTime(2025, 1),
+                          lastDate: DateTime.now())
+                      .then((date) {
                     if (date != null) selectedDate.value = date;
                   });
                 },
                 child: Container(
                   padding: Dis.only(lr: context.w(16), tb: context.h(13)),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: theme.accentColor),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: theme.accentColor),
                   child: Row(
                     children: [
                       Text(
                         selectedDate.value == null
                             ? 'all'.tr()
-                            : DateFormat(filterType.value == 'monthly' ? 'MMMM' : 'd-MMMM', context.locale.languageCode).format(selectedDate.value!),
-                        style: TextStyle(fontFamily: mediumFamily, fontSize: 16),
+                            : DateFormat(
+                                    filterType.value == 'monthly'
+                                        ? 'MMMM'
+                                        : 'd-MMMM',
+                                    context.locale.languageCode)
+                                .format(selectedDate.value!),
+                        style:
+                            TextStyle(fontFamily: mediumFamily, fontSize: 16),
                       ),
                       8.w,
                       Icon(Ionicons.calendar_outline, size: 20)
@@ -95,45 +116,61 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
               SimpleButton(
                 onPressed: () {
                   showAppLoadingDialog(context);
-                  final orders = ref.watch(ordersFilterProvider(orderFilterModel)).value ?? [];
+                  final orders =
+                      ref.watch(ordersFilterProvider(orderFilterModel)).value ??
+                          [];
                   final employees = ref.watch(employeeProvider).value ?? [];
 
                   List<EmployeeExcel> list = [];
                   for (final employee in employees) {
                     final employeeId = employee.id;
 
-                    final double ordersSumm = orders.fold(0.0, (value, element) {
-                      if (selectedDate.value != null && filterType.value == 'monthly') {
-                        if (element.employee.id == employeeId && AppDateUtils.isMonthOrder(selectedDate.value!, element.createdDate)) {
+                    final double ordersSumm =
+                        orders.fold(0.0, (value, element) {
+                      if (selectedDate.value != null &&
+                          filterType.value == 'monthly') {
+                        if (element.employee.id == employeeId &&
+                            AppDateUtils.isMonthOrder(
+                                selectedDate.value!, element.createdDate)) {
                           return value += element.price;
                         }
 
                         return value;
                       }
 
-                      if (selectedDate.value != null && filterType.value == 'daily') {
-                        if (element.employee.id == employeeId && AppDateUtils.isTodayOrder(selectedDate.value!, element.createdDate)) {
+                      if (selectedDate.value != null &&
+                          filterType.value == 'daily') {
+                        if (element.employee.id == employeeId &&
+                            AppDateUtils.isTodayOrder(
+                                selectedDate.value!, element.createdDate)) {
                           return value += element.price;
                         }
 
                         return value;
                       }
 
-                      if (element.employee.id == employeeId) return value += element.price;
+                      if (element.employee.id == employeeId)
+                        return value += element.price;
                       return value;
                     });
 
                     final int ordersCount = orders.fold(0, (value, element) {
-                      if (selectedDate.value != null && filterType.value == 'monthly') {
-                        if (element.employee.id == employeeId && AppDateUtils.isMonthOrder(selectedDate.value!, element.createdDate)) {
+                      if (selectedDate.value != null &&
+                          filterType.value == 'monthly') {
+                        if (element.employee.id == employeeId &&
+                            AppDateUtils.isMonthOrder(
+                                selectedDate.value!, element.createdDate)) {
                           return value += 1;
                         }
 
                         return value;
                       }
 
-                      if (selectedDate.value != null && filterType.value == 'daily') {
-                        if (element.employee.id == employeeId && AppDateUtils.isTodayOrder(selectedDate.value!, element.createdDate)) {
+                      if (selectedDate.value != null &&
+                          filterType.value == 'daily') {
+                        if (element.employee.id == employeeId &&
+                            AppDateUtils.isTodayOrder(
+                                selectedDate.value!, element.createdDate)) {
                           return value += 1;
                         }
 
@@ -149,7 +186,12 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                       ordersSumm: ordersSumm,
                       dateTime: selectedDate.value == null
                           ? 'all'.tr()
-                          : DateFormat(filterType.value == 'monthly' ? 'MMMM' : 'd-MMMM', context.locale.languageCode).format(selectedDate.value!),
+                          : DateFormat(
+                                  filterType.value == 'monthly'
+                                      ? 'MMMM'
+                                      : 'd-MMMM',
+                                  context.locale.languageCode)
+                              .format(selectedDate.value!),
                       employeeName: employee.fullname,
                       employeeRole: employee.roleName,
                     );
@@ -162,15 +204,21 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                 },
                 child: Container(
                   padding: Dis.only(lr: context.w(16), tb: context.h(13)),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: theme.mainColor),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: theme.mainColor),
                   child: Row(
                     children: [
                       Text(
                         AppLocales.export.tr(),
-                        style: TextStyle(fontFamily: mediumFamily, fontSize: 16, color: Colors.white),
+                        style: TextStyle(
+                            fontFamily: mediumFamily,
+                            fontSize: 16,
+                            color: Colors.white),
                       ),
                       8.w,
-                      Icon(Iconsax.document_download, size: 20, color: Colors.white)
+                      Icon(Iconsax.document_download,
+                          size: 20, color: Colors.white)
                     ],
                   ),
                 ),
@@ -193,31 +241,44 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                       itemBuilder: (context, index) {
                         final employeeId = employees[index].id;
 
-                        final double ordersSumm = orders.fold(0.0, (value, element) {
-                          if (selectedDate.value != null && filterType.value == 'monthly') {
-                            if (element.employee.id == employeeId && AppDateUtils.isMonthOrder(selectedDate.value!, element.createdDate)) {
+                        final double ordersSumm =
+                            orders.fold(0.0, (value, element) {
+                          if (selectedDate.value != null &&
+                              filterType.value == 'monthly') {
+                            if (element.employee.id == employeeId &&
+                                AppDateUtils.isMonthOrder(
+                                    selectedDate.value!, element.createdDate)) {
                               return value += element.price;
                             }
 
                             return value;
                           }
 
-                          if (selectedDate.value != null && filterType.value == 'daily') {
-                            if (element.employee.id == employeeId && AppDateUtils.isTodayOrder(selectedDate.value!, element.createdDate)) {
+                          if (selectedDate.value != null &&
+                              filterType.value == 'daily') {
+                            if (element.employee.id == employeeId &&
+                                AppDateUtils.isTodayOrder(
+                                    selectedDate.value!, element.createdDate)) {
                               return value += element.price;
                             }
 
                             return value;
                           }
 
-                          if (element.employee.id == employeeId) return value += element.price;
+                          if (element.employee.id == employeeId)
+                            return value += element.price;
                           return value;
                         });
 
-                        final double salarySumm = orders.fold(0.0, (value, element) {
-                          if (selectedDate.value != null && filterType.value == 'monthly') {
-                            if (element.employee.id == employeeId && AppDateUtils.isMonthOrder(selectedDate.value!, element.createdDate)) {
-                              final t = element.price * (1 - (100 / (100 + percents)));
+                        final double salarySumm =
+                            orders.fold(0.0, (value, element) {
+                          if (selectedDate.value != null &&
+                              filterType.value == 'monthly') {
+                            if (element.employee.id == employeeId &&
+                                AppDateUtils.isMonthOrder(
+                                    selectedDate.value!, element.createdDate)) {
+                              final t = element.price *
+                                  (1 - (100 / (100 + percents)));
                               if (element.place.percentNull) return value;
                               return value += t;
                             }
@@ -225,9 +286,13 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                             return value;
                           }
 
-                          if (selectedDate.value != null && filterType.value == 'daily') {
-                            if (element.employee.id == employeeId && AppDateUtils.isTodayOrder(selectedDate.value!, element.createdDate)) {
-                              final t = element.price * (1 - (100 / (100 + percents)));
+                          if (selectedDate.value != null &&
+                              filterType.value == 'daily') {
+                            if (element.employee.id == employeeId &&
+                                AppDateUtils.isTodayOrder(
+                                    selectedDate.value!, element.createdDate)) {
+                              final t = element.price *
+                                  (1 - (100 / (100 + percents)));
                               if (element.place.percentNull) return value;
                               return value += t;
                             }
@@ -236,97 +301,140 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                           }
 
                           if (element.employee.id == employeeId) {
-                            final t = element.price * (1 - (100 / (100 + percents)));
+                            final t =
+                                element.price * (1 - (100 / (100 + percents)));
                             if (element.place.percentNull) return value;
                             return value += t;
                           }
                           return value;
                         });
 
-                        final int ordersCount = orders.fold(0, (value, element) {
-                          if (selectedDate.value != null && filterType.value == 'monthly') {
-                            if (element.employee.id == employeeId && AppDateUtils.isMonthOrder(selectedDate.value!, element.createdDate)) {
+                        final int ordersCount =
+                            orders.fold(0, (value, element) {
+                          if (selectedDate.value != null &&
+                              filterType.value == 'monthly') {
+                            if (element.employee.id == employeeId &&
+                                AppDateUtils.isMonthOrder(
+                                    selectedDate.value!, element.createdDate)) {
                               return value += 1;
                             }
 
                             return value;
                           }
 
-                          if (selectedDate.value != null && filterType.value == 'daily') {
-                            if (element.employee.id == employeeId && AppDateUtils.isTodayOrder(selectedDate.value!, element.createdDate)) {
+                          if (selectedDate.value != null &&
+                              filterType.value == 'daily') {
+                            if (element.employee.id == employeeId &&
+                                AppDateUtils.isTodayOrder(
+                                    selectedDate.value!, element.createdDate)) {
                               return value += 1;
                             }
 
                             return value;
                           }
 
-                          if (element.employee.id == employeeId) return value += 1;
+                          if (element.employee.id == employeeId)
+                            return value += 1;
                           return value;
                         });
 
-                        return Container(
-                          margin: 16.bottom,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: theme.accentColor,
-                          ),
-                          padding: 18.all,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  spacing: 8,
-                                  children: [
-                                    Icon(Iconsax.user, color: theme.mainColor),
-                                    Text(employees[index].fullname, style: TextStyle(fontSize: 16, fontFamily: boldFamily))
-                                  ],
-                                ),
+                        return SimpleButton(
+                          onPressed: () {
+                            showDesktopModal(
+                              context: context,
+                              body: EmployeeMonitoringPage(
+                                theme,
+                                employees[index],
                               ),
-                              Expanded(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: 8,
-                                  children: [
-                                    Icon(Iconsax.briefcase, color: theme.mainColor),
-                                    Text(employees[index].roleName, style: TextStyle(fontSize: 16, fontFamily: boldFamily)),
-                                  ],
+                            );
+                          },
+                          child: Container(
+                            margin: 16.bottom,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: theme.accentColor,
+                            ),
+                            padding: 18.all,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    spacing: 8,
+                                    children: [
+                                      Icon(Iconsax.user,
+                                          color: theme.mainColor),
+                                      Text(employees[index].fullname,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: boldFamily))
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: 8,
-                                  children: [
-                                    Icon(Iconsax.bag, color: theme.mainColor),
-                                    Text("${AppLocales.orders.tr()}: $ordersCount", style: TextStyle(fontSize: 16, fontFamily: boldFamily)),
-                                  ],
+                                Expanded(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    spacing: 8,
+                                    children: [
+                                      Icon(Iconsax.briefcase,
+                                          color: theme.mainColor),
+                                      Text(employees[index].roleName,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: boldFamily)),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: 8,
-                                  children: [
-                                    Icon(Iconsax.percentage_circle, color: theme.mainColor),
-                                    Text(salarySumm.priceUZS, style: TextStyle(fontSize: 16, fontFamily: boldFamily))
-                                  ],
+                                Expanded(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    spacing: 8,
+                                    children: [
+                                      Icon(Iconsax.bag, color: theme.mainColor),
+                                      Text(
+                                          "${AppLocales.orders.tr()}: $ordersCount",
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: boldFamily)),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  spacing: 8,
-                                  children: [
-                                    Icon(Iconsax.wallet, color: theme.mainColor),
-                                    Text(ordersSumm.priceUZS, style: TextStyle(fontSize: 16, fontFamily: boldFamily))
-                                  ],
+                                Expanded(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    spacing: 8,
+                                    children: [
+                                      Icon(Iconsax.percentage_circle,
+                                          color: theme.mainColor),
+                                      Text(salarySumm.priceUZS,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: boldFamily))
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                                Expanded(
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    spacing: 8,
+                                    children: [
+                                      Icon(Iconsax.wallet,
+                                          color: theme.mainColor),
+                                      Text(ordersSumm.priceUZS,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: boldFamily))
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },

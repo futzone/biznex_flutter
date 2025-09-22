@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
+import 'package:biznex/src/core/model/employee_models/employee_model.dart';
 import 'package:biznex/src/core/model/ingredient_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
 import 'package:biznex/src/core/utils/date_utils.dart';
@@ -13,6 +14,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../../providers/recipe_providers.dart';
+import '../model/product_models/product_model.dart';
 
 class _IngredientUsage {
   final Ingredient ingredient;
@@ -26,6 +28,29 @@ class _IngredientUsage {
 
 class WarehousePrinterServices {
   static final Isar isar = IsarDatabase.instance.isar;
+
+  static Future<void> printEmployeeFoodStats({
+    required Employee employee,
+    required Map productMap,
+    required DateTime day,
+    required BuildContext context,
+  }) async {
+    final List<ChartData> chartData = [];
+    for (final id in productMap.keys) {
+      final product = productMap[id]['product'] as Product;
+      final amount = productMap[id]['amount'] as num;
+
+      chartData.add(
+        ChartData(product.name, amount.toDouble(), measure: product.measure),
+      );
+    }
+
+    _print(
+      "${employee.fullname}\n${DateFormat("yyyy, dd-MMMM", context.locale.languageCode).format(day)}",
+      chartData,
+      '',
+    );
+  }
 
   static Future<void> printIngredientUsage({
     required WidgetRef ref,
@@ -229,7 +254,13 @@ class WarehousePrinterServices {
       mainAxisAlignment: pw.MainAxisAlignment.start,
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Center(child: pw.Text(title, style: headerStyle)),
+        pw.Center(
+          child: pw.Text(
+            title,
+            style: headerStyle,
+            textAlign: pw.TextAlign.center,
+          ),
+        ),
         pw.SizedBox(height: 4),
         pw.Container(color: PdfColor.fromHex("#000000"), height: 1),
         pw.SizedBox(height: 4),
@@ -248,7 +279,7 @@ class WarehousePrinterServices {
                 ),
                 pw.SizedBox(width: 8),
                 pw.Text(
-                  "${item.y.toMeasure} $measure",
+                  "${item.y.toMeasure} ${measure.isEmpty ? (item.measure ?? '') : item.measure}",
                   style: boldStyle,
                 ),
               ],
