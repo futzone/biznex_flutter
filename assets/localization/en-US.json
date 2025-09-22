@@ -463,5 +463,6 @@
   "days": "Days",
   "placePrice": "Place Price",
   "placePriceHint": "Enter a price for a place",
-  "productEnded": "Ended"
+  "productEnded": "Ended",
+  "profitFromPlacePrice": "Profit from price for places"
 }

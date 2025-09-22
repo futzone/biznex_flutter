@@ -4,6 +4,7 @@ import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/extensions/for_string.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
+import 'package:biznex/src/providers/category_provider.dart';
 import 'package:biznex/src/providers/minimalistic_menu_provider.dart';
 import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/ui/pages/login_pages/onboard_page.dart';
@@ -195,6 +196,8 @@ class MenuPage extends HookConsumerWidget {
                           ),
                           WebButton(
                             onPressed: () async {
+                              ref.invalidate(productsProvider);
+                              ref.invalidate(categoryProvider);
                               await ref
                                   .refresh(ordersProvider(place.id).future)
                                   .then((order) {

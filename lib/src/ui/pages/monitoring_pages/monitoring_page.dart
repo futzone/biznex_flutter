@@ -37,6 +37,7 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
   double _totalSumm = 0.0;
   double _percentsSumm = 0.0;
   bool _textForRange = false;
+  double _placePrice = 0.0;
 
   void _onChooseRange(DateTimeRange? range, List<Order> orders) {
     if (range == null) return;
@@ -72,6 +73,10 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
       if (!order.place.percentNull) {
         _percentsSumm += (order.price * (1 - (100 / (100 + percent))));
       }
+
+      if (order.place.price != null) {
+        _placePrice += order.place.price!;
+      }
     }
 
     setState(() {});
@@ -94,6 +99,7 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
     double ordersSumm = 0.0;
     double totalSumm = 0.0;
     double percentsSumm = 0.0;
+    double placePrice = 0.0;
 
     double getOrdersSumm() {
       if (_currentDate == null && _startDate == null) return ordersSumm;
@@ -108,6 +114,11 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
     double getPercentsSumm() {
       if (_currentDate == null && _startDate == null) return percentsSumm;
       return _percentsSumm;
+    }
+
+    double getPlacePriceSumm() {
+      if (_currentDate == null && _startDate == null) return placePrice;
+      return _placePrice;
     }
 
     double getTotalProfit() {
@@ -126,6 +137,10 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
       totalSumm += productOldPrice;
       if (!order.place.percentNull) {
         percentsSumm += (order.price * (1 - (100 / (100 + percent))));
+      }
+
+      if (order.place.price != null) {
+        placePrice += order.place.price!;
       }
     }
 
@@ -267,6 +282,7 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                     _ordersSumm = 0.0;
                                     _totalSumm = 0.0;
                                     _percentsSumm = 0.0;
+                                    _placePrice = 0.0;
                                     final ordersList = data.where((order) {
                                       final createdDate =
                                           DateTime.parse(order.createdDate);
@@ -304,6 +320,10 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                       if (!order.place.percentNull) {
                                         _percentsSumm += (order.price *
                                             (1 - (100 / (100 + percent))));
+                                      }
+
+                                      if (order.place.price != null) {
+                                        _placePrice += order.place.price!;
                                       }
                                     }
 
@@ -394,6 +414,16 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                   style: TextStyle(
                                       fontSize: 20, fontFamily: boldFamily),
                                 ),
+                              ),
+                            ],
+                          ),
+                          8.h,
+                          Row(
+                            children: [
+                              Text(
+                                "${AppLocales.profitFromPlacePrice.tr()}: ${getPlacePriceSumm().priceUZS}",
+                                style: TextStyle(
+                                    fontSize: 20, fontFamily: boldFamily),
                               ),
                             ],
                           )

@@ -557,5 +557,6 @@
   "days": "Дни",
   "placePrice": "Цена места",
   "placePriceHint": "Введите цену места",
-  "productEnded": "Нет"
+  "productEnded": "Нет",
+  "profitFromPlacePrice": "Прибыль от цены за места"
 }

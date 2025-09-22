@@ -7,8 +7,10 @@ import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/network/api.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
+import 'package:biznex/src/providers/category_provider.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/core/services/network_services.dart';
+import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/server/constants/api_endpoints.dart';
 import 'package:biznex/src/ui/pages/login_pages/login_page.dart';
 import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
@@ -210,6 +212,19 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                     SvgPicture.asset(
                                         "assets/images/Vector.svg"),
                                     Spacer(),
+                                    IconButton(
+                                      onPressed: () {
+                                        ref.invalidate(employeeProvider);
+                                        ref.invalidate(productsProvider);
+                                        ref.invalidate(allCategoryProvider);
+                                        ref.invalidate(categoryProvider);
+                                      },
+                                      icon: Icon(
+                                        Icons.sync,
+                                        size: 32,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                     IconButton(
                                       onLongPress: () async {
                                         state.apiUrl = null;

@@ -570,4 +570,5 @@ abstract class AppLocales {
   static var placePrice = "placePrice";
   static var placePriceHint = "placePriceHint";
   static var productEnded = "productEnded";
+  static var profitFromPlacePrice = "profitFromPlacePrice";
 }
