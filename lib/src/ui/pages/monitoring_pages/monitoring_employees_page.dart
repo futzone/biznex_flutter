@@ -13,6 +13,7 @@ import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
+import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../widgets/helpers/app_back_button.dart';
 import '../employee_pages/employee_monitoring_page.dart';
@@ -341,6 +342,7 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                         return SimpleButton(
                           onPressed: () {
                             showDesktopModal(
+                              width: MediaQuery.of(context).size.width*0.6,
                               context: context,
                               body: EmployeeMonitoringPage(
                                 theme,
@@ -354,19 +356,24 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                               borderRadius: BorderRadius.circular(12),
                               color: theme.accentColor,
                             ),
-                            padding: 18.all,
+                            padding: Dis.only(lr: 16, tb: 8),
                             child: Row(
                               children: [
                                 Expanded(
                                   child: Row(
                                     spacing: 8,
                                     children: [
-                                      Icon(Iconsax.user,
-                                          color: theme.mainColor),
-                                      Text(employees[index].fullname,
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontFamily: boldFamily))
+                                      Icon(
+                                        Iconsax.user,
+                                        color: theme.mainColor,
+                                      ),
+                                      Text(
+                                        employees[index].fullname,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontFamily: boldFamily,
+                                        ),
+                                      )
                                     ],
                                   ),
                                 ),
@@ -377,12 +384,17 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     spacing: 8,
                                     children: [
-                                      Icon(Iconsax.briefcase,
-                                          color: theme.mainColor),
-                                      Text(employees[index].roleName,
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontFamily: boldFamily)),
+                                      Icon(
+                                        Iconsax.briefcase,
+                                        color: theme.mainColor,
+                                      ),
+                                      Text(
+                                        employees[index].roleName,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontFamily: boldFamily,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -395,10 +407,12 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                                     children: [
                                       Icon(Iconsax.bag, color: theme.mainColor),
                                       Text(
-                                          "${AppLocales.orders.tr()}: $ordersCount",
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontFamily: boldFamily)),
+                                        "${AppLocales.orders.tr()}: $ordersCount",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontFamily: boldFamily,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -409,12 +423,17 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     spacing: 8,
                                     children: [
-                                      Icon(Iconsax.percentage_circle,
-                                          color: theme.mainColor),
-                                      Text(salarySumm.priceUZS,
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontFamily: boldFamily))
+                                      Icon(
+                                        Iconsax.percentage_circle,
+                                        color: theme.mainColor,
+                                      ),
+                                      Text(
+                                        salarySumm.priceUZS,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontFamily: boldFamily,
+                                        ),
+                                      )
                                     ],
                                   ),
                                 ),
@@ -426,10 +445,50 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                                     children: [
                                       Icon(Iconsax.wallet,
                                           color: theme.mainColor),
-                                      Text(ordersSumm.priceUZS,
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontFamily: boldFamily))
+                                      Text(
+                                        ordersSumm.priceUZS,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontFamily: boldFamily,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    spacing: 8,
+                                    children: [
+                                      IgnorePointer(
+                                        ignoring: true,
+                                        child: AppPrimaryButton(
+                                          // title:,
+                                          theme: theme,
+                                          onPressed: () {},
+                                          padding: Dis.only(lr: 16, tb: 4),
+                                          // title:,
+                                          radius: 12,
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                AppLocales.about.tr(),
+                                                style: TextStyle(
+                                                  fontFamily: mediumFamily,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              8.w,
+                                              Icon(
+                                                Icons.arrow_forward,
+                                                size: 20,
+                                                color: Colors.white,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),

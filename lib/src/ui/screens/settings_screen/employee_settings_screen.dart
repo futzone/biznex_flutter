@@ -19,7 +19,6 @@ import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_back_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
-
 import '../../widgets/dialogs/app_custom_dialog.dart';
 import 'app_updater_screen.dart';
 
@@ -53,7 +52,6 @@ class EmployeeSettingsScreen extends HookConsumerWidget {
                     ),
                   ),
                 ),
-
                 state.whenProviderData(
                   provider: appUpdaterProvider,
                   builder: (data) {
@@ -108,40 +106,42 @@ class EmployeeSettingsScreen extends HookConsumerWidget {
               AppText.$18Bold(AppLocales.employeeNameLabel.tr()),
               8.h,
               AppTextField(
-                  title: AppLocales.employeeNameHint.tr(),
-                  controller: fullname,
-                  theme: theme),
+                title: AppLocales.employeeNameHint.tr(),
+                controller: fullname,
+                theme: theme,
+              ),
               24.h,
               AppText.$18Bold(AppLocales.employeePhoneLabel.tr()),
               8.h,
               AppTextField(
-                  title: AppLocales.employeePhoneHint.tr(),
-                  controller: phone,
-                  theme: theme),
+                title: AppLocales.employeePhoneHint.tr(),
+                controller: phone,
+                theme: theme,
+              ),
               24.h,
               AppText.$18Bold(AppLocales.oldPincodeLabel.tr()),
               8.h,
               AppTextField(
-                  title: AppLocales.oldPincodeHint.tr(),
-                  controller: pincode,
-                  theme: theme,
-                  maxLength: 4),
+                title: AppLocales.oldPincodeHint.tr(),
+                controller: pincode,
+                theme: theme,
+                maxLength: 4,
+              ),
               24.h,
               AppText.$18Bold(AppLocales.newPincodeLabel.tr()),
               8.h,
               AppTextField(
-                  title: AppLocales.enterNewPincode.tr(),
-                  controller: pincodeNew,
-                  theme: theme,
-                  maxLength: 4),
+                title: AppLocales.enterNewPincode.tr(),
+                controller: pincodeNew,
+                theme: theme,
+                maxLength: 4,
+              ),
               24.h,
             ],
             AppLanguageBar(),
             24.h,
             NetworkInterfaceScreen(),
             24.h,
-
-
             ConfirmCancelButton(
               confirmText: AppLocales.save.tr(),
               onConfirm: () async {

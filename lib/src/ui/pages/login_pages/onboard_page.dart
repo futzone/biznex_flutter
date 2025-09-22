@@ -135,8 +135,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                   return Container(
                                     padding: Dis.only(lr: 16, tb: 16),
                                     decoration: BoxDecoration(
-                                      color: theme.scaffoldBgColor,
-                                      // borderRadius: BorderRadius.circular(12),
+                                      color: theme.white,
                                     ),
                                     child: Row(
                                       spacing: 12,

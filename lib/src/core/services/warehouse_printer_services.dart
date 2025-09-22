@@ -14,6 +14,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import '../../providers/recipe_providers.dart';
+import '../model/category_model/category_model.dart';
 import '../model/product_models/product_model.dart';
 
 class _IngredientUsage {
@@ -28,29 +29,6 @@ class _IngredientUsage {
 
 class WarehousePrinterServices {
   static final Isar isar = IsarDatabase.instance.isar;
-
-  static Future<void> printEmployeeFoodStats({
-    required Employee employee,
-    required Map productMap,
-    required DateTime day,
-    required BuildContext context,
-  }) async {
-    final List<ChartData> chartData = [];
-    for (final id in productMap.keys) {
-      final product = productMap[id]['product'] as Product;
-      final amount = productMap[id]['amount'] as num;
-
-      chartData.add(
-        ChartData(product.name, amount.toDouble(), measure: product.measure),
-      );
-    }
-
-    _print(
-      "${employee.fullname}\n${DateFormat("yyyy, dd-MMMM", context.locale.languageCode).format(day)}",
-      chartData,
-      '',
-    );
-  }
 
   static Future<void> printIngredientUsage({
     required WidgetRef ref,
@@ -279,7 +257,7 @@ class WarehousePrinterServices {
                 ),
                 pw.SizedBox(width: 8),
                 pw.Text(
-                  "${item.y.toMeasure} ${measure.isEmpty ? (item.measure ?? '') : item.measure}",
+                  "${item.y.toMeasure} ${measure.isEmpty ? (item.measure ?? '') : measure}",
                   style: boldStyle,
                 ),
               ],
@@ -290,6 +268,172 @@ class WarehousePrinterServices {
     );
 
     final pageHeight = (data.length * 20.0) + 1200.0;
+
+    doc.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat(
+          72 * PdfPageFormat.mm,
+          pageHeight * PdfPageFormat.mm,
+          marginAll: 5 * PdfPageFormat.mm,
+        ),
+        build: (pw.Context context) => content,
+      ),
+    );
+
+    final bytes = await doc.save();
+    final model = await AppStateDatabase().getApp();
+
+    try {
+      await Printing.directPrintPdf(
+        usePrinterSettings: true,
+        onLayout: (PdfPageFormat format) async {
+          return bytes;
+        },
+        printer: Printer(url: model.token, name: model.refresh),
+      );
+    } catch (_) {
+      await Printing.layoutPdf(
+        usePrinterSettings: true,
+        onLayout: (PdfPageFormat format) async {
+          return bytes;
+        },
+      );
+    }
+
+    log('printing completed');
+  }
+
+  static Future<void> printEmployeeFood({
+    required Employee employee,
+    required Map productMap,
+    required DateTime day,
+    required BuildContext context,
+  }) async {
+    final fontData = await rootBundle.load('assets/fonts/DejaVuSans.ttf');
+    final font = pw.Font.ttf(fontData);
+    final doc = pw.Document();
+    final pdfTheme = pw.TextStyle(font: font, fontSize: 8);
+    final headerStyle = pw.TextStyle(font: font, fontSize: 14);
+
+    final boldStyle = pw.TextStyle(
+      font: font,
+      fontSize: 8,
+      fontWeight: pw.FontWeight.bold,
+    );
+
+    final content = pw.Column(
+      mainAxisAlignment: pw.MainAxisAlignment.start,
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Center(
+          child: pw.Text(
+            employee.fullname,
+            style: headerStyle,
+            textAlign: pw.TextAlign.center,
+          ),
+        ),
+        pw.SizedBox(height: 2),
+        pw.Center(
+          child: pw.Text(
+            DateFormat("yyyy, dd-MMMM", context.locale.languageCode)
+                .format(day),
+            style: headerStyle,
+            textAlign: pw.TextAlign.center,
+          ),
+        ),
+        // pw.SizedBox(height: 4),
+        // pw.Container(color: PdfColor.fromHex("#000000"), height: 2),
+        pw.SizedBox(height: 4),
+        ...productMap.keys.map((key) {
+          final category = productMap[key]['category'] as Category;
+          return pw.Column(
+            children: [
+              pw.SizedBox(height: 8),
+              pw.Row(children: [
+                pw.Expanded(
+                  child: pw.Container(
+                    height: 1,
+                    color: PdfColors.black,
+                  ),
+                ),
+                pw.Container(
+                  padding: pw.EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 8,
+                    bottom: 8,
+                  ),
+                  decoration: pw.BoxDecoration(
+                    borderRadius: pw.BorderRadius.circular(16),
+                    border: pw.Border.all(color: PdfColors.black),
+                  ),
+                  child: pw.Text(
+                    category.name,
+                    style: pdfTheme.copyWith(fontSize: 10),
+                  ),
+                ),
+                pw.Expanded(
+                  child: pw.Container(
+                    height: 1,
+                    color: PdfColors.black,
+                  ),
+                ),
+              ]),
+              pw.SizedBox(height: 2),
+              ...(productMap[key]['products'] as Map).keys.map(
+                (id) {
+                  final ctgObject = productMap[key]['products'];
+                  final product = ctgObject[id]['product'] as Product;
+                  final amount = ctgObject[id]['amount'] as num;
+                  return pw.Column(
+                    children: [
+                      pw.Row(
+                        children: [
+                          pw.Expanded(
+                            child: pw.Text(
+                              "${product.name}: ",
+                              style: pdfTheme,
+                              overflow: pw.TextOverflow.clip,
+                              maxLines: 2,
+                            ),
+                          ),
+                          pw.SizedBox(width: 8),
+                          pw.Text(
+                            "${amount.toMeasure} ${product.measure ?? ''}",
+                            style: boldStyle,
+                          ),
+                        ],
+                      ),
+                      pw.SizedBox(height: 6),
+                      pw.Row(
+                        children: [
+                          ...List.generate(20, (a){
+                            return pw.Expanded(
+                              child: pw.Container(
+                                margin: pw.EdgeInsets.only(left: 2, right: 2),
+                                height: 0.4,
+                                color: PdfColors.black,
+                              ),
+                            );
+                          }),
+                        ]
+                      ),
+                      pw.SizedBox(height: 6),
+                    ],
+                  );
+                },
+              )
+            ],
+          );
+        }),
+        pw.SizedBox(height: 4),
+      ],
+    );
+
+    final length = productMap.values.length +
+        productMap.values.fold(1, (a, b) => a += b.length);
+
+    final pageHeight = (length * 20.0) + 1200.0;
 
     doc.addPage(
       pw.Page(

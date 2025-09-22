@@ -165,7 +165,7 @@ class ProductCardNew extends StatelessWidget {
                   Center(
                     child: Padding(
                       padding: !mobile
-                          ? Dis.only(top: context.s(24))
+                          ? Dis.only(top: context.s(28))
                           : const EdgeInsets.only(top: 24, bottom: 8),
                       child: Text(
                         product.name,

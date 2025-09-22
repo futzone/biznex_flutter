@@ -7,7 +7,10 @@ import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/services/warehouse_printer_services.dart';
 import 'package:biznex/src/providers/employee_orders_provider.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_back_button.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+
+import '../../../core/model/category_model/category_model.dart';
 
 class EmployeeMonitoringPage extends HookConsumerWidget {
   final AppColors theme;
@@ -18,7 +21,7 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
   final OrderFilterModel orderFilter = OrderFilterModel();
 
   Map _calculateProductOrder(DateTime day, List<Order> orders) {
-    final Map<String, dynamic> productMap = {};
+    final Map<String, dynamic> categoryMap = {};
 
     for (final order in orders) {
       final created = DateTime.parse(order.createdDate);
@@ -28,20 +31,32 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
           created.year == day.year &&
           order.employee.id == employee.id) {
         for (final item in order.products) {
-          if (productMap.containsKey(item.product.id)) {
-            productMap[item.product.id]['amount'] =
-                productMap[item.product.id]['amount'] + item.amount;
+          final category = item.product.category;
+          final categoryId = category?.id ?? 'others';
+
+          if (!categoryMap.containsKey(categoryId)) {
+            categoryMap[categoryId] = {
+              'category': category ?? Category(name: AppLocales.others.tr()),
+              'products': {}
+            };
+          }
+
+          final productsMap = categoryMap[categoryId]['products'];
+
+          if (productsMap.containsKey(item.product.id)) {
+            productsMap[item.product.id]['amount'] =
+                productsMap[item.product.id]['amount'] + item.amount;
           } else {
-            productMap[item.product.id] = {
-              'amount': item.amount,
+            productsMap[item.product.id] = {
               'product': item.product,
+              'amount': item.amount,
             };
           }
         }
       }
     }
 
-    return productMap;
+    return categoryMap;
   }
 
   @override
@@ -61,9 +76,10 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
             Text(
               employee.fullname,
               style: TextStyle(
-                  fontSize: context.s(24),
-                  fontFamily: mediumFamily,
-                  fontWeight: FontWeight.bold),
+                fontSize: context.s(24),
+                fontFamily: mediumFamily,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             Spacer(),
             SimpleButton(
@@ -96,7 +112,7 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
             ),
             SimpleButton(
               onPressed: () async {
-                await WarehousePrinterServices.printEmployeeFoodStats(
+                await WarehousePrinterServices.printEmployeeFood(
                   employee: employee,
                   productMap: productMap,
                   day: selectedDate.value,
@@ -106,8 +122,9 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
               child: Container(
                 padding: Dis.only(lr: context.w(16), tb: context.h(13)),
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: theme.accentColor),
+                  borderRadius: BorderRadius.circular(12),
+                  color: theme.accentColor,
+                ),
                 child: Row(
                   children: [
                     Text(
@@ -123,47 +140,157 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
           ],
         ),
         16.h,
-        Expanded(
-          child: ListView.builder(
-            itemCount: productMap.length,
-            itemBuilder: (context, index) {
-              final id = productMap.keys.elementAt(index);
-              final product = productMap[id]['product'] as Product;
-              final amount = productMap[id]['amount'] as num;
-              return Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: theme.accentColor,
+        Container(
+          // margin: Dis.only(lr: context.s(24)),
+          padding: Dis.only(lr: context.w(16), tb: context.h(12)),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.20)),
+            color: theme.scaffoldBgColor,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Center(
+                  child: Text(
+                    AppLocales.productName.tr(),
+                    style: style,
+                  ),
                 ),
-                padding: Dis.only(lr: 16, tb: 8),
-                margin: Dis.only(bottom: 16),
-                child: Row(
+              ),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    AppLocales.price.tr(),
+                    style: style,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    AppLocales.amount.tr(),
+                    style: style,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    AppLocales.totalPrice.tr(),
+                    style: style,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(color: theme.scaffoldBgColor),
+                  right: BorderSide(color: theme.scaffoldBgColor),
+                ),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
                   children: [
-                    Expanded(child: Text(product.name, style: style)),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          "${product.price.priceUZS}  x  ${amount.toMeasure}  ${product.measure ?? ''}",
-                          style: style,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                    ...productMap.keys.map((key) {
+                      final category = productMap[key]['category'] as Category;
+                      return Column(
                         children: [
-                          Text(
-                            (product.price * amount).priceUZS,
-                            style: style,
+                          16.h,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  height: 1,
+                                  color: theme.textColor,
+                                ),
+                              ),
+                              Container(
+                                padding: Dis.only(lr: 24, tb: 8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: theme.textColor),
+                                ),
+                                child: Center(child: Text(category.name)),
+                              ),
+                              Expanded(
+                                child: Container(
+                                  height: 1,
+                                  color: theme.textColor,
+                                ),
+                              )
+                            ],
                           ),
+                          ...(productMap[key]['products'] as Map)
+                              .keys
+                              .map((id) {
+                            final ctgObject = productMap[key]['products'];
+                            final product = ctgObject[id]['product'] as Product;
+                            final amount = ctgObject[id]['amount'] as num;
+                            return Container(
+                              padding: Dis.only(
+                                  lr: context.w(20), tb: context.h(12)),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                    bottom: BorderSide(
+                                        color: theme.scaffoldBgColor)),
+                                color: theme.white,
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                      child: Center(
+                                          child: Text(product.name,
+                                              style: style))),
+                                  Expanded(
+                                    child: Center(
+                                      child: Text(
+                                        product.price.priceUZS,
+                                        style: style,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      spacing: 4,
+                                      children: [
+                                        Text(
+                                          product.amount.toMeasure,
+                                          style: style.copyWith(
+                                              fontFamily: boldFamily),
+                                        ),
+                                        Text(
+                                          (product.measure ?? '').capitalize,
+                                          style: style.copyWith(
+                                            fontSize: context.s(12),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: Text(
+                                        (product.price * amount).priceUZS,
+                                        style: style,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          })
                         ],
-                      ),
-                    ),
+                      );
+                    })
                   ],
                 ),
-              );
-            },
-          ),
+              )),
         ),
       ],
     );

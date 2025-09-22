@@ -162,6 +162,7 @@ class EmployeeOrdersPage extends HookConsumerWidget {
                       onPressed: () {
                         showDesktopModal(
                           context: context,
+                          width: MediaQuery.of(context).size.width*0.6,
                           body: EmployeeMonitoringPage(
                             theme,
                             employee,
