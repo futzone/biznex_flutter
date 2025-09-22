@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
@@ -168,7 +169,8 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
       child: Scaffold(
         body: Row(
           children: [
-            if (getDeviceType(context) != DeviceType.mobile) LoginHalfPage(model),
+            if (getDeviceType(context) != DeviceType.mobile)
+              LoginHalfPage(model),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(32),
@@ -179,7 +181,11 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
                   children: [
                     Image.asset('assets/images/Vector 614.png', width: 160),
                     Text(
-                      model.pincode.isEmpty ? AppLocales.enterNewPincode.tr() : AppLocales.enterPincode.tr(),
+                      !Platform.isWindows
+                          ? AppLocales.enterPincode.tr()
+                          : (model.pincode.isEmpty
+                              ? AppLocales.enterNewPincode.tr()
+                              : AppLocales.enterPincode.tr()),
                       style: TextStyle(
                         fontSize: 28,
                         fontFamily: mediumFamily,
@@ -225,7 +231,8 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
                       },
                       onConfirm: (pin) {
                         Future.microtask(() {
-                          onNextPressed(currentEmployee.pincode, currentEmployee);
+                          onNextPressed(
+                              currentEmployee.pincode, currentEmployee);
                         });
                       },
                       // onBiometric: () {},
@@ -234,14 +241,17 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
                     Row(
                       spacing: 16,
                       children: [
-                        if (model.pincode.isEmpty)
+                        if (model.pincode.isEmpty && Platform.isWindows)
                           Expanded(
                             child: AppPrimaryButton(
                               color: Colors.white,
                               border: Border.all(color: Colors.white),
                               theme: theme,
                               onPressed: () {
-                                showDesktopModal(context: context, body: ApiAddressScreen(), width: 400);
+                                showDesktopModal(
+                                    context: context,
+                                    body: ApiAddressScreen(),
+                                    width: 400);
                               },
                               child: Row(
                                 spacing: 8,
@@ -269,7 +279,8 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
                           child: AppPrimaryButton(
                             theme: theme,
                             onPressed: () {
-                              onNextPressed(currentEmployee.pincode, currentEmployee);
+                              onNextPressed(
+                                  currentEmployee.pincode, currentEmployee);
                             },
                             child: Row(
                               spacing: 8,
@@ -284,7 +295,8 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
                                     color: Colors.white,
                                   ),
                                 ),
-                                Icon(Icons.arrow_forward, size: 20, color: Colors.white),
+                                Icon(Icons.arrow_forward,
+                                    size: 20, color: Colors.white),
                               ],
                             ),
                           ),

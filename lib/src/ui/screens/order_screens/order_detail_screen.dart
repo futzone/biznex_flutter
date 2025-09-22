@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
@@ -30,7 +31,6 @@ class OrderDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     log("Order place price: ${order.place.price}");
 
     return AppStateWrapper(builder: (theme, state) {
@@ -99,7 +99,8 @@ class OrderDetail extends StatelessWidget {
                     border: Border.all(
                       color: colorFromStatus(order.status.toString()),
                     ),
-                    color: colorFromStatus(order.status.toString()).withValues(alpha: 0.1),
+                    color: colorFromStatus(order.status.toString())
+                        .withValues(alpha: 0.1),
                   ),
                   child: Text(
                     order.status.toString().tr(),
@@ -118,7 +119,8 @@ class OrderDetail extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  DateFormat('dd.MM.yyyy').format(DateTime.parse(order.createdDate)),
+                  DateFormat('dd.MM.yyyy')
+                      .format(DateTime.parse(order.createdDate)),
                   style: TextStyle(
                     fontSize: context.s(16),
                     fontFamily: mediumFamily,
@@ -136,7 +138,8 @@ class OrderDetail extends StatelessWidget {
               ],
             ),
             0.h,
-            Container(height: 1, color: Colors.grey.shade200, width: double.infinity),
+            Container(
+                height: 1, color: Colors.grey.shade200, width: double.infinity),
             0.h,
             Text(
               AppLocales.orderProducts.tr(),
@@ -200,15 +203,21 @@ class OrderDetail extends StatelessWidget {
                     ),
                     Center(
                       child: Text(
-                        item.customPrice == null ? (item.amount * item.product.price).priceUZS : item.customPrice!.priceUZS,
-                        style: TextStyle(fontFamily: mediumFamily, fontSize: 18, color: Colors.black),
+                        item.customPrice == null
+                            ? (item.amount * item.product.price).priceUZS
+                            : item.customPrice!.priceUZS,
+                        style: TextStyle(
+                            fontFamily: mediumFamily,
+                            fontSize: 18,
+                            color: Colors.black),
                       ),
                     )
                   ],
                 ),
               ),
             0.h,
-            Container(height: 1, color: Colors.grey.shade200, width: double.infinity),
+            Container(
+                height: 1, color: Colors.grey.shade200, width: double.infinity),
             0.h,
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -223,7 +232,11 @@ class OrderDetail extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  order.place.name + ((order.place.father?.name == null || order.place.father!.name.isEmpty) ? '' : ', ${order.place.father!.name}'),
+                  order.place.name +
+                      ((order.place.father?.name == null ||
+                              order.place.father!.name.isEmpty)
+                          ? ''
+                          : ', ${order.place.father!.name}'),
                   style: TextStyle(
                     fontSize: context.s(16),
                     fontFamily: mediumFamily,
@@ -233,7 +246,8 @@ class OrderDetail extends StatelessWidget {
               ],
             ),
             0.h,
-            Container(height: 1, color: Colors.grey.shade200, width: double.infinity),
+            Container(
+                height: 1, color: Colors.grey.shade200, width: double.infinity),
             0.h,
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -249,7 +263,8 @@ class OrderDetail extends StatelessWidget {
                 ),
                 Text(
                   order.products.fold(0.0, (tot, el) {
-                    return tot += (el.customPrice ?? (el.amount * el.product.price));
+                    return tot +=
+                        (el.customPrice ?? (el.amount * el.product.price));
                   }).priceUZS,
                   style: TextStyle(
                     fontSize: context.s(16),
@@ -259,8 +274,7 @@ class OrderDetail extends StatelessWidget {
                 ),
               ],
             ),
-
-            if(order.place.price !=null)
+            if (order.place.price != null)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -319,7 +333,8 @@ class OrderDetail extends StatelessWidget {
                   );
                 },
               ),
-            Container(height: 1, color: Colors.grey.shade200, width: double.infinity),
+            Container(
+                height: 1, color: Colors.grey.shade200, width: double.infinity),
             0.h,
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -348,8 +363,10 @@ class OrderDetail extends StatelessWidget {
               confirmIcon: Iconsax.printer_copy,
               confirmText: AppLocales.print.tr(),
               // onCancel: (){},
+              onlyClose: !Platform.isWindows,
               onConfirm: () {
-                PrinterServices printerServices = PrinterServices(order: order, model: state);
+                PrinterServices printerServices =
+                    PrinterServices(order: order, model: state);
                 printerServices.printOrderCheck();
               },
             ),

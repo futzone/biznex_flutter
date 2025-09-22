@@ -61,8 +61,10 @@ class OrderItemCardNew extends HookConsumerWidget {
     final mobile = getDeviceType(context) == DeviceType.mobile;
 
     final product = item.product;
-    final amountController = useTextEditingController(text: _formatDecimal(item.amount));
-    final totalPriceController = useTextEditingController(text: _formatDecimal(item.amount * product.price));
+    final amountController =
+        useTextEditingController(text: _formatDecimal(item.amount));
+    final totalPriceController = useTextEditingController(
+        text: _formatDecimal(item.amount * product.price));
 
     final orderNotifier = ref.read(orderSetProvider.notifier);
     final itemIsSaved = useState(false);
@@ -83,7 +85,8 @@ class OrderItemCardNew extends HookConsumerWidget {
           )
           .amount;
 
-      itemIsSaved.value = originalAmount == -1 || currentAmount != originalAmount;
+      itemIsSaved.value =
+          originalAmount == -1 || currentAmount != originalAmount;
 
       return null;
     }, [item.amount, product.price, order]);
@@ -99,14 +102,18 @@ class OrderItemCardNew extends HookConsumerWidget {
 
     void updateTotalPrice(num newTotalPrice) {
       if (product.price <= 0) {
-        _updateControllerText(totalPriceController, item.amount * product.price);
+        _updateControllerText(
+            totalPriceController, item.amount * product.price);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Mahsulot narxi 0, umumiy narxni o'zgartirib bo'lmaydi.")),
+          SnackBar(
+              content: Text(
+                  "Mahsulot narxi 0, umumiy narxni o'zgartirib bo'lmaydi.")),
         );
         return;
       }
       if (newTotalPrice < 0) {
-        _updateControllerText(totalPriceController, item.amount * product.price);
+        _updateControllerText(
+            totalPriceController, item.amount * product.price);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Umumiy narx manfiy bo'lishi mumkin emas.")),
         );
@@ -172,149 +179,94 @@ class OrderItemCardNew extends HookConsumerWidget {
               ),
               direction: DismissDirection.endToStart,
               key: Key(item.placeId + item.product.id),
-              child: Row(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  AppFileImage(
-                    name: product.name,
-                    path: product.images?.firstOrNull,
-                    size: context.s(80),
-                  ),
-                  12.w,
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          product.name,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: mediumFamily,
-                          ),
-                        ),
-                        2.h,
-                        Text(
-                          product.price.priceUZS + (product.measure != null ? "/ ${product.measure}" : ""),
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: boldFamily,
-                          ),
-                        ),
-                        2.h,
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            SimpleButton(
-                              onPressed: () {
-                                updateAmount(item.amount + 1);
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(40),
-                                  color: theme.mainColor,
-                                  border: Border.all(color: theme.mainColor),
-                                ),
-                                height: context.s(36),
-                                width: context.s(36),
-                                child: Center(
-                                  child: Text(
-                                    "+1",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: boldFamily,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SimpleButton(
-                              onPressed: () {
-                                updateAmount(item.amount + 0.1);
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(40),
-                                  color: theme.mainColor,
-                                  border: Border.all(color: theme.mainColor),
-                                ),
-                                height: context.s(36),
-                                width: context.s(36),
-                                child: Center(
-                                  child: Center(
-                                    child: Text(
-                                      "+0.1",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: boldFamily,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Text(
-                              item.amount.toMeasure + (" ${product.measure != null ? product.measure! : ''}"),
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontFamily: boldFamily,
-                              ),
-                            ),
-                            SimpleButton(
-                              onPressed: () {
-                                if (item.amount >= 1) updateAmount(item.amount - 1);
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(40),
-                                  color: theme.red,
-                                  border: Border.all(color: theme.red),
-                                ),
-                                height: context.s(36),
-                                width: context.s(36),
-                                child: Center(
-                                  child: Center(
-                                    child: Text(
-                                      "-1",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: boldFamily,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SimpleButton(
-                              onPressed: () {
-                                if (item.amount >= 0.1) updateAmount(item.amount - 0.1);
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(40),
-                                  color: theme.red,
-                                  border: Border.all(color: theme.red),
-                                ),
-                                height: context.s(36),
-                                width: context.s(36),
-                                child: Center(
-                                  child: Text(
-                                    "-0.1",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: boldFamily,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
+                  Text(
+                    product.name,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: mediumFamily,
                     ),
                   ),
+                  2.h,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        product.price.priceUZS +
+                            (product.measure != null
+                                ? "/ ${product.measure}"
+                                : ""),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontFamily: boldFamily,
+                        ),
+                      ),
+                      Text(
+                        item.amount.toMeasure +
+                            (" ${product.measure != null ? product.measure! : ''}"),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: boldFamily,
+                        ),
+                      ),
+                    ],
+                  ),
+                  2.h,
+                  Wrap(
+                    spacing: 12,
+                    children: [
+                      ElevatedButton.icon(
+                        icon: Icon(Icons.add, size: 20),
+                        onPressed: () {
+                          updateAmount(item.amount + 1);
+                        },
+                        label: Text("1"),
+                        style: ElevatedButton.styleFrom(
+                          padding: Dis.only(lr: 12, tb: 8),
+                          iconSize: 20,
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        icon: Icon(Icons.add, size: 20),
+                        onPressed: () {
+                          updateAmount(item.amount + 0.1);
+                        },
+                        label: Text("0.1"),
+                        style: ElevatedButton.styleFrom(
+                          padding: Dis.only(lr: 12, tb: 8),
+                          iconSize: 20,
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        icon: Icon(Icons.remove, size: 20),
+                        onPressed: () {
+                          if (item.amount >= 1) updateAmount(item.amount - 1);
+                        },
+                        label: Text("1"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red.shade100,
+                          padding: Dis.only(lr: 12, tb: 8),
+                          iconSize: 20,
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        icon: Icon(Icons.remove, size: 20),
+                        onPressed: () {
+                          if (item.amount >= 0.1)
+                            updateAmount(item.amount - 0.1);
+                        },
+                        label: Text("0.1"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red.shade100,
+                          padding: Dis.only(lr: 12, tb: 8),
+                          iconSize: 20,
+                        ),
+                      ),
+                    ],
+                  )
                 ],
               ),
             ),
@@ -346,9 +298,11 @@ class OrderItemCardNew extends HookConsumerWidget {
         child: AnimatedContainer(
           duration: theme.animationDuration,
           margin: minimalistic ? Dis.only() : Dis.only(bottom: context.h(8)),
-          padding: Dis.only(lr: context.w(16), tb: context.h(minimalistic ? 16 : 8)),
+          padding:
+              Dis.only(lr: context.w(16), tb: context.h(minimalistic ? 16 : 8)),
           decoration: BoxDecoration(
-            borderRadius: infoView ? BorderRadius.circular(infoView ? 8 : 0) : null,
+            borderRadius:
+                infoView ? BorderRadius.circular(infoView ? 8 : 0) : null,
             color: infoView
                 ? theme.accentColor
                 : itemIsSaved.value
@@ -417,7 +371,9 @@ class OrderItemCardNew extends HookConsumerWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.left,
-                              style: TextStyle(fontSize: context.s(14), fontFamily: regularFamily),
+                              style: TextStyle(
+                                  fontSize: context.s(14),
+                                  fontFamily: regularFamily),
                             ),
                           ),
                           if (!infoView)
@@ -427,7 +383,8 @@ class OrderItemCardNew extends HookConsumerWidget {
                                 child: TextField(
                                   controller: totalPriceController,
                                   textAlign: TextAlign.start,
-                                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                  keyboardType: TextInputType.numberWithOptions(
+                                      decimal: true),
                                   style: TextStyle(color: theme.textColor),
                                   cursorHeight: context.h(16),
                                   decoration: InputDecoration(
@@ -435,10 +392,13 @@ class OrderItemCardNew extends HookConsumerWidget {
                                     fillColor: Colors.grey.shade100,
                                     isDense: true,
                                     hintText: "Umumiy narx",
-                                    contentPadding: Dis.only(tb: context.h(8), lr: context.w(12)),
+                                    contentPadding: Dis.only(
+                                        tb: context.h(8), lr: context.w(12)),
                                     suffixIcon: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           'UZS',
@@ -449,22 +409,27 @@ class OrderItemCardNew extends HookConsumerWidget {
                                         ),
                                       ],
                                     ),
-                                    constraints: const BoxConstraints(maxWidth: 120),
+                                    constraints:
+                                        const BoxConstraints(maxWidth: 120),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
-                                      borderSide: BorderSide(color: Colors.transparent),
+                                      borderSide:
+                                          BorderSide(color: Colors.transparent),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
-                                      borderSide: BorderSide(color: Colors.transparent),
+                                      borderSide:
+                                          BorderSide(color: Colors.transparent),
                                     ),
                                     disabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
-                                      borderSide: BorderSide(color: Colors.transparent),
+                                      borderSide:
+                                          BorderSide(color: Colors.transparent),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
-                                      borderSide: BorderSide(color: theme.mainColor),
+                                      borderSide:
+                                          BorderSide(color: theme.mainColor),
                                     ),
                                   ),
                                   onSubmitted: (text) {
@@ -472,24 +437,40 @@ class OrderItemCardNew extends HookConsumerWidget {
                                     if (value != null) {
                                       updateTotalPrice(value);
                                     } else {
-                                      _updateControllerText(totalPriceController, item.amount * product.price);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text("Noto'g'ri narx kiritildi!")),
+                                      _updateControllerText(
+                                          totalPriceController,
+                                          item.amount * product.price);
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                "Noto'g'ri narx kiritildi!")),
                                       );
                                     }
                                   },
                                   onTapOutside: (_) {
-                                    final value = _tryParseNum(totalPriceController.text);
-                                    final currentDisplayedPrice = item.amount * product.price;
+                                    final value =
+                                        _tryParseNum(totalPriceController.text);
+                                    final currentDisplayedPrice =
+                                        item.amount * product.price;
 
                                     if (value != null &&
-                                        _formatDecimal(value) != _formatDecimal(currentDisplayedPrice)) {
+                                        _formatDecimal(value) !=
+                                            _formatDecimal(
+                                                currentDisplayedPrice)) {
                                       updateTotalPrice(value);
-                                    } else if (value == null && totalPriceController.text.isNotEmpty) {
-                                      _updateControllerText(totalPriceController, currentDisplayedPrice);
+                                    } else if (value == null &&
+                                        totalPriceController.text.isNotEmpty) {
+                                      _updateControllerText(
+                                          totalPriceController,
+                                          currentDisplayedPrice);
                                     } else if (value != null &&
-                                        _formatDecimal(value) == _formatDecimal(currentDisplayedPrice)) {
-                                      _updateControllerText(totalPriceController, currentDisplayedPrice);
+                                        _formatDecimal(value) ==
+                                            _formatDecimal(
+                                                currentDisplayedPrice)) {
+                                      _updateControllerText(
+                                          totalPriceController,
+                                          currentDisplayedPrice);
                                     }
                                     FocusScope.of(context).unfocus();
                                   },
@@ -501,30 +482,46 @@ class OrderItemCardNew extends HookConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                if (!infoView && product.size != null && product.size!.isNotEmpty)
-                                  Text(product.size ?? '', style: TextStyle(color: theme.secondaryTextColor)),
-                                if (!infoView && product.size != null && product.size!.isNotEmpty) SizedBox(width: 16),
+                                if (!infoView &&
+                                    product.size != null &&
+                                    product.size!.isNotEmpty)
+                                  Text(product.size ?? '',
+                                      style: TextStyle(
+                                          color: theme.secondaryTextColor)),
+                                if (!infoView &&
+                                    product.size != null &&
+                                    product.size!.isNotEmpty)
+                                  SizedBox(width: 16),
                                 if (!infoView)
                                   SizedBox(
                                     width: context.w(120),
                                     child: TextField(
                                       controller: totalPriceController,
                                       textAlign: TextAlign.center,
-                                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                      keyboardType:
+                                          TextInputType.numberWithOptions(
+                                              decimal: true),
                                       style: TextStyle(color: theme.textColor),
                                       cursorHeight: context.h(16),
                                       decoration: InputDecoration(
                                         isDense: true,
                                         hintText: "Umumiy narx",
-                                        contentPadding: Dis.only(tb: context.h(8), lr: context.w(4)),
-                                        constraints: const BoxConstraints(maxWidth: 120),
+                                        contentPadding: Dis.only(
+                                            tb: context.h(8), lr: context.w(4)),
+                                        constraints:
+                                            const BoxConstraints(maxWidth: 120),
                                         border: OutlineInputBorder(
-                                          borderRadius: const BorderRadius.all(Radius.circular(24)),
-                                          borderSide: BorderSide(color: theme.mainColor),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(24)),
+                                          borderSide: BorderSide(
+                                              color: theme.mainColor),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: const BorderRadius.all(Radius.circular(24)),
-                                          borderSide: BorderSide(color: theme.mainColor, width: 2.0),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(24)),
+                                          borderSide: BorderSide(
+                                              color: theme.mainColor,
+                                              width: 2.0),
                                         ),
                                       ),
                                       onSubmitted: (text) {
@@ -532,24 +529,41 @@ class OrderItemCardNew extends HookConsumerWidget {
                                         if (value != null) {
                                           updateTotalPrice(value);
                                         } else {
-                                          _updateControllerText(totalPriceController, item.amount * product.price);
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text("Noto'g'ri narx kiritildi!")),
+                                          _updateControllerText(
+                                              totalPriceController,
+                                              item.amount * product.price);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    "Noto'g'ri narx kiritildi!")),
                                           );
                                         }
                                       },
                                       onTapOutside: (_) {
-                                        final value = _tryParseNum(totalPriceController.text);
-                                        final currentDisplayedPrice = item.amount * product.price;
+                                        final value = _tryParseNum(
+                                            totalPriceController.text);
+                                        final currentDisplayedPrice =
+                                            item.amount * product.price;
 
                                         if (value != null &&
-                                            _formatDecimal(value) != _formatDecimal(currentDisplayedPrice)) {
+                                            _formatDecimal(value) !=
+                                                _formatDecimal(
+                                                    currentDisplayedPrice)) {
                                           updateTotalPrice(value);
-                                        } else if (value == null && totalPriceController.text.isNotEmpty) {
-                                          _updateControllerText(totalPriceController, currentDisplayedPrice);
+                                        } else if (value == null &&
+                                            totalPriceController
+                                                .text.isNotEmpty) {
+                                          _updateControllerText(
+                                              totalPriceController,
+                                              currentDisplayedPrice);
                                         } else if (value != null &&
-                                            _formatDecimal(value) == _formatDecimal(currentDisplayedPrice)) {
-                                          _updateControllerText(totalPriceController, currentDisplayedPrice);
+                                            _formatDecimal(value) ==
+                                                _formatDecimal(
+                                                    currentDisplayedPrice)) {
+                                          _updateControllerText(
+                                              totalPriceController,
+                                              currentDisplayedPrice);
                                         }
                                         FocusScope.of(context).unfocus();
                                       },
@@ -558,7 +572,9 @@ class OrderItemCardNew extends HookConsumerWidget {
                                 if (infoView)
                                   Text(
                                     "${_formatDecimal(item.amount)} × ${product.price.priceUZS}",
-                                    style: TextStyle(fontFamily: boldFamily, fontSize: context.s(16)),
+                                    style: TextStyle(
+                                        fontFamily: boldFamily,
+                                        fontSize: context.s(16)),
                                   ),
                               ],
                             ),
@@ -576,7 +592,9 @@ class OrderItemCardNew extends HookConsumerWidget {
                             ),
                             Text(
                               (item.amount * item.product.price).priceUZS,
-                              style: TextStyle(fontSize: context.s(18), fontFamily: boldFamily),
+                              style: TextStyle(
+                                  fontSize: context.s(18),
+                                  fontFamily: boldFamily),
                             ),
                           ],
                         ),
@@ -634,7 +652,8 @@ class OrderItemCardNew extends HookConsumerWidget {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(40),
                                   color: theme.scaffoldBgColor,
-                                  border: Border.all(color: theme.scaffoldBgColor),
+                                  border:
+                                      Border.all(color: theme.scaffoldBgColor),
                                 ),
                                 height: context.s(40),
                                 width: context.s(40),
@@ -651,7 +670,8 @@ class OrderItemCardNew extends HookConsumerWidget {
                               child: TextField(
                                 controller: amountController,
                                 textAlign: TextAlign.start,
-                                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                keyboardType: TextInputType.numberWithOptions(
+                                    decimal: true),
                                 style: TextStyle(color: theme.textColor),
                                 cursorHeight: context.h(16),
                                 decoration: InputDecoration(
@@ -659,9 +679,11 @@ class OrderItemCardNew extends HookConsumerWidget {
                                   fillColor: Colors.grey.shade100,
                                   isDense: true,
                                   hintText: "Miqdor",
-                                  contentPadding: Dis.only(tb: context.h(8), lr: context.w(12)),
+                                  contentPadding: Dis.only(
+                                      tb: context.h(8), lr: context.w(12)),
                                   suffixIcon: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
@@ -673,22 +695,27 @@ class OrderItemCardNew extends HookConsumerWidget {
                                       ),
                                     ],
                                   ),
-                                  constraints: const BoxConstraints(maxWidth: 120),
+                                  constraints:
+                                      const BoxConstraints(maxWidth: 120),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(color: Colors.transparent),
+                                    borderSide:
+                                        BorderSide(color: Colors.transparent),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(color: Colors.transparent),
+                                    borderSide:
+                                        BorderSide(color: Colors.transparent),
                                   ),
                                   disabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(color: Colors.transparent),
+                                    borderSide:
+                                        BorderSide(color: Colors.transparent),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(color: theme.mainColor),
+                                    borderSide:
+                                        BorderSide(color: theme.mainColor),
                                   ),
                                 ),
                                 onSubmitted: (text) {
@@ -696,21 +723,32 @@ class OrderItemCardNew extends HookConsumerWidget {
                                   if (value != null) {
                                     updateAmount(value);
                                   } else {
-                                    _updateControllerText(amountController, item.amount);
+                                    _updateControllerText(
+                                        amountController, item.amount);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("Noto'g'ri miqdor kiritildi!")),
+                                      SnackBar(
+                                          content: Text(
+                                              "Noto'g'ri miqdor kiritildi!")),
                                     );
                                   }
                                 },
                                 onTapOutside: (_) {
-                                  final value = _tryParseNum(amountController.text);
+                                  final value =
+                                      _tryParseNum(amountController.text);
 
-                                  if (value != null && _formatDecimal(value) != _formatDecimal(item.amount)) {
+                                  if (value != null &&
+                                      _formatDecimal(value) !=
+                                          _formatDecimal(item.amount)) {
                                     updateAmount(value);
-                                  } else if (value == null && amountController.text.isNotEmpty) {
-                                    _updateControllerText(amountController, item.amount);
-                                  } else if (value != null && _formatDecimal(value) == _formatDecimal(item.amount)) {
-                                    _updateControllerText(amountController, item.amount);
+                                  } else if (value == null &&
+                                      amountController.text.isNotEmpty) {
+                                    _updateControllerText(
+                                        amountController, item.amount);
+                                  } else if (value != null &&
+                                      _formatDecimal(value) ==
+                                          _formatDecimal(item.amount)) {
+                                    _updateControllerText(
+                                        amountController, item.amount);
                                   }
                                   FocusScope.of(context).unfocus();
                                 },
@@ -768,7 +806,9 @@ class OrderItemCardNew extends HookConsumerWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.left,
-                                    style: TextStyle(fontSize: context.s(14), fontFamily: regularFamily),
+                                    style: TextStyle(
+                                        fontSize: context.s(14),
+                                        fontFamily: regularFamily),
                                   ),
                                   if (!infoView)
                                     SizedBox(
@@ -776,18 +816,25 @@ class OrderItemCardNew extends HookConsumerWidget {
                                       child: TextField(
                                         controller: totalPriceController,
                                         textAlign: TextAlign.start,
-                                        keyboardType: TextInputType.numberWithOptions(decimal: true),
-                                        style: TextStyle(color: theme.textColor),
+                                        keyboardType:
+                                            TextInputType.numberWithOptions(
+                                                decimal: true),
+                                        style:
+                                            TextStyle(color: theme.textColor),
                                         cursorHeight: context.h(16),
                                         decoration: InputDecoration(
                                           filled: true,
                                           fillColor: Colors.grey.shade100,
                                           isDense: true,
                                           hintText: "Umumiy narx",
-                                          contentPadding: Dis.only(tb: context.h(8), lr: context.w(12)),
+                                          contentPadding: Dis.only(
+                                              tb: context.h(8),
+                                              lr: context.w(12)),
                                           suffixIcon: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               Text(
                                                 'UZS',
@@ -798,22 +845,31 @@ class OrderItemCardNew extends HookConsumerWidget {
                                               ),
                                             ],
                                           ),
-                                          constraints: const BoxConstraints(maxWidth: 120),
+                                          constraints: const BoxConstraints(
+                                              maxWidth: 120),
                                           border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                            borderSide: BorderSide(color: Colors.transparent),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            borderSide: BorderSide(
+                                                color: Colors.transparent),
                                           ),
                                           enabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                            borderSide: BorderSide(color: Colors.transparent),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            borderSide: BorderSide(
+                                                color: Colors.transparent),
                                           ),
                                           disabledBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                            borderSide: BorderSide(color: Colors.transparent),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            borderSide: BorderSide(
+                                                color: Colors.transparent),
                                           ),
                                           focusedBorder: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                            borderSide: BorderSide(color: theme.mainColor),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            borderSide: BorderSide(
+                                                color: theme.mainColor),
                                           ),
                                         ),
                                         onSubmitted: (text) {
@@ -821,24 +877,41 @@ class OrderItemCardNew extends HookConsumerWidget {
                                           if (value != null) {
                                             updateTotalPrice(value);
                                           } else {
-                                            _updateControllerText(totalPriceController, item.amount * product.price);
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text("Noto'g'ri narx kiritildi!")),
+                                            _updateControllerText(
+                                                totalPriceController,
+                                                item.amount * product.price);
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                  content: Text(
+                                                      "Noto'g'ri narx kiritildi!")),
                                             );
                                           }
                                         },
                                         onTapOutside: (_) {
-                                          final value = _tryParseNum(totalPriceController.text);
-                                          final currentDisplayedPrice = item.amount * product.price;
+                                          final value = _tryParseNum(
+                                              totalPriceController.text);
+                                          final currentDisplayedPrice =
+                                              item.amount * product.price;
 
                                           if (value != null &&
-                                              _formatDecimal(value) != _formatDecimal(currentDisplayedPrice)) {
+                                              _formatDecimal(value) !=
+                                                  _formatDecimal(
+                                                      currentDisplayedPrice)) {
                                             updateTotalPrice(value);
-                                          } else if (value == null && totalPriceController.text.isNotEmpty) {
-                                            _updateControllerText(totalPriceController, currentDisplayedPrice);
+                                          } else if (value == null &&
+                                              totalPriceController
+                                                  .text.isNotEmpty) {
+                                            _updateControllerText(
+                                                totalPriceController,
+                                                currentDisplayedPrice);
                                           } else if (value != null &&
-                                              _formatDecimal(value) == _formatDecimal(currentDisplayedPrice)) {
-                                            _updateControllerText(totalPriceController, currentDisplayedPrice);
+                                              _formatDecimal(value) ==
+                                                  _formatDecimal(
+                                                      currentDisplayedPrice)) {
+                                            _updateControllerText(
+                                                totalPriceController,
+                                                currentDisplayedPrice);
                                           }
                                           FocusScope.of(context).unfocus();
                                         },
@@ -847,11 +920,19 @@ class OrderItemCardNew extends HookConsumerWidget {
                                   else
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
-                                        if (!infoView && product.size != null && product.size!.isNotEmpty)
-                                          Text(product.size ?? '', style: TextStyle(color: theme.secondaryTextColor)),
-                                        if (!infoView && product.size != null && product.size!.isNotEmpty)
+                                        if (!infoView &&
+                                            product.size != null &&
+                                            product.size!.isNotEmpty)
+                                          Text(product.size ?? '',
+                                              style: TextStyle(
+                                                  color: theme
+                                                      .secondaryTextColor)),
+                                        if (!infoView &&
+                                            product.size != null &&
+                                            product.size!.isNotEmpty)
                                           SizedBox(width: 16),
                                         if (!infoView)
                                           SizedBox(
@@ -859,56 +940,92 @@ class OrderItemCardNew extends HookConsumerWidget {
                                             child: TextField(
                                               controller: totalPriceController,
                                               textAlign: TextAlign.center,
-                                              keyboardType: TextInputType.numberWithOptions(decimal: true),
-                                              style: TextStyle(color: theme.textColor),
+                                              keyboardType: TextInputType
+                                                  .numberWithOptions(
+                                                      decimal: true),
+                                              style: TextStyle(
+                                                  color: theme.textColor),
                                               cursorHeight: context.h(16),
                                               decoration: InputDecoration(
                                                 isDense: true,
                                                 hintText: "Umumiy narx",
-                                                contentPadding: Dis.only(tb: context.h(8), lr: context.w(4)),
-                                                constraints: const BoxConstraints(maxWidth: 120),
+                                                contentPadding: Dis.only(
+                                                    tb: context.h(8),
+                                                    lr: context.w(4)),
+                                                constraints:
+                                                    const BoxConstraints(
+                                                        maxWidth: 120),
                                                 border: OutlineInputBorder(
-                                                  borderRadius: const BorderRadius.all(Radius.circular(24)),
-                                                  borderSide: BorderSide(color: theme.mainColor),
+                                                  borderRadius:
+                                                      const BorderRadius.all(
+                                                          Radius.circular(24)),
+                                                  borderSide: BorderSide(
+                                                      color: theme.mainColor),
                                                 ),
-                                                focusedBorder: OutlineInputBorder(
-                                                  borderRadius: const BorderRadius.all(Radius.circular(24)),
-                                                  borderSide: BorderSide(color: theme.mainColor, width: 2.0),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderRadius:
+                                                      const BorderRadius.all(
+                                                          Radius.circular(24)),
+                                                  borderSide: BorderSide(
+                                                      color: theme.mainColor,
+                                                      width: 2.0),
                                                 ),
                                               ),
                                               onSubmitted: (text) {
-                                                final value = _tryParseNum(text);
+                                                final value =
+                                                    _tryParseNum(text);
                                                 if (value != null) {
                                                   updateTotalPrice(value);
                                                 } else {
                                                   _updateControllerText(
-                                                      totalPriceController, item.amount * product.price);
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(content: Text("Noto'g'ri narx kiritildi!")),
+                                                      totalPriceController,
+                                                      item.amount *
+                                                          product.price);
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(
+                                                    SnackBar(
+                                                        content: Text(
+                                                            "Noto'g'ri narx kiritildi!")),
                                                   );
                                                 }
                                               },
                                               onTapOutside: (_) {
-                                                final value = _tryParseNum(totalPriceController.text);
-                                                final currentDisplayedPrice = item.amount * product.price;
+                                                final value = _tryParseNum(
+                                                    totalPriceController.text);
+                                                final currentDisplayedPrice =
+                                                    item.amount * product.price;
 
                                                 if (value != null &&
-                                                    _formatDecimal(value) != _formatDecimal(currentDisplayedPrice)) {
+                                                    _formatDecimal(value) !=
+                                                        _formatDecimal(
+                                                            currentDisplayedPrice)) {
                                                   updateTotalPrice(value);
-                                                } else if (value == null && totalPriceController.text.isNotEmpty) {
-                                                  _updateControllerText(totalPriceController, currentDisplayedPrice);
+                                                } else if (value == null &&
+                                                    totalPriceController
+                                                        .text.isNotEmpty) {
+                                                  _updateControllerText(
+                                                      totalPriceController,
+                                                      currentDisplayedPrice);
                                                 } else if (value != null &&
-                                                    _formatDecimal(value) == _formatDecimal(currentDisplayedPrice)) {
-                                                  _updateControllerText(totalPriceController, currentDisplayedPrice);
+                                                    _formatDecimal(value) ==
+                                                        _formatDecimal(
+                                                            currentDisplayedPrice)) {
+                                                  _updateControllerText(
+                                                      totalPriceController,
+                                                      currentDisplayedPrice);
                                                 }
-                                                FocusScope.of(context).unfocus();
+                                                FocusScope.of(context)
+                                                    .unfocus();
                                               },
                                             ),
                                           ),
                                         if (infoView)
                                           Text(
                                             "${_formatDecimal(item.amount)} × ${product.price.priceUZS}",
-                                            style: TextStyle(fontFamily: boldFamily, fontSize: context.s(16)),
+                                            style: TextStyle(
+                                                fontFamily: boldFamily,
+                                                fontSize: context.s(16)),
                                           ),
                                       ],
                                     ),
@@ -930,7 +1047,9 @@ class OrderItemCardNew extends HookConsumerWidget {
                             ),
                             Text(
                               (item.amount * item.product.price).priceUZS,
-                              style: TextStyle(fontSize: context.s(18), fontFamily: boldFamily),
+                              style: TextStyle(
+                                  fontSize: context.s(18),
+                                  fontFamily: boldFamily),
                             ),
                           ],
                         ),
@@ -966,7 +1085,8 @@ class OrderItemCardNew extends HookConsumerWidget {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(40),
                                   color: theme.scaffoldBgColor,
-                                  border: Border.all(color: theme.scaffoldBgColor),
+                                  border:
+                                      Border.all(color: theme.scaffoldBgColor),
                                 ),
                                 height: context.s(40),
                                 width: context.s(40),
@@ -983,7 +1103,8 @@ class OrderItemCardNew extends HookConsumerWidget {
                               child: TextField(
                                 controller: amountController,
                                 textAlign: TextAlign.start,
-                                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                keyboardType: TextInputType.numberWithOptions(
+                                    decimal: true),
                                 style: TextStyle(color: theme.textColor),
                                 cursorHeight: context.h(16),
                                 decoration: InputDecoration(
@@ -991,9 +1112,11 @@ class OrderItemCardNew extends HookConsumerWidget {
                                   fillColor: Colors.grey.shade100,
                                   isDense: true,
                                   hintText: "Miqdor",
-                                  contentPadding: Dis.only(tb: context.h(8), lr: context.w(12)),
+                                  contentPadding: Dis.only(
+                                      tb: context.h(8), lr: context.w(12)),
                                   suffixIcon: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
@@ -1005,22 +1128,27 @@ class OrderItemCardNew extends HookConsumerWidget {
                                       ),
                                     ],
                                   ),
-                                  constraints: const BoxConstraints(maxWidth: 120),
+                                  constraints:
+                                      const BoxConstraints(maxWidth: 120),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(color: Colors.transparent),
+                                    borderSide:
+                                        BorderSide(color: Colors.transparent),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(color: Colors.transparent),
+                                    borderSide:
+                                        BorderSide(color: Colors.transparent),
                                   ),
                                   disabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(color: Colors.transparent),
+                                    borderSide:
+                                        BorderSide(color: Colors.transparent),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(color: theme.mainColor),
+                                    borderSide:
+                                        BorderSide(color: theme.mainColor),
                                   ),
                                 ),
                                 onSubmitted: (text) {
@@ -1028,21 +1156,32 @@ class OrderItemCardNew extends HookConsumerWidget {
                                   if (value != null) {
                                     updateAmount(value);
                                   } else {
-                                    _updateControllerText(amountController, item.amount);
+                                    _updateControllerText(
+                                        amountController, item.amount);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("Noto'g'ri miqdor kiritildi!")),
+                                      SnackBar(
+                                          content: Text(
+                                              "Noto'g'ri miqdor kiritildi!")),
                                     );
                                   }
                                 },
                                 onTapOutside: (_) {
-                                  final value = _tryParseNum(amountController.text);
+                                  final value =
+                                      _tryParseNum(amountController.text);
 
-                                  if (value != null && _formatDecimal(value) != _formatDecimal(item.amount)) {
+                                  if (value != null &&
+                                      _formatDecimal(value) !=
+                                          _formatDecimal(item.amount)) {
                                     updateAmount(value);
-                                  } else if (value == null && amountController.text.isNotEmpty) {
-                                    _updateControllerText(amountController, item.amount);
-                                  } else if (value != null && _formatDecimal(value) == _formatDecimal(item.amount)) {
-                                    _updateControllerText(amountController, item.amount);
+                                  } else if (value == null &&
+                                      amountController.text.isNotEmpty) {
+                                    _updateControllerText(
+                                        amountController, item.amount);
+                                  } else if (value != null &&
+                                      _formatDecimal(value) ==
+                                          _formatDecimal(item.amount)) {
+                                    _updateControllerText(
+                                        amountController, item.amount);
                                   }
                                   FocusScope.of(context).unfocus();
                                 },

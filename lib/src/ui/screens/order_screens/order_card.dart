@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/extensions/for_string.dart';
@@ -20,166 +22,218 @@ class OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: Platform.isWindows ? null : Dis.only(tb: 8, lr: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: color ?? Colors.white,
       ),
       padding: Dis.all(context.s(16)),
       child: Column(
-        // spacing: context.h(16),
+        spacing: Platform.isWindows ? 0 : context.h(8),
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            spacing: context.w(16),
-            children: [
-              Container(
-                height: context.s(56),
-                width: context.s(56),
-                decoration: BoxDecoration(
-                  color: generateColorFromString(order.employee.id),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Center(
-                  child: Text(
-                    order.employee.fullname.initials,
-                    style: TextStyle(
-                      fontSize: context.s(23),
-                      color: Colors.white,
-                      fontFamily: mediumFamily,
-                    ),
+          if (Platform.isWindows)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              spacing: context.w(16),
+              children: [
+                Container(
+                  height: context.s(56),
+                  width: context.s(56),
+                  decoration: BoxDecoration(
+                    color: generateColorFromString(order.employee.id),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  spacing: context.h(4),
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      order.employee.fullname,
+                  child: Center(
+                    child: Text(
+                      order.employee.fullname.initials,
                       style: TextStyle(
-                        fontSize: context.s(16),
-                        fontWeight: FontWeight.w500,
+                        fontSize: context.s(23),
+                        color: Colors.white,
                         fontFamily: mediumFamily,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                    Text(
-                      "ID: ${order.orderNumber}",
-                      style: TextStyle(
-                        fontSize: context.s(14),
-                        fontWeight: FontWeight.w500,
-                        fontFamily: regularFamily,
-                        color: theme.secondaryTextColor,
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    spacing: context.h(4),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        order.employee.fullname,
+                        style: TextStyle(
+                          fontSize: context.s(16),
+                          fontWeight: FontWeight.w500,
+                          fontFamily: mediumFamily,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                    )
-                  ],
-                ),
-              ),
-              Container(
-                padding: Dis.all(context.s(12)),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: colorFromStatus(order.status.toString()),
+                      Text(
+                        "ID: ${order.orderNumber}",
+                        style: TextStyle(
+                          fontSize: context.s(14),
+                          fontWeight: FontWeight.w500,
+                          fontFamily: regularFamily,
+                          color: theme.secondaryTextColor,
+                        ),
+                        maxLines: 1,
+                      )
+                    ],
                   ),
-                  color: colorFromStatus(order.status.toString())
-                      .withValues(alpha: 0.1),
                 ),
-                child: Text(
-                  order.status.toString().tr(),
-                  style: TextStyle(
-                    fontSize: context.s(14),
-                    color: colorFromStatus(order.status.toString()),
-                    fontFamily: mediumFamily,
+                Container(
+                  padding: Dis.all(context.s(12)),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: colorFromStatus(order.status.toString()),
+                    ),
+                    color: colorFromStatus(order.status.toString())
+                        .withValues(alpha: 0.1),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  child: Text(
+                    order.status.toString().tr(),
+                    style: TextStyle(
+                      fontSize: context.s(14),
+                      color: colorFromStatus(order.status.toString()),
+                      fontFamily: mediumFamily,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                DateFormat('dd.MM.yyyy')
-                    .format(DateTime.parse(order.createdDate)),
-                style: TextStyle(
-                  fontSize: context.s(12),
-                  fontFamily: mediumFamily,
-                  color: Colors.blueGrey.shade500,
-                ),
-              ),
-              Text(
-                DateFormat('HH:mm').format(DateTime.parse(order.createdDate)),
-                style: TextStyle(
-                  fontSize: context.s(12),
-                  fontFamily: mediumFamily,
-                  color: Colors.blueGrey.shade500,
-                ),
-              )
-            ],
-          ),
-          Container(
-              height: 1, color: Colors.grey.shade200, width: double.infinity),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                AppLocales.productName.tr(),
-                style: TextStyle(
-                  fontSize: context.s(12),
-                  fontFamily: mediumFamily,
-                  color: Colors.blueGrey.shade400,
-                ),
-              ),
-              Text(
-                AppLocales.price.tr(),
-                style: TextStyle(
-                  fontSize: context.s(12),
-                  fontFamily: mediumFamily,
-                  color: Colors.blueGrey.shade400,
-                ),
-              )
-            ],
-          ),
-          for (int i = 0;
-              i < (order.products.length > 3 ? 3 : order.products.length);
-              i++)
+              ],
+            ),
+          if (Platform.isWindows)
             Row(
-              spacing: context.w(12),
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Text(
-                    order.products[i].product.name,
-                    style: TextStyle(
-                      fontSize: context.s(14),
-                      fontFamily: mediumFamily,
-                      color: Colors.blueGrey.shade400,
-                    ),
+                Text(
+                  DateFormat('dd.MM.yyyy')
+                      .format(DateTime.parse(order.createdDate)),
+                  style: TextStyle(
+                    fontSize: context.s(12),
+                    fontFamily: mediumFamily,
+                    color: Colors.blueGrey.shade500,
                   ),
                 ),
                 Text(
-                  "${order.products[i].amount.toMeasure} x ${order.products[i].product.price.priceUZS}",
+                  DateFormat('HH:mm').format(DateTime.parse(order.createdDate)),
                   style: TextStyle(
-                    fontSize: context.s(14),
+                    fontSize: context.s(12),
+                    fontFamily: mediumFamily,
+                    color: Colors.blueGrey.shade500,
+                  ),
+                )
+              ],
+            )
+          else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  DateFormat('dd.MM.yyyy')
+                      .format(DateTime.parse(order.createdDate)),
+                  style: TextStyle(
+                    fontSize: context.s(16),
+                    fontFamily: mediumFamily,
+                    color: theme.textColor,
+                  ),
+                ),
+                Text(
+                  DateFormat('HH:mm').format(DateTime.parse(order.createdDate)),
+                  style: TextStyle(
+                    fontSize: context.s(16),
+                    fontFamily: mediumFamily,
+                    color: theme.textColor,
+                  ),
+                )
+              ],
+            ),
+          Container(
+              height: 1, color: Colors.grey.shade200, width: double.infinity),
+          if (!Platform.isWindows)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  order.place.father?.name ?? AppLocales.all.tr(),
+                  style: TextStyle(
+                    fontSize: context.s(16),
+                    fontFamily: mediumFamily,
+                    color: theme.textColor,
+                  ),
+                ),
+                Text(
+                  order.place.name,
+                  style: TextStyle(
+                    fontSize: context.s(16),
+                    fontFamily: mediumFamily,
+                    color: theme.textColor,
+                  ),
+                )
+              ],
+            ),
+          if (Platform.isWindows)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  AppLocales.productName.tr(),
+                  style: TextStyle(
+                    fontSize: context.s(12),
+                    fontFamily: mediumFamily,
+                    color: Colors.blueGrey.shade400,
+                  ),
+                ),
+                Text(
+                  AppLocales.price.tr(),
+                  style: TextStyle(
+                    fontSize: context.s(12),
                     fontFamily: mediumFamily,
                     color: Colors.blueGrey.shade400,
                   ),
                 )
               ],
             ),
+          if (Platform.isWindows)
+            for (int i = 0;
+                i < (order.products.length > 3 ? 3 : order.products.length);
+                i++)
+              Row(
+                spacing: context.w(12),
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      order.products[i].product.name,
+                      style: TextStyle(
+                        fontSize: context.s(14),
+                        fontFamily: mediumFamily,
+                        color: Colors.blueGrey.shade400,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    "${order.products[i].amount.toMeasure} x ${order.products[i].product.price.priceUZS}",
+                    style: TextStyle(
+                      fontSize: context.s(14),
+                      fontFamily: mediumFamily,
+                      color: Colors.blueGrey.shade400,
+                    ),
+                  )
+                ],
+              ),
           Container(
               height: 1, color: Colors.grey.shade200, width: double.infinity),
           Row(

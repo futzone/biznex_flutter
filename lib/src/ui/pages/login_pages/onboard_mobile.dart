@@ -4,8 +4,11 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import '../../../../biznex.dart';
 import '../../../core/config/router.dart';
+import '../../../core/database/app_database/app_state_database.dart';
+import '../../../providers/app_state_provider.dart';
 import '../../../providers/employee_provider.dart';
 import 'login_page.dart';
+import 'onboard_page.dart';
 
 class OnboardMobile extends ConsumerWidget {
   final List<Employee> employees;
@@ -22,7 +25,19 @@ class OnboardMobile extends ConsumerWidget {
         actions: [
           IconButton(
             icon: Icon(Iconsax.logout_copy),
-            onPressed: () {},
+            onPressed: () {
+              final state = ref.watch(appStateProvider).value!;
+              state.apiUrl = null;
+              AppStateDatabase().updateApp(state).then((_) {
+                Future.delayed(Duration(seconds: 1));
+                ref.refresh(appStateProvider);
+                ref.invalidate(appStateProvider);
+                ref.invalidate(employeeProvider);
+                // ref.invalidate(appStateProvider);
+              });
+              // ref.read(currentEmployeeProvider.notifier).state = null;
+              AppRouter.open(context, OnboardPage());
+            },
           ),
           8.w,
         ],

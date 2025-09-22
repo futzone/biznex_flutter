@@ -22,6 +22,9 @@ class AppFileImage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if(!Platform.isWindows) return SizedBox();
+
+
     return AppStateWrapper(
       builder: (theme, state) {
         return ref.watch(_fileImageProvider(path)).when(

@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/controllers/order_controller.dart';
 import 'package:biznex/src/core/config/router.dart';
@@ -135,7 +136,8 @@ class OrderItemsPage extends HookConsumerWidget {
                                   borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(24),
                                     topRight: Radius.circular(24),
-                                  )),
+                                  ),
+                                ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -152,7 +154,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                 crossAxisAlignment: WrapCrossAlignment.start,
                                 runAlignment: WrapAlignment.start,
                                 spacing: 16,
-                                runSpacing: 16,
+                                runSpacing: Platform.isWindows ? 16 : 8,
                                 children: [
                                   ...[
                                     AppLocales.useCash,
@@ -197,6 +199,8 @@ class OrderItemsPage extends HookConsumerWidget {
                                 title: AppLocales.customerPhone.tr(),
                                 controller: phoneController,
                                 theme: theme,
+                                // useBorder: true,
+                               fillColor: theme.accentColor,
                               ),
                               0.h,
                               AppTextField(
@@ -204,6 +208,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                 title: AppLocales.deliveryAddress.tr(),
                                 controller: addressController,
                                 theme: theme,
+                                fillColor: theme.accentColor,
                               ),
                               Container(
                                 height: 1,

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
@@ -21,6 +23,7 @@ import '../../../../biznex.dart';
 import '../../../core/model/order_models/order_model.dart';
 import '../../widgets/dialogs/app_custom_dialog.dart';
 import '../../widgets/helpers/app_back_button.dart';
+import '../waiter_pages/mobile_drawer.dart';
 import 'employee_orders_page.dart';
 
 class TableChooseScreen extends HookConsumerWidget {
@@ -186,9 +189,11 @@ class TableChooseScreen extends HookConsumerWidget {
     return AppStateWrapper(
       builder: (theme, state) {
         return Scaffold(
+          drawer: MobileDrawer(theme),
           appBar: !mobile
               ? null
               : AppBar(
+                  // leading: Icon(Ionicons.menu_outline),
                   title: Text(AppLocales.places.tr()),
                   actions: [
                     Row(
@@ -418,183 +423,187 @@ class TableChooseScreen extends HookConsumerWidget {
                     Container(
                       color: theme.scaffoldBgColor,
                       padding: Dis.only(lr: context.w(32), tb: context.h(24)),
-                      child: Row(
-                        spacing: context.w(16),
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          if (onSelected != null) AppBackButton(),
-                          if (!mobile)
-                            Text(
-                              AppLocales.choosePlace.tr(),
-                              style: TextStyle(
-                                fontFamily: mediumFamily,
-                                fontWeight: FontWeight.w600,
-                                fontSize: context.s(24),
-                              ),
-                            ),
-                          Row(
-                            spacing: context.w(16),
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(99),
-                                  color: Colors.white,
-                                ),
-                                padding: context.s(12).all,
-                                child: Row(
-                                  spacing: context.w(12),
-                                  children: [
-                                    Icon(Icons.circle,
-                                        color: theme.mainColor,
-                                        size: context.s(16)),
-                                    Text(
-                                      AppLocales.freeTables.tr(),
-                                      style: TextStyle(
-                                        fontSize: context.s(16),
-                                        fontFamily: mediumFamily,
-                                      ),
-                                    ),
-                                  ],
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          spacing: context.w(16),
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            if (onSelected != null) AppBackButton(),
+                            if (!mobile)
+                              Text(
+                                AppLocales.choosePlace.tr(),
+                                style: TextStyle(
+                                  fontFamily: mediumFamily,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: context.s(24),
                                 ),
                               ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(99),
-                                  color: Colors.white,
-                                ),
-                                padding: context.s(12).all,
-                                child: Row(
-                                  spacing: context.w(8),
-                                  children: [
-                                    Icon(Icons.circle,
-                                        color: theme.secondaryTextColor,
-                                        size: context.s(16)),
-                                    Text(
-                                      AppLocales.bronTables.tr(),
-                                      style: TextStyle(
-                                        fontSize: context.s(16),
-                                        fontFamily: mediumFamily,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // Container(
-                              //   decoration: BoxDecoration(
-                              //     borderRadius: BorderRadius.circular(99),
-                              //     color: Colors.white,
-                              //   ),
-                              //   padding: 12.all,
-                              //   child: Row(
-                              //     spacing: 8,
-                              //     children: [
-                              //       Icon(Icons.circle, color: Colors.blue, size: 16),
-                              //       Text(
-                              //         AppLocales.bandTables.tr(),
-                              //         style: TextStyle(
-                              //           fontSize: 16,
-                              //           fontFamily: mediumFamily,
-                              //         ),
-                              //       ),
-                              //     ],
-                              //   ),
-                              // ),
-                            ],
-                          ),
-                          if (!mobile)
                             Row(
                               spacing: context.w(16),
                               children: [
-                                CustomPopupMenu(
-                                  theme: theme,
-                                  children: [
-                                    CustomPopupItem(
-                                        title: AppLocales.all.tr(),
-                                        onPressed: () =>
-                                            selectedPlace.value = null,
-                                        icon: Icons.list),
-                                    for (final item in places)
-                                      CustomPopupItem(
-                                          title: item.name,
-                                          onPressed: () =>
-                                              selectedPlace.value = item,
-                                          icon: Icons.present_to_all),
-                                  ],
-                                  child: Container(
-                                    height: context.h(52),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: Colors.white,
-                                      border: Border.all(
-                                          color: theme.secondaryTextColor
-                                              .withValues(alpha: 0.4)),
-                                    ),
-                                    padding: Dis.only(
-                                        lr: context.w(14), tb: context.h(8)),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      spacing: context.w(8),
-                                      children: [
-                                        Text(
-                                          selectedPlace.value == null
-                                              ? AppLocales.choosePlace.tr()
-                                              : selectedPlace.value!.name,
-                                          style: TextStyle(
-                                              fontSize: context.s(16),
-                                              fontFamily: mediumFamily),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(99),
+                                    color: Colors.white,
+                                  ),
+                                  padding: context.s(12).all,
+                                  child: Row(
+                                    spacing: context.w(12),
+                                    children: [
+                                      Icon(Icons.circle,
+                                          color: theme.mainColor,
+                                          size: context.s(16)),
+                                      Text(
+                                        AppLocales.freeTables.tr(),
+                                        style: TextStyle(
+                                          fontSize: context.s(16),
+                                          fontFamily: mediumFamily,
                                         ),
-                                        Icon(Iconsax.arrow_down_1_copy,
-                                            size: context.s(20)),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                // CustomPopupMenu(
-                                //   theme: theme,
-                                //   children: [
-                                //     CustomPopupItem(
-                                //         title: AppLocales.all.tr(), onPressed: () => selectedFilter.value = null, icon: Ionicons.list_outline),
-                                //     CustomPopupItem(
-                                //         title: AppLocales.freeTables.tr(),
-                                //         onPressed: () {
-                                //           selectedFilter.value = AppLocales.freeTables;
-                                //           if (selectedPlace.value != null && selectedPlace.value?.children != null) {
-                                //             filteredPlaces.value = selectedPlace.value.children.where((el)=> ).toList();
-                                //           }
-                                //         }),
-                                //     CustomPopupItem(
-                                //       title: AppLocales.bronTables.tr(),
-                                //     ),
-                                //   ],
-                                //   child: Container(
-                                //     height: context.h(52),
-                                //     decoration: BoxDecoration(
-                                //       borderRadius: BorderRadius.circular(8),
-                                //       color: Colors.white,
-                                //       border: Border.all(color: theme.secondaryTextColor.withValues(alpha: 0.4)),
-                                //     ),
-                                //     padding: Dis.only(lr: context.w(14), tb: context.h(8)),
-                                //     child: Row(
-                                //       crossAxisAlignment: CrossAxisAlignment.center,
-                                //       mainAxisAlignment: MainAxisAlignment.center,
-                                //       spacing: 8,
-                                //       children: [
-                                //         Text(
-                                //           AppLocales.all.tr(),
-                                //           style: TextStyle(fontSize: 16, fontFamily: mediumFamily),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(99),
+                                    color: Colors.white,
+                                  ),
+                                  padding: context.s(12).all,
+                                  child: Row(
+                                    spacing: context.w(8),
+                                    children: [
+                                      Icon(Icons.circle,
+                                          color: theme.secondaryTextColor,
+                                          size: context.s(16)),
+                                      Text(
+                                        AppLocales.bronTables.tr(),
+                                        style: TextStyle(
+                                          fontSize: context.s(16),
+                                          fontFamily: mediumFamily,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Container(
+                                //   decoration: BoxDecoration(
+                                //     borderRadius: BorderRadius.circular(99),
+                                //     color: Colors.white,
+                                //   ),
+                                //   padding: 12.all,
+                                //   child: Row(
+                                //     spacing: 8,
+                                //     children: [
+                                //       Icon(Icons.circle, color: Colors.blue, size: 16),
+                                //       Text(
+                                //         AppLocales.bandTables.tr(),
+                                //         style: TextStyle(
+                                //           fontSize: 16,
+                                //           fontFamily: mediumFamily,
                                 //         ),
-                                //         Icon(Iconsax.arrow_down_1_copy, size: 20),
-                                //       ],
-                                //     ),
+                                //       ),
+                                //     ],
                                 //   ),
                                 // ),
                               ],
-                            )
-                        ],
+                            ),
+                            if (!mobile)
+                              Row(
+                                spacing: context.w(16),
+                                children: [
+                                  CustomPopupMenu(
+                                    theme: theme,
+                                    children: [
+                                      CustomPopupItem(
+                                          title: AppLocales.all.tr(),
+                                          onPressed: () =>
+                                              selectedPlace.value = null,
+                                          icon: Icons.list),
+                                      for (final item in places)
+                                        CustomPopupItem(
+                                          title: item.name,
+                                          onPressed: () =>
+                                              selectedPlace.value = item,
+                                          icon: Icons.present_to_all,
+                                        ),
+                                    ],
+                                    child: Container(
+                                      height: context.h(52),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        color: Colors.white,
+                                        border: Border.all(
+                                            color: theme.secondaryTextColor
+                                                .withValues(alpha: 0.4)),
+                                      ),
+                                      padding: Dis.only(
+                                          lr: context.w(14), tb: context.h(8)),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        spacing: context.w(8),
+                                        children: [
+                                          Text(
+                                            selectedPlace.value == null
+                                                ? AppLocales.choosePlace.tr()
+                                                : selectedPlace.value!.name,
+                                            style: TextStyle(
+                                                fontSize: context.s(16),
+                                                fontFamily: mediumFamily),
+                                          ),
+                                          Icon(Iconsax.arrow_down_1_copy,
+                                              size: context.s(20)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  // CustomPopupMenu(
+                                  //   theme: theme,
+                                  //   children: [
+                                  //     CustomPopupItem(
+                                  //         title: AppLocales.all.tr(), onPressed: () => selectedFilter.value = null, icon: Ionicons.list_outline),
+                                  //     CustomPopupItem(
+                                  //         title: AppLocales.freeTables.tr(),
+                                  //         onPressed: () {
+                                  //           selectedFilter.value = AppLocales.freeTables;
+                                  //           if (selectedPlace.value != null && selectedPlace.value?.children != null) {
+                                  //             filteredPlaces.value = selectedPlace.value.children.where((el)=> ).toList();
+                                  //           }
+                                  //         }),
+                                  //     CustomPopupItem(
+                                  //       title: AppLocales.bronTables.tr(),
+                                  //     ),
+                                  //   ],
+                                  //   child: Container(
+                                  //     height: context.h(52),
+                                  //     decoration: BoxDecoration(
+                                  //       borderRadius: BorderRadius.circular(8),
+                                  //       color: Colors.white,
+                                  //       border: Border.all(color: theme.secondaryTextColor.withValues(alpha: 0.4)),
+                                  //     ),
+                                  //     padding: Dis.only(lr: context.w(14), tb: context.h(8)),
+                                  //     child: Row(
+                                  //       crossAxisAlignment: CrossAxisAlignment.center,
+                                  //       mainAxisAlignment: MainAxisAlignment.center,
+                                  //       spacing: 8,
+                                  //       children: [
+                                  //         Text(
+                                  //           AppLocales.all.tr(),
+                                  //           style: TextStyle(fontSize: 16, fontFamily: mediumFamily),
+                                  //         ),
+                                  //         Icon(Iconsax.arrow_down_1_copy, size: 20),
+                                  //       ],
+                                  //     ),
+                                  //   ),
+                                  // ),
+                                ],
+                              )
+                          ],
+                        ),
                       ),
                     ),
                   Expanded(
@@ -621,7 +630,7 @@ class TableChooseScreen extends HookConsumerWidget {
                           crossAxisCount: mobile ? 2 : 5,
                           mainAxisSpacing: context.s(mobile ? 16 : 80),
                           crossAxisSpacing: context.s(mobile ? 16 : 80),
-                          childAspectRatio: 1.25,
+                          childAspectRatio: Platform.isWindows ? 1.25 : 2,
                         ),
                         itemCount: selectedPlace.value == null
                             ? places.length

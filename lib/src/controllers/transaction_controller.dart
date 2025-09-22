@@ -7,18 +7,21 @@ import 'package:biznex/src/ui/widgets/custom/app_confirm_dialog.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 
 class TransactionController extends AppController {
-  TransactionController({required super.context, required super.state});
+  final bool useLoading;
+
+  TransactionController(
+      {required super.context, required super.state, this.useLoading = true});
 
   @override
   Future<void> create(data) async {
     data as Transaction;
-    showAppLoadingDialog(context);
+    if (useLoading) showAppLoadingDialog(context);
     TransactionsDatabase sizeDatabase = TransactionsDatabase();
     await sizeDatabase.set(data: data).then((_) {
-     try {
-       state.ref!.invalidate(transactionProvider);
-       closeLoading();
-     } catch (_) {}
+      try {
+        state.ref!.invalidate(transactionProvider);
+        if (useLoading) closeLoading();
+      } catch (_) {}
     });
   }
 

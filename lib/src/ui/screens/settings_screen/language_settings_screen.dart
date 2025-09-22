@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 
 import '../../../../biznex.dart';
@@ -109,6 +112,25 @@ class _AppLanguageBarState extends State<AppLanguageBar> {
                 ),
               ],
             ),
+            if (!Platform.isWindows)
+              ElevatedButton(
+                onPressed: () {
+                  AppRouter.close(context);
+                },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      AppLocales.close.tr(),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: mediumFamily,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       );

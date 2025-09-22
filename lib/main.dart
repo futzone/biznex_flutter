@@ -15,7 +15,7 @@ import 'package:toastification/toastification.dart';
 import 'package:path/path.dart' as path;
 
 bool debugMode = true;
-const appVersion = '2.3.2';
+const appVersion = '2.4.0';
 
 void main() async {
   // runZonedGuarded(() async {

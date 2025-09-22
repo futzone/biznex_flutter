@@ -208,7 +208,6 @@ class OrderController {
     );
 
     try {
-      AppRouter.close(context);
       ref.invalidate(ordersProvider(place.id));
       ref.invalidate(ordersProvider);
       ref.invalidate(productsProvider);
@@ -218,8 +217,11 @@ class OrderController {
       final notifier = ref.read(orderSetProvider.notifier);
       notifier.clearPlaceItems(place.id);
 
-      TransactionController transactionController =
-          TransactionController(context: context, state: model);
+      TransactionController transactionController = TransactionController(
+        context: context,
+        state: model,
+        useLoading: false,
+      );
       Transaction transaction = Transaction(
         value: finalOrder.price,
         order: finalOrder,
@@ -230,12 +232,18 @@ class OrderController {
       transactionController.create(transaction);
 
       ShowToast.success(context, AppLocales.orderClosedSuccessfully.tr());
-    } catch (_) {
-      AppRouter.close(context);
+    } catch (_) {}
+
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
     }
 
-    if (!Platform.isWindows) {
-      AppRouter.open(context, TableChooseScreen());
+    try {
+      if (!Platform.isWindows) {
+        AppRouter.openPage(context, TableChooseScreen());
+      }
+    } catch (error, st) {
+      log("fuck off: ", error: error, stackTrace: st);
     }
   }
 
@@ -343,15 +351,8 @@ class OrderController {
 
     finalOrder = finalOrder.copyWith(
         status: Order.completed, updatedDate: DateTime.now().toIso8601String());
-    try {
-      AppRouter.close(context);
-    } catch (_) {
-      try {
-        AppRouter.close(context);
-      } catch (_) {
-        ///
-      }
-    }
+    AppRouter.close(context);
+
     PrinterServices printerServices =
         PrinterServices(order: finalOrder, model: model);
     printerServices.printOrderCheck(phone: phone, address: address);
