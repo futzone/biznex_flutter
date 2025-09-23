@@ -126,12 +126,13 @@ class ProductCard extends HookConsumerWidget {
   }
 }
 
-class ProductCardNew extends StatelessWidget {
+class ProductCardNew extends ConsumerWidget {
   final Product product;
   final AppColors colors;
   final void Function() onPressed;
   final bool minimalistic;
   final bool have;
+  final String? placeId;
 
   const ProductCardNew({
     super.key,
@@ -140,11 +141,15 @@ class ProductCardNew extends StatelessWidget {
     required this.product,
     required this.colors,
     required this.onPressed,
+    this.placeId,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
     final mobile = getDeviceType(context) == DeviceType.mobile;
+    final amountText = ref
+        .watch(orderSetProvider.notifier)
+        .getThisProduct(placeId, product.id);
 
     return SimpleButton(
       onPressed: onPressed,
@@ -200,6 +205,33 @@ class ProductCardNew extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (mobile && amountText != null)
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: product.amount == 0
+                              ? colors.red
+                              : colors.secondaryColor,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(context.s(12)),
+                            bottomRight: Radius.circular(context.s(12)),
+                          ),
+                        ),
+                        padding: Dis.only(lr: context.w(12), tb: context.h(8)),
+                        child: Text(
+                          amountText ?? '',
+                          style: TextStyle(
+                            fontSize: context.s(14),
+                            color: product.amount == 0
+                                ? colors.white
+                                : Colors.black,
+                            fontFamily: mediumFamily,
+                          ),
+                        ),
+                      ),
+                    ),
                   if (!mobile)
                     Positioned(
                       top: 0,

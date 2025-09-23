@@ -1,4 +1,5 @@
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
@@ -40,12 +41,16 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
   void _onCategorySelected(String id) {
     final providerValue = ref.watch(productsProvider).value ?? [];
     if (_textEditingController.text.trim().isEmpty) {
-      _searchResultList = providerValue.where((element) => element.category?.id == id).toList();
+      _searchResultList =
+          providerValue.where((element) => element.category?.id == id).toList();
     } else {
       final char = _textEditingController.text.trim();
       _searchResultList = providerValue.where((element) {
         return ((element.name.toLowerCase().contains(char.toLowerCase())) ||
-                (element.size != null && element.size!.toLowerCase().contains(char.toLowerCase()))) &&
+                (element.size != null &&
+                    element.size!
+                        .toLowerCase()
+                        .contains(char.toLowerCase()))) &&
             element.category?.id == _selectedCategory?.id;
       }).toList();
     }
@@ -56,7 +61,10 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
     final providerListener = ref.watch(productsProvider).value ?? [];
     if (_searchController.text.trim().isNotEmpty) {
       final query = _searchController.text.trim();
-      return [...providerListener.where((el) => el.name.toLowerCase().contains(query.toLowerCase()))];
+      return [
+        ...providerListener
+            .where((el) => el.name.toLowerCase().contains(query.toLowerCase()))
+      ];
     }
 
     if (_selectedCategory == null) return providerListener;
@@ -107,10 +115,23 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
     final categories = ref.watch(categoryProvider).value ?? [];
 
     final mobile = getDeviceType(context) == DeviceType.mobile;
+
+    final showSetIcon =
+        orderNotifier.getItemsByPlace(widget.place.id).isNotEmpty;
+
     return AppStateWrapper(
       builder: (theme, state) {
         if (mobile) {
           return Scaffold(
+            floatingActionButton: !showSetIcon
+                ? null
+                : FloatingActionButton(
+              backgroundColor: theme.mainColor,
+              child: Icon(Iconsax.bag_copy, size: 32, color: Colors.white),
+              onPressed: () {
+                AppRouter.close(context);
+              },
+            ),
             appBar: AppBar(
               title: Padding(
                 padding: const EdgeInsets.only(bottom: 8, top: 8),
@@ -150,7 +171,9 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                               child: Container(
                                 padding: Dis.only(lr: 16, tb: 8),
                                 decoration: BoxDecoration(
-                                  color: _selectedCategory?.id == category.id ? theme.mainColor : Colors.white,
+                                  color: _selectedCategory?.id == category.id
+                                      ? theme.mainColor
+                                      : Colors.white,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
@@ -158,7 +181,9 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontFamily: mediumFamily,
-                                    color: _selectedCategory?.id == category.id ? Colors.white : theme.textColor,
+                                    color: _selectedCategory?.id == category.id
+                                        ? Colors.white
+                                        : theme.textColor,
                                   ),
                                 ),
                               ),
@@ -171,7 +196,8 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                 state.whenProviderDataSliver(
                   provider: productsProvider,
                   builder: (products) {
-                    if (buildFilterResult().isEmpty && _searchController.text.isNotEmpty) {
+                    if (buildFilterResult().isEmpty &&
+                        _searchController.text.isNotEmpty) {
                       return SliverToBoxAdapter(
                         child: Center(
                             child: Padding(
@@ -198,14 +224,26 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                           final product = buildFilterResult()[index];
                           return SimpleButton(
                             onPressed: () async {
-                              final status = ref.watch(placeStatusProvider)[widget.place.id] ?? false;
+                              if (product.amount < 1) {
+                                ShowToast.error(
+                                    context, AppLocales.productStockError.tr());
+                                return;
+                              }
+
+                              final status = ref.watch(
+                                      placeStatusProvider)[widget.place.id] ??
+                                  false;
                               if (!status) {
-                                final placeState = await OrderDatabase().getPlaceOrder(widget.place.id);
+                                final placeState = await OrderDatabase()
+                                    .getPlaceOrder(widget.place.id);
                                 if (placeState == null) {
-                                  orderNotifier.clearPlaceItems(widget.place.id);
+                                  orderNotifier
+                                      .clearPlaceItems(widget.place.id);
                                 }
 
-                                ref.read(placeStatusProvider.notifier).update((state) {
+                                ref
+                                    .read(placeStatusProvider.notifier)
+                                    .update((state) {
                                   state[widget.place.id] = true;
                                   return state;
                                 });
@@ -213,20 +251,28 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
 
                               if (product.amount != -1) {
                                 orderNotifier.addItem(
-                                    OrderItem(product: product, amount: 1, placeId: widget.place.id), context);
+                                    OrderItem(
+                                        product: product,
+                                        amount: 1,
+                                        placeId: widget.place.id),
+                                    context);
 
-                                ShowToast.success(context, AppLocales.productAddedToSet.tr());
+                                ShowToast.success(
+                                    context, AppLocales.productAddedToSet.tr());
                               } else {
-                                ShowToast.error(context, AppLocales.productStockError.tr());
+                                ShowToast.error(
+                                    context, AppLocales.productStockError.tr());
                               }
                             },
                             child: IgnorePointer(
                               child: ProductCardNew(
-                                have: orderNotifier.haveProduct(widget.place.id, product.id),
+                                have: orderNotifier.haveProduct(
+                                    widget.place.id, product.id),
                                 product: product,
                                 colors: theme,
                                 minimalistic: true,
                                 onPressed: () {},
+                                placeId: widget.place.id,
                               ),
                             ),
                           );
@@ -264,7 +310,9 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                             setState(() {});
                           },
                           builder: (focused) => Container(
-                            padding: widget.minimalistic ? Dis.only(lr: 8, tb: 2) : Dis.all(context.s(12)),
+                            padding: widget.minimalistic
+                                ? Dis.only(lr: 8, tb: 2)
+                                : Dis.all(context.s(12)),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
@@ -284,21 +332,30 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                                         Expanded(
                                           child: AppTextField(
                                             autofocus: true,
-                                            prefixIcon: Icon(Iconsax.search_normal_copy),
+                                            prefixIcon: Icon(
+                                                Iconsax.search_normal_copy),
                                             onChanged: _onSearchQuery,
                                             radius: 8,
-                                            title: AppLocales.searchBarHint.tr(),
+                                            title:
+                                                AppLocales.searchBarHint.tr(),
                                             controller: _searchController,
                                             theme: theme,
                                           ),
                                         ),
                                         Container(
-                                          height: widget.minimalistic ? null : context.s(40),
-                                          width: widget.minimalistic ? null : context.s(40),
+                                          height: widget.minimalistic
+                                              ? null
+                                              : context.s(40),
+                                          width: widget.minimalistic
+                                              ? null
+                                              : context.s(40),
                                           padding: Dis.all(context.s(8)),
-                                          margin: widget.minimalistic ? Dis.only(tb: 6) : null,
+                                          margin: widget.minimalistic
+                                              ? Dis.only(tb: 6)
+                                              : null,
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(4),
+                                            borderRadius:
+                                                BorderRadius.circular(4),
                                             color: theme.scaffoldBgColor,
                                           ),
                                           child: Center(
@@ -317,7 +374,9 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                                     padding: Dis.all(context.s(8)),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(4),
-                                      color: widget.minimalistic ? null : theme.scaffoldBgColor,
+                                      color: widget.minimalistic
+                                          ? null
+                                          : theme.scaffoldBgColor,
                                     ),
                                     child: Center(
                                       child: Icon(
@@ -340,14 +399,21 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                               setState(() {});
                             },
                             builder: (focused) => Container(
-                              padding: widget.minimalistic ? Dis.only(lr: 8, tb: 4) : Dis.all(context.s(12)),
+                              padding: widget.minimalistic
+                                  ? Dis.only(lr: 8, tb: 4)
+                                  : Dis.all(context.s(12)),
                               decoration: BoxDecoration(
-                                color: _selectedCategory?.id == category.id ? theme.mainColor : Colors.white,
+                                color: _selectedCategory?.id == category.id
+                                    ? theme.mainColor
+                                    : Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                                 border: focused
                                     ? Border.all(color: theme.mainColor)
                                     : Border.all(
-                                        color: _selectedCategory?.id == category.id ? theme.mainColor : Colors.white,
+                                        color:
+                                            _selectedCategory?.id == category.id
+                                                ? theme.mainColor
+                                                : Colors.white,
                                       ),
                               ),
                               child: Row(
@@ -363,12 +429,16 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(4),
                                         color:
-                                            _selectedCategory?.id == category.id ? theme.white : theme.scaffoldBgColor,
+                                            _selectedCategory?.id == category.id
+                                                ? theme.white
+                                                : theme.scaffoldBgColor,
                                       ),
                                       child: Center(
                                         child: category.icon == null
                                             ? Text(
-                                                category.name.trim().isNotEmpty ? category.name.trim()[0] : "🍜",
+                                                category.name.trim().isNotEmpty
+                                                    ? category.name.trim()[0]
+                                                    : "🍜",
                                                 style: TextStyle(
                                                   fontSize: context.s(24),
                                                   fontFamily: boldFamily,
@@ -379,16 +449,19 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                                                 width: context.s(32),
                                                 height: context.s(32),
                                                 colorFilter: ColorFilter.mode(
-                                                  _selectedCategory?.id == category.id
+                                                  _selectedCategory?.id ==
+                                                          category.id
                                                       ? theme.mainColor
-                                                      : theme.secondaryTextColor,
+                                                      : theme
+                                                          .secondaryTextColor,
                                                   BlendMode.color,
                                                 ),
                                               ),
                                       ),
                                     ),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
@@ -396,7 +469,10 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                                         style: TextStyle(
                                           fontSize: context.s(16),
                                           fontFamily: mediumFamily,
-                                          color: _selectedCategory?.id == category.id ? Colors.white : theme.textColor,
+                                          color: _selectedCategory?.id ==
+                                                  category.id
+                                              ? Colors.white
+                                              : theme.textColor,
                                         ),
                                       ),
                                       Text(
@@ -404,7 +480,8 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                                         style: TextStyle(
                                           fontSize: context.s(14),
                                           fontFamily: regularFamily,
-                                          color: _selectedCategory?.id == category.id
+                                          color: _selectedCategory?.id ==
+                                                  category.id
                                               ? Colors.white
                                               : theme.secondaryTextColor,
                                         ),
@@ -428,7 +505,8 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                   children: [
                     Text(
                       AppLocales.all_products.tr(),
-                      style: TextStyle(fontFamily: mediumFamily, fontSize: context.s(20)),
+                      style: TextStyle(
+                          fontFamily: mediumFamily, fontSize: context.s(20)),
                     ),
                     Text(
                       "${'productCount'.tr()}: ${providerListener.length} ${AppLocales.ta.tr()}",
@@ -454,7 +532,9 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                   child: state.whenProviderData(
                     provider: productsProvider,
                     builder: (products) {
-                      if (buildFilterResult().isEmpty && _searchController.text.isNotEmpty) return AppEmptyWidget();
+                      if (buildFilterResult().isEmpty &&
+                          _searchController.text.isNotEmpty)
+                        return AppEmptyWidget();
 
                       products as List<Product>;
 
@@ -464,21 +544,28 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                           crossAxisCount: 3,
                           mainAxisSpacing: context.s(16),
                           crossAxisSpacing: context.s(16),
-                          childAspectRatio: widget.minimalistic ? (3) : (261 / 321),
+                          childAspectRatio:
+                              widget.minimalistic ? (3) : (261 / 321),
                         ),
                         itemCount: buildFilterResult().length,
                         itemBuilder: (BuildContext context, int index) {
                           final product = buildFilterResult()[index];
                           return SimpleButton(
                             onPressed: () async {
-                              final status = ref.watch(placeStatusProvider)[widget.place.id] ?? false;
+                              final status = ref.watch(
+                                      placeStatusProvider)[widget.place.id] ??
+                                  false;
                               if (!status) {
-                                final placeState = await OrderDatabase().getPlaceOrder(widget.place.id);
+                                final placeState = await OrderDatabase()
+                                    .getPlaceOrder(widget.place.id);
                                 if (placeState == null) {
-                                  orderNotifier.clearPlaceItems(widget.place.id);
+                                  orderNotifier
+                                      .clearPlaceItems(widget.place.id);
                                 }
 
-                                ref.read(placeStatusProvider.notifier).update((state) {
+                                ref
+                                    .read(placeStatusProvider.notifier)
+                                    .update((state) {
                                   state[widget.place.id] = true;
                                   return state;
                                 });
@@ -486,14 +573,20 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
 
                               if (product.amount != -1) {
                                 orderNotifier.addItem(
-                                    OrderItem(product: product, amount: 1, placeId: widget.place.id), context);
+                                    OrderItem(
+                                        product: product,
+                                        amount: 1,
+                                        placeId: widget.place.id),
+                                    context);
                               } else {
-                                ShowToast.error(context, AppLocales.productStockError.tr());
+                                ShowToast.error(
+                                    context, AppLocales.productStockError.tr());
                               }
                             },
                             child: IgnorePointer(
                               child: ProductCardNew(
                                 product: product,
+                                placeId: widget.place.id,
                                 colors: theme,
                                 minimalistic: widget.minimalistic,
                                 onPressed: () {},

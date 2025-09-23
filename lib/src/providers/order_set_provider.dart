@@ -9,7 +9,8 @@ import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
 import '../core/database/order_database/order_database.dart';
 import 'employee_orders_provider.dart';
 
-final orderSetProvider = StateNotifierProvider<OrderSetNotifier, List<OrderItem>>((ref) {
+final orderSetProvider =
+    StateNotifierProvider<OrderSetNotifier, List<OrderItem>>((ref) {
   return OrderSetNotifier(ref);
 });
 
@@ -32,11 +33,13 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
   }
 
   void addItem(OrderItem item, context) {
-    final index = state.indexWhere((e) => e.product.id == item.product.id && e.placeId == item.placeId);
+    final index = state.indexWhere(
+        (e) => e.product.id == item.product.id && e.placeId == item.placeId);
     if (index != -1) {
       final updatedItemObject = state[index];
       if (updatedItemObject.product.amount >= updatedItemObject.amount + 1) {
-        final updatedItem = state[index].copyWith(amount: state[index].amount + 1);
+        final updatedItem =
+            state[index].copyWith(amount: state[index].amount + 1);
         state = [...state]..[index] = updatedItem;
       }
     } else {
@@ -50,7 +53,8 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
   }
 
   void removeItem(OrderItem item, AppModel model, context) {
-    final index = state.indexWhere((e) => e.product.id == item.product.id && e.placeId == item.placeId);
+    final index = state.indexWhere(
+        (e) => e.product.id == item.product.id && e.placeId == item.placeId);
     if (index != -1) {
       final current = state[index];
       if (current.amount > 1) {
@@ -67,18 +71,27 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
 
     if (order != null &&
         order.products.isNotEmpty &&
-        order.products.any((element) => element.product.id == item.product.id)) {
-      final index = state.indexWhere((e) => e.product.id == item.product.id && e.placeId == item.placeId);
+        order.products
+            .any((element) => element.product.id == item.product.id)) {
+      final index = state.indexWhere(
+          (e) => e.product.id == item.product.id && e.placeId == item.placeId);
       if (index != -1) {
-        state = [...state.where((e) => !(e.product.id == item.product.id && e.placeId == item.placeId))];
+        state = [
+          ...state.where((e) =>
+              !(e.product.id == item.product.id && e.placeId == item.placeId))
+        ];
       }
       _onDeleteCache(item.placeId, ref);
       return;
     }
 
-    final index = state.indexWhere((e) => e.product.id == item.product.id && e.placeId == item.placeId);
+    final index = state.indexWhere(
+        (e) => e.product.id == item.product.id && e.placeId == item.placeId);
     if (index != -1) {
-      state = [...state.where((e) => !(e.product.id == item.product.id && e.placeId == item.placeId))];
+      state = [
+        ...state.where((e) =>
+            !(e.product.id == item.product.id && e.placeId == item.placeId))
+      ];
     }
 
     _onDeleteCache(item.placeId, ref);
@@ -86,7 +99,8 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
   }
 
   void updateItem(OrderItem item) {
-    final index = state.indexWhere((e) => e.product.id == item.product.id && e.placeId == item.placeId);
+    final index = state.indexWhere(
+        (e) => e.product.id == item.product.id && e.placeId == item.placeId);
     if (index != -1) {
       state = [...state]..[index] = item;
     } else {
@@ -98,8 +112,20 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
     return state.where((e) => e.placeId == placeId).toList();
   }
 
+  String? getThisProduct(String? placeId, String productId) {
+    if (placeId == null) return null;
+
+    return state
+        .where((e) => e.placeId == placeId && e.product.id == productId)
+        .firstOrNull
+        ?.amount
+        .toMeasure;
+  }
+
   bool haveProduct(String placeId, String productId) {
-    return state.where((e) => e.placeId == placeId && e.product.id == productId).isNotEmpty;
+    return state
+        .where((e) => e.placeId == placeId && e.product.id == productId)
+        .isNotEmpty;
   }
 
   void clearPlaceItems(String placeId) {
@@ -108,8 +134,11 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
 
   void addMultiple(List<OrderItem> items) {
     final current = state;
-    final currentKeys = current.map((e) => '${e.product.id}-${e.placeId}').toSet();
-    final unique = items.where((e) => !currentKeys.contains('${e.product.id}-${e.placeId}')).toList();
+    final currentKeys =
+        current.map((e) => '${e.product.id}-${e.placeId}').toSet();
+    final unique = items
+        .where((e) => !currentKeys.contains('${e.product.id}-${e.placeId}'))
+        .toList();
     state = [...current, ...unique];
   }
 
