@@ -1,16 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:toastification/toastification.dart';
 
 class ShowToast {
-  static const int _closeDuration = 3;
+  static int get _closeDuration => Platform.isWindows ? 3 : 2;
 
-  static void error(BuildContext context, String message, {Alignment? alignment}) {
+  static void error(BuildContext context, String message,
+      {Alignment? alignment}) {
     toastification.show(
       type: ToastificationType.error,
       context: context,
       alignment: alignment,
       title: Text(message),
-      autoCloseDuration: const Duration(seconds: _closeDuration),
+      autoCloseDuration: Duration(seconds: _closeDuration),
     );
   }
 
@@ -19,17 +22,18 @@ class ShowToast {
       type: ToastificationType.warning,
       context: context,
       title: Text(message),
-      autoCloseDuration: const Duration(seconds: _closeDuration),
+      autoCloseDuration: Duration(seconds: _closeDuration),
     );
   }
 
-  static void success(BuildContext context, String message, {AlignmentGeometry? alignment}) {
+  static void success(BuildContext context, String message,
+      {AlignmentGeometry? alignment}) {
     toastification.show(
       type: ToastificationType.success,
       context: context,
       title: Text(message),
       alignment: alignment,
-      autoCloseDuration: const Duration(seconds: _closeDuration),
+      autoCloseDuration: Duration(seconds: _closeDuration),
     );
   }
 
@@ -38,7 +42,7 @@ class ShowToast {
       type: ToastificationType.info,
       context: context,
       title: Text(message),
-      autoCloseDuration: const Duration(seconds: _closeDuration),
+      autoCloseDuration: Duration(seconds: _closeDuration),
     );
   }
 }

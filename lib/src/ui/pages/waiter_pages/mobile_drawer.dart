@@ -5,6 +5,7 @@ import 'package:biznex/src/core/extensions/for_string.dart';
 import 'package:biznex/src/helper/screens/enter_url_screen.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
+import 'package:biznex/src/ui/pages/employee_pages/employee_monitoring_page.dart';
 import 'package:biznex/src/ui/pages/order_pages/employee_orders_page.dart';
 import 'package:biznex/src/ui/screens/settings_screen/language_settings_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_file_image.dart';
@@ -66,6 +67,13 @@ class MobileDrawer extends HookConsumerWidget {
                   body: EmployeeOrdersMobilePage(theme: theme),
                 ),
               );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.bar_chart),
+            title: Text(AppLocales.monitoring.tr()),
+            onTap: () {
+             AppRouter.go(context, Scaffold(body: EmployeeMonitoringPage(theme, employee)));
             },
           ),
           ListTile(

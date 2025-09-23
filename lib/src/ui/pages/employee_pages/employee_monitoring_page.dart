@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
+import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
 import 'package:biznex/src/core/model/order_models/order_filter_model.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
@@ -9,6 +12,7 @@ import 'package:biznex/src/providers/employee_orders_provider.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_back_button.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 
 import '../../../core/model/category_model/category_model.dart';
 
@@ -59,8 +63,179 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
     return categoryMap;
   }
 
+  Widget buildMobile(BuildContext context, WidgetRef ref) {
+    final selectedDate = useState<DateTime>(DateTime.now());
+    final orders = ref.watch(ordersFilterProvider(orderFilter)).value ?? [];
+    final productMap = _calculateProductOrder(selectedDate.value, orders);
+
+    final style = TextStyle(fontFamily: mediumFamily, fontSize: context.s(14));
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppLocales.monitoring.tr()),
+        actions: [
+          IconButton(
+            onPressed: () {
+              showDatePicker(
+                context: context,
+                firstDate: DateTime(2025, 1),
+                lastDate: DateTime.now(),
+                initialDate: selectedDate.value,
+              ).then((date) {
+                if (date != null) {
+                  selectedDate.value = date;
+                }
+              });
+            },
+            icon: Icon(Iconsax.calendar_1_copy),
+          ),
+          8.w,
+        ],
+      ),
+      body: CustomScrollView(
+        slivers: [
+          SliverPinnedHeader(
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.appBarColor,
+                border: Border(
+                  top: BorderSide(color: theme.accentColor),
+                ),
+              ),
+              padding: Dis.only(lr: 16, tb: 12),
+              child: Row(children: [
+                Expanded(
+                    child: Text(
+                  AppLocales.productName.tr(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: mediumFamily,
+                  ),
+                )),
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      AppLocales.price.tr(),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: mediumFamily,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                    child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      AppLocales.amount.tr(),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: mediumFamily,
+                      ),
+                    ),
+                  ],
+                )),
+              ]),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                ...productMap.keys.map((key) {
+                  final category = productMap[key]['category'] as Category;
+                  return Column(
+                    children: [
+                      16.h,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: 1,
+                              color: theme.textColor,
+                            ),
+                          ),
+                          Container(
+                            padding: Dis.only(lr: 24, tb: 8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: theme.textColor),
+                            ),
+                            child: Center(child: Text(category.name)),
+                          ),
+                          Expanded(
+                            child: Container(
+                              height: 1,
+                              color: theme.textColor,
+                            ),
+                          )
+                        ],
+                      ),
+                      8.h,
+                      ...(productMap[key]['products'] as Map).keys.map((id) {
+                        final ctgObject = productMap[key]['products'];
+                        final product = ctgObject[id]['product'] as Product;
+                        final amount = ctgObject[id]['amount'] as num;
+                        return Container(
+                          padding:
+                              Dis.only(lr: context.w(20), tb: context.h(12)),
+                          decoration: BoxDecoration(
+                            border: Border(
+                                bottom:
+                                    BorderSide(color: theme.scaffoldBgColor)),
+                            color: theme.white,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  child: Center(
+                                      child: Text(product.name, style: style))),
+                              Expanded(
+                                child: Center(
+                                  child: Text(
+                                    product.price.priceUZS,
+                                    style: style,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  spacing: 4,
+                                  children: [
+                                    Text(
+                                      product.amount.toMeasure,
+                                      style: style.copyWith(
+                                          fontFamily: boldFamily),
+                                    ),
+                                    Text(
+                                      (product.measure ?? '').capitalize,
+                                      style: style.copyWith(
+                                        fontSize: context.s(12),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      })
+                    ],
+                  );
+                })
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, ref) {
+    if (!Platform.isWindows) return buildMobile(context, ref);
+
     final selectedDate = useState<DateTime>(DateTime.now());
     final orders = ref.watch(ordersFilterProvider(orderFilter)).value ?? [];
     final productMap = _calculateProductOrder(selectedDate.value, orders);
