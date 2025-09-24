@@ -9,8 +9,17 @@ class Category {
   Map<dynamic, dynamic>? printerParams;
   List<Category>? subcategories;
   String? icon;
+  String updatedDate;
 
-  Category({required this.name, this.id = '', this.parentId, this.subcategories, this.printerParams, this.icon});
+  Category({
+    this.updatedDate = '',
+    required this.name,
+    this.id = '',
+    this.parentId,
+    this.subcategories,
+    this.printerParams,
+    this.icon,
+  });
 
   factory Category.fromJson(json) {
     return Category(
@@ -19,6 +28,7 @@ class Category {
       id: json['id'] ?? '',
       printerParams: json['printerParams'] ?? {},
       icon: json['icon'],
+      updatedDate: json['updatedDate'] ?? '',
     );
   }
 
@@ -28,6 +38,7 @@ class Category {
         "parentId": parentId,
         "printerParams": printerParams,
         "icon": icon,
+        "updatedDate": updatedDate,
       };
 
   factory Category.fromIsar(CategoryIsar isar) {
@@ -36,7 +47,8 @@ class Category {
       id: isar.id,
       parentId: isar.parentId,
       printerParams: jsonDecode(isar.printerParams ?? '{}'),
-      subcategories: isar.subcategories?.map((e) => Category.fromIsar(e)).toList(),
+      subcategories:
+          isar.subcategories?.map((e) => Category.fromIsar(e)).toList(),
       icon: isar.icon,
     );
   }

@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
@@ -31,11 +32,23 @@ class DeviceIdService {
       identifier = 'error_getting_id';
     }
 
-    log(identifier.toString());
+    final storeId = await _getDeviceId();
+    identifier = "$storeId${identifier ?? Uuid().v4()}";
 
-    var bytes = utf8.encode(identifier ?? Uuid().v4().toString());
+    var bytes = utf8.encode(identifier);
     var digest = sha256.convert(bytes);
-    log((digest.toString() == "97355c72a3081d2de64e828b4a7decae2b7293afe79f4472d3598ccfc3c5c31c").toString());
     return digest.toString();
+  }
+
+  Future<String> _getDeviceId() async {
+    final box = await Hive.openBox("store");
+    final deviceId = await box.get("deviceId");
+    if (deviceId == null || deviceId is! String) {
+      final id = Uuid().v4().toString();
+      await box.put("deviceId", id);
+      return id;
+    }
+
+    return deviceId;
   }
 }

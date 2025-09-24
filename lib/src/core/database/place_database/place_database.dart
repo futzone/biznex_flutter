@@ -21,7 +21,9 @@ class PlaceDatabase extends AppDatabase {
 
     if (father != null) {
       Place kFather = father;
-      kFather.children = [...(father.children ?? []).where((el) => el.id != key)];
+      kFather.children = [
+        ...(father.children ?? []).where((el) => el.id != key)
+      ];
       update(key: kFather.id, data: kFather);
       log('deleted');
     }
@@ -58,6 +60,7 @@ class PlaceDatabase extends AppDatabase {
 
     Place productInfo = data;
     productInfo.id = generateID;
+    productInfo.updatedDate = DateTime.now().toIso8601String().toString();
 
     final box = await openBox(boxName);
     if (productInfo.father != null) {
@@ -76,6 +79,7 @@ class PlaceDatabase extends AppDatabase {
   @override
   Future<void> update({required String key, required data}) async {
     if (data is! Place) return;
+    data.updatedDate = DateTime.now().toIso8601String().toString();
 
     final box = await openBox(boxName);
     box.put(key, data.toJson());

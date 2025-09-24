@@ -69,6 +69,7 @@ class CategoryDatabase extends AppDatabase {
 
     Category productInfo = data;
     productInfo.id = generateID;
+    productInfo.updatedDate = DateTime.now().toIso8601String().toString();
 
     final box = await openBox(boxName);
     await box.put(productInfo.id, productInfo.toJson());
@@ -77,6 +78,7 @@ class CategoryDatabase extends AppDatabase {
   @override
   Future<void> update({required String key, required data}) async {
     if (data is! Category) return;
+    data.updatedDate = DateTime.now().toIso8601String().toString();
 
     final box = await openBox(boxName);
     box.put(key, data.toJson());

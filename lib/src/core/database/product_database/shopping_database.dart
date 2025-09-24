@@ -7,6 +7,8 @@ import '../../../controllers/warehouse_monitoring_controller.dart';
 class ShoppingDatabase {
   final String _boxName = "shopping";
 
+  String get boxName => _boxName;
+
   Future<void> clear() async {
     final box = await Hive.openBox(_boxName);
     await box.clear();

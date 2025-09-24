@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:biznex/src/core/database/app_database/app_backup_database.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/providers/license_status_provider.dart';
@@ -121,6 +122,8 @@ void main() async {
     Hive.init(hiveDir.path);
     await IsarDatabase.instance.init(dir.path);
   }
+
+  await AppBackupDatabase.instance.init();
   await EasyLocalization.ensureInitialized();
 
   // ErrorWidget.builder = (FlutterErrorDetails details) {
@@ -172,7 +175,7 @@ class MyApp extends ConsumerWidget {
             home: getDeviceType(context) == DeviceType.mobile
                 ? OnboardPage()
                 : ActivityWrapper(ref: ref, child: LicenseStatusWrapper()),
-           ),
+          ),
         );
       },
     );

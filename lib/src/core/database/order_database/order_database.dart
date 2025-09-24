@@ -24,6 +24,8 @@ class OrderDatabase extends OrderDatabaseRepository {
   ChangesDatabase changesDatabase = ChangesDatabase();
   Isar isar = IsarDatabase.instance.isar;
 
+  String boxName = "orders";
+
   ///Old version methods
   ///It is methods need for: migrate db from old version
   String _getBoxName(id) => "orders_$id";

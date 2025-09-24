@@ -13,6 +13,10 @@ class RecipeDatabase {
   final String _recipeBox = "recipe";
   final String _ingredientsBox = "ingredients";
 
+  String get recipeBox => _recipeBox;
+
+  String get ingBox => _ingredientsBox;
+
   Future<List<Recipe>> getRecipe() async {
     final box = await Hive.openBox(_recipeBox);
     final data = box.values;

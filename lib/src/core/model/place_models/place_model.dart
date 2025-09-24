@@ -9,6 +9,8 @@ class Place {
   bool percentNull;
   double? price;
 
+  String updatedDate;
+
   Place({
     this.father,
     required this.name,
@@ -17,6 +19,7 @@ class Place {
     this.id = '',
     this.percentNull = false,
     this.price,
+    this.updatedDate = '',
   });
 
   factory Place.fromIsar(PlaceIsar isar, {bool includeFather = true}) {
@@ -37,6 +40,7 @@ class Place {
 
   factory Place.fromJson(json, {dynamic fatherId}) {
     return Place(
+      updatedDate: json['updatedDate'] ?? '',
       father: json['father'] == null ? null : Place.fromJson(json['father']),
       name: json['name'] ?? '',
       price: json['price'],
@@ -51,6 +55,7 @@ class Place {
 
   Map<String, dynamic> toJson() {
     return {
+      'updatedDate':'updatedDate',
       'name': name,
       'price': price,
       'id': id,

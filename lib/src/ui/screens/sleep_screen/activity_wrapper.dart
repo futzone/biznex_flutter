@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/main.dart';
 import 'package:biznex/src/controllers/changes_controller.dart';
+import 'package:biznex/src/core/database/app_database/app_backup_database.dart';
 import 'package:biznex/src/core/database/changes_database/changes_database.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/network/network_services.dart';
@@ -32,7 +33,8 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
   Timer? _inactivityTimer;
   late final FocusNode _focusNode;
   final Duration _inactivityTimeout = const Duration(seconds: 3000);
-  final ValueNotifier<AppUpdate> updateNotifier = ValueNotifier(AppUpdate(text: AppLocales.chekingForUpdates.tr()));
+  final ValueNotifier<AppUpdate> updateNotifier =
+      ValueNotifier(AppUpdate(text: AppLocales.chekingForUpdates.tr()));
   final ValueNotifier<String> lastVersion = ValueNotifier(appVersion);
 
   OverlayEntry? _logoOverlayEntry;
@@ -96,10 +98,14 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
 
   // void _autoUpdateCall() async => await checkAndUpdate(updateNotifier, lastVersion, widget.ref);
 
+  final AppBackupDatabase _backupDatabase = AppBackupDatabase.instance;
+
   void _localChangesSync() async {
+    await _backupDatabase.syncLocalData();
+
     if (!(await Network().isConnected())) return;
 
-    if(widget.ref.watch(appStateProvider).value?.apiUrl != null) return;
+    if (widget.ref.watch(appStateProvider).value?.apiUrl != null) return;
     log('syncing saved changes');
     final changesList = await _changesDatabase.get();
     for (final item in changesList) {

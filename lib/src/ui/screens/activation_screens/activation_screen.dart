@@ -25,9 +25,7 @@ class ActivationScreen extends StatefulHookConsumerWidget {
 class _ActivationScreenState extends ConsumerState<ActivationScreen> {
   AppModel get state => widget.state;
   final TextEditingController _textEditingController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _expireDateController = TextEditingController();
-  LicenseServices licenseServices = LicenseServices();
+    LicenseServices licenseServices = LicenseServices();
   CloudDataController cloudDataController = CloudDataController();
 
   AppColors get theme => widget.theme;
@@ -71,10 +69,10 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
       if (!mounted) return;
       ref.invalidate(appStateProvider); 
 
-      await cloudDataController.createCloudAccount(
-        _passwordController.text.trim(),
-        (DateTime.tryParse(_expireDateController.text) ?? DateTime(3000)).toIso8601String(),
-      );
+      // await cloudDataController.createCloudAccount(
+      //   _passwordController.text.trim(),
+      //   (DateTime.tryParse(_expireDateController.text) ?? DateTime(3000)).toIso8601String(),
+      // );
 
       
       if (!mounted) return; 
@@ -96,8 +94,8 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
   @override
   void dispose() {
     _textEditingController.dispose();
-    _passwordController.dispose();
-    _expireDateController.dispose();
+    // _passwordController.dispose();
+    // _expireDateController.dispose();
     super.dispose();
   }
   @override
@@ -156,42 +154,42 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                   },
                 ),
               ),
-              Row(
-                spacing: 24,
-                children: [
-                  Expanded(
-                    child: AppTextField(
-                      title: "Parol",
-                      controller: _passwordController,
-                      theme: theme,
-                      prefixIcon: Icon(Ionicons.key_outline),
-                    ),
-                  ),
-                  Expanded(
-                    child: AppTextField(
-                      onlyRead: true,
-                      onTap: () {
-                        showDatePicker(
-                          context: context,
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime.now().add(Duration(days: 365000)),
-                        ).then((value) {
-                          if (value != null) {
-                            _expireDateController.text = value.toLocal().toString();
-                            setState(() {});
-                          }
-                        });
-                      },
-                      title: _expireDateController.text.isEmpty
-                          ? "Muddat"
-                          : DateFormat(DateFormat.YEAR_MONTH_DAY, 'uz').format(DateTime.parse(_expireDateController.text.split("T").first)),
-                      controller: _expireDateController,
-                      theme: theme,
-                      prefixIcon: Icon(Ionicons.calendar_outline),
-                    ),
-                  ),
-                ],
-              ),
+              // Row(
+              //   spacing: 24,
+              //   children: [
+              //     Expanded(
+              //       child: AppTextField(
+              //         title: "Parol",
+              //         controller: _passwordController,
+              //         theme: theme,
+              //         prefixIcon: Icon(Ionicons.key_outline),
+              //       ),
+              //     ),
+              //     Expanded(
+              //       child: AppTextField(
+              //         onlyRead: true,
+              //         onTap: () {
+              //           showDatePicker(
+              //             context: context,
+              //             firstDate: DateTime.now(),
+              //             lastDate: DateTime.now().add(Duration(days: 365000)),
+              //           ).then((value) {
+              //             if (value != null) {
+              //               _expireDateController.text = value.toLocal().toString();
+              //               setState(() {});
+              //             }
+              //           });
+              //         },
+              //         title: _expireDateController.text.isEmpty
+              //             ? "Muddat"
+              //             : DateFormat(DateFormat.YEAR_MONTH_DAY, 'uz').format(DateTime.parse(_expireDateController.text.split("T").first)),
+              //         controller: _expireDateController,
+              //         theme: theme,
+              //         prefixIcon: Icon(Ionicons.calendar_outline),
+              //       ),
+              //     ),
+              //   ],
+              // ),
               AppPrimaryButton(
                 theme: theme,
                 onPressed: _verifyLicenseKey,
