@@ -15,7 +15,7 @@ import 'package:toastification/toastification.dart';
 import 'package:path/path.dart' as path;
 
 bool debugMode = true;
-const appVersion = '2.4.0';
+const appVersion = '2.4.2';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
