@@ -1,9 +1,14 @@
+import 'package:biznex/src/controllers/recipe_controller.dart';
+import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
+import 'package:biznex/src/core/services/warehouse_printer_services.dart';
 import 'package:biznex/src/ui/screens/shopping_screens/add_ingredient_screen.dart';
+import 'package:biznex/src/ui/screens/shopping_screens/choose_product_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_empty_widget.dart';
 import 'package:biznex/src/ui/widgets/custom/app_file_image.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
+import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
@@ -19,32 +24,137 @@ class IngredientsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      floatingActionButton: WebButton(
-        onPressed: () {
-          showDesktopModal(context: context, body: AddIngredientScreen());
-        },
-        builder: (focused) => AnimatedContainer(
-          duration: theme.animationDuration,
-          height: focused ? 80 : 64,
-          width: focused ? 80 : 64,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Color(0xff5CF6A9), width: 2),
-            color: theme.mainColor,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                spreadRadius: 3,
-                blurRadius: 5,
-                offset: Offset(3, 3),
-              )
-            ],
+      floatingActionButton: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.end,
+        spacing: 24,
+        children: [
+          WebButton(
+            onPressed: () {
+              WarehousePrinterServices.ingredientWarehousePrint(
+                context.locale.languageCode,
+              );
+            },
+            builder: (focused) => AnimatedContainer(
+              duration: theme.animationDuration,
+              height: focused ? 80 : 64,
+              width: focused ? 80 : 64,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Color(0xff5CF6A9), width: 2),
+                color: theme.mainColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    spreadRadius: 3,
+                    blurRadius: 5,
+                    offset: Offset(3, 3),
+                  )
+                ],
+              ),
+              child: Center(
+                child: Icon(Iconsax.printer_copy,
+                    color: Colors.white, size: focused ? 40 : 32),
+              ),
+            ),
           ),
-          child: Center(
-            child: Icon(Iconsax.add_copy,
-                color: Colors.white, size: focused ? 40 : 32),
+          WebButton(
+            onPressed: () {
+              showDesktopModal(
+                width: 600,
+                context: context,
+                body: Column(
+                  spacing: 16,
+                  children: [
+                    AppPrimaryButton(
+                      theme: theme,
+                      onPressed: () {
+                        showDesktopModal(
+                          context: context,
+                          body: ChooseProductScreen(
+                            theme: theme,
+                            onSelectedProduct: (product) async {
+                              final controller =
+                                  RecipeController(context: context);
+                              controller
+                                  .saveIngredientFromProduct(
+                                      ref: ref, product: product)
+                                  .then((_) {
+                                AppRouter.close(context);
+                              });
+                            },
+                          ),
+                        );
+                      },
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 12,
+                        children: [
+                          Icon(Ionicons.add, color: Colors.white),
+                          Text(
+                            AppLocales.products.tr(),
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: boldFamily,
+                                color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    AppPrimaryButton(
+                      theme: theme,
+                      onPressed: () {
+                        showDesktopModal(
+                          context: context,
+                          body: AddIngredientScreen(),
+                        );
+                      },
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 12,
+                        children: [
+                          Icon(Ionicons.add, color: Colors.white),
+                          Text(
+                            AppLocales.ingredients.tr(),
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: boldFamily,
+                                color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ConfirmCancelButton(onlyClose: true),
+                  ],
+                ),
+              );
+            },
+            builder: (focused) => AnimatedContainer(
+              duration: theme.animationDuration,
+              height: focused ? 80 : 64,
+              width: focused ? 80 : 64,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Color(0xff5CF6A9), width: 2),
+                color: theme.mainColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    spreadRadius: 3,
+                    blurRadius: 5,
+                    offset: Offset(3, 3),
+                  )
+                ],
+              ),
+              child: Center(
+                child: Icon(Iconsax.add_copy,
+                    color: Colors.white, size: focused ? 40 : 32),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
       body: ingredients.isEmpty
           ? AppEmptyWidget()
@@ -189,7 +299,7 @@ class IngredientsPage extends HookConsumerWidget {
                               ),
                               Expanded(
                                   child: Row(
-                                    spacing: 16,
+                                spacing: 16,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -216,7 +326,6 @@ class IngredientsPage extends HookConsumerWidget {
                                       ),
                                     ),
                                   ),
-
                                 ],
                               ))
                             ],

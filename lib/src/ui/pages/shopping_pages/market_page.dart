@@ -61,9 +61,13 @@ class MarketPage extends HookConsumerWidget {
                       children: [
                         Expanded(
                           flex: 2,
-                          child: Center(
-                            child: Text("productCount".tr()),
-                          ),
+                          child:
+                              Center(child: Text(AppLocales.createdDate.tr())),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child:
+                              Center(child: Text(AppLocales.updatedDate.tr())),
                         ),
                         Expanded(
                           flex: 2,
@@ -72,18 +76,14 @@ class MarketPage extends HookConsumerWidget {
                           ),
                         ),
                         Expanded(
+                          flex: 2,
+                          child: Center(
+                            child: Text("productCount".tr()),
+                          ),
+                        ),
+                        Expanded(
                           flex: 4,
                           child: Center(child: Text(AppLocales.note.tr())),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child:
-                              Center(child: Text(AppLocales.createdDate.tr())),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child:
-                              Center(child: Text(AppLocales.updatedDate.tr())),
                         ),
                         Expanded(child: SizedBox()),
                       ],
@@ -95,88 +95,100 @@ class MarketPage extends HookConsumerWidget {
                     childCount: shoppingList.length,
                     (context, index) {
                       final shopping = shoppingList[index];
-                      return Container(
-                        margin: Dis.only(lr: context.s(24)),
-                        padding: Dis.only(lr: context.w(20), tb: context.h(12)),
-                        decoration: BoxDecoration(
-                          border: Border(
-                              bottom: BorderSide(color: theme.scaffoldBgColor)),
-                          color: theme.white,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: Center(
-                                child: Text(shopping.items.length.toString()),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Center(
-                                child: Text(
-                                  shopping.totalPrice.priceUZS,
-                                  // textAlign: TextAlign.start,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 4,
-                              child: Center(
-                                child: Text(
-                                  shopping.note ?? "-",
-                                  maxLines: 1,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Center(
-                                child: Text(
-                                  DateFormat("yyyy.MM.dd")
-                                      .format(shopping.createdDate),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Center(
-                                child: Text(
-                                  DateFormat("yyyy.MM.dd  HH:mm")
-                                      .format(shopping.updatedDate),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                                child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                SimpleButton(
-                                  onPressed: () {
-                                    showDesktopModal(
-                                        context: context,
-                                        body: AddShoppingScreen(
-                                            shopping: shopping));
-                                  },
-                                  child: Container(
-                                    height: context.s(36),
-                                    width: context.s(36),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: theme.scaffoldBgColor,
-                                    ),
-                                    padding: Dis.all(context.s(8)),
-                                    child: Icon(
-                                      Iconsax.edit_copy,
-                                      size: context.s(20),
-                                      color: theme.secondaryTextColor,
-                                    ),
+                      return SimpleButton(
+                        onPressed: () {
+                          showDesktopModal(
+                            context: context,
+                            body: AddShoppingScreen(shopping: shopping),
+                          );
+                        },
+                        child: Container(
+                          margin: Dis.only(lr: context.s(24)),
+                          padding:
+                              Dis.only(lr: context.w(20), tb: context.h(12)),
+                          decoration: BoxDecoration(
+                            border: Border(
+                                bottom:
+                                    BorderSide(color: theme.scaffoldBgColor)),
+                            color: theme.white,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: Text(
+                                    DateFormat("yyyy.MM.dd")
+                                        .format(shopping.createdDate),
+                                    style: TextStyle(fontFamily: boldFamily),
                                   ),
                                 ),
-                              ],
-                            ))
-                          ],
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: Text(
+                                    DateFormat("yyyy.MM.dd  HH:mm")
+                                        .format(shopping.updatedDate),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: Text(
+                                    shopping.totalPrice.priceUZS,
+                                    // textAlign: TextAlign.start,
+                                    style: TextStyle(fontFamily: boldFamily),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: Text(shopping.items.length.toString()),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 4,
+                                child: Center(
+                                  child: Text(
+                                    shopping.note ?? "-",
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                  child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  SimpleButton(
+                                    onPressed: () {
+                                      showDesktopModal(
+                                          context: context,
+                                          body: AddShoppingScreen(
+                                              shopping: shopping));
+                                    },
+                                    child: Container(
+                                      height: context.s(36),
+                                      width: context.s(36),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        color: theme.scaffoldBgColor,
+                                      ),
+                                      padding: Dis.all(context.s(8)),
+                                      child: Icon(
+                                        Iconsax.edit_copy,
+                                        size: context.s(20),
+                                        color: theme.secondaryTextColor,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ))
+                            ],
+                          ),
                         ),
                       );
                     },

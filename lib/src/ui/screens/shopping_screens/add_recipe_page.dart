@@ -40,6 +40,7 @@ class AddRecipePage extends HookConsumerWidget {
               theme: theme,
               onlyRead: true,
               onTap: () {
+                if(recipe != null) return;
                 showDesktopModal(
                   context: context,
                   width: 600,
@@ -105,7 +106,7 @@ class AddRecipePage extends HookConsumerWidget {
                           item.ingredient.name,
                           style: TextStyle(
                             fontSize: 14,
-                            fontFamily: mediumFamily,
+                            fontFamily: boldFamily,
                           ),
                         ),
                       ),
@@ -117,7 +118,7 @@ class AddRecipePage extends HookConsumerWidget {
                           "${item.amount.toMeasure} ${item.ingredient.measure ?? ""}",
                           style: TextStyle(
                             fontSize: 14,
-                            fontFamily: mediumFamily,
+                            fontFamily: boldFamily,
                           ),
                         ),
                       ),

@@ -24,6 +24,49 @@ class RecipeController {
   final ProductDatabase productDatabase = ProductDatabase();
   final TransactionsDatabase transactionsDatabase = TransactionsDatabase();
 
+  Future saveIngredientFromProduct({
+    required WidgetRef ref,
+    required Product product,
+  }) async {
+    String? imageUrl;
+    if (product.images?.firstOrNull != null) {
+      imageUrl = await ImageService.copyImageToAppFolder(
+        product.images?.firstOrNull ?? '',
+      );
+    }
+
+    final Ingredient ingredient = Ingredient(
+      name: product.name,
+      quantity: product.amount,
+      unitPrice: product.price,
+      image: imageUrl,
+      calory: 0,
+      measure: product.measure,
+      id: Uuid().v4(),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    final recipe = Recipe(
+      items: [
+        RecipeItem(
+          ingredient: ingredient,
+          amount: 1,
+          price: product.price,
+        ),
+      ],
+      product: product,
+      id: Uuid().v4(),
+      createdDate: DateTime.now(),
+      updatedDate: DateTime.now(),
+    );
+
+    await recipeDatabase.saveIngredient(ingredient);
+    await recipeDatabase.saveRecipe(recipe);
+    ref.invalidate(ingredientsProvider);
+    ref.invalidate(recipesProvider);
+  }
+
   Future saveIngredient({
     required WidgetRef ref,
     String? name,

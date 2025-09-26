@@ -94,7 +94,7 @@ class AddShoppingScreen extends HookConsumerWidget {
                           item.ingredient.name,
                           style: TextStyle(
                             fontSize: 14,
-                            fontFamily: mediumFamily,
+                            fontFamily: boldFamily,
                           ),
                         ),
                       ),
@@ -106,7 +106,7 @@ class AddShoppingScreen extends HookConsumerWidget {
                           "${item.amount.toMeasure} ${item.ingredient.measure ?? ""}",
                           style: TextStyle(
                             fontSize: 14,
-                            fontFamily: mediumFamily,
+                            fontFamily: boldFamily,
                           ),
                         ),
                       ),
@@ -118,7 +118,7 @@ class AddShoppingScreen extends HookConsumerWidget {
                           "${item.price == null ? '-' : item.price?.priceUZS}",
                           style: TextStyle(
                             fontSize: 14,
-                            fontFamily: mediumFamily,
+                            fontFamily: boldFamily,
                           ),
                         ),
                       ),
@@ -381,36 +381,37 @@ class AddShoppingScreen extends HookConsumerWidget {
               ),
             ),
             // 16.h,
-            Container(
-              decoration: BoxDecoration(
-                color: theme.scaffoldBgColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: Dis.only(lr: 12, tb: 8),
-              child: Column(
-                children: [
-                  SwitchListTile(
-                    activeThumbColor: theme.mainColor,
-                    contentPadding: Dis.only(),
-                    value: addTransactions.value,
-                    onChanged: (v) => addTransactions.value = v,
-                    title: Text(AppLocales.addToTransactions.tr()),
-                  ),
-                  Container(
-                    color: Colors.white,
-                    height: 1,
-                    margin: Dis.only(tb: 8),
-                  ),
-                  SwitchListTile(
-                    activeThumbColor: theme.mainColor,
-                    contentPadding: Dis.only(),
-                    value: updatePrice.value,
-                    onChanged: (v) => updatePrice.value = v,
-                    title: Text(AppLocales.updateIngredientData.tr()),
-                  ),
-                ],
-              ),
-            ),
+            // Container(
+            //   decoration: BoxDecoration(
+            //     color: theme.scaffoldBgColor,
+            //     borderRadius: BorderRadius.circular(12),
+            //   ),
+            //   padding: Dis.only(lr: 12, tb: 8),
+            //   child: Column(
+            //     children: [
+            //       SwitchListTile(
+            //         activeThumbColor: theme.mainColor,
+            //         contentPadding: Dis.only(),
+            //         value: addTransactions.value,
+            //         onChanged: (v) => addTransactions.value = v,
+            //         title: Text(AppLocales.addToTransactions.tr()),
+            //       ),
+            //       Container(
+            //         color: Colors.white,
+            //         height: 1,
+            //         margin: Dis.only(tb: 8),
+            //       ),
+            //       SwitchListTile(
+            //         activeThumbColor: theme.mainColor,
+            //         contentPadding: Dis.only(),
+            //         value: updatePrice.value,
+            //         onChanged: (v) => updatePrice.value = v,
+            //         title: Text(AppLocales.updateIngredientData.tr()),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            0.h,
             AppTextField(
               title: AppLocales.note.tr(),
               controller: noteController,

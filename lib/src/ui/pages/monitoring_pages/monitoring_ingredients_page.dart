@@ -279,122 +279,123 @@ class MonitoringIngredientsPage extends HookConsumerWidget {
                             final totalPrice =
                                 amounts * (ingredient.unitPrice ?? 0.0);
 
-                            return Container(
-                              margin: 16.bottom,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: theme.accentColor,
-                              ),
-                              padding: 16.all,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Row(
-                                      spacing: 8,
-                                      children: [
-                                        Icon(
-                                          Icons.set_meal,
-                                          color: theme.mainColor,
-                                        ),
-                                        Text(
-                                          ingredient.name,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontFamily: boldFamily,
+                            return SimpleButton(
+                              onPressed: () {
+                                showDesktopModal(
+                                  context: context,
+                                  body: IngredientChartsScreen(
+                                    transactions: transactions,
+                                    ingredient: ingredient,
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                margin: 16.bottom,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: theme.accentColor,
+                                ),
+                                padding: 16.all,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Row(
+                                        spacing: 8,
+                                        children: [
+                                          Icon(
+                                            Icons.set_meal,
+                                            color: theme.mainColor,
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      spacing: 8,
-                                      children: [
-                                        Icon(Iconsax.bag,
-                                            color: theme.mainColor),
-                                        Text(
-                                          "${AppLocales.usage.tr()}: ${amounts.toMeasure} ${ingredient.measure ?? ''}",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontFamily: boldFamily,
+                                          Text(
+                                            ingredient.name,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: boldFamily,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      spacing: 8,
-                                      children: [
-                                        Icon(
-                                          Iconsax.wallet_1,
-                                          color: theme.mainColor,
-                                        ),
-                                        Text(
-                                          (ingredient.unitPrice ?? 0.0)
-                                              .priceUZS,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontFamily: boldFamily,
+                                    Expanded(
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        spacing: 8,
+                                        children: [
+                                          Icon(Iconsax.bag,
+                                              color: theme.mainColor),
+                                          Text(
+                                            "${AppLocales.usage.tr()}: ${amounts.toMeasure} ${ingredient.measure ?? ''}",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: boldFamily,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      spacing: 8,
-                                      children: [
-                                        Icon(Iconsax.wallet,
-                                            color: theme.mainColor),
-                                        Text(
-                                          totalPrice.priceUZS,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontFamily: boldFamily,
+                                    Expanded(
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        spacing: 8,
+                                        children: [
+                                          Icon(
+                                            Iconsax.wallet_1,
+                                            color: theme.mainColor,
                                           ),
-                                        )
-                                      ],
+                                          Text(
+                                            "${AppLocales.unitPrice.tr()}: ",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: regularFamily,
+                                            ),
+                                          ),
+                                          Text(
+                                            (ingredient.unitPrice ?? 0.0)
+                                                .priceUZS,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: boldFamily,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  SimpleButton(
-                                    onPressed: () {
-                                      showDesktopModal(
-                                        context: context,
-                                        body: IngredientChartsScreen(
-                                          transactions: transactions,
-                                          ingredient: ingredient,
-                                        ),
-                                      );
-                                    },
-                                    child: Row(
-                                      spacing: 8,
-                                      children: [
-                                        Icon(
-                                          Ionicons.bar_chart_outline,
-                                          color: theme.mainColor,
-                                        ),
-                                        Icon(
-                                          Ionicons.arrow_forward,
-                                          size: 20,
-                                          color: theme.secondaryTextColor,
-                                        )
-                                      ],
+                                    Expanded(
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        spacing: 8,
+                                        children: [
+                                          Icon(Iconsax.wallet,
+                                              color: theme.mainColor),
+
+                                          Text(
+                                            "${AppLocales.total.tr()}: ",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: regularFamily,
+                                            ),
+                                          ),
+                                          Text(
+                                            totalPrice.priceUZS,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: boldFamily,
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             );
                           },

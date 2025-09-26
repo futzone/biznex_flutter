@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
+import 'package:biznex/src/core/database/product_database/recipe_database.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
 import 'package:biznex/src/core/model/ingredient_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
@@ -29,6 +30,23 @@ class _IngredientUsage {
 
 class WarehousePrinterServices {
   static final Isar isar = IsarDatabase.instance.isar;
+
+  static Future<void> ingredientWarehousePrint(String locale) async {
+    final ingredients = await RecipeDatabase().getIngredients();
+    final List<ChartData> chartData = [
+      ...ingredients
+          .map((e) => ChartData(e.name, e.quantity, measure: e.measure))
+    ];
+
+    await _print(
+      AppLocales.warehouse.tr(),
+      chartData,
+      '',
+      subtitle: DateFormat("yyyy, dd-MMMM, HH:mm", locale).format(
+        DateTime.now(),
+      ),
+    );
+  }
 
   static Future<void> printIngredientUsage({
     required WidgetRef ref,
@@ -211,11 +229,8 @@ class WarehousePrinterServices {
     log('printing completed');
   }
 
-  static Future<void> _print(
-    String title,
-    List<ChartData> data,
-    String measure,
-  ) async {
+  static Future<void> _print(String title, List<ChartData> data, String measure,
+      {String? subtitle}) async {
     final fontData = await rootBundle.load('assets/fonts/DejaVuSans.ttf');
     final font = pw.Font.ttf(fontData);
     final doc = pw.Document();
@@ -239,6 +254,15 @@ class WarehousePrinterServices {
             textAlign: pw.TextAlign.center,
           ),
         ),
+        if (subtitle != null) pw.SizedBox(height: 4),
+        if (subtitle != null)
+          pw.Center(
+            child: pw.Text(
+              subtitle,
+              style: pdfTheme,
+              textAlign: pw.TextAlign.center,
+            ),
+          ),
         pw.SizedBox(height: 4),
         pw.Container(color: PdfColor.fromHex("#000000"), height: 1),
         pw.SizedBox(height: 4),
@@ -405,19 +429,17 @@ class WarehousePrinterServices {
                         ],
                       ),
                       pw.SizedBox(height: 6),
-                      pw.Row(
-                        children: [
-                          ...List.generate(20, (a){
-                            return pw.Expanded(
-                              child: pw.Container(
-                                margin: pw.EdgeInsets.only(left: 2, right: 2),
-                                height: 0.4,
-                                color: PdfColors.black,
-                              ),
-                            );
-                          }),
-                        ]
-                      ),
+                      pw.Row(children: [
+                        ...List.generate(20, (a) {
+                          return pw.Expanded(
+                            child: pw.Container(
+                              margin: pw.EdgeInsets.only(left: 2, right: 2),
+                              height: 0.4,
+                              color: PdfColors.black,
+                            ),
+                          );
+                        }),
+                      ]),
                       pw.SizedBox(height: 6),
                     ],
                   );

@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/model/product_models/recipe_model.dart';
+import 'package:biznex/src/ui/pages/shopping_pages/recipe_detail_page.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
 import '../../../../biznex.dart';
@@ -105,114 +106,122 @@ class RecipePage extends HookConsumerWidget {
                       final ingredient = recipe[index];
                       log("${ingredient.product.id} ${ingredient.product.name}");
                       log(ingredient.id);
-                      return Container(
-                        margin: Dis.only(lr: context.s(24)),
-                        padding: Dis.only(
-                          lr: context.w(20),
-                          tb: context.h(12),
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: theme.scaffoldBgColor,
-                            ),
+                      return SimpleButton(
+                        onPressed: () {
+                          showDesktopModal(
+                            context: context,
+                            body: AddRecipePage(recipe: ingredient),
+                          );
+                        },
+                        child: Container(
+                          margin: Dis.only(lr: context.s(24)),
+                          padding: Dis.only(
+                            lr: context.w(20),
+                            tb: context.h(12),
                           ),
-                          color: theme.white,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  AppFileImage(
-                                    name: ingredient.product.name,
-                                    path: ingredient
-                                            .product.images?.firstOrNull ??
-                                        '',
-                                    size: 48,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: theme.scaffoldBgColor,
+                              ),
+                            ),
+                            color: theme.white,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    AppFileImage(
+                                      name: ingredient.product.name,
+                                      path: ingredient
+                                              .product.images?.firstOrNull ??
+                                          '',
+                                      size: 48,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                flex: 3,
+                                child: Center(
+                                    child: Text(ingredient.product.name)),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: Text(
+                                    "${ingredient.items.length}",
+                                    // textAlign: TextAlign.start,
                                   ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              flex: 3,
-                              child:
-                                  Center(child: Text(ingredient.product.name)),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Center(
-                                child: Text(
-                                  "${ingredient.items.length}",
-                                  // textAlign: TextAlign.start,
                                 ),
                               ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Center(
-                                child: Text(
-                                  ingredient.items
-                                      .fold(
-                                          0.0, (a, b) => a += (b.price ?? 0.0))
-                                      .priceUZS,
+                              Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: Text(
+                                    ingredient.items
+                                        .fold(0.0,
+                                            (a, b) => a += (b.price ?? 0.0))
+                                        .priceUZS,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Center(
-                                child: Text(
-                                  DateFormat("yyyy.MM.dd")
-                                      .format(ingredient.createdDate),
+                              Expanded(
+                                flex: 2,
+                                child: Center(
+                                  child: Text(
+                                    DateFormat("yyyy.MM.dd")
+                                        .format(ingredient.createdDate),
+                                  ),
                                 ),
                               ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Row(
+                              Expanded(
+                                flex: 2,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  spacing: 8,
+                                  children: [
+                                    Text(
+                                      DateFormat("yyyy.MM.dd  HH:mm").format(
+                                          ingredient.updatedDate ??
+                                              DateTime.now()),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                  child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.end,
-                                spacing: 8,
                                 children: [
-                                  Text(
-                                    DateFormat("yyyy.MM.dd  HH:mm").format(
-                                        ingredient.updatedDate ??
-                                            DateTime.now()),
+                                  SimpleButton(
+                                    onPressed: () {
+                                      showDesktopModal(
+                                        context: context,
+                                        body: AddRecipePage(recipe: ingredient),
+                                      );
+                                    },
+                                    child: Container(
+                                      height: context.s(36),
+                                      width: context.s(36),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        color: theme.scaffoldBgColor,
+                                      ),
+                                      padding: Dis.all(context.s(8)),
+                                      child: Icon(
+                                        Iconsax.edit_copy,
+                                        size: context.s(20),
+                                        color: theme.secondaryTextColor,
+                                      ),
+                                    ),
                                   ),
                                 ],
-                              ),
-                            ),
-                            Expanded(
-                                child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                SimpleButton(
-                                  onPressed: () {
-                                    showDesktopModal(
-                                      context: context,
-                                      body: AddRecipePage(recipe: ingredient),
-                                    );
-                                  },
-                                  child: Container(
-                                    height: context.s(36),
-                                    width: context.s(36),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: theme.scaffoldBgColor,
-                                    ),
-                                    padding: Dis.all(context.s(8)),
-                                    child: Icon(
-                                      Iconsax.edit_copy,
-                                      size: context.s(20),
-                                      color: theme.secondaryTextColor,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ))
-                          ],
+                              ))
+                            ],
+                          ),
                         ),
                       );
                     },
