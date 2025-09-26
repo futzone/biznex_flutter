@@ -134,7 +134,13 @@ class IngredientsPage extends HookConsumerWidget {
                               ),
                               Expanded(
                                 flex: 3,
-                                child: Center(child: Text(ingredient.name)),
+                                child: Center(
+                                    child: Text(
+                                  ingredient.name,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )),
                               ),
                               Expanded(
                                 flex: 2,
@@ -142,6 +148,9 @@ class IngredientsPage extends HookConsumerWidget {
                                   child: Text(
                                     "${ingredient.quantity.toMeasure} ${ingredient.measure ?? ""}",
                                     // textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -180,6 +189,7 @@ class IngredientsPage extends HookConsumerWidget {
                               ),
                               Expanded(
                                   child: Row(
+                                    spacing: 16,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -206,6 +216,7 @@ class IngredientsPage extends HookConsumerWidget {
                                       ),
                                     ),
                                   ),
+
                                 ],
                               ))
                             ],

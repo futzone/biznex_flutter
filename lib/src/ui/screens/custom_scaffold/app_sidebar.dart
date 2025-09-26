@@ -208,7 +208,7 @@ class AppSidebar extends HookConsumerWidget {
                     sidebarItemBuilder(
                         Iconsax.card, AppLocales.transactions.tr(), 9),
                     sidebarItemBuilder(
-                        Iconsax.reserve, AppLocales.products.tr(), 4),
+                        Iconsax.reserve, AppLocales.meals.tr(), 4),
                     sidebarItemBuilder("assets/svg/warehouse.svg",
                         AppLocales.warehouse.tr(), 12),
                     sidebarItemBuilder(

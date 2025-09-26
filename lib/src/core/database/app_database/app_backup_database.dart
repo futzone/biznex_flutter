@@ -1,9 +1,8 @@
-import 'dart:developer';
-
 import 'package:biznex/src/core/database/app_database/app_sync_database.dart';
 import 'package:biznex/src/core/database/category_database/category_database.dart';
 import 'package:biznex/src/core/database/employee_database/employee_database.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
+import 'package:biznex/src/core/database/order_database/order_percent_database.dart';
 import 'package:biznex/src/core/database/place_database/place_database.dart';
 import 'package:biznex/src/core/database/product_database/product_database.dart';
 import 'package:biznex/src/core/database/product_database/recipe_database.dart';
@@ -61,6 +60,7 @@ class AppBackupDatabase {
     final PlaceDatabase placeDatabase = PlaceDatabase();
     final ShoppingDatabase shoppingDatabase = ShoppingDatabase();
     final RecipeDatabase recipeDatabase = RecipeDatabase();
+    final OrderPercentDatabase percentDatabase = OrderPercentDatabase();
 
     final products = await productDatabase.getAll();
     final transactions = await tDatabase.get();
@@ -71,6 +71,7 @@ class AppBackupDatabase {
     final shopping = await shoppingDatabase.get();
     final recipes = await recipeDatabase.getRecipe();
     final ingredients = await recipeDatabase.getIngredients();
+    final percents = await percentDatabase.get();
 
     if (canSync == 'first' || forceSync) {
       for (final item in products) {
@@ -115,6 +116,11 @@ class AppBackupDatabase {
 
       for (final item in ingredients) {
         await put(collection: recipeDatabase.ingBox, data: item.toMap());
+        await Future.delayed(Duration(milliseconds: 100));
+      }
+
+      for (final item in percents) {
+        await put(collection: percentDatabase.boxName, data: item.toJson());
         await Future.delayed(Duration(milliseconds: 100));
       }
 
@@ -163,6 +169,11 @@ class AppBackupDatabase {
 
     for (final item in ingredients.where((e) => isSync(e.updatedAt))) {
       await put(collection: recipeDatabase.ingBox, data: item.toMap());
+      await Future.delayed(Duration(milliseconds: 100));
+    }
+
+    for (final item in percents.where((e) => isSync(e.updatedDate))) {
+      await put(collection: percentDatabase.boxName, data: item.toJson());
       await Future.delayed(Duration(milliseconds: 100));
     }
   }

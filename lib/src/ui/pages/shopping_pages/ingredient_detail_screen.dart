@@ -42,20 +42,29 @@ class IngredientDetailScreen extends HookConsumerWidget {
                         AppText.$18Bold(ingredient.name),
                       ],
                     ),
-                    Divider(height: 1, color: theme.accentColor),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: Center(
-                                child: Text(AppLocales.productName.tr()))),
-                        Expanded(
-                            child: Center(child: Text(AppLocales.amount.tr()))),
-                        Expanded(
-                            child: Center(
-                                child: Text(AppLocales.createdDate.tr()))),
-                      ],
+                    // Divider(height: 1, color: theme.accentColor),
+                    Container(
+                      padding: 12.tb,
+                      decoration: BoxDecoration(
+                        color: theme.accentColor,
+                        border: Border.all(
+                          color:  theme.accentColor,
+                        )
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                              child: Center(
+                                  child: Text(AppLocales.productName.tr()))),
+                          Expanded(
+                              child: Center(child: Text(AppLocales.amount.tr()))),
+                          Expanded(
+                              child: Center(
+                                  child: Text(AppLocales.createdDate.tr()))),
+                        ],
+                      ),
                     ),
-                    Divider(height: 1, color: theme.accentColor),
+                    // Divider(height: 1, color: theme.accentColor),
                   ],
                 ),
               ),
@@ -69,7 +78,16 @@ class IngredientDetailScreen extends HookConsumerWidget {
                     padding: Dis.only(tb: 8),
                     decoration: BoxDecoration(
                       border: Border(
+
                         bottom: BorderSide(
+                          color: theme.accentColor,
+                        ),
+
+                        right: BorderSide(
+                          color: theme.accentColor,
+                        ),
+
+                        left: BorderSide(
                           color: theme.accentColor,
                         ),
                       ),

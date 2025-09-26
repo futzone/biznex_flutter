@@ -1,10 +1,14 @@
 import 'package:biznex/src/core/config/theme.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
+import 'package:biznex/src/ui/screens/floated_keyboard/keyboard.dart';
+import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 class AppTextField extends StatelessWidget {
   final bool hideBorder;
+  final bool useKeyboard;
   final AppColors theme;
   final String title;
   final Widget? suffix;
@@ -51,6 +55,7 @@ class AppTextField extends StatelessWidget {
     this.textInputType,
     required this.theme,
     this.autofocus = false,
+    this.useKeyboard = false,
   });
 
   @override
@@ -66,6 +71,19 @@ class AppTextField extends StatelessWidget {
       keyboardType: textInputType,
       readOnly: onlyRead,
       onTap: () {
+        if (useKeyboard) {
+          try {
+            SystemChannels.textInput.invokeMethod('TextInput.hide');
+          } catch (_) {}
+
+
+          showDesktopModal(
+            width: 600,
+            context: context,
+            body: NumberKeyboardScreen(controller: controller),
+          );
+        }
+
         if (onTap != null) onTap!();
       },
       onChanged: (str) {
@@ -74,7 +92,8 @@ class AppTextField extends StatelessWidget {
       maxLines: maxLines,
       minLines: minLines,
       controller: controller,
-      style: TextStyle(fontWeight: FontWeight.w400, color: theme.textColor, fontSize: (14)),
+      style: TextStyle(
+          fontWeight: FontWeight.w400, color: theme.textColor, fontSize: (14)),
       cursorColor: theme.mainColor,
       decoration: InputDecoration(
         // constraints: BoxConstraints(maxWidth: 100),
@@ -86,7 +105,8 @@ class AppTextField extends StatelessWidget {
         ),
         hintMaxLines: 1,
         filled: true,
-        fillColor: fillColor == Colors.transparent ? theme.scaffoldBgColor : fillColor,
+        fillColor:
+            fillColor == Colors.transparent ? theme.scaffoldBgColor : fillColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radius),
           borderSide: BorderSide(color: Colors.transparent),

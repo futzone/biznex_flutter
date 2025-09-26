@@ -171,7 +171,7 @@ class ProductsPage extends HookConsumerWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        AppLocales.products.tr(),
+                        AppLocales.meals.tr(),
                         style: TextStyle(
                           fontSize: context.s(24),
                           fontFamily: mediumFamily,

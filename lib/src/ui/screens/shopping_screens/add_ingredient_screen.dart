@@ -3,8 +3,11 @@ import 'dart:io';
 import 'package:biznex/src/controllers/recipe_controller.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/constants/measures.dart';
+import 'package:biznex/src/core/database/product_database/recipe_database.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
+import 'package:biznex/src/providers/recipe_providers.dart';
+import 'package:biznex/src/ui/widgets/custom/app_confirm_dialog.dart';
 import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
@@ -13,6 +16,7 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../biznex.dart';
+import '../../widgets/dialogs/app_custom_dialog.dart';
 
 class AddIngredientScreen extends HookConsumerWidget {
   final Ingredient? ingredient;
@@ -35,6 +39,47 @@ class AddIngredientScreen extends HookConsumerWidget {
         child: Column(
           spacing: 16,
           children: [
+            if (ingredient != null)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    ingredient?.name ?? '',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  SimpleButton(
+                    onPressed: () {
+                      showConfirmDialog(
+                        context: context,
+                        title: AppLocales.deleteProductQuestion.tr(),
+                        onConfirm: () {
+                          RecipeDatabase()
+                              .deleteIngredient(ingredient?.id)
+                              .then((_) {
+                            ref.invalidate(ingredientsProvider);
+                            AppRouter.close(context);
+                          });
+                        },
+                      );
+                    },
+                    child: Container(
+                      height: context.s(36),
+                      width: context.s(36),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: theme.scaffoldBgColor,
+                      ),
+                      padding: Dis.all(context.s(8)),
+                      child: Icon(
+                        Iconsax.trash_copy,
+                        size: context.s(20),
+                        color: theme.red,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             AppTextField(
               title: AppLocales.productName.tr(),
               controller: nameController,
@@ -45,6 +90,7 @@ class AddIngredientScreen extends HookConsumerWidget {
               children: [
                 Expanded(
                   child: AppTextField(
+                    useKeyboard: true,
                     title: AppLocales.amount.tr(),
                     controller: amountController,
                     theme: theme,
@@ -52,6 +98,7 @@ class AddIngredientScreen extends HookConsumerWidget {
                 ),
                 Expanded(
                   child: AppTextField(
+                    useKeyboard: true,
                     title: AppLocales.price.tr(),
                     controller: priceController,
                     theme: theme,
@@ -119,6 +166,7 @@ class AddIngredientScreen extends HookConsumerWidget {
                     spacing: 16,
                     children: [
                       AppTextField(
+                        useKeyboard: true,
                         title: AppLocales.calory.tr(),
                         controller: caloryController,
                         theme: theme,

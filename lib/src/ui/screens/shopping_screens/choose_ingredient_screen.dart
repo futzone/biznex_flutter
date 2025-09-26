@@ -1,5 +1,7 @@
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
 import 'package:biznex/src/providers/recipe_providers.dart';
+import 'package:biznex/src/ui/screens/shopping_screens/add_ingredient_screen.dart';
+import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 import '../../../../biznex.dart';
 import '../../../core/config/router.dart' show AppRouter;
@@ -135,7 +137,9 @@ class ChooseIngredientScreen extends HookConsumerWidget {
                                   child: Text(
                                     product.name,
                                     style: TextStyle(
-                                        fontSize: 16, fontFamily: mediumFamily),
+                                      fontSize: 16,
+                                      fontFamily: mediumFamily,
+                                    ),
                                   ),
                                 ),
 
@@ -148,6 +152,33 @@ class ChooseIngredientScreen extends HookConsumerWidget {
                       },
                     ),
                   ),
+                SliverToBoxAdapter(
+                  child: SimpleButton(
+                    onPressed: () {
+                      showDesktopModal(
+                        context: context,
+                        body: AddIngredientScreen(),
+                      );
+                    },
+                    child: Container(
+                      margin: Dis.only(tb: 8),
+                      decoration: BoxDecoration(
+                        color: theme.secondaryColor,
+                        borderRadius: BorderRadiusDirectional.circular(16),
+                      ),
+                      padding: Dis.only(lr: 8, tb: 8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: 16,
+                        children: [
+                          Icon(Icons.add),
+                          Text(AppLocales.addBTN.tr())
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ],
             );
           },

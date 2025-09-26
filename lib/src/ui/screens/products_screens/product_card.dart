@@ -295,10 +295,10 @@ class ProductCardNew extends ConsumerWidget {
                                   Icon(Iconsax.reserve_copy,
                                       color: Colors.white, size: context.s(24)),
                                   Text(
-                                    "${product.amount.toMeasure} ${product.measure ?? ''}",
+                                    "${product.amount.toMeasure} ${product.measure ?? ''}".toLowerCase(),
                                     style: TextStyle(
                                       fontSize: context.s(16),
-                                      fontFamily: mediumFamily,
+                                      fontFamily: boldFamily,
                                       color: Colors.white,
                                     ),
                                   )
@@ -316,7 +316,7 @@ class ProductCardNew extends ConsumerWidget {
                             product.name,
                             style: TextStyle(
                               fontSize: context.s(mobile ? 16 : 20),
-                              fontFamily: mediumFamily,
+                              fontFamily: boldFamily,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -327,7 +327,7 @@ class ProductCardNew extends ConsumerWidget {
                           product.price.priceUZS,
                           style: TextStyle(
                             fontSize: context.s(mobile ? 12 : 16),
-                            fontFamily: mediumFamily,
+                            fontFamily: boldFamily,
                             color: colors.mainColor,
                           ),
                           maxLines: 1,
@@ -347,62 +347,62 @@ class ProductCardNew extends ConsumerWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    Row(
-                      spacing: context.w(8),
-                      children: [
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: colors.scaffoldBgColor,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: context.s(8).all,
-                            child: Row(
-                              spacing: context.w(4),
-                              children: [
-                                Icon(Icons.numbers,
-                                    size: context.s(18), color: Colors.black),
-                                Expanded(
-                                  child: Text(
-                                    product.barcode.toString(),
-                                    style: TextStyle(
-                                        fontFamily: mediumFamily,
-                                        color: Colors.black,
-                                        fontSize: context.s(14)),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: colors.scaffoldBgColor,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: context.s(8).all,
-                          child: Row(
-                            spacing: context.w(4),
-                            children: [
-                              Icon(Ionicons.receipt_outline,
-                                  size: context.s(18), color: Colors.black),
-                              Text(
-                                product.tagnumber.toString(),
-                                style: TextStyle(
-                                  fontFamily: mediumFamily,
-                                  color: Colors.black,
-                                  fontSize: context.s(14),
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              )
-                            ],
-                          ),
-                        ),
-                      ],
-                    )
+                    // Row(
+                    //   spacing: context.w(8),
+                    //   children: [
+                    //     Expanded(
+                    //       child: Container(
+                    //         decoration: BoxDecoration(
+                    //           color: colors.scaffoldBgColor,
+                    //           borderRadius: BorderRadius.circular(8),
+                    //         ),
+                    //         padding: context.s(8).all,
+                    //         child: Row(
+                    //           spacing: context.w(4),
+                    //           children: [
+                    //             Icon(Icons.numbers,
+                    //                 size: context.s(18), color: Colors.black),
+                    //             Expanded(
+                    //               child: Text(
+                    //                 product.barcode.toString(),
+                    //                 style: TextStyle(
+                    //                     fontFamily: mediumFamily,
+                    //                     color: Colors.black,
+                    //                     fontSize: context.s(14)),
+                    //                 maxLines: 1,
+                    //                 overflow: TextOverflow.ellipsis,
+                    //               ),
+                    //             )
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     Container(
+                    //       decoration: BoxDecoration(
+                    //         color: colors.scaffoldBgColor,
+                    //         borderRadius: BorderRadius.circular(8),
+                    //       ),
+                    //       padding: context.s(8).all,
+                    //       child: Row(
+                    //         spacing: context.w(4),
+                    //         children: [
+                    //           Icon(Ionicons.receipt_outline,
+                    //               size: context.s(18), color: Colors.black),
+                    //           Text(
+                    //             product.tagnumber.toString(),
+                    //             style: TextStyle(
+                    //               fontFamily: mediumFamily,
+                    //               color: Colors.black,
+                    //               fontSize: context.s(14),
+                    //             ),
+                    //             maxLines: 1,
+                    //             overflow: TextOverflow.ellipsis,
+                    //           )
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ],
+                    // )
                   ]
                 ],
               ),

@@ -215,6 +215,7 @@ class AddRecipePage extends HookConsumerWidget {
                       16.w,
                       Expanded(
                         child: AppTextField(
+                          useKeyboard: true,
                           title: AppLocales.amount.tr(),
                           controller: amountController,
                           theme: theme,

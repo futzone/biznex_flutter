@@ -3,7 +3,6 @@ import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/recipe_item_model.dart';
 import 'package:biznex/src/core/model/product_models/shopping_model.dart';
-import 'package:biznex/src/providers/recipe_providers.dart';
 import 'package:biznex/src/ui/screens/shopping_screens/choose_ingredient_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_file_image.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
@@ -240,6 +239,8 @@ class AddShoppingScreen extends HookConsumerWidget {
                       16.w,
                       Expanded(
                         child: AppTextField(
+                          // onTap: () {},
+                          useKeyboard: true,
                           title: AppLocales.amount.tr(),
                           controller: amountController,
                           theme: theme,
@@ -265,6 +266,7 @@ class AddShoppingScreen extends HookConsumerWidget {
                     children: [
                       Expanded(
                         child: AppTextField(
+                          useKeyboard: true,
                           title: AppLocales.price.tr(),
                           controller: priceController,
                           theme: theme,
@@ -290,6 +292,7 @@ class AddShoppingScreen extends HookConsumerWidget {
                       ),
                       Expanded(
                         child: AppTextField(
+                          useKeyboard: true,
                           title: AppLocales.totalPrice.tr(),
                           controller: totalPriceController,
                           theme: theme,
