@@ -52,8 +52,8 @@ class NumberKeyboardScreen extends StatelessWidget {
             onPressed: () => AppRouter.close(context),
             style: ElevatedButton.styleFrom(
               padding: Dis.only(tb: 20),
-              backgroundColor: AppColors(isDark: false).scaffoldBgColor,
-              foregroundColor: Colors.black,
+              backgroundColor: AppColors(isDark: false).mainColor,
+              foregroundColor: theme.mainColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0),
               ),
@@ -61,7 +61,10 @@ class NumberKeyboardScreen extends StatelessWidget {
             child: Center(
               child: Text(
                 AppLocales.save.tr(),
-                style: const TextStyle(fontSize: 24, fontFamily: regularFamily),
+                style: const TextStyle(
+                    fontSize: 24,
+                    fontFamily: regularFamily,
+                    color: Colors.white),
               ),
             ),
           ),
