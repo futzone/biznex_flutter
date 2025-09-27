@@ -76,11 +76,15 @@ class AppTextField extends StatelessWidget {
             SystemChannels.textInput.invokeMethod('TextInput.hide');
           } catch (_) {}
 
-
           showDesktopModal(
             width: 600,
             context: context,
-            body: NumberKeyboardScreen(controller: controller),
+            body: NumberKeyboardScreen(
+              controller: controller,
+              onChanged: (String str) {
+                if (onChanged != null) onChanged!(str);
+              },
+            ),
           );
         }
 

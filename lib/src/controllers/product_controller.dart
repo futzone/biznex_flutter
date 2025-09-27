@@ -8,6 +8,7 @@ import 'package:biznex/src/core/database/product_database/recipe_database.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/services/image_service.dart';
 import 'package:biznex/src/providers/products_provider.dart';
+import 'package:biznex/src/providers/recipe_providers.dart';
 import 'package:biznex/src/ui/widgets/custom/app_confirm_dialog.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 
@@ -76,8 +77,10 @@ class ProductController extends AppController {
       onConfirm: () async {
         showAppLoadingDialog(context);
         ProductDatabase sizeDatabase = ProductDatabase();
-        await sizeDatabase.delete(key: key).then((_) {
+        await sizeDatabase.delete(key: key).then((_) async {
+          await RecipeDatabase().deleteRecipe(key);
           state.ref!.invalidate(productsProvider);
+          state.ref!.invalidate(recipesProvider);
           closeLoading();
           if (c != null) c();
         });

@@ -204,7 +204,7 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
                                   spacing: 4,
                                   children: [
                                     Text(
-                                      product.amount.toMeasure,
+                                      amount.toMeasure,
                                       style: style.copyWith(
                                           fontFamily: boldFamily),
                                     ),
@@ -435,7 +435,7 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
                                       spacing: 4,
                                       children: [
                                         Text(
-                                          product.amount.toMeasure,
+                                          amount.toMeasure,
                                           style: style.copyWith(
                                               fontFamily: boldFamily),
                                         ),

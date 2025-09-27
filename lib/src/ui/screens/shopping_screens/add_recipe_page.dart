@@ -1,9 +1,11 @@
 import 'package:biznex/src/controllers/recipe_controller.dart';
 import 'package:biznex/src/core/config/router.dart';
+import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/model/product_models/recipe_item_model.dart';
 import 'package:biznex/src/core/model/product_models/recipe_model.dart';
+import 'package:biznex/src/providers/recipe_providers.dart';
 import 'package:biznex/src/ui/screens/shopping_screens/choose_ingredient_screen.dart';
 import 'package:biznex/src/ui/screens/shopping_screens/choose_product_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_file_image.dart';
@@ -14,6 +16,8 @@ import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../biznex.dart';
+import '../../../core/database/product_database/recipe_database.dart';
+import '../../widgets/custom/app_confirm_dialog.dart';
 
 class AddRecipePage extends HookConsumerWidget {
   final Recipe? recipe;
@@ -33,25 +37,64 @@ class AddRecipePage extends HookConsumerWidget {
         child: Column(
           spacing: 16,
           children: [
-            AppTextField(
-              title: AppLocales.products.tr(),
-              controller:
-                  TextEditingController(text: selectedProduct.value?.name),
-              theme: theme,
-              onlyRead: true,
-              onTap: () {
-                if(recipe != null) return;
-                showDesktopModal(
-                  context: context,
-                  width: 600,
-                  body: ChooseProductScreen(
+            Row(
+              spacing: 24,
+              children: [
+                Expanded(
+                  child: AppTextField(
+                    title: AppLocales.products.tr(),
+                    controller:
+                        TextEditingController(text: selectedProduct.value?.name),
                     theme: theme,
-                    onSelectedProduct: (Product product) {
-                      selectedProduct.value = product;
+                    onlyRead: true,
+                    onTap: () {
+                      if(recipe != null) return;
+                      showDesktopModal(
+                        context: context,
+                        width: 600,
+                        body: ChooseProductScreen(
+                          theme: theme,
+                          onSelectedProduct: (Product product) {
+                            selectedProduct.value = product;
+                          },
+                        ),
+                      );
                     },
                   ),
-                );
-              },
+                ),
+
+                if(recipe!=null)
+                  SimpleButton(
+                    onPressed: () {
+                      showConfirmDialog(
+                        context: context,
+                        title: AppLocales.deleteRecipeQuestion.tr(),
+                        onConfirm: () {
+                          RecipeDatabase()
+                              .deleteRecipe(recipe?.id)
+                              .then((_) {
+                            ref.invalidate(recipesProvider);
+                            AppRouter.close(context);
+                          });
+                        },
+                      );
+                    },
+                    child: Container(
+                      height: context.s(36),
+                      width: context.s(36),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: theme.scaffoldBgColor,
+                      ),
+                      padding: Dis.all(context.s(8)),
+                      child: Icon(
+                        Iconsax.trash_copy,
+                        size: context.s(20),
+                        color: theme.red,
+                      ),
+                    ),
+                  ),
+              ],
             ),
             0.h,
             if (items.value.isNotEmpty)
@@ -178,6 +221,7 @@ class AddRecipePage extends HookConsumerWidget {
                 children: [
                   Row(
                     children: [
+
                       Expanded(
                         child: AppTextField(
                           title: AppLocales.productName.tr(),
@@ -238,13 +282,15 @@ class AddRecipePage extends HookConsumerWidget {
                             if (amountVal != null) {
                               priceController.text =
                                   ((selectedIngredient.value?.unitPrice ??
-                                              0.0) *
-                                          (amountVal))
+                                      0.0) *
+                                      (amountVal))
                                       .toStringAsFixed(2);
                             }
                           },
                         ),
                       ),
+
+
                     ],
                   ),
                   Row(

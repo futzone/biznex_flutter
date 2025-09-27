@@ -571,4 +571,5 @@ abstract class AppLocales {
   static var placePriceHint = "placePriceHint";
   static var productEnded = "productEnded";
   static var profitFromPlacePrice = "profitFromPlacePrice";
+  static var deleteRecipeQuestion = "deleteRecipeQuestion";
 }

@@ -569,7 +569,8 @@
   "placePrice": "Joy narxi",
   "placePriceHint": "Joy uchun narx kiriting",
   "productEnded": "Tugagan",
-  "profitFromPlacePrice": "Joylar uchun narxdan daromad"
+  "profitFromPlacePrice": "Joylar uchun narxdan daromad",
+  "deleteRecipeQuestion": "Retseptni o'chirishni tasdiqlaysizmi?"
 
 
 }

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:biznex/src/controllers/recipe_controller.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
@@ -267,16 +269,21 @@ class AddShoppingScreen extends HookConsumerWidget {
                       Expanded(
                         child: AppTextField(
                           useKeyboard: true,
-                          title: AppLocales.price.tr(),
-                          controller: priceController,
+                          title: AppLocales.totalPrice.tr(),
+                          controller: totalPriceController,
                           theme: theme,
-                          onChanged: (char) {
-                            final priceValue = double.tryParse(char.trim());
+                          onChanged: (str) {
+                            log(str);
+
+                            final totalPriceValue = double.tryParse(str.trim());
                             final amountValue =
                                 double.tryParse(amountController.text.trim());
-                            totalPriceController.text =
-                                ((priceValue ?? 0.0) * (amountValue ?? 0.0))
-                                    .toStringAsFixed(4);
+
+                            if ((amountValue ?? 0.0) != 0.0) {
+                              priceController.text = ((totalPriceValue ?? 0.0) /
+                                      (amountValue ?? 0.0))
+                                  .toMeasure;
+                            }
                           },
                           suffixIcon: Padding(
                             padding: const EdgeInsets.only(right: 12),
@@ -293,19 +300,16 @@ class AddShoppingScreen extends HookConsumerWidget {
                       Expanded(
                         child: AppTextField(
                           useKeyboard: true,
-                          title: AppLocales.totalPrice.tr(),
-                          controller: totalPriceController,
+                          title: AppLocales.price.tr(),
+                          controller: priceController,
                           theme: theme,
-                          onChanged: (str) {
-                            final totalPriceValue = double.tryParse(str.trim());
+                          onChanged: (char) {
+                            final priceValue = double.tryParse(char.trim());
                             final amountValue =
                                 double.tryParse(amountController.text.trim());
-
-                            if ((amountValue ?? 0.0) != 0.0) {
-                              priceController.text = ((totalPriceValue ?? 0.0) /
-                                      (amountValue ?? 0.0))
-                                  .toStringAsFixed(4);
-                            }
+                            totalPriceController.text =
+                                ((priceValue ?? 0.0) * (amountValue ?? 0.0))
+                                    .toMeasure;
                           },
                           suffixIcon: Padding(
                             padding: const EdgeInsets.only(right: 12),

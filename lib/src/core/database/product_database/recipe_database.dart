@@ -66,6 +66,11 @@ class RecipeDatabase {
     await box.delete(id);
   }
 
+  Future<void> deleteRecipe(id) async {
+    final box = await Hive.openBox(_recipeBox);
+    await box.delete(id);
+  }
+
   Future<Recipe?> productRecipe(String id) async {
     final box = await Hive.openBox(_recipeBox);
     final data = await box.get(id);

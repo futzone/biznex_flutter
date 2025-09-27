@@ -4,8 +4,10 @@ import '../../../../biznex.dart';
 
 class NumberKeyboardScreen extends StatelessWidget {
   final TextEditingController controller;
+  final void Function(String str) onChanged;
 
-  const NumberKeyboardScreen({super.key, required this.controller});
+  const NumberKeyboardScreen(
+      {super.key, required this.controller, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +23,7 @@ class NumberKeyboardScreen extends StatelessWidget {
               border: Border.all(color: theme.accentColor, width: 2),
             ),
             child: TextField(
+              // onChanged: onChanged,
               controller: controller,
               readOnly: true,
               decoration: InputDecoration(
@@ -34,6 +37,7 @@ class NumberKeyboardScreen extends StatelessWidget {
             child: _NumberKeyboard(
               onTextInput: (text) {
                 controller.text += text;
+                onChanged(controller.text);
               },
               onBackspace: () {
                 final list = controller.text.split('');
@@ -56,7 +60,7 @@ class NumberKeyboardScreen extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                AppLocales.close.tr(),
+                AppLocales.save.tr(),
                 style: const TextStyle(fontSize: 24, fontFamily: regularFamily),
               ),
             ),
@@ -72,7 +76,6 @@ class _NumberKeyboard extends StatelessWidget {
   final VoidCallback onBackspace;
 
   const _NumberKeyboard({
-    super.key,
     required this.onTextInput,
     required this.onBackspace,
   });
