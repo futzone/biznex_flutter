@@ -72,25 +72,28 @@ class PrinterServices {
         pw.SizedBox(height: 4),
         for (final item in order.products)
           pw.Padding(
-            padding: const pw.EdgeInsets.only(top: 2, bottom: 2),
-            child: pw.Row(
-              children: [
-                pw.Expanded(
-                  child: pw.Text(
-                    "${item.product.name}: ",
-                    style: pdfTheme,
-                    overflow: pw.TextOverflow.clip,
-                    maxLines: 2,
+              padding: const pw.EdgeInsets.only(top: 2, bottom: 2),
+              child: pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: pw.Text(
+                      "${item.amount.toMeasure} ${item.product.measure ?? ''}  ${item.product.name}: ",
+                      style: pdfTheme,
+                      overflow: pw.TextOverflow.clip,
+                      maxLines: 2,
+                    ),
                   ),
-                ),
-                pw.SizedBox(width: 8),
-                pw.Text(
-                  "${item.amount.toMeasure} ${item.product.measure} * ${item.product.price.price} UZS",
-                  style: boldStyle,
-                ),
-              ],
-            ),
-          ),
+                  pw.SizedBox(width: 8),
+                  pw.Text(
+                    "${(item.product.price * item.amount).price} UZS",
+                    style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold,
+                      fontSize: 10,
+                      font: font,
+                    ),
+                  ),
+                ],
+              )),
         if ((percents.isNotEmpty && !order.place.percentNull) ||
             order.place.price != null) ...[
           pw.SizedBox(height: 4),

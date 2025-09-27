@@ -18,7 +18,8 @@ class TransactionsPage extends HookConsumerWidget {
   final ValueNotifier<AppBar> appbar;
   final ValueNotifier<FloatingActionButton?> floatingActionButton;
 
-  const TransactionsPage(this.floatingActionButton, {super.key, required this.appbar});
+  const TransactionsPage(this.floatingActionButton,
+      {super.key, required this.appbar});
 
   @override
   Widget build(BuildContext context, ref) {
@@ -45,7 +46,9 @@ class TransactionsPage extends HookConsumerWidget {
         searchResultList.value = [
           ...providerListener.where((element) {
             final date = DateTime.parse(element.createdDate);
-            return query.day == date.day && query.month == date.month && query.year == date.year;
+            return query.day == date.day &&
+                query.month == date.month &&
+                query.year == date.year;
           }),
         ];
 
@@ -63,7 +66,10 @@ class TransactionsPage extends HookConsumerWidget {
 
       searchResultList.value = [
         ...providerListener.where((element) {
-          final dayQuery = DateFormat('yyyy, d-MMMM, HH:mm', context.locale.languageCode).format(DateTime.parse(element.createdDate)).toLowerCase();
+          final dayQuery =
+              DateFormat('yyyy, d-MMMM, HH:mm', context.locale.languageCode)
+                  .format(DateTime.parse(element.createdDate))
+                  .toLowerCase();
           final payQuery = element.paymentType.tr().toLowerCase();
           final elementQuery = (element.employee?.fullname.toLowerCase()) ?? '';
 
@@ -85,7 +91,10 @@ class TransactionsPage extends HookConsumerWidget {
       return Scaffold(
         floatingActionButton: WebButton(
           onPressed: () {
-            showDesktopModal(context: context, body: AddTransactionPage(), width: context.w(600));
+            showDesktopModal(
+                context: context,
+                body: AddTransactionPage(),
+                width: context.w(600));
           },
           builder: (focused) => AnimatedContainer(
             duration: theme.animationDuration,
@@ -105,7 +114,8 @@ class TransactionsPage extends HookConsumerWidget {
               ],
             ),
             child: Center(
-              child: Icon(Iconsax.add_copy, color: Colors.white, size: focused ? 40 : 32),
+              child: Icon(Iconsax.add_copy,
+                  color: Colors.white, size: focused ? 40 : 32),
             ),
           ),
         ),
@@ -175,7 +185,9 @@ class TransactionsPage extends HookConsumerWidget {
                             if (selectedDate.value == null)
                               Text(
                                 AppLocales.all.tr(),
-                                style: TextStyle(color: theme.secondaryTextColor, fontSize: context.s(14)),
+                                style: TextStyle(
+                                    color: theme.secondaryTextColor,
+                                    fontSize: context.s(14)),
                               ),
                             if (selectedDate.value == null) 16.w,
                             if (selectedDate.value == null)
@@ -186,7 +198,10 @@ class TransactionsPage extends HookConsumerWidget {
                               ),
                             if (selectedDate.value != null)
                               Text(
-                                DateFormat('yyyy, d-MMMM', context.locale.languageCode).format(selectedDate.value!).toLowerCase(),
+                                DateFormat('yyyy, d-MMMM',
+                                        context.locale.languageCode)
+                                    .format(selectedDate.value!)
+                                    .toLowerCase(),
                                 style: TextStyle(
                                   color: theme.secondaryTextColor,
                                   fontSize: context.s(14),
@@ -205,16 +220,37 @@ class TransactionsPage extends HookConsumerWidget {
                 margin: Dis.only(lr: context.s(24)),
                 padding: Dis.only(lr: context.w(20), tb: context.h(12)),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.withValues(alpha: 0.20)),
+                  border:
+                      Border.all(color: Colors.grey.withValues(alpha: 0.20)),
                   color: theme.scaffoldBgColor,
                 ),
                 child: Row(
                   children: [
-                    Expanded(flex: 3, child: Center(child: Text(AppLocales.createdDate.tr(), style: headerStyle))),
-                    Expanded(flex: 3, child: Center(child: Text(AppLocales.total.tr(), style: headerStyle))),
-                    Expanded(flex: 3, child: Center(child: Text(AppLocales.note.tr(), style: headerStyle))),
-                    Expanded(flex: 3, child: Center(child: Text(AppLocales.paymentType.tr(), style: headerStyle))),
-                    Expanded(flex: 3, child: Center(child: Text(AppLocales.employeeNameLabel.tr(), style: headerStyle))),
+                    Expanded(
+                        flex: 3,
+                        child: Center(
+                            child: Text(AppLocales.createdDate.tr(),
+                                style: headerStyle))),
+                    Expanded(
+                        flex: 3,
+                        child: Center(
+                            child: Text(AppLocales.total.tr(),
+                                style: headerStyle))),
+                    Expanded(
+                        flex: 3,
+                        child: Center(
+                            child: Text(AppLocales.note.tr(),
+                                style: headerStyle))),
+                    Expanded(
+                        flex: 3,
+                        child: Center(
+                            child: Text(AppLocales.paymentType.tr(),
+                                style: headerStyle))),
+                    Expanded(
+                        flex: 3,
+                        child: Center(
+                            child: Text(AppLocales.employeeNameLabel.tr(),
+                                style: headerStyle))),
                     Expanded(flex: 2, child: Center(child: Text(''))),
                   ],
                 ),
@@ -226,7 +262,9 @@ class TransactionsPage extends HookConsumerWidget {
                 transactions as List<Transaction>;
                 if (transactions.isEmpty) {
                   return SliverToBoxAdapter(
-                    child: Padding(padding: Dis.all(context.s(100)), child: AppEmptyWidget()),
+                    child: Padding(
+                        padding: Dis.all(context.s(100)),
+                        child: AppEmptyWidget()),
                   );
                 }
 
@@ -234,7 +272,9 @@ class TransactionsPage extends HookConsumerWidget {
 
                 if (list.isEmpty) {
                   return SliverToBoxAdapter(
-                    child: Padding(padding: Dis.all(context.s(100)), child: AppEmptyWidget()),
+                    child: Padding(
+                        padding: Dis.all(context.s(100)),
+                        child: AppEmptyWidget()),
                   );
                 }
 
@@ -247,7 +287,8 @@ class TransactionsPage extends HookConsumerWidget {
                         margin: Dis.only(lr: context.s(24)),
                         padding: Dis.only(lr: context.w(20), tb: context.h(20)),
                         decoration: BoxDecoration(
-                          border: Border(bottom: BorderSide(color: theme.scaffoldBgColor)),
+                          border: Border(
+                              bottom: BorderSide(color: theme.scaffoldBgColor)),
                           color: theme.white,
                         ),
                         child: Row(
@@ -256,7 +297,8 @@ class TransactionsPage extends HookConsumerWidget {
                               flex: 3,
                               child: Center(
                                 child: Text(
-                                  DateFormat('yyyy, d-MMMM, HH:mm', context.locale.languageCode)
+                                  DateFormat('yyyy, d-MMMM, HH:mm',
+                                          context.locale.languageCode)
                                       .format(DateTime.parse(item.createdDate))
                                       .toLowerCase(),
                                   style: TextStyle(
@@ -334,34 +376,39 @@ class TransactionsPage extends HookConsumerWidget {
                               child: Row(
                                 spacing: context.w(16),
                                 crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  SimpleButton(
-                                    onPressed: () {
-                                      showDesktopModal(
-                                        context: context,
-                                        body: AddTransactionPage(transaction: item),
-                                        width: 600,
-                                      );
-                                    },
-                                    child: Container(
-                                      height: context.s(36),
-                                      width: context.s(36),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        color: theme.scaffoldBgColor,
-                                      ),
-                                      padding: Dis.all(context.s(8)),
-                                      child: Icon(
-                                        Iconsax.edit_copy,
-                                        size: context.s(20),
-                                        color: theme.secondaryTextColor,
+                                  if (item.order == null)
+                                    SimpleButton(
+                                      onPressed: () {
+                                        showDesktopModal(
+                                          context: context,
+                                          body: AddTransactionPage(
+                                              transaction: item),
+                                          width: 600,
+                                        );
+                                      },
+                                      child: Container(
+                                        height: context.s(36),
+                                        width: context.s(36),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          color: theme.scaffoldBgColor,
+                                        ),
+                                        padding: Dis.all(context.s(8)),
+                                        child: Icon(
+                                          Iconsax.edit_copy,
+                                          size: context.s(20),
+                                          color: theme.secondaryTextColor,
+                                        ),
                                       ),
                                     ),
-                                  ),
                                   SimpleButton(
                                     onPressed: () {
-                                      TransactionController tc = TransactionController(context: context, state: state);
+                                      TransactionController tc =
+                                          TransactionController(
+                                              context: context, state: state);
                                       tc.delete(item.id);
                                     },
                                     child: Container(

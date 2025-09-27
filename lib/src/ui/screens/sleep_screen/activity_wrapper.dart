@@ -30,7 +30,7 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
   final ChangesDatabase _changesDatabase = ChangesDatabase();
   Timer? _inactivityTimer;
   late final FocusNode _focusNode;
-  final Duration _inactivityTimeout = const Duration(seconds: 30);
+  final Duration _inactivityTimeout = const Duration(seconds: 3000);
   final ValueNotifier<AppUpdate> updateNotifier =
       ValueNotifier(AppUpdate(text: AppLocales.chekingForUpdates.tr()));
   final ValueNotifier<String> lastVersion = ValueNotifier(appVersion);
