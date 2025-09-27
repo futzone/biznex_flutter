@@ -572,4 +572,5 @@ abstract class AppLocales {
   static var productEnded = "productEnded";
   static var profitFromPlacePrice = "profitFromPlacePrice";
   static var deleteRecipeQuestion = "deleteRecipeQuestion";
+  static var contactWithUs = "contactWithUs";
 }

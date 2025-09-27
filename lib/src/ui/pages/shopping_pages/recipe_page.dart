@@ -145,7 +145,11 @@ class RecipePage extends HookConsumerWidget {
                               Expanded(
                                 flex: 3,
                                 child: Center(
-                                    child: Text(ingredient.product.name)),
+                                  child: Text(
+                                    ingredient.product.name,
+                                    style: TextStyle(fontFamily: boldFamily),
+                                  ),
+                                ),
                               ),
                               Expanded(
                                 flex: 2,

@@ -464,5 +464,7 @@
   "placePrice": "Place Price",
   "placePriceHint": "Enter a price for a place",
   "productEnded": "Ended",
-  "profitFromPlacePrice": "Profit from price for places"
+  "profitFromPlacePrice": "Profit from price for places",
+  "deleteRecipeQuestion": "Are you sure you want to delete the recipe?",
+  "contactWithUs": "Contact us"
 }

@@ -21,6 +21,7 @@ import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fullscreen_window/fullscreen_window.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../core/database/app_database/app_screen_database.dart';
 import '../../screens/onboarding_screens/onboard_card.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -129,74 +130,74 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                       child: Column(
                         children: [
                           state.whenProviderData(
-                              provider: appExpireProvider,
-                              builder: (data) {
-                                log(data.toString());
-                                if (data <= 3 && showWarning) {
-                                  return Container(
-                                    padding: Dis.only(lr: 16, tb: 16),
-                                    decoration: BoxDecoration(
-                                      color: theme.white,
-                                    ),
-                                    child: Row(
-                                      spacing: 12,
-                                      children: [
-                                        Icon(
-                                          Ionicons.warning_outline,
-                                          color: Colors.amber.shade700,
-                                          size: 24,
-                                        ),
-                                        Expanded(
-                                          child: Text(
-                                            AppLocales.subscriptionPaymentText
-                                                .tr(),
-                                            style: TextStyle(
-                                              fontFamily: mediumFamily,
-                                              color: Colors.amber.shade700,
-                                            ),
+                            provider: appExpireProvider,
+                            builder: (data) {
+                              log(data.toString());
+                              if (data <= 3 && showWarning) {
+                                return Container(
+                                  padding: Dis.only(lr: 16, tb: 16),
+                                  decoration: BoxDecoration(
+                                    color: theme.white,
+                                  ),
+                                  child: Row(
+                                    spacing: 12,
+                                    children: [
+                                      Icon(
+                                        Ionicons.warning_outline,
+                                        color: Colors.amber.shade700,
+                                        size: 24,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          AppLocales.subscriptionPaymentText
+                                              .tr(),
+                                          style: TextStyle(
+                                            fontFamily: mediumFamily,
+                                            color: Colors.amber.shade700,
                                           ),
                                         ),
-                                        SimpleButton(
-                                          onPressed: () => setState(
-                                              () => showWarning = false),
-                                          child: Container(
-                                            padding: Dis.only(lr: 12, tb: 4),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              border: Border.all(
+                                      ),
+                                      SimpleButton(
+                                        onPressed: () =>
+                                            setState(() => showWarning = false),
+                                        child: Container(
+                                          padding: Dis.only(lr: 12, tb: 4),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            border: Border.all(
+                                              color: theme.secondaryTextColor,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            spacing: 8,
+                                            children: [
+                                              Icon(
+                                                Icons.close,
+                                                size: 16,
                                                 color: theme.secondaryTextColor,
                                               ),
-                                            ),
-                                            child: Row(
-                                              spacing: 8,
-                                              children: [
-                                                Icon(
-                                                  Icons.close,
-                                                  size: 16,
+                                              Text(
+                                                AppLocales.close.tr(),
+                                                style: TextStyle(
+                                                  fontFamily: regularFamily,
+                                                  fontSize: 12,
                                                   color:
                                                       theme.secondaryTextColor,
                                                 ),
-                                                Text(
-                                                  AppLocales.close.tr(),
-                                                  style: TextStyle(
-                                                    fontFamily: regularFamily,
-                                                    fontSize: 12,
-                                                    color: theme
-                                                        .secondaryTextColor,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  );
-                                }
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
 
-                                return 0.h;
-                              }),
+                              return 0.h;
+                            },
+                          ),
                           ClipRRect(
                             child: BackdropFilter(
                               filter: ImageFilter.blur(
@@ -212,6 +213,38 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                     SvgPicture.asset(
                                         "assets/images/Vector.svg"),
                                     Spacer(),
+                                    Container(
+                                      margin: Dis.right(16),
+                                      padding: Dis.only(lr: 16, tb: 8),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(80),
+                                          border: Border.all(
+                                            color: Colors.white,
+                                          )),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        spacing: 12,
+                                        children: [
+                                          Icon(
+                                            Iconsax.call_copy,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
+                                          Text(
+                                            "${AppLocales.contactWithUs.tr()}: +998 94 244 99 89",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontFamily: boldFamily,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                     IconButton(
                                       onPressed: () {
                                         ref.invalidate(employeeProvider);

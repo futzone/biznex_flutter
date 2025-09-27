@@ -558,5 +558,7 @@
   "placePrice": "Цена места",
   "placePriceHint": "Введите цену места",
   "productEnded": "Нет",
-  "profitFromPlacePrice": "Прибыль от цены за места"
+  "profitFromPlacePrice": "Прибыль от цены за места",
+  "deleteRecipeQuestion": "Вы уверены, что хотите удалить рецепт?",
+  "contactWithUs": "Свяжитесь с нами"
 }

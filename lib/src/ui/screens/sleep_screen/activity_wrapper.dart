@@ -3,17 +3,15 @@ import 'dart:developer';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/main.dart';
 import 'package:biznex/src/controllers/changes_controller.dart';
-import 'package:biznex/src/core/database/app_database/app_backup_database.dart';
 import 'package:biznex/src/core/database/changes_database/changes_database.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/network/network_services.dart';
 import 'package:biznex/src/core/release/auto_update.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart'; // onPointerHover va PointerEnterEvent uchun kerak
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import '../../../core/model/cloud_models/client.dart';
 import '../../../core/network/network_base.dart';
@@ -32,7 +30,7 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
   final ChangesDatabase _changesDatabase = ChangesDatabase();
   Timer? _inactivityTimer;
   late final FocusNode _focusNode;
-  final Duration _inactivityTimeout = const Duration(seconds: 3000);
+  final Duration _inactivityTimeout = const Duration(seconds: 30);
   final ValueNotifier<AppUpdate> updateNotifier =
       ValueNotifier(AppUpdate(text: AppLocales.chekingForUpdates.tr()));
   final ValueNotifier<String> lastVersion = ValueNotifier(appVersion);
@@ -56,18 +54,53 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
     if (_logoOverlayEntry != null) return;
 
     _logoOverlayEntry = OverlayEntry(
-      builder: (context) => Positioned.fill(
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => _resetInactivityTimer(),
-          onPanDown: (_) => _resetInactivityTimer(),
-          onTapDown: (_) => _resetInactivityTimer(),
-          child: SvgPicture.asset(
-            'assets/icons/biznex-logo.svg',
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            fit: BoxFit.cover,
-          ),
+      builder: (context) => Scaffold(
+        body: Stack(
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _resetInactivityTimer(),
+              onPanDown: (_) => _resetInactivityTimer(),
+              onTapDown: (_) => _resetInactivityTimer(),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                child: SvgPicture.asset(
+                  'assets/icons/biznex-logo.svg',
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  margin: Dis.top(32),
+                  padding: Dis.only(lr: 32, tb: 16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(80),
+                    color: Colors.white,
+                  ),
+                  child: Row(
+                    spacing: 12,
+                    children: [
+                      Icon(Iconsax.call_copy),
+                      Text(
+                        "${AppLocales.contactWithUs.tr()}: +998 94 244 99 89",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: boldFamily,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -98,10 +131,10 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
 
   // void _autoUpdateCall() async => await checkAndUpdate(updateNotifier, lastVersion, widget.ref);
 
-  final AppBackupDatabase _backupDatabase = AppBackupDatabase.instance;
+  // final AppBackupDatabase _backupDatabase = AppBackupDatabase.instance;
 
   void _localChangesSync() async {
-    await _backupDatabase.syncLocalData();
+    // await _backupDatabase.syncLocalData();
 
     if (!(await Network().isConnected())) return;
 
