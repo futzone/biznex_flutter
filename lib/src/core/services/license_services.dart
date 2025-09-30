@@ -14,7 +14,6 @@ class LicenseServices {
   }
 
   Future<bool> verifyLicense(String inputKey) async {
-    log(inputKey);
     try {
       final jwt = JWT.verify(inputKey, SecretKey(_key));
       final id = await getDeviceId();

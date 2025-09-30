@@ -6,6 +6,9 @@ import 'package:biznex/src/ui/screens/activation_screens/activation_screen.dart'
 import 'package:biznex/src/ui/screens/sleep_screen/activity_wrapper.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 
+import '../ui/pages/test_pages/activation_test_page.dart';
+import '../ui/screens/activation_screens/activation_code_screen.dart';
+
 final licenseStatusProvider = FutureProvider.family((ref, String key) async {
   LicenseServices licenseServices = LicenseServices();
 
@@ -23,10 +26,12 @@ class LicenseStatusWrapper extends ConsumerWidget {
         builder: (status) {
           status as bool;
           if (status) {
-            return state.pincode.isEmpty ? LoginPageHarom(model: state, theme: theme, fromAdmin: true) : OnboardPage();
+            return state.pincode.isEmpty
+                ? LoginPageHarom(model: state, theme: theme, fromAdmin: true)
+                : OnboardPage();
           }
 
-          return ActivationScreen(state: state, theme: theme);
+          return ActivationCodeScreen(ref: ref, state: state);
         },
       );
     });
