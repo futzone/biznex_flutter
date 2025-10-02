@@ -574,4 +574,6 @@ abstract class AppLocales {
   static var deleteRecipeQuestion = "deleteRecipeQuestion";
   static var contactWithUs = "contactWithUs";
   static var subscriptionPaymentTextForCode = "subscriptionPaymentTextForCode";
+  static var address = "address";
+  static var phone = "phone";
 }

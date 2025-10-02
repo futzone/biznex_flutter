@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
+import 'package:biznex/src/core/utils/printer_fonts.dart';
 import 'package:biznex/src/providers/license_status_provider.dart';
 import 'package:biznex/src/server/start.dart';
 import 'package:biznex/src/ui/pages/login_pages/onboard_page.dart';
-import 'package:biznex/src/ui/pages/test_pages/activation_test_page.dart';
 import 'package:biznex/src/ui/screens/sleep_screen/activity_wrapper.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -26,6 +26,8 @@ void main() async {
     final isarDir = Directory(path.join(appDir.path));
     Hive.init(dir.path);
     await IsarDatabase.instance.init(isarDir.path);
+    await PrinterFonts.instance.init();
+
     startServer();
   } else {
     final appDir = await getApplicationDocumentsDirectory();
@@ -71,8 +73,6 @@ class MyApp extends ConsumerWidget {
             home: getDeviceType(context) == DeviceType.mobile
                 ? OnboardPage()
                 : ActivityWrapper(ref: ref, child: LicenseStatusWrapper()),
-
-
           ),
         );
       },

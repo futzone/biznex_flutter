@@ -159,9 +159,41 @@ class WarehousePrinterServices {
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         for (final usage in usages) ...[
-          pw.Center(child: pw.Text(usage.ingredient.name, style: headerStyle)),
-          pw.SizedBox(height: 4),
-          pw.Container(color: PdfColor.fromHex("#000000"), height: 0.5),
+          pw.Row(children: [
+            pw.Expanded(
+              child: pw.Container(
+                height: 1,
+                color: PdfColors.black,
+              ),
+            ),
+            pw.Container(
+              padding: pw.EdgeInsets.only(
+                left: 8,
+                right: 8,
+                top: 4,
+                bottom: 4,
+              ),
+              constraints: pw.BoxConstraints(
+                maxWidth: 120,
+              ),
+              decoration: pw.BoxDecoration(
+                borderRadius: pw.BorderRadius.circular(12),
+                border: pw.Border.all(color: PdfColors.black),
+              ),
+              child: pw.Center(
+                child: pw.Text(
+                  usage.ingredient.name,
+                  style: headerStyle.copyWith(fontSize: 12),
+                ),
+              ),
+            ),
+            pw.Expanded(
+              child: pw.Container(
+                height: 1,
+                color: PdfColors.black,
+              ),
+            ),
+          ]),
           pw.SizedBox(height: 4),
           for (final item in usage.data)
             pw.Padding(
@@ -184,10 +216,7 @@ class WarehousePrinterServices {
                 ],
               ),
             ),
-          pw.SizedBox(height: 4),
-          pw.SizedBox(height: 4),
-          pw.Container(color: PdfColor.fromHex("#000000"), height: 2),
-          pw.SizedBox(height: 4),
+          pw.SizedBox(height: 12),
         ]
       ],
     );

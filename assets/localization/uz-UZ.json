@@ -572,5 +572,7 @@
   "profitFromPlacePrice": "Joylar uchun narxdan daromad",
   "deleteRecipeQuestion": "Retseptni o'chirishni tasdiqlaysizmi?",
   "contactWithUs": "Biz bilan bog'lanish",
-  "subscriptionPaymentTextForCode": "Obunangiz muddati tugadi. Obunani davom ettirish uchun, iltimos, to'lovni amalga oshiring va quyidagi kodni bizga ayting:"
+  "subscriptionPaymentTextForCode": "Obunangiz muddati tugadi. Obunani davom ettirish uchun, iltimos, to'lovni amalga oshiring va quyidagi kodni bizga ayting:",
+  "address": "Manzil",
+  "phone": "Telefon raqam"
 }

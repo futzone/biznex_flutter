@@ -18,6 +18,7 @@ final appStateProvider = FutureProvider((ref) async {
   UrlDatabase urlDatabase = UrlDatabase();
   final baseUrl = await urlDatabase.get();
   initialState.baseUrl = "$baseUrl";
+  // initialState.licenseKey = '';
   ref
       .read(serverAppProvider.notifier)
       .update((state) => initialState.isServerApp);

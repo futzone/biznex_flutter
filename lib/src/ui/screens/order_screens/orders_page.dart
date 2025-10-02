@@ -68,7 +68,8 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
               ],
             ),
             child: Center(
-              child: Icon(Iconsax.add_copy, color: Colors.white, size: focused ? 40 : 32),
+              child: Icon(Iconsax.add_copy,
+                  color: Colors.white, size: focused ? 40 : 32),
             ),
           ),
         ),
@@ -104,7 +105,8 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                         title: AppLocales.all.tr(),
                                         onPressed: () {
                                           placeFather.value = null;
-                                          OrderFilterModel filterModel = orderFilter.value;
+                                          OrderFilterModel filterModel =
+                                              orderFilter.value;
                                           filterModel.place = null;
                                           orderFilter.value = filterModel;
                                           setState(() {});
@@ -115,9 +117,11 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                         CustomPopupItem(
                                           title: pls.name,
                                           onPressed: () {
-                                            if (pls.children != null && pls.children!.isNotEmpty) {
+                                            if (pls.children != null &&
+                                                pls.children!.isNotEmpty) {
                                               placeFather.value = pls;
-                                              OrderFilterModel filterModel = orderFilter.value;
+                                              OrderFilterModel filterModel =
+                                                  orderFilter.value;
                                               filterModel.place = pls.id;
                                               orderFilter.value = filterModel;
                                               setState(() {});
@@ -125,20 +129,28 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                             }
 
                                             placeFather.value = null;
-                                            OrderFilterModel filterModel = orderFilter.value;
+                                            OrderFilterModel filterModel =
+                                                orderFilter.value;
                                             filterModel.place = pls.id;
                                             orderFilter.value = filterModel;
                                             setState(() {});
-                                            ref.invalidate(ordersFilterProvider);
+                                            ref.invalidate(
+                                                ordersFilterProvider);
                                           },
                                         )
                                     ],
                                     child: Container(
-                                      padding: Dis.only(lr: context.w(24), tb: context.h(10)),
+                                      padding: Dis.only(
+                                          lr: context.w(24), tb: context.h(10)),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(16),
-                                        color: orderFilter.value.place == null ? null : theme.mainColor,
-                                        border: orderFilter.value.place == null ? null : Border.all(color: theme.mainColor),
+                                        color: orderFilter.value.place == null
+                                            ? null
+                                            : theme.mainColor,
+                                        border: orderFilter.value.place == null
+                                            ? null
+                                            : Border.all(
+                                                color: theme.mainColor),
                                       ),
                                       child: Center(
                                         child: Text(
@@ -146,11 +158,19 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                               ? AppLocales.places.tr()
                                               : placeFather.value != null
                                                   ? placeFather.value!.name
-                                                  : places.firstWhere((el) => el.id == orderFilter.value.place).name,
+                                                  : places
+                                                      .firstWhere((el) =>
+                                                          el.id ==
+                                                          orderFilter
+                                                              .value.place)
+                                                      .name,
                                           style: TextStyle(
                                             fontSize: context.s(16),
                                             fontFamily: mediumFamily,
-                                            color: orderFilter.value.place == null ? theme.secondaryTextColor : theme.white,
+                                            color:
+                                                orderFilter.value.place == null
+                                                    ? theme.secondaryTextColor
+                                                    : theme.white,
                                           ),
                                         ),
                                       ),
@@ -171,31 +191,50 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                       CustomPopupItem(
                                         title: AppLocales.all.tr(),
                                         onPressed: () {
-                                          OrderFilterModel filterModel = orderFilter.value;
+                                          OrderFilterModel filterModel =
+                                              orderFilter.value;
                                           filterModel.employee = null;
                                           orderFilter.value = filterModel;
                                           setState(() {});
                                           ref.invalidate(ordersFilterProvider);
                                         },
                                       ),
-                                      for (final item in places)
+                                      for (final item in [
+                                        Employee(
+                                          fullname: "Admin",
+                                          roleId: "0",
+                                          roleName: "Admin",
+                                          pincode: state.pincode,
+                                        ),
+                                        ...places
+                                      ])
                                         CustomPopupItem(
                                             title: item.fullname,
                                             onPressed: () {
-                                              OrderFilterModel filterModel = orderFilter.value;
+                                              OrderFilterModel filterModel =
+                                                  orderFilter.value;
                                               filterModel.employee = item.id;
                                               orderFilter.value = filterModel;
                                               setState(() {});
 
-                                              ref.invalidate(ordersFilterProvider);
+                                              ref.invalidate(
+                                                  ordersFilterProvider);
                                             }),
                                     ],
                                     child: Container(
-                                      padding: Dis.only(lr: context.w(24), tb: context.h(10)),
+                                      padding: Dis.only(
+                                          lr: context.w(24), tb: context.h(10)),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(16),
-                                        border: orderFilter.value.employee == null ? null : Border.all(color: theme.mainColor),
-                                        color: orderFilter.value.employee == null ? null : theme.mainColor,
+                                        border:
+                                            orderFilter.value.employee == null
+                                                ? null
+                                                : Border.all(
+                                                    color: theme.mainColor),
+                                        color:
+                                            orderFilter.value.employee == null
+                                                ? null
+                                                : theme.mainColor,
                                       ),
                                       child: Center(
                                         child: Text(
@@ -203,9 +242,14 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                               ? AppLocales.employees.tr()
                                               : places
                                                   .firstWhere(
-                                                    (el) => el.id == orderFilter.value.employee,
+                                                    (el) =>
+                                                        el.id ==
+                                                        orderFilter
+                                                            .value.employee,
                                                     orElse: () => Employee(
-                                                      fullname: AppLocales.employees.tr(),
+                                                      fullname: AppLocales
+                                                          .employees
+                                                          .tr(),
                                                       roleId: '',
                                                       roleName: ''
                                                           '',
@@ -215,7 +259,10 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                           style: TextStyle(
                                             fontSize: context.s(16),
                                             fontFamily: mediumFamily,
-                                            color: orderFilter.value.employee == null ? theme.secondaryTextColor : theme.white,
+                                            color: orderFilter.value.employee ==
+                                                    null
+                                                ? theme.secondaryTextColor
+                                                : theme.white,
                                           ),
                                         ),
                                       ),
@@ -236,32 +283,47 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                       CustomPopupItem(
                                         title: AppLocales.all.tr(),
                                         onPressed: () {
-                                          OrderFilterModel filterModel = orderFilter.value;
+                                          OrderFilterModel filterModel =
+                                              orderFilter.value;
                                           filterModel.product = null;
                                           orderFilter.value = filterModel;
                                           setState(() {});
                                           ref.invalidate(ordersFilterProvider);
                                         },
                                       ),
-                                      for (int i = 0; i < ((places.length > 100) ? 100 : places.length); i++)
+                                      for (int i = 0;
+                                          i <
+                                              ((places.length > 100)
+                                                  ? 100
+                                                  : places.length);
+                                          i++)
                                         CustomPopupItem(
                                           title: places[i].name,
                                           onPressed: () {
-                                            OrderFilterModel filterModel = orderFilter.value;
+                                            OrderFilterModel filterModel =
+                                                orderFilter.value;
                                             filterModel.product = places[i].id;
                                             orderFilter.value = filterModel;
                                             setState(() {});
 
-                                            ref.invalidate(ordersFilterProvider);
+                                            ref.invalidate(
+                                                ordersFilterProvider);
                                           },
                                         )
                                     ],
                                     child: Container(
-                                      padding: Dis.only(lr: context.w(24), tb: context.h(10)),
+                                      padding: Dis.only(
+                                          lr: context.w(24), tb: context.h(10)),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(16),
-                                        color: orderFilter.value.product == null ? null : theme.mainColor,
-                                        border: orderFilter.value.product == null ? null : Border.all(color: theme.mainColor),
+                                        color: orderFilter.value.product == null
+                                            ? null
+                                            : theme.mainColor,
+                                        border:
+                                            orderFilter.value.product == null
+                                                ? null
+                                                : Border.all(
+                                                    color: theme.mainColor),
                                       ),
                                       child: Center(
                                         child: Text(
@@ -269,14 +331,24 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                               ? AppLocales.products.tr()
                                               : places
                                                   .firstWhere(
-                                                    (el) => el.id == orderFilter.value.product,
-                                                    orElse: () => Product(name: AppLocales.products.tr(), price: 0),
+                                                    (el) =>
+                                                        el.id ==
+                                                        orderFilter
+                                                            .value.product,
+                                                    orElse: () => Product(
+                                                        name: AppLocales
+                                                            .products
+                                                            .tr(),
+                                                        price: 0),
                                                   )
                                                   .name,
                                           style: TextStyle(
                                             fontSize: context.s(16),
                                             fontFamily: mediumFamily,
-                                            color: orderFilter.value.product == null ? theme.secondaryTextColor : theme.white,
+                                            color: orderFilter.value.product ==
+                                                    null
+                                                ? theme.secondaryTextColor
+                                                : theme.white,
                                           ),
                                         ),
                                       ),
@@ -288,9 +360,14 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                             Expanded(
                               child: SimpleButton(
                                 onPressed: () {
-                                  showDatePicker(context: context, firstDate: DateTime(2025, 1), lastDate: DateTime.now()).then((date) {
+                                  showDatePicker(
+                                          context: context,
+                                          firstDate: DateTime(2025, 1),
+                                          lastDate: DateTime.now())
+                                      .then((date) {
                                     if (date != null) {
-                                      OrderFilterModel filterModel = orderFilter.value;
+                                      OrderFilterModel filterModel =
+                                          orderFilter.value;
                                       filterModel.dateTime = date;
                                       orderFilter.value = filterModel;
                                       setState(() {});
@@ -300,37 +377,51 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                   });
                                 },
                                 child: Container(
-                                  padding: Dis.only(lr: context.w(24), tb: context.h(10)),
+                                  padding: Dis.only(
+                                      lr: context.w(24), tb: context.h(10)),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(16),
                                     // color: theme.accentColor,
-                                    border: orderFilter.value.dateTime == null ? null : Border.all(color: theme.mainColor),
-                                    color: orderFilter.value.dateTime == null ? null : theme.mainColor,
+                                    border: orderFilter.value.dateTime == null
+                                        ? null
+                                        : Border.all(color: theme.mainColor),
+                                    color: orderFilter.value.dateTime == null
+                                        ? null
+                                        : theme.mainColor,
                                   ),
                                   child: Center(
                                     child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           orderFilter.value.dateTime == null
                                               ? AppLocales.date.tr()
-                                              : DateFormat('d-MMMM').format(orderFilter.value.dateTime!),
+                                              : DateFormat('d-MMMM').format(
+                                                  orderFilter.value.dateTime!),
                                           style: TextStyle(
                                             fontSize: context.s(16),
                                             fontFamily: mediumFamily,
-                                            color: orderFilter.value.dateTime == null ? theme.secondaryTextColor : theme.white,
+                                            color: orderFilter.value.dateTime ==
+                                                    null
+                                                ? theme.secondaryTextColor
+                                                : theme.white,
                                           ),
                                         ),
-                                        if (orderFilter.value.dateTime != null) 16.w,
+                                        if (orderFilter.value.dateTime != null)
+                                          16.w,
                                         if (orderFilter.value.dateTime != null)
                                           SimpleButton(
                                             onPressed: () {
-                                              OrderFilterModel filterModel = orderFilter.value;
+                                              OrderFilterModel filterModel =
+                                                  orderFilter.value;
                                               filterModel.dateTime = null;
                                               orderFilter.value = filterModel;
                                               setState(() {});
-                                              ref.invalidate(ordersFilterProvider);
+                                              ref.invalidate(
+                                                  ordersFilterProvider);
                                             },
                                             child: Icon(
                                               Ionicons.close_circle_outline,
@@ -368,7 +459,8 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                               suffixIcon: Icon(Iconsax.search_normal_1_copy),
                               fillColor: Colors.white,
                               onChanged: (char) {
-                                OrderFilterModel filterModel = orderFilter.value;
+                                OrderFilterModel filterModel =
+                                    orderFilter.value;
                                 filterModel.query = char;
                                 orderFilter.value = filterModel;
                                 setState(() {});
@@ -384,18 +476,20 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                           height: 8,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                          color: theme.secondaryTextColor.withValues(alpha: 0.4),
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
+                            color:
+                                theme.secondaryTextColor.withValues(alpha: 0.4),
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(4)),
                           ),
                         ),
-
                       Expanded(
                         child: orders.isEmpty
                             ? AppEmptyWidget()
                             : GridView.builder(
-                          padding: 120.bottom,
+                                padding: 120.bottom,
                                 controller: controller,
-                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 3,
                                   crossAxisSpacing: context.w(16),
                                   mainAxisSpacing: context.h(16),
@@ -403,7 +497,8 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                 ),
                                 itemCount: orders.length,
                                 itemBuilder: (context, index) {
-                                  return OrderCard(order: orders[index], theme: theme);
+                                  return OrderCard(
+                                      order: orders[index], theme: theme);
                                 },
                               ),
                       ),

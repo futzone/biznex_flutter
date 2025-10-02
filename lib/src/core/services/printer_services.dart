@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/database/order_database/order_percent_database.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -25,6 +26,28 @@ class PrinterServices {
     return await imageFile.readAsBytes();
   }
 
+  pw.Widget dottedLine() {
+    return pw.Row(children: [
+      ...List.generate(
+        20,
+        (index) {
+          return pw.Expanded(
+            child: pw.Container(
+              margin: pw.EdgeInsets.only(
+                left: index == 0 ? 0 : 2,
+                right: index == 19 ? 0 : 2,
+                top: 4,
+                bottom: 4,
+              ),
+              color: PdfColor.fromHex("#000000"),
+              height: 1,
+            ),
+          );
+        },
+      ),
+    ]);
+  }
+
   void printOrderCheck({String? phone, String? address}) async {
     log("printing started: ${order.place.price} ${order.place.name}");
 
@@ -36,8 +59,7 @@ class PrinterServices {
 
     final pdfTheme = pw.TextStyle(font: font, fontSize: 8);
     final headerStyle = pw.TextStyle(font: font, fontSize: 16);
-    final boldStyle =
-        pw.TextStyle(font: font, fontSize: 8, fontWeight: pw.FontWeight.bold);
+    final boldStyle = pw.TextStyle(font: font, fontSize: 8);
 
     final image = await shopLogoImage();
 
@@ -68,7 +90,7 @@ class PrinterServices {
           ),
         ),
         pw.SizedBox(height: 4),
-        pw.Container(color: PdfColor.fromHex("#000000"), height: 1),
+        dottedLine(),
         pw.SizedBox(height: 4),
         for (final item in order.products)
           pw.Padding(
@@ -77,7 +99,7 @@ class PrinterServices {
                 children: [
                   pw.Expanded(
                     child: pw.Text(
-                      "${item.amount.toMeasure} ${item.product.measure ?? ''}  ${item.product.name}: ",
+                      "${item.amount.toMeasure} ${(item.product.measure ?? '').capitalize}  ${item.product.name}: ",
                       style: pdfTheme,
                       overflow: pw.TextOverflow.clip,
                       maxLines: 2,
@@ -86,18 +108,39 @@ class PrinterServices {
                   pw.SizedBox(width: 8),
                   pw.Text(
                     "${(item.product.price * item.amount).price} UZS",
-                    style: pw.TextStyle(
-                      fontWeight: pw.FontWeight.bold,
-                      fontSize: 10,
-                      font: font,
-                    ),
+                    style: pdfTheme,
                   ),
                 ],
               )),
+
+
+        dottedLine(),
+        pw.SizedBox(height: 4),
+        pw.Padding(
+            padding: const pw.EdgeInsets.only(top: 2, bottom: 2),
+            child: pw.Row(
+              children: [
+                pw.Expanded(
+                  child: pw.Text(
+                    "${AppLocales.total.tr()}: ",
+                    style: pdfTheme,
+                    overflow: pw.TextOverflow.clip,
+                    maxLines: 2,
+                  ),
+                ),
+                pw.SizedBox(width: 8),
+                pw.Text(
+                  order.products.fold(0.0, (a, el) {
+                    return a += (el.amount * el.product.price);
+                  }).priceUZS,
+                  style: pdfTheme,
+                ),
+              ],
+            )),
         if ((percents.isNotEmpty && !order.place.percentNull) ||
             order.place.price != null) ...[
-          pw.SizedBox(height: 4),
-          pw.Container(color: PdfColor.fromHex("#000000"), height: 1),
+          pw.SizedBox(height: 8),
+          dottedLine(),
           pw.SizedBox(height: 4),
           for (final item in percents)
             pw.Padding(
@@ -145,50 +188,57 @@ class PrinterServices {
         if (order.customer != null &&
             (order.customer!.name.isNotEmpty ||
                 order.customer!.phone.isNotEmpty)) ...[
+          dottedLine(),
           pw.SizedBox(height: 4),
-          pw.Container(color: PdfColor.fromHex("#000000"), height: 1),
+          pw.Center(
+            child: pw.Text(
+              AppLocales.delivery.tr(),
+              style: pdfTheme.copyWith(fontSize: 10),
+              maxLines: 1,
+            ),
+          ),
           pw.SizedBox(height: 4),
           if (order.customer?.name != null && order.customer!.name.isNotEmpty)
-            pw.Column(
+            pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               mainAxisAlignment: pw.MainAxisAlignment.start,
               children: [
                 pw.Text(
-                  "${AppLocales.deliveryAddress.tr()}:",
+                  "${AppLocales.address.tr()}:",
                   style: pdfTheme,
                   overflow: pw.TextOverflow.clip,
                   maxLines: 2,
                 ),
                 pw.SizedBox(height: 4),
-                pw.Text(
-                  order.customer?.name ?? '',
-                  style: boldStyle,
+                pw.Expanded(
+                  child: pw.Text(order.customer?.name ?? '',
+                      style: boldStyle, textAlign: pw.TextAlign.right),
                 ),
               ],
             ),
           if (order.customer?.phone != null && order.customer!.phone.isNotEmpty)
             pw.SizedBox(height: 4),
           if (order.customer?.phone != null && order.customer!.phone.isNotEmpty)
-            pw.Column(
+            pw.Row(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               mainAxisAlignment: pw.MainAxisAlignment.start,
               children: [
                 pw.Text(
-                  "${AppLocales.customerPhone.tr()}:",
+                  "${AppLocales.phone.tr()}:",
                   style: pdfTheme,
                   overflow: pw.TextOverflow.clip,
                   maxLines: 2,
                 ),
                 pw.SizedBox(height: 4),
-                pw.Text(
-                  order.customer?.phone ?? '',
-                  style: boldStyle,
+                pw.Expanded(
+                  child: pw.Text(order.customer?.phone ?? '',
+                      style: boldStyle, textAlign: pw.TextAlign.right),
                 ),
               ],
             ),
         ],
         pw.SizedBox(height: 4),
-        pw.Container(color: PdfColor.fromHex("#000000"), height: 1),
+        dottedLine(),
         pw.SizedBox(height: 4),
         pw.Row(
           children: [
@@ -263,23 +313,42 @@ class PrinterServices {
             ),
           ],
         ),
-        pw.SizedBox(height: 6),
+        pw.SizedBox(height: 12),
         pw.Center(
           child: pw.Text(
             "${order.price.price} UZS",
             style: pw.TextStyle(font: font, fontSize: 18),
           ),
         ),
-        pw.SizedBox(height: 6),
-        if (model.byeText == null || model.byeText!.isEmpty)
-          pw.Center(
-            child: pw.Text(AppLocales.thanksForOrder.tr(), style: pdfTheme),
-          )
-        else
-          pw.Center(
-            child: pw.Text(model.byeText!, style: pdfTheme),
+        pw.SizedBox(height: 16),
+        pw.Row(children: [
+          pw.Expanded(child: pw.Container(height: 1, color: PdfColors.black)),
+          pw.Container(
+            constraints: pw.BoxConstraints(maxWidth: 120),
+            padding: pw.EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+            decoration: pw.BoxDecoration(
+              borderRadius: pw.BorderRadius.circular(12),
+              border: pw.Border.all(color: PdfColors.black),
+            ),
+            child: (model.byeText == null || model.byeText!.isEmpty)
+                ? pw.Center(
+              child: pw.Text(
+                AppLocales.thanksForOrder.tr(),
+                style: pdfTheme,
+                textAlign: pw.TextAlign.center,
+              ),
+            )
+                : pw.Center(
+              child: pw.Text(
+                model.byeText!,
+                style: pdfTheme,
+                textAlign: pw.TextAlign.center,
+              ),
+            ),
           ),
-        pw.SizedBox(height: 4),
+          pw.Expanded(child: pw.Container(height: 1, color: PdfColors.black)),
+        ]),
+        pw.SizedBox(height: 8),
       ],
     );
 

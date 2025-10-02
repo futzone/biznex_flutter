@@ -9,7 +9,6 @@ import 'package:pocketbase/pocketbase.dart';
 class AppSubscriptionController {
   final BuildContext context;
   static const String _pending = "pending";
-  static const String _rejected = "rejected";
   static const String _confirmed = "confirmed";
   final Random _random = Random();
 

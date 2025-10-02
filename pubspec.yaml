@@ -129,6 +129,12 @@ flutter:
     - assets/animations/
     - assets/svg/
     - assets/fonts/DejaVuSans.ttf
+    - assets/fonts/Goldman-Regular.ttf
+    - assets/fonts/Goldman-Bold.ttf
+    - assets/fonts/DejaVuSans-Bold.ttf
+
+
+
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
@@ -184,3 +190,5 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+assets/fonts/DejaVuSans-Bold:
+  ttf:

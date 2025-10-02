@@ -37,8 +37,7 @@ class _ActivationTestPageState extends State<ActivationCodeScreen> {
     await _controller.listenChanges(onChanged: (String token) async {
       AppModel newApp = widget.state;
       newApp.licenseKey = token;
-      final verification = await LicenseServices().verifyLicense(token);
-      log(verification.toString());
+      await LicenseServices().verifyLicense(token);
 
       AppStateDatabase().updateApp(newApp).then((_) {
         widget.ref.invalidate(appStateProvider);
