@@ -639,6 +639,7 @@ class SettingsPageScreen extends HookConsumerWidget {
                           color: Colors.white,
                         ),
                         child: SwitchListTile(
+                          activeThumbColor: theme.mainColor,
                           contentPadding: Dis.only(),
                           title: Text(AppLocales.offlineFormat.tr()),
                           value: appState.offline,
@@ -703,6 +704,27 @@ class SettingsPageScreen extends HookConsumerWidget {
                       ),
                     ),
                   ],
+                ),
+                24.h,
+                Container(
+                  padding: context.s(20).all,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade200),
+                    color: Colors.white,
+                  ),
+                  child: SwitchListTile(
+                    activeThumbColor: theme.mainColor,
+                    contentPadding: Dis.only(),
+                    title: Text(AppLocales.cancelOrderFeature.tr()),
+                    value: appState.allowCancelOrder,
+                    onChanged: (val) {
+                      appState.allowCancelOrder = val;
+                      AppStateDatabase().updateApp(appState).then((_) {
+                        ref.invalidate(appStateProvider);
+                      });
+                    },
+                  ),
                 ),
                 24.h,
                 if ((ref.watch(networkInterfaceProvider).value ?? [])

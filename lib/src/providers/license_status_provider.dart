@@ -15,6 +15,12 @@ final licenseStatusProvider = FutureProvider.family((ref, String key) async {
   return await licenseServices.verifyLicense(key);
 });
 
+Future<bool> verifyLicense(String key) async {
+  LicenseServices licenseServices = LicenseServices();
+
+  return await licenseServices.verifyLicense(key);
+}
+
 class LicenseStatusWrapper extends ConsumerWidget {
   const LicenseStatusWrapper({super.key});
 

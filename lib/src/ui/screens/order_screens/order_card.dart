@@ -182,60 +182,84 @@ class OrderCard extends StatelessWidget {
                 )
               ],
             ),
-          if (Platform.isWindows)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  AppLocales.productName.tr(),
-                  style: TextStyle(
-                    fontSize: context.s(12),
-                    fontFamily: mediumFamily,
-                    color: Colors.blueGrey.shade400,
-                  ),
+          // if (Platform.isWindows)
+          //   Row(
+          //     crossAxisAlignment: CrossAxisAlignment.center,
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       Text(
+          //         AppLocales.productName.tr(),
+          //         style: TextStyle(
+          //           fontSize: context.s(12),
+          //           fontFamily: mediumFamily,
+          //           color: Colors.blueGrey.shade400,
+          //         ),
+          //       ),
+          //       Text(
+          //         AppLocales.price.tr(),
+          //         style: TextStyle(
+          //           fontSize: context.s(12),
+          //           fontFamily: mediumFamily,
+          //           color: Colors.blueGrey.shade400,
+          //         ),
+          //       )
+          //     ],
+          //   ),
+          // if (Platform.isWindows)
+          //   for (int i = 0;
+          //       i < (order.products.length > 3 ? 3 : order.products.length);
+          //       i++)
+          //     Row(
+          //       spacing: context.w(12),
+          //       crossAxisAlignment: CrossAxisAlignment.center,
+          //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //       children: [
+          //         Expanded(
+          //           child: Text(
+          //             order.products[i].product.name,
+          //             style: TextStyle(
+          //               fontSize: context.s(14),
+          //               fontFamily: mediumFamily,
+          //               color: Colors.blueGrey.shade400,
+          //             ),
+          //           ),
+          //         ),
+          //         Text(
+          //           "${order.products[i].amount.toMeasure} x ${order.products[i].product.price.priceUZS}",
+          //           style: TextStyle(
+          //             fontSize: context.s(14),
+          //             fontFamily: mediumFamily,
+          //             color: Colors.blueGrey.shade400,
+          //           ),
+          //         )
+          //       ],
+          //     ),
+          // Container(
+          //     height: 1, color: Colors.grey.shade200, width: double.infinity),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "${AppLocales.place.tr()}: ",
+                style: TextStyle(
+                  fontSize: context.s(16),
+                  fontFamily: mediumFamily,
+                  // color: Colors.blueGrey.shade400,
                 ),
-                Text(
-                  AppLocales.price.tr(),
-                  style: TextStyle(
-                    fontSize: context.s(12),
-                    fontFamily: mediumFamily,
-                    color: Colors.blueGrey.shade400,
-                  ),
-                )
-              ],
-            ),
-          if (Platform.isWindows)
-            for (int i = 0;
-                i < (order.products.length > 3 ? 3 : order.products.length);
-                i++)
-              Row(
-                spacing: context.w(12),
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      order.products[i].product.name,
-                      style: TextStyle(
-                        fontSize: context.s(14),
-                        fontFamily: mediumFamily,
-                        color: Colors.blueGrey.shade400,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    "${order.products[i].amount.toMeasure} x ${order.products[i].product.price.priceUZS}",
-                    style: TextStyle(
-                      fontSize: context.s(14),
-                      fontFamily: mediumFamily,
-                      color: Colors.blueGrey.shade400,
-                    ),
-                  )
-                ],
               ),
-          Container(
-              height: 1, color: Colors.grey.shade200, width: double.infinity),
+              Text(
+                order.place.father?.name == null
+                    ? order.place.name
+                    : "${order.place.father!.name}, ${order.place.name}",
+                style: TextStyle(
+                  fontSize: context.s(16),
+                  fontFamily: boldFamily,
+                  // color: Colors.blueGrey.shade400,
+                ),
+              )
+            ],
+          ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

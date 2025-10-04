@@ -493,12 +493,14 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                   crossAxisCount: 3,
                                   crossAxisSpacing: context.w(16),
                                   mainAxisSpacing: context.h(16),
-                                  childAspectRatio: 353 / 363,
+                                  childAspectRatio: 1.2,
                                 ),
                                 itemCount: orders.length,
                                 itemBuilder: (context, index) {
                                   return OrderCard(
-                                      order: orders[index], theme: theme);
+                                    order: orders[index],
+                                    theme: theme,
+                                  );
                                 },
                               ),
                       ),

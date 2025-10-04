@@ -235,8 +235,15 @@ class OrderDatabase extends OrderDatabaseRepository {
     Order order = data;
     OrderIsar newIsar = order.toIsar();
 
+
+
     await isar.writeTxn(() async {
       if (orderIsar != null) {
+        // for(final item in orderIsar.products) {
+          // newIsar.products.
+        // }
+
+
         newIsar.isarId = orderIsar.isarId;
         await isar.orderIsars.put(newIsar);
       }

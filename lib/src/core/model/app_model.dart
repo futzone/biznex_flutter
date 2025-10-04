@@ -54,6 +54,7 @@ class AppModel {
   final bool isTablet = false;
 
   bool offline;
+  bool allowCancelOrder;
 
   void console(dynamic data, {Object? error, StackTrace? stackTrace}) {
     log("$data", error: error, stackTrace: stackTrace);
@@ -61,6 +62,7 @@ class AppModel {
 
   AppModel({
     this.offline = true,
+    this.allowCancelOrder = false,
     this.after = true,
     this.baseUrl = '',
     this.currentEmployee,
@@ -119,6 +121,7 @@ class AppModel {
       apiUrl: json['apiUrl'],
       after: json['after'] ?? true,
       offline: json['offline'] ?? true,
+      allowCancelOrder: json['allowCancelOrder'] ?? false,
     );
   }
 
@@ -195,6 +198,7 @@ class AppModel {
       "baseUrl": baseUrl,
       "apiUrl": apiUrl,
       "offline": offline,
+      "allowCancelOrder": allowCancelOrder,
     };
   }
 }
