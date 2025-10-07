@@ -6,18 +6,14 @@ import 'package:biznex/src/core/database/changes_database/changes_database.dart'
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/model/app_changes_model.dart';
 import 'package:biznex/src/core/model/order_models/percent_model.dart';
-import 'package:biznex/src/core/network/network_services.dart';
-import 'package:biznex/src/core/release/auto_update.dart';
-import 'package:biznex/src/providers/app_state_provider.dart';
+  import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:biznex/src/providers/price_percent_provider.dart';
 import 'package:biznex/src/providers/printer_devices_provider.dart';
 import 'package:biznex/src/ui/screens/settings_screen/app_updater_screen.dart';
 import 'package:biznex/src/ui/screens/settings_screen/network_interface_screen.dart';
-import 'package:biznex/src/ui/screens/settings_screen/warehouse_type_screen.dart';
-import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
+ import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
 import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
-import 'package:biznex/src/ui/widgets/custom/app_file_image.dart';
-import 'package:biznex/src/ui/widgets/custom/app_list_tile.dart';
+ import 'package:biznex/src/ui/widgets/custom/app_list_tile.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
@@ -219,8 +215,7 @@ class SettingsPageScreen extends HookConsumerWidget {
                                   style: TextStyle(
                                       fontSize: 16, fontFamily: mediumFamily),
                                 ),
-                                // AppFileImage(name: name, path: path)
-                                SimpleButton(
+                                 SimpleButton(
                                   onPressed: () {
                                     FilePicker.platform
                                         .pickFiles()
@@ -705,27 +700,27 @@ class SettingsPageScreen extends HookConsumerWidget {
                     ),
                   ],
                 ),
-                24.h,
-                Container(
-                  padding: context.s(20).all,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade200),
-                    color: Colors.white,
-                  ),
-                  child: SwitchListTile(
-                    activeThumbColor: theme.mainColor,
-                    contentPadding: Dis.only(),
-                    title: Text(AppLocales.cancelOrderFeature.tr()),
-                    value: appState.allowCancelOrder,
-                    onChanged: (val) {
-                      appState.allowCancelOrder = val;
-                      AppStateDatabase().updateApp(appState).then((_) {
-                        ref.invalidate(appStateProvider);
-                      });
-                    },
-                  ),
-                ),
+                // 24.h,
+                // Container(
+                //   padding: context.s(20).all,
+                //   decoration: BoxDecoration(
+                //     borderRadius: BorderRadius.circular(12),
+                //     border: Border.all(color: Colors.grey.shade200),
+                //     color: Colors.white,
+                //   ),
+                //   child: SwitchListTile(
+                //     activeThumbColor: theme.mainColor,
+                //     contentPadding: Dis.only(),
+                //     title: Text(AppLocales.cancelOrderFeature.tr()),
+                //     value: appState.allowCancelOrder,
+                //     onChanged: (val) {
+                //       appState.allowCancelOrder = val;
+                //       AppStateDatabase().updateApp(appState).then((_) {
+                //         ref.invalidate(appStateProvider);
+                //       });
+                //     },
+                //   ),
+                // ),
                 24.h,
                 if ((ref.watch(networkInterfaceProvider).value ?? [])
                     .isNotEmpty)
