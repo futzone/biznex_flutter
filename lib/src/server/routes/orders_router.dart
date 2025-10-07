@@ -206,6 +206,8 @@ class OrdersRouter {
 
     if (placeState == null) {
       Order newOrder = Order(
+        // paymentTypes: order.
+        paymentTypes: [],
         place: place,
         employee: employee,
         price: totalPrice,

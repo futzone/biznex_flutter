@@ -48,6 +48,27 @@ class PrinterServices {
     ]);
   }
 
+  pw.Widget dottedLine2({int height = 12}) {
+    return pw.Column(children: [
+      ...List.generate(
+        (height / 3).toInt(),
+        (index) {
+          return pw.Container(
+            width: 1,
+            margin: pw.EdgeInsets.only(
+              top: index == 0 ? 0 : 2,
+              bottom: index == ((height / 3).toInt() - 1) ? 0 : 2,
+              // top: 4,
+              // bottom: 4,
+            ),
+            color: PdfColor.fromHex("#000000"),
+            height: 3,
+          );
+        },
+      ),
+    ]);
+  }
+
   void printOrderCheck({String? phone, String? address}) async {
     log("printing started: ${order.place.price} ${order.place.name}");
 
@@ -57,9 +78,9 @@ class PrinterServices {
     final percents = await OrderPercentDatabase().get();
     final doc = pw.Document();
 
-    final pdfTheme = pw.TextStyle(font: font, fontSize: 8);
+    final pdfTheme = pw.TextStyle(font: font, fontSize: 6);
     final headerStyle = pw.TextStyle(font: font, fontSize: 16);
-    final boldStyle = pw.TextStyle(font: font, fontSize: 8);
+    final boldStyle = pw.TextStyle(font: font, fontSize: 7);
 
     final image = await shopLogoImage();
 
@@ -91,29 +112,105 @@ class PrinterServices {
         ),
         pw.SizedBox(height: 4),
         dottedLine(),
-        pw.SizedBox(height: 4),
-        for (final item in order.products)
-          pw.Padding(
-              padding: const pw.EdgeInsets.only(top: 2, bottom: 2),
-              child: pw.Row(
-                children: [
-                  pw.Expanded(
+        // pw.SizedBox(height: 4),
+        pw.Padding(
+          padding: const pw.EdgeInsets.only(top: 2, bottom: 2),
+          child: pw.Row(
+            children: [
+              pw.Expanded(
+                flex: 3,
+                child: pw.Text(
+                  AppLocales.productName.tr(),
+                  style: pdfTheme,
+                  overflow: pw.TextOverflow.clip,
+                ),
+              ),
+              pw.SizedBox(width: 4),
+              pw.Expanded(
+                  flex: 1,
+                  child: pw.Center(
                     child: pw.Text(
-                      "${item.amount.toMeasure} ${(item.product.measure ?? '').capitalize}  ${item.product.name}: ",
+                      (AppLocales.amount.tr()),
                       style: pdfTheme,
-                      overflow: pw.TextOverflow.clip,
-                      maxLines: 2,
                     ),
-                  ),
-                  pw.SizedBox(width: 8),
-                  pw.Text(
-                    "${(item.product.price * item.amount).price} UZS",
+                  )),
+              pw.SizedBox(width: 4),
+
+              // dottedLine2(),
+              pw.Expanded(
+                flex: 2,
+                child: pw.Center(
+                  child: pw.Text(
+                    (AppLocales.price.tr()),
                     style: pdfTheme,
                   ),
-                ],
-              )),
+                ),
+              ),
+              // dottedLine2(),
+              pw.SizedBox(width: 4),
+              pw.Expanded(
+                flex: 2,
+                child: pw.Text(
+                  AppLocales.total.tr(),
+                  style: pdfTheme,
+                  textAlign: pw.TextAlign.end,
+                ),
+              ),
+            ],
+          ),
+        ),
+        dottedLine(),
+        for (final item in order.products)
+          pw.Padding(
+            padding: const pw.EdgeInsets.only(top: 2, bottom: 2),
+            child: pw.Row(
+              children: [
+                pw.Expanded(
+                  flex: 3,
+                  child: pw.Text(
+                    item.product.name.capitalize,
+                    style: pdfTheme,
+                    overflow: pw.TextOverflow.clip,
+                    maxLines: 1,
+                  ),
+                ),
+                pw.SizedBox(width: 4),
 
-
+                // dottedLine2(),
+                pw.Expanded(
+                  flex: 1,
+                  child: pw.Center(
+                    child: pw.Text(
+                      (item.amount.toMeasure),
+                      style: pdfTheme,
+                      maxLines: 1,
+                    ),
+                  ),
+                ),
+                // dottedLine2(),
+                pw.SizedBox(width: 4),
+                pw.Expanded(
+                  flex: 2,
+                  child: pw.Center(
+                    child: pw.Text(
+                      (item.product.price.price),
+                      style: pdfTheme,
+                    ),
+                  ),
+                ),
+                // dottedLine2(),
+                pw.SizedBox(width: 4),
+                pw.Expanded(
+                  flex: 2,
+                  child: pw.Text(
+                    (item.product.price * item.amount).price,
+                    style: pdfTheme,
+                    textAlign: pw.TextAlign.end,
+                  ),
+                ),
+              ],
+            ),
+          ),
         dottedLine(),
         pw.SizedBox(height: 4),
         pw.Padding(
@@ -149,7 +246,7 @@ class PrinterServices {
                 children: [
                   pw.Expanded(
                     child: pw.Text(
-                      "${item.name}: ",
+                      "${item.name}: ${item.percent} %",
                       style: pdfTheme,
                       overflow: pw.TextOverflow.clip,
                       maxLines: 2,
@@ -157,7 +254,13 @@ class PrinterServices {
                   ),
                   pw.SizedBox(width: 8),
                   pw.Text(
-                    "${item.percent} %",
+                    ((order.products.fold(
+                                0.0,
+                                (tot, el) =>
+                                    tot += el.amount * el.product.price)) *
+                            item.percent *
+                            0.01)
+                        .priceUZS,
                     style: boldStyle,
                   ),
                 ],
@@ -332,19 +435,19 @@ class PrinterServices {
             ),
             child: (model.byeText == null || model.byeText!.isEmpty)
                 ? pw.Center(
-              child: pw.Text(
-                AppLocales.thanksForOrder.tr(),
-                style: pdfTheme,
-                textAlign: pw.TextAlign.center,
-              ),
-            )
+                    child: pw.Text(
+                      AppLocales.thanksForOrder.tr(),
+                      style: pdfTheme,
+                      textAlign: pw.TextAlign.center,
+                    ),
+                  )
                 : pw.Center(
-              child: pw.Text(
-                model.byeText!,
-                style: pdfTheme,
-                textAlign: pw.TextAlign.center,
-              ),
-            ),
+                    child: pw.Text(
+                      model.byeText!,
+                      style: pdfTheme,
+                      textAlign: pw.TextAlign.center,
+                    ),
+                  ),
           ),
           pw.Expanded(child: pw.Container(height: 1, color: PdfColors.black)),
         ]),

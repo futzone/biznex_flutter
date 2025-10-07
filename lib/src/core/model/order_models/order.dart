@@ -29,6 +29,7 @@ class OrderIsar {
   String? orderNumber;
 
   List<OrderItemIsar> products = [];
+  List<PercentIsar> paymentTypes = [];
 }
 
 @embedded
@@ -37,6 +38,12 @@ class OrderItemIsar {
   double amount = 0;
   double? customPrice;
   String placeId = '';
+}
+
+@embedded
+class PercentIsar {
+  double amount = 0;
+  String name = '';
 }
 
 @embedded

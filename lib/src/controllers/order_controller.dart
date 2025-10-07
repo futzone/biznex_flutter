@@ -1,9 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
-import 'package:biznex/src/controllers/transaction_controller.dart';
-import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
-import 'package:biznex/src/providers/products_provider.dart';
+
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/controllers/transaction_controller.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/core/database/order_database/order_percent_database.dart';
@@ -13,12 +12,15 @@ import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:biznex/src/core/model/other_models/customer_model.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
+import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
 import 'package:biznex/src/core/services/printer_services.dart';
 import 'package:biznex/src/providers/employee_orders_provider.dart';
 import 'package:biznex/src/providers/orders_provider.dart';
+import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/ui/pages/order_pages/table_choose_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
+
 import '../core/model/app_changes_model.dart';
 import '../providers/recipe_providers.dart';
 
@@ -51,6 +53,7 @@ class OrderController {
     });
 
     Order order = Order(
+      paymentTypes: [],
       place: place,
       employee: employee,
       price: totalPrice,
@@ -156,6 +159,7 @@ class OrderController {
       });
 
       orderToProcess = Order(
+        paymentTypes: [],
         place: place,
         employee: employee,
         price: totalPrice,
@@ -319,6 +323,7 @@ class OrderController {
       });
 
       orderToProcess = Order(
+        paymentTypes: [],
         place: place,
         employee: employee,
         price: totalPrice,

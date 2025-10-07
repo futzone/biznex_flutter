@@ -54,40 +54,46 @@ const OrderIsarSchema = CollectionSchema(
       name: r'orderNumber',
       type: IsarType.string,
     ),
-    r'place': PropertySchema(
+    r'paymentTypes': PropertySchema(
       id: 7,
+      name: r'paymentTypes',
+      type: IsarType.objectList,
+      target: r'PercentIsar',
+    ),
+    r'place': PropertySchema(
+      id: 8,
       name: r'place',
       type: IsarType.object,
       target: r'PlaceIsar',
     ),
     r'price': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'price',
       type: IsarType.double,
     ),
     r'products': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'products',
       type: IsarType.objectList,
       target: r'OrderItemIsar',
     ),
     r'realPrice': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'realPrice',
       type: IsarType.double,
     ),
     r'scheduledDate': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'scheduledDate',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'status',
       type: IsarType.string,
     ),
     r'updatedDate': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'updatedDate',
       type: IsarType.string,
     )
@@ -106,7 +112,8 @@ const OrderIsarSchema = CollectionSchema(
     r'OrderItemIsar': OrderItemIsarSchema,
     r'ProductIsar': ProductIsarSchema,
     r'ProductInfoIsar': ProductInfoIsarSchema,
-    r'CategoryIsar': CategoryIsarSchema
+    r'CategoryIsar': CategoryIsarSchema,
+    r'PercentIsar': PercentIsarSchema
   },
   getId: _orderIsarGetId,
   getLinks: _orderIsarGetLinks,
@@ -143,6 +150,14 @@ int _orderIsarEstimateSize(
     final value = object.orderNumber;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
+    }
+  }
+  bytesCount += 3 + object.paymentTypes.length * 3;
+  {
+    final offsets = allOffsets[PercentIsar]!;
+    for (var i = 0; i < object.paymentTypes.length; i++) {
+      final value = object.paymentTypes[i];
+      bytesCount += PercentIsarSchema.estimateSize(value, offsets, allOffsets);
     }
   }
   bytesCount += 3 +
@@ -196,23 +211,29 @@ void _orderIsarSerialize(
   writer.writeString(offsets[4], object.id);
   writer.writeString(offsets[5], object.note);
   writer.writeString(offsets[6], object.orderNumber);
-  writer.writeObject<PlaceIsar>(
+  writer.writeObjectList<PercentIsar>(
     offsets[7],
+    allOffsets,
+    PercentIsarSchema.serialize,
+    object.paymentTypes,
+  );
+  writer.writeObject<PlaceIsar>(
+    offsets[8],
     allOffsets,
     PlaceIsarSchema.serialize,
     object.place,
   );
-  writer.writeDouble(offsets[8], object.price);
+  writer.writeDouble(offsets[9], object.price);
   writer.writeObjectList<OrderItemIsar>(
-    offsets[9],
+    offsets[10],
     allOffsets,
     OrderItemIsarSchema.serialize,
     object.products,
   );
-  writer.writeDouble(offsets[10], object.realPrice);
-  writer.writeString(offsets[11], object.scheduledDate);
-  writer.writeString(offsets[12], object.status);
-  writer.writeString(offsets[13], object.updatedDate);
+  writer.writeDouble(offsets[11], object.realPrice);
+  writer.writeString(offsets[12], object.scheduledDate);
+  writer.writeString(offsets[13], object.status);
+  writer.writeString(offsets[14], object.updatedDate);
 }
 
 OrderIsar _orderIsarDeserialize(
@@ -239,24 +260,31 @@ OrderIsar _orderIsarDeserialize(
   object.isarId = id;
   object.note = reader.readStringOrNull(offsets[5]);
   object.orderNumber = reader.readStringOrNull(offsets[6]);
-  object.place = reader.readObjectOrNull<PlaceIsar>(
+  object.paymentTypes = reader.readObjectList<PercentIsar>(
         offsets[7],
+        PercentIsarSchema.deserialize,
+        allOffsets,
+        PercentIsar(),
+      ) ??
+      [];
+  object.place = reader.readObjectOrNull<PlaceIsar>(
+        offsets[8],
         PlaceIsarSchema.deserialize,
         allOffsets,
       ) ??
       PlaceIsar();
-  object.price = reader.readDouble(offsets[8]);
+  object.price = reader.readDouble(offsets[9]);
   object.products = reader.readObjectList<OrderItemIsar>(
-        offsets[9],
+        offsets[10],
         OrderItemIsarSchema.deserialize,
         allOffsets,
         OrderItemIsar(),
       ) ??
       [];
-  object.realPrice = reader.readDoubleOrNull(offsets[10]);
-  object.scheduledDate = reader.readStringOrNull(offsets[11]);
-  object.status = reader.readStringOrNull(offsets[12]);
-  object.updatedDate = reader.readString(offsets[13]);
+  object.realPrice = reader.readDoubleOrNull(offsets[11]);
+  object.scheduledDate = reader.readStringOrNull(offsets[12]);
+  object.status = reader.readStringOrNull(offsets[13]);
+  object.updatedDate = reader.readString(offsets[14]);
   return object;
 }
 
@@ -291,15 +319,23 @@ P _orderIsarDeserializeProp<P>(
     case 6:
       return (reader.readStringOrNull(offset)) as P;
     case 7:
+      return (reader.readObjectList<PercentIsar>(
+            offset,
+            PercentIsarSchema.deserialize,
+            allOffsets,
+            PercentIsar(),
+          ) ??
+          []) as P;
+    case 8:
       return (reader.readObjectOrNull<PlaceIsar>(
             offset,
             PlaceIsarSchema.deserialize,
             allOffsets,
           ) ??
           PlaceIsar()) as P;
-    case 8:
-      return (reader.readDouble(offset)) as P;
     case 9:
+      return (reader.readDouble(offset)) as P;
+    case 10:
       return (reader.readObjectList<OrderItemIsar>(
             offset,
             OrderItemIsarSchema.deserialize,
@@ -307,13 +343,13 @@ P _orderIsarDeserializeProp<P>(
             OrderItemIsar(),
           ) ??
           []) as P;
-    case 10:
-      return (reader.readDoubleOrNull(offset)) as P;
     case 11:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 12:
       return (reader.readStringOrNull(offset)) as P;
     case 13:
+      return (reader.readStringOrNull(offset)) as P;
+    case 14:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1057,6 +1093,95 @@ extension OrderIsarQueryFilter
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      paymentTypesLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'paymentTypes',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      paymentTypesIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'paymentTypes',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      paymentTypesIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'paymentTypes',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      paymentTypesLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'paymentTypes',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      paymentTypesLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'paymentTypes',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      paymentTypesLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'paymentTypes',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition> priceEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -1738,6 +1863,13 @@ extension OrderIsarQueryObject
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition> paymentTypesElement(
+      FilterQuery<PercentIsar> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'paymentTypes');
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition> place(
       FilterQuery<PlaceIsar> q) {
     return QueryBuilder.apply(this, (query) {
@@ -2131,6 +2263,13 @@ extension OrderIsarQueryProperty
   QueryBuilder<OrderIsar, String?, QQueryOperations> orderNumberProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'orderNumber');
+    });
+  }
+
+  QueryBuilder<OrderIsar, List<PercentIsar>, QQueryOperations>
+      paymentTypesProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'paymentTypes');
     });
   }
 
@@ -2610,6 +2749,278 @@ extension OrderItemIsarQueryObject
     });
   }
 }
+
+// coverage:ignore-file
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
+
+const PercentIsarSchema = Schema(
+  name: r'PercentIsar',
+  id: 5635230339823993688,
+  properties: {
+    r'amount': PropertySchema(
+      id: 0,
+      name: r'amount',
+      type: IsarType.double,
+    ),
+    r'name': PropertySchema(
+      id: 1,
+      name: r'name',
+      type: IsarType.string,
+    )
+  },
+  estimateSize: _percentIsarEstimateSize,
+  serialize: _percentIsarSerialize,
+  deserialize: _percentIsarDeserialize,
+  deserializeProp: _percentIsarDeserializeProp,
+);
+
+int _percentIsarEstimateSize(
+  PercentIsar object,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  var bytesCount = offsets.last;
+  bytesCount += 3 + object.name.length * 3;
+  return bytesCount;
+}
+
+void _percentIsarSerialize(
+  PercentIsar object,
+  IsarWriter writer,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  writer.writeDouble(offsets[0], object.amount);
+  writer.writeString(offsets[1], object.name);
+}
+
+PercentIsar _percentIsarDeserialize(
+  Id id,
+  IsarReader reader,
+  List<int> offsets,
+  Map<Type, List<int>> allOffsets,
+) {
+  final object = PercentIsar();
+  object.amount = reader.readDouble(offsets[0]);
+  object.name = reader.readString(offsets[1]);
+  return object;
+}
+
+P _percentIsarDeserializeProp<P>(
+  IsarReader reader,
+  int propertyId,
+  int offset,
+  Map<Type, List<int>> allOffsets,
+) {
+  switch (propertyId) {
+    case 0:
+      return (reader.readDouble(offset)) as P;
+    case 1:
+      return (reader.readString(offset)) as P;
+    default:
+      throw IsarError('Unknown property with id $propertyId');
+  }
+}
+
+extension PercentIsarQueryFilter
+    on QueryBuilder<PercentIsar, PercentIsar, QFilterCondition> {
+  QueryBuilder<PercentIsar, PercentIsar, QAfterFilterCondition> amountEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'amount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<PercentIsar, PercentIsar, QAfterFilterCondition>
+      amountGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'amount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<PercentIsar, PercentIsar, QAfterFilterCondition> amountLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'amount',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<PercentIsar, PercentIsar, QAfterFilterCondition> amountBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'amount',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<PercentIsar, PercentIsar, QAfterFilterCondition> nameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PercentIsar, PercentIsar, QAfterFilterCondition> nameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PercentIsar, PercentIsar, QAfterFilterCondition> nameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PercentIsar, PercentIsar, QAfterFilterCondition> nameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'name',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PercentIsar, PercentIsar, QAfterFilterCondition> nameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PercentIsar, PercentIsar, QAfterFilterCondition> nameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PercentIsar, PercentIsar, QAfterFilterCondition> nameContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PercentIsar, PercentIsar, QAfterFilterCondition> nameMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'name',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<PercentIsar, PercentIsar, QAfterFilterCondition> nameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'name',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<PercentIsar, PercentIsar, QAfterFilterCondition>
+      nameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'name',
+        value: '',
+      ));
+    });
+  }
+}
+
+extension PercentIsarQueryObject
+    on QueryBuilder<PercentIsar, PercentIsar, QFilterCondition> {}
 
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
