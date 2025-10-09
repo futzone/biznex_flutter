@@ -120,6 +120,28 @@ class OrderItemsPage extends HookConsumerWidget {
                         //   },
                         //   onClearAll: order != null ? null : () => orderNotifier.clear(),
                         // ),
+
+                        // Container(
+                        //   height: 1,
+                        //   margin: 16.tb,
+                        //   color: theme.accentColor,
+                        // ),
+
+                        Padding(
+                          padding: Dis.only(lr: 16, top: 16),
+                          // padding: const EdgeInsets.all(16),
+                          child: AppTextField(
+                            prefixIcon: Icon(Iconsax.note_1_copy),
+                            title: AppLocales.enterNoteForOrder.tr(),
+                            controller: noteController,
+                            theme: theme,
+
+                            // useBorder: true,
+                            fillColor: theme.accentColor,
+                          ),
+                        ),
+                        0.h,
+
                         Container(
                           margin: Dis.only(top: context.h(16)),
                           padding:
@@ -257,7 +279,8 @@ class OrderItemsPage extends HookConsumerWidget {
                                       context,
                                       ref,
                                       placeOrderItems,
-                                      note: noteController.text.trim(),
+                                      // note: noteController.text.trim(),
+                                      message: noteController.text.trim(),
                                       customer: Customer(
                                         name: addressController.text,
                                         phone: phoneController.text,
@@ -270,10 +293,11 @@ class OrderItemsPage extends HookConsumerWidget {
 
                                   await orderController.addItems(
                                     context,
+                                    message: noteController.text.trim(),
                                     ref,
                                     placeOrderItems,
                                     order,
-                                    note: noteController.text.trim(),
+                                    // note: noteController.text.trim(),
                                     customer: Customer(
                                       name: addressController.text,
                                       phone: phoneController.text,
@@ -306,6 +330,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                   ///
                                   ///
                                   ///
+                                  noteController.clear();
                                   AppRouter.close(context);
                                 },
                                 title: AppLocales.add.tr(),
@@ -330,7 +355,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                     await orderController.printCheck(
                                       context,
                                       ref,
-                                      note: noteController.text.trim(),
+                                      // note: noteController.text.trim(),
                                       customer: Customer(
                                         name: addressController.text,
                                         phone: phoneController.text,
@@ -384,7 +409,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                   await orderController.closeOrder(
                                     context,
                                     ref,
-                                    note: noteController.text.trim(),
+                                    // note: noteController.text.trim(),
                                     customer: Customer(
                                       name: addressController.text,
                                       phone: phoneController.text,
@@ -399,9 +424,9 @@ class OrderItemsPage extends HookConsumerWidget {
                                   noteController.clear();
                                   customerNotifier.value = null;
                                 },
-                                textColor: theme.mainColor,
-                                border: Border.all(color: theme.mainColor),
-                                color: theme.white,
+                                textColor: Colors.white,
+                                border: Border.all(color: Colors.blue),
+                                color: Colors.blue,
                                 title: AppLocales.close.tr(),
                                 // icon: Icons.close,
                               ),

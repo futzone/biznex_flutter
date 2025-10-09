@@ -56,9 +56,10 @@ void startServer() async {
 
   app.get(ApiEndpoints.state, (Request request) async {
     final status = authorizationServices.requestAuthChecker(request);
-    if (!status)
+    if (!status) {
       return Response(403,
           body: jsonEncode({"error": ResponseMessages.unauthorized}));
+    }
 
     StatsRouter statsRouter = StatsRouter(request);
     final placesResponse = await statsRouter.getState();
@@ -67,9 +68,10 @@ void startServer() async {
 
   app.get(ApiEndpoints.employee, (Request request) async {
     final status = authorizationServices.requestAuthChecker(request);
-    if (!status)
+    if (!status) {
       return Response(403,
           body: jsonEncode({"error": ResponseMessages.unauthorized}));
+    }
 
     EmployeeRouter placesRouter = EmployeeRouter(request);
     final placesResponse = await placesRouter.getCategories();
@@ -78,9 +80,10 @@ void startServer() async {
 
   app.get(ApiEndpoints.places, (Request request) async {
     final status = authorizationServices.requestAuthChecker(request);
-    if (!status)
+    if (!status) {
       return Response(403,
           body: jsonEncode({"error": ResponseMessages.unauthorized}));
+    }
 
     PlacesRouter placesRouter = PlacesRouter(request);
     final placesResponse = await placesRouter.getPlaces();
@@ -89,9 +92,10 @@ void startServer() async {
 
   app.get(ApiEndpoints.categories, (Request request) async {
     final status = authorizationServices.requestAuthChecker(request);
-    if (!status)
+    if (!status) {
       return Response(403,
           body: jsonEncode({"error": ResponseMessages.unauthorized}));
+    }
 
     CategoriesRouter categoriesRouter = CategoriesRouter(request);
     final placesResponse = await categoriesRouter.getCategories();
@@ -100,9 +104,10 @@ void startServer() async {
 
   app.get(ApiEndpoints.products, (Request request) async {
     final status = authorizationServices.requestAuthChecker(request);
-    if (!status)
+    if (!status) {
       return Response(403,
           body: jsonEncode({"error": ResponseMessages.unauthorized}));
+    }
 
     ProductsRouter categoriesRouter = ProductsRouter(request);
     final placesResponse = await categoriesRouter.getProducts();
@@ -111,9 +116,10 @@ void startServer() async {
 
   app.get(ApiEndpoints.orders, (Request request) async {
     final status = authorizationServices.requestAuthChecker(request);
-    if (!status)
+    if (!status) {
       return Response(403,
           body: jsonEncode({"error": ResponseMessages.unauthorized}));
+    }
 
     OrdersRouter ordersRouter = OrdersRouter(request);
     final placesResponse = await ordersRouter.getEmployeeOrders();
@@ -122,9 +128,10 @@ void startServer() async {
 
   app.get(ApiEndpoints.placeOrders, (Request request, String id) async {
     final status = authorizationServices.requestAuthChecker(request);
-    if (!status)
+    if (!status) {
       return Response(403,
           body: jsonEncode({"error": ResponseMessages.unauthorized}));
+    }
 
     OrdersRouter ordersRouter = OrdersRouter(request);
     final placesResponse = await ordersRouter.getPlaceState(id);
@@ -133,9 +140,10 @@ void startServer() async {
 
   app.post(ApiEndpoints.orders, (Request request) async {
     final status = authorizationServices.requestAuthChecker(request);
-    if (!status)
+    if (!status) {
       return Response(403,
           body: jsonEncode({"error": ResponseMessages.unauthorized}));
+    }
 
     OrdersRouter ordersRouter = OrdersRouter(request);
     final placesResponse = await ordersRouter.openOrder(request);
@@ -144,9 +152,10 @@ void startServer() async {
 
   app.put(ApiEndpoints.orders, (Request request) async {
     final status = authorizationServices.requestAuthChecker(request);
-    if (!status)
+    if (!status) {
       return Response(403,
           body: jsonEncode({"error": ResponseMessages.unauthorized}));
+    }
 
     OrdersRouter ordersRouter = OrdersRouter(request);
     final placesResponse = await ordersRouter.closeOrder(request);
@@ -155,9 +164,10 @@ void startServer() async {
 
   app.get(ApiEndpoints.getImage, (Request request, String path) async {
     final status = authorizationServices.requestAuthChecker(request);
-    if (!status)
+    if (!status) {
       return Response(403,
           body: jsonEncode({"error": ResponseMessages.unauthorized}));
+    }
 
     FileRouter fileRouter = FileRouter();
     final placesResponse = await fileRouter.getImage(request);
@@ -327,10 +337,17 @@ void startServer() async {
             ? jsonDecode(jsonData)
             : jsonData)['disablePrint'] ??
         false;
+
+    final message =
+        (jsonData is String ? jsonDecode(jsonData) : jsonData)['message'] ?? '';
     log("disable: $disablePrint");
     log("jsonData: $jsonData");
     await orderDatabase.setPlaceOrder(
-        data: data, placeId: placeId, disablePrint: disablePrint);
+      data: data,
+      placeId: placeId,
+      disablePrint: disablePrint,
+      message: message,
+    );
     return Response(200, body: jsonEncode({'message': 'success'}));
   });
 
@@ -372,8 +389,15 @@ void startServer() async {
   app.put('/api/v2/order/<placeId>', (Request request, String placeId) async {
     final jsonString = await request.readAsString();
     final jsonData = jsonDecode(jsonString);
+    final message =
+        (jsonData is String ? jsonDecode(jsonData) : jsonData)['message'] ?? '';
+
     final data = Order.fromJson(jsonData);
-    await orderDatabase.updatePlaceOrder(data: data, placeId: placeId);
+    await orderDatabase.updatePlaceOrder(
+      data: data,
+      placeId: placeId,
+      message: message,
+    );
     return Response(200, body: jsonEncode({'message': 'success'}));
   });
 

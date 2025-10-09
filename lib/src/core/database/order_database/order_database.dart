@@ -188,12 +188,14 @@ class OrderDatabase extends OrderDatabaseRepository {
   Future<void> setPlaceOrder(
       {required data,
       required String placeId,
+      required String? message,
       bool disablePrint = false}) async {
     if (data is! Order) return;
 
     if ((await connectionStatus()) != null) {
       final dataMap = data.toJson();
       dataMap['disablePrint'] = disablePrint;
+      dataMap['message'] = message;
 
       await postRemote(path: 'order/$placeId', data: jsonEncode(dataMap));
       return;
@@ -212,18 +214,27 @@ class OrderDatabase extends OrderDatabaseRepository {
       PrinterMultipleServices printerMultipleServices =
           PrinterMultipleServices();
       await printerMultipleServices.printForBack(
-          productInfo, productInfo.products);
+        message: message,
+        productInfo,
+        productInfo.products,
+      );
     } catch (_) {
       ///
     }
   }
 
-  Future<void> updatePlaceOrder(
-      {required data, required String placeId}) async {
+  Future<void> updatePlaceOrder({
+    required data,
+    required String placeId,
+    required String? message,
+  }) async {
     if (data is! Order) return;
 
     if ((await connectionStatus()) != null) {
-      await putRemote(path: 'order/$placeId', data: jsonEncode(data.toJson()));
+      final dataMap = data.toJson();
+      dataMap['message'] = message;
+
+      await putRemote(path: 'order/$placeId', data: jsonEncode(dataMap));
       return;
     }
 
@@ -235,14 +246,11 @@ class OrderDatabase extends OrderDatabaseRepository {
     Order order = data;
     OrderIsar newIsar = order.toIsar();
 
-
-
     await isar.writeTxn(() async {
       if (orderIsar != null) {
         // for(final item in orderIsar.products) {
-          // newIsar.products.
+        // newIsar.products.
         // }
-
 
         newIsar.isarId = orderIsar.isarId;
         await isar.orderIsars.put(newIsar);
@@ -259,7 +267,11 @@ class OrderDatabase extends OrderDatabaseRepository {
 
       log('changes: ${changes.length}');
 
-      await printerMultipleServices.printForBack(order, changes);
+      await printerMultipleServices.printForBack(
+        order,
+        changes,
+        message: message,
+      );
     } catch (_) {
       ///
     }

@@ -22,7 +22,7 @@ class PrinterMultipleServices {
     return ctg.printerParams;
   }
 
-  Future<void> printForBack(Order order, List<OrderItem> products) async {
+  Future<void> printForBack(Order order, List<OrderItem> products, {required String? message}) async {
     final categoryGroup = groupByCategory(products);
 
     for (final item in categoryGroup.values) {
@@ -38,7 +38,7 @@ class PrinterMultipleServices {
       if (params == null) continue;
 
       try {
-        _printCheck(item, order, params['url'], params['name']);
+        _printCheck(item, order, params['url'], params['name'], message: message);
       } catch (e) {
         for (final item in products) {
           log("${item.product.name} -> ${item.amount}");
@@ -66,7 +66,8 @@ class PrinterMultipleServices {
   }
 
   Future<void> _printCheck(
-      List<OrderItem> products, Order order, String url, String name) async {
+      List<OrderItem> products, Order order, String url, String name,
+      {required String? message}) async {
     for (final item in products) {
       log("${item.product.name} -> ${item.amount}");
     }
@@ -120,9 +121,10 @@ class PrinterMultipleServices {
                     pw.Text(
                       "${(item.product.price * item.amount).price} UZS",
                       style: pw.TextStyle(
-                          fontWeight: pw.FontWeight.bold,
-                          fontSize: 10,
-                          font: ttf),
+                        fontWeight: pw.FontWeight.bold,
+                        fontSize: 10,
+                        font: ttf,
+                      ),
                     ),
                   ],
                 )
@@ -132,6 +134,15 @@ class PrinterMultipleServices {
         pw.SizedBox(height: 4),
         pw.Container(color: PdfColor.fromHex("#000000"), height: 1),
         pw.SizedBox(height: 4),
+        if (message != null && message.isNotEmpty) ...[
+          pw.Text(message, style: pdfTheme, textAlign: pw.TextAlign.center
+              // overflow: pw.TextOverflow.clip,
+              // maxLines: 2,
+              ),
+          pw.SizedBox(height: 4),
+          pw.Container(color: PdfColor.fromHex("#000000"), height: 1),
+          pw.SizedBox(height: 4),
+        ],
         pw.Row(
           children: [
             pw.Expanded(

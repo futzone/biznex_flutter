@@ -44,6 +44,7 @@ class OrderController {
     String? note,
     Customer? customer,
     DateTime? scheduledDate,
+    String? message,
   }) async {
     if (!context.mounted) return;
     showAppLoadingDialog(context);
@@ -66,7 +67,11 @@ class OrderController {
       orderNumber: DateTime.now().millisecondsSinceEpoch.toString(),
     );
 
-    await _database.setPlaceOrder(data: order, placeId: place.id);
+    await _database.setPlaceOrder(
+      data: order,
+      placeId: place.id,
+      message: message,
+    );
 
     if (!context.mounted) return;
     AppRouter.close(context);
@@ -84,6 +89,7 @@ class OrderController {
     List<OrderItem> newItemsList,
     Order oldOrderState, {
     String? note,
+    String? message,
     Customer? customer,
     DateTime? scheduledDate,
   }) async {
@@ -116,7 +122,7 @@ class OrderController {
     updatedOrder =
         updatedOrder.copyWith(updatedDate: DateTime.now().toIso8601String());
 
-    await _database.updatePlaceOrder(data: updatedOrder, placeId: place.id);
+    await _database.updatePlaceOrder(data: updatedOrder, placeId: place.id, message: message);
 
     if (!context.mounted) return;
     ref.invalidate(ordersProvider(place.id));

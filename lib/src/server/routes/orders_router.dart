@@ -230,7 +230,11 @@ class OrdersRouter {
         scheduledDate: order.scheduledDate,
         orderNumber: DateTime.now().millisecondsSinceEpoch.toString(),
       );
-      await orderDatabase.setPlaceOrder(data: newOrder, placeId: place.id);
+      await orderDatabase.setPlaceOrder(
+        data: newOrder,
+        placeId: place.id,
+        message: '',
+      );
 
       // PrinterMultipleServices printerMultipleServices = PrinterMultipleServices();
       // printerMultipleServices.printForBack(newOrder, newOrder.products);
@@ -265,7 +269,11 @@ class OrdersRouter {
     placeState.note = order.note ?? placeState.note;
     placeState.price = newTotalPrice;
     placeState.scheduledDate = order.scheduledDate ?? placeState.scheduledDate;
-    await orderDatabase.updatePlaceOrder(data: placeState, placeId: place.id);
+    await orderDatabase.updatePlaceOrder(
+      data: placeState,
+      placeId: place.id,
+      message: '',
+    );
 
     // PrinterMultipleServices printerMultipleServices = PrinterMultipleServices();
     final List<OrderItem> productChanges =
