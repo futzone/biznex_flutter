@@ -577,4 +577,5 @@ abstract class AppLocales {
   static var address = "address";
   static var phone = "phone";
   static var cancelOrderFeature = "cancelOrderFeature";
+  static var doNotDecreaseText = "doNotDecreaseText";
 }

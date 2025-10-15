@@ -49,7 +49,7 @@ class ChangeOrderPlace extends HookConsumerWidget {
             message: '',
           )
               .then((_) async {
-            ref.watch(orderSetProvider.notifier).addMultiple(list);
+            ref.watch(orderSetProvider.notifier).addMultiple(list, null);
           });
         }
 
@@ -72,7 +72,7 @@ class ChangeOrderPlace extends HookConsumerWidget {
             message: '',
           )
               .then((_) async {
-            ref.watch(orderSetProvider.notifier).addMultiple(list);
+            ref.watch(orderSetProvider.notifier).addMultiple(list, null);
           });
         }
 

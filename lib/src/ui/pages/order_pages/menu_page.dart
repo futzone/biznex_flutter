@@ -92,7 +92,7 @@ class MenuPage extends HookConsumerWidget {
                       Future.delayed(Duration(milliseconds: 100));
                       ref
                           .read(orderSetProvider.notifier)
-                          .addMultiple(order.products);
+                          .addMultiple(order.products, context);
                     } else {
                       // ref.read(orderSetProvider.notifier).clear();
                     }
@@ -208,7 +208,7 @@ class MenuPage extends HookConsumerWidget {
                                   Future.delayed(Duration(milliseconds: 100));
                                   ref
                                       .read(orderSetProvider.notifier)
-                                      .addMultiple(order.products);
+                                      .addMultiple(order.products, context);
                                 } else {
                                   // ref.read(orderSetProvider.notifier).clear();
                                 }

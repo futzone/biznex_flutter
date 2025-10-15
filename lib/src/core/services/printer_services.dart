@@ -78,9 +78,9 @@ class PrinterServices {
     final percents = await OrderPercentDatabase().get();
     final doc = pw.Document();
 
-    final pdfTheme = pw.TextStyle(font: font, fontSize: 6);
+    final pdfTheme = pw.TextStyle(font: font, fontSize: 7);
     final headerStyle = pw.TextStyle(font: font, fontSize: 16);
-    final boldStyle = pw.TextStyle(font: font, fontSize: 7);
+    final boldStyle = pw.TextStyle(font: font, fontSize: 7.5);
 
     final image = await shopLogoImage();
 
@@ -121,7 +121,7 @@ class PrinterServices {
                 flex: 3,
                 child: pw.Text(
                   AppLocales.productName.tr(),
-                  style: pdfTheme,
+                  style: pdfTheme.copyWith(fontSize: 6),
                   overflow: pw.TextOverflow.clip,
                 ),
               ),
@@ -131,7 +131,7 @@ class PrinterServices {
                   child: pw.Center(
                     child: pw.Text(
                       (AppLocales.amount.tr()),
-                      style: pdfTheme,
+                      style: pdfTheme.copyWith(fontSize: 6),
                     ),
                   )),
               pw.SizedBox(width: 4),
@@ -142,7 +142,7 @@ class PrinterServices {
                 child: pw.Center(
                   child: pw.Text(
                     (AppLocales.price.tr()),
-                    style: pdfTheme,
+                    style: pdfTheme.copyWith(fontSize: 6),
                   ),
                 ),
               ),
@@ -152,7 +152,7 @@ class PrinterServices {
                 flex: 2,
                 child: pw.Text(
                   AppLocales.total.tr(),
-                  style: pdfTheme,
+                  style: pdfTheme.copyWith(fontSize: 6),
                   textAlign: pw.TextAlign.end,
                 ),
               ),
@@ -174,7 +174,7 @@ class PrinterServices {
                     maxLines: 1,
                   ),
                 ),
-                pw.SizedBox(width: 4),
+                pw.SizedBox(width: 2),
 
                 // dottedLine2(),
                 pw.Expanded(
@@ -188,7 +188,7 @@ class PrinterServices {
                   ),
                 ),
                 // dottedLine2(),
-                pw.SizedBox(width: 4),
+                pw.SizedBox(width: 2),
                 pw.Expanded(
                   flex: 2,
                   child: pw.Center(
@@ -199,7 +199,7 @@ class PrinterServices {
                   ),
                 ),
                 // dottedLine2(),
-                pw.SizedBox(width: 4),
+                pw.SizedBox(width: 2),
                 pw.Expanded(
                   flex: 2,
                   child: pw.Text(

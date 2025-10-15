@@ -1,11 +1,8 @@
-import 'dart:developer';
-
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/orders_provider.dart';
 import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
-import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
-
 import '../core/database/order_database/order_database.dart';
 import 'employee_orders_provider.dart';
 
@@ -28,7 +25,7 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
     final order = await _orderDatabase.getPlaceOrder(placeId);
 
     if (order != null && order.products.isNotEmpty) {
-      addMultiple(order.products);
+      addMultiple(order.products, null);
     }
   }
 
@@ -53,6 +50,9 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
   }
 
   void removeItem(OrderItem item, AppModel model, context) {
+    final current = ref.watch(currentEmployeeProvider);
+    if (current.roleName.toLowerCase() != 'admin') return;
+
     final index = state.indexWhere(
         (e) => e.product.id == item.product.id && e.placeId == item.placeId);
     if (index != -1) {
@@ -67,6 +67,9 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
   }
 
   void deleteItem(OrderItem item, context) async {
+    final current = ref.watch(currentEmployeeProvider);
+    if (current.roleName.toLowerCase() != 'admin') return;
+
     final order = ref.watch(ordersProvider(item.placeId)).value;
 
     if (order != null &&
@@ -98,7 +101,19 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
     return;
   }
 
-  void updateItem(OrderItem item) {
+  void updateItem(OrderItem item, BuildContext context) {
+    final currentEmployee = ref.watch(currentEmployeeProvider);
+    if (currentEmployee.roleName.toLowerCase() != 'admin') {
+      final have = haveThisProduct(item.placeId, item.product.id);
+      if (have != null && have.amount > item.amount) {
+        ShowToast.error(
+          context,
+          "${AppLocales.doNotDecreaseText.tr()}: ${item.product.name}",
+        );
+        return;
+      }
+    }
+
     final index = state.indexWhere(
         (e) => e.product.id == item.product.id && e.placeId == item.placeId);
     if (index != -1) {
@@ -128,12 +143,41 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
         .isNotEmpty;
   }
 
+  OrderItem? haveThisProduct(String placeId, String productId) {
+    return state
+        .where((e) => e.placeId == placeId && e.product.id == productId)
+        .firstOrNull;
+  }
+
   void clearPlaceItems(String placeId) {
+    final current = ref.watch(currentEmployeeProvider);
+    if (current.roleName.toLowerCase() != 'admin') return;
     state = state.where((e) => e.placeId != placeId).toList();
   }
 
-  void addMultiple(List<OrderItem> items) {
+  void addMultiple(List<OrderItem> items, BuildContext? context) {
     final current = state;
+
+    final currentEmployee = ref.watch(currentEmployeeProvider);
+    if (currentEmployee.roleName.toLowerCase() != 'admin' && context != null) {
+      bool status = false;
+      for (final item in items) {
+        final have = haveThisProduct(item.placeId, item.product.id);
+        if (have == null) continue;
+        if (have.amount <= item.amount) continue;
+
+        status = true;
+        ShowToast.error(
+          context,
+          "${AppLocales.doNotDecreaseText.tr()}: ${item.product.name}",
+        );
+
+        return;
+      }
+
+      if (status) return;
+    }
+
     final currentKeys =
         current.map((e) => '${e.product.id}-${e.placeId}').toSet();
     final unique = items
@@ -142,7 +186,11 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
     state = [...current, ...unique];
   }
 
-  void clear() => state = [];
+  void clear() {
+    final current = ref.watch(currentEmployeeProvider);
+    if (current.roleName.toLowerCase() != 'admin') return;
+    state = [];
+  }
 
   void _onDeleteCache(String placeId, ref) {
     final list = state.where((e) => e.placeId == placeId).toList();

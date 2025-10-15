@@ -96,7 +96,7 @@ class OrderItemCardNew extends HookConsumerWidget {
         orderNotifier.deleteItem(item, context);
       } else {
         final updatedItem = item.copyWith(amount: newAmount.toDouble());
-        orderNotifier.updateItem(updatedItem);
+        orderNotifier.updateItem(updatedItem, context);
       }
     }
 
@@ -148,7 +148,7 @@ class OrderItemCardNew extends HookConsumerWidget {
                       OrderItem kOrderItem = item;
                       kOrderItem.amount = amount;
                       kOrderItem.customPrice = price;
-                      orderNotifier.updateItem(kOrderItem);
+                      orderNotifier.updateItem(kOrderItem,context);
                     },
                   ),
                 ),
@@ -255,8 +255,9 @@ class OrderItemCardNew extends HookConsumerWidget {
                       ElevatedButton.icon(
                         icon: Icon(Icons.remove, size: 20),
                         onPressed: () {
-                          if (item.amount >= 0.1)
+                          if (item.amount >= 0.1) {
                             updateAmount(item.amount - 0.1);
+                          }
                         },
                         label: Text("0.1"),
                         style: ElevatedButton.styleFrom(
@@ -289,7 +290,7 @@ class OrderItemCardNew extends HookConsumerWidget {
                       OrderItem kOrderItem = item;
                       kOrderItem.amount = amount;
                       kOrderItem.customPrice = price;
-                      orderNotifier.updateItem(kOrderItem);
+                      orderNotifier.updateItem(kOrderItem, context);
                     },
                   ),
                 );
