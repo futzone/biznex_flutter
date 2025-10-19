@@ -20,10 +20,11 @@ class ApiAddressScreen extends HookConsumerWidget {
         spacing: 24,
         children: [
           AppTextField(
-              prefixIcon: Icon(Icons.api_outlined),
-              title: AppLocales.enterAddress.tr(),
-              controller: controller,
-              theme: theme),
+            prefixIcon: Icon(Icons.api_outlined),
+            title: AppLocales.enterAddress.tr(),
+            controller: controller,
+            theme: theme,
+          ),
           AppPrimaryButton(
             theme: theme,
             title: AppLocales.save.tr(),
@@ -36,7 +37,7 @@ class ApiAddressScreen extends HookConsumerWidget {
                   AppRouter.close(context);
                   ShowToast.success(context, AppLocales.savedSuccessfully.tr());
                 }
-                
+
                 ref.invalidate(employeeProvider);
                 // AppRouter.open(context, OnB)
               });

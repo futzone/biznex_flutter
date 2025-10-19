@@ -34,35 +34,55 @@ class LoginHalfPage extends HookConsumerWidget {
                 ),
               ),
             ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: Dis.top(32),
-                    padding: Dis.only(lr: 32, tb: 16),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(80),
-                      color: Colors.white,
-                    ),
-                    child: Row(
-                      spacing: 12,
-                      children: [
-                        Icon(Iconsax.call_copy),
-                        Text(
-                          "${AppLocales.contactWithUs.tr()}: +998 94 244 99 89",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontFamily: boldFamily,
+            Padding(
+              padding: const EdgeInsets.only(left: 24, right: 24),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (Navigator.canPop(context))
+                      SimpleButton(
+                        onPressed: () {
+                          AppRouter.close(context);
+                        },
+                        child: Container(
+                          margin: Dis.top(32),
+                          padding: Dis.only(lr: 16, tb: 16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(80),
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Ionicons.arrow_back,
                           ),
                         ),
-                      ],
+                      ),
+                    Container(
+                      margin: Dis.top(32),
+                      padding: Dis.only(lr: 32, tb: 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(80),
+                        color: Colors.white,
+                      ),
+                      child: Row(
+                        spacing: 12,
+                        children: [
+                          Icon(Iconsax.call_copy),
+                          Text(
+                            "${AppLocales.contactWithUs.tr()}: +998 94 244 99 89",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontFamily: boldFamily,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             SizedBox(

@@ -232,7 +232,9 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
                       onConfirm: (pin) {
                         Future.microtask(() {
                           onNextPressed(
-                              currentEmployee.pincode, currentEmployee);
+                            currentEmployee.pincode,
+                            currentEmployee,
+                          );
                         });
                       },
                       // onBiometric: () {},
@@ -249,9 +251,10 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
                               theme: theme,
                               onPressed: () {
                                 showDesktopModal(
-                                    context: context,
-                                    body: ApiAddressScreen(),
-                                    width: 400);
+                                  context: context,
+                                  body: ApiAddressScreen(),
+                                  width: 480,
+                                );
                               },
                               child: Row(
                                 spacing: 8,

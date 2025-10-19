@@ -60,6 +60,10 @@ class AppModel {
     log("$data", error: error, stackTrace: stackTrace);
   }
 
+  bool get alwaysWaiter {
+    return apiUrl != null && apiUrl!.length > 6;
+  }
+
   AppModel({
     this.offline = true,
     this.allowCancelOrder = false,

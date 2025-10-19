@@ -225,7 +225,7 @@ class OrderController {
       ref.invalidate(ingredientTransactionsProvider);
       ref.invalidate(ingredientsProvider);
       final notifier = ref.read(orderSetProvider.notifier);
-      notifier.clearPlaceItems(place.id);
+      notifier.clearPlaceItemsCloser(place.id);
 
       TransactionController transactionController = TransactionController(
         context: context,

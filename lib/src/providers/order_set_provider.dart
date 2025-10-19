@@ -155,6 +155,11 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
     state = state.where((e) => e.placeId != placeId).toList();
   }
 
+  void clearPlaceItemsCloser(String placeId) {
+     // if (current.roleName.toLowerCase() != 'admin') return;
+    state = state.where((e) => e.placeId != placeId).toList();
+  }
+
   void addMultiple(List<OrderItem> items, BuildContext? context) {
     final current = state;
 

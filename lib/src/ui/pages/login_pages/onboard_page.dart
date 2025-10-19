@@ -50,8 +50,9 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
               },
               loading: () => AppLoadingScreen(),
               data: (employees) {
-                if (employees.isEmpty &&
-                    getDeviceType(context) == DeviceType.mobile) {
+                if ((employees.isEmpty &&
+                        getDeviceType(context) == DeviceType.mobile) ||
+                    (employees.isEmpty && state.alwaysWaiter)) {
                   return Scaffold(
                     body: Center(
                       child: Padding(
@@ -104,10 +105,10 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                     ),
                   );
                 }
-                if (employees.isEmpty) {
-                  return LoginPageHarom(
-                      model: state, theme: theme, fromAdmin: true);
-                }
+                // if (employees.isEmpty) {
+                //   return LoginPageHarom(
+                //       model: state, theme: theme, fromAdmin: true);
+                // }
                 if (getDeviceType(context) == DeviceType.mobile) {
                   return OnboardMobile(
                       employees: employees, theme: theme, state: state);
@@ -258,23 +259,23 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                         color: Colors.white,
                                       ),
                                     ),
-                                    IconButton(
-                                      onLongPress: () async {
-                                        state.apiUrl = null;
-                                        AppStateDatabase().updateApp(state);
-                                      },
-                                      onPressed: () async {
-                                        showDesktopModal(
-                                            context: context,
-                                            body: ApiAddressScreen(),
-                                            width: 400);
-                                      },
-                                      icon: Icon(
-                                        Icons.language,
-                                        size: 28,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                                    // IconButton(
+                                    //   onLongPress: () async {
+                                    //     state.apiUrl = null;
+                                    //     AppStateDatabase().updateApp(state);
+                                    //   },
+                                    //   onPressed: () async {
+                                    //     showDesktopModal(
+                                    //         context: context,
+                                    //         body: ApiAddressScreen(),
+                                    //         width: 400);
+                                    //   },
+                                    //   icon: Icon(
+                                    //     Icons.language,
+                                    //     size: 28,
+                                    //     color: Colors.white,
+                                    //   ),
+                                    // ),
                                     IconButton(
                                       // onLongPress: ,
                                       onPressed: () async {

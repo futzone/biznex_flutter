@@ -32,6 +32,11 @@ class LicenseStatusWrapper extends ConsumerWidget {
         builder: (status) {
           status as bool;
           if (status) {
+
+            if(state.alwaysWaiter) {
+              return OnboardPage();
+            }
+
             return state.pincode.isEmpty
                 ? LoginPageHarom(model: state, theme: theme, fromAdmin: true)
                 : OnboardPage();
