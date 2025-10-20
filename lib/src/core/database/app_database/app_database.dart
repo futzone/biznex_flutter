@@ -37,14 +37,15 @@ abstract class AppDatabase {
   Future<String?> connectionStatus() async {
     final url = await AppStateDatabase().getApp();
     if (url.apiUrl == null || (url.apiUrl ?? '').isEmpty) return null;
+    return url.apiUrl;
 
-    final response = await ApiBase().get(baseUrl: "http://${url.apiUrl}:8080", path: "/api/v1/docs");
-    if (response.success) {
-      isClientApp = true;
-      baseUrl = url.apiUrl;
-      return url.apiUrl;
-    }
-    return null;
+    // final response = await ApiBase().get(baseUrl: "http://${url.apiUrl}:8080", path: "/api/v1/docs");
+    // if (response.success) {
+    //   isClientApp = true;
+    //   baseUrl = url.apiUrl;
+    //
+    // }
+    // return null;
   }
 
   ApiBase apiBase = ApiBase();
