@@ -93,10 +93,10 @@ class OrderItemCardNew extends HookConsumerWidget {
 
     void updateAmount(num newAmount) {
       if (newAmount <= 0) {
-        orderNotifier.deleteItem(item, context);
+        orderNotifier.deleteItem(item, context, order);
       } else {
         final updatedItem = item.copyWith(amount: newAmount.toDouble());
-        orderNotifier.updateItem(updatedItem, context);
+        orderNotifier.updateItem(updatedItem, context, order: order);
       }
     }
 
@@ -142,13 +142,14 @@ class OrderItemCardNew extends HookConsumerWidget {
                   child: OrderItemDetailScreen(
                     product: item,
                     onDeletePressed: () {
-                      orderNotifier.deleteItem(item, context);
+                      orderNotifier.deleteItem(item, context, order);
                     },
                     onUpdateItemDetails: (amount, price) {
                       OrderItem kOrderItem = item;
                       kOrderItem.amount = amount;
                       kOrderItem.customPrice = price;
-                      orderNotifier.updateItem(kOrderItem,context);
+                      orderNotifier.updateItem(kOrderItem, context,
+                          order: order);
                     },
                   ),
                 ),
@@ -156,7 +157,7 @@ class OrderItemCardNew extends HookConsumerWidget {
             },
             child: Dismissible(
               onDismissed: (_) {
-                orderNotifier.deleteItem(item, context);
+                orderNotifier.deleteItem(item, context, order);
               },
               background: Container(
                 color: Colors.red,
@@ -284,13 +285,17 @@ class OrderItemCardNew extends HookConsumerWidget {
                   body: OrderItemDetailScreen(
                     product: item,
                     onDeletePressed: () {
-                      orderNotifier.deleteItem(item, context);
+                      orderNotifier.deleteItem(item, context, order);
                     },
                     onUpdateItemDetails: (amount, price) {
                       OrderItem kOrderItem = item;
                       kOrderItem.amount = amount;
                       kOrderItem.customPrice = price;
-                      orderNotifier.updateItem(kOrderItem, context);
+                      orderNotifier.updateItem(
+                        kOrderItem,
+                        context,
+                        order: order,
+                      );
                     },
                   ),
                 );
@@ -605,7 +610,7 @@ class OrderItemCardNew extends HookConsumerWidget {
                           children: [
                             SimpleButton(
                               onPressed: () {
-                                orderNotifier.deleteItem(item, context);
+                                orderNotifier.deleteItem(item, context, order);
                               },
                               child: Container(
                                 decoration: BoxDecoration(
@@ -1060,7 +1065,7 @@ class OrderItemCardNew extends HookConsumerWidget {
                           children: [
                             SimpleButton(
                               onPressed: () {
-                                orderNotifier.deleteItem(item, context);
+                                orderNotifier.deleteItem(item, context, order);
                               },
                               child: Container(
                                 decoration: BoxDecoration(

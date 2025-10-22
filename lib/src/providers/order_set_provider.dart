@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/orders_provider.dart';
 import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import '../core/database/order_database/order_database.dart';
+import '../core/model/order_models/order_model.dart';
 import 'employee_orders_provider.dart';
 
 final orderSetProvider =
@@ -51,7 +54,8 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
 
   void removeItem(OrderItem item, AppModel model, context) {
     final current = ref.watch(currentEmployeeProvider);
-    if (current.roleName.toLowerCase() != 'admin') return;
+    if (current.roleName.toLowerCase() != 'admin' && _itemIsSaved(item, null))
+      return;
 
     final index = state.indexWhere(
         (e) => e.product.id == item.product.id && e.placeId == item.placeId);
@@ -61,14 +65,17 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
         final updatedItem = current.copyWith(amount: current.amount - 1);
         state = [...state]..[index] = updatedItem;
       } else {
-        deleteItem(item, context);
+        deleteItem(item, context, null);
       }
     }
   }
 
-  void deleteItem(OrderItem item, context) async {
+  void deleteItem(OrderItem item, context, Order? kOrder) async {
     final current = ref.watch(currentEmployeeProvider);
-    if (current.roleName.toLowerCase() != 'admin') return;
+    if (current.roleName.toLowerCase() != 'admin' &&
+        _itemIsSaved(item, kOrder)) {
+      return;
+    }
 
     final order = ref.watch(ordersProvider(item.placeId)).value;
 
@@ -101,11 +108,19 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
     return;
   }
 
-  void updateItem(OrderItem item, BuildContext context) {
+  void updateItem(OrderItem item, BuildContext context, {Order? order}) {
     final currentEmployee = ref.watch(currentEmployeeProvider);
     if (currentEmployee.roleName.toLowerCase() != 'admin') {
       final have = haveThisProduct(item.placeId, item.product.id);
-      if (have != null && have.amount > item.amount) {
+      log("old: ${have?.amount} new: ${item.amount}");
+      if ((have != null && have.amount > item.amount) &&
+          (((order?.products ?? [])
+                      .where((e) => e.product.id == item.product.id)
+                      .firstOrNull
+                      ?.amount ??
+                  0) >
+              item.amount) &&
+          !_itemIsSaved(item, order)) {
         ShowToast.error(
           context,
           "${AppLocales.doNotDecreaseText.tr()}: ${item.product.name}",
@@ -156,11 +171,12 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
   }
 
   void clearPlaceItemsCloser(String placeId) {
-     // if (current.roleName.toLowerCase() != 'admin') return;
+    // if (current.roleName.toLowerCase() != 'admin') return;
     state = state.where((e) => e.placeId != placeId).toList();
   }
 
-  void addMultiple(List<OrderItem> items, BuildContext? context) {
+  void addMultiple(List<OrderItem> items, BuildContext? context,
+      {Order? order}) {
     final current = state;
 
     final currentEmployee = ref.watch(currentEmployeeProvider);
@@ -170,6 +186,8 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
         final have = haveThisProduct(item.placeId, item.product.id);
         if (have == null) continue;
         if (have.amount <= item.amount) continue;
+
+        if (!_itemIsSaved(item, order)) continue;
 
         status = true;
         ShowToast.error(
@@ -208,5 +226,19 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
       ref.invalidate(employeeOrdersProvider);
       orderDatabase.deletePlaceOrder(placeId);
     }
+  }
+
+  bool _itemIsSaved(OrderItem item, Order? order) {
+    final currentAmount = item.amount;
+    final originalAmount = (order?.products ?? [])
+        .firstWhere(
+          (e) => e.product.id == item.product.id,
+          orElse: () => item.copyWith(amount: -1),
+        )
+        .amount;
+
+    log("org: $originalAmount | curr: $currentAmount");
+
+    return currentAmount == originalAmount;
   }
 }

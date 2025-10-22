@@ -222,7 +222,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                 controller: phoneController,
                                 theme: theme,
                                 // useBorder: true,
-                               fillColor: theme.accentColor,
+                                fillColor: theme.accentColor,
                               ),
                               0.h,
                               AppTextField(
@@ -320,7 +320,11 @@ class OrderItemsPage extends HookConsumerWidget {
                                             Duration(milliseconds: 100));
                                         ref
                                             .read(orderSetProvider.notifier)
-                                            .addMultiple(order.products, context);
+                                            .addMultiple(
+                                              order.products,
+                                              context,
+                                              order: order,
+                                            );
                                       } else {
                                         // ref.read(orderSetProvider.notifier).clear();
                                       }
