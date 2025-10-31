@@ -41,7 +41,7 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
           if (!categoryMap.containsKey(categoryId)) {
             categoryMap[categoryId] = {
               'category': category ?? Category(name: AppLocales.others.tr()),
-              'products': {}
+              'products': {},
             };
           }
 

@@ -399,6 +399,11 @@ class WarehousePrinterServices {
         pw.SizedBox(height: 4),
         ...productMap.keys.map((key) {
           final category = productMap[key]['category'] as Category;
+          double totalSumm = 0.0;
+          for (final item in productMap[key]['products'].values) {
+            totalSumm += item['product'].price * item['amount'];
+          }
+
           return pw.Column(
             children: [
               pw.SizedBox(height: 8),
@@ -432,10 +437,18 @@ class WarehousePrinterServices {
                   ),
                 ),
               ]),
-              pw.SizedBox(height: 2),
+              pw.SizedBox(height: 4),
+              pw.Center(
+                child: pw.Text(
+                  "${AppLocales.total.tr()}: ${totalSumm.priceUZS}",
+                  style: pdfTheme.copyWith(fontSize: 10),
+                ),
+              ),
+              pw.SizedBox(height: 6),
               ...(productMap[key]['products'] as Map).keys.map(
                 (id) {
                   final ctgObject = productMap[key]['products'];
+                  // final productsList = ctgObject.values.toList();
                   final product = ctgObject[id]['product'] as Product;
                   final amount = ctgObject[id]['amount'] as num;
                   return pw.Column(
