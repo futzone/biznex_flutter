@@ -109,6 +109,7 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
   }
 
   void updateItem(OrderItem item, BuildContext context, {Order? order}) {
+    log("update item for: ${item.product.name}");
     final currentEmployee = ref.watch(currentEmployeeProvider);
     if (currentEmployee.roleName.toLowerCase() != 'admin') {
       final have = haveThisProduct(item.placeId, item.product.id);
@@ -181,6 +182,7 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
 
     final currentEmployee = ref.watch(currentEmployeeProvider);
     if (currentEmployee.roleName.toLowerCase() != 'admin' && context != null) {
+      log("status: for save");
       bool status = false;
       for (final item in items) {
         final have = haveThisProduct(item.placeId, item.product.id);
@@ -194,8 +196,6 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
           context,
           "${AppLocales.doNotDecreaseText.tr()}: ${item.product.name}",
         );
-
-        return;
       }
 
       if (status) return;

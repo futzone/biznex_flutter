@@ -1,4 +1,4 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 Widget RefLoadingScreen() => AppLoadingScreen();
 
@@ -13,14 +13,12 @@ class AppLoadingScreen extends StatelessWidget {
       child: Padding(
         padding: padding ?? EdgeInsets.zero,
         child: SizedBox(
-            height: 80,
-            width: 80,
-            child: Image.asset(
-              "assets/animations/output-onlinegiftools.gif",
-              height: 80,
-              width: 80,
-              fit: BoxFit.cover,
-            )),
+          height: 80,
+          width: 80,
+          child: CircularProgressIndicator(
+            strokeWidth: 8,
+          ),
+        ),
       ),
     );
   }

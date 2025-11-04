@@ -11,7 +11,7 @@ abstract class OrderDatabaseRepository {
   Future<String?> connectionStatus() async {
     final url = await AppStateDatabase().getApp();
     if (url.apiUrl == null || (url.apiUrl ?? '').isEmpty) return null;
-
+    baseUrl = url.apiUrl;
     return url.apiUrl;
     //
     // final response = await ApiBase().get(baseUrl: "http://${url.apiUrl}:8080", path: "/api/v1/docs");
@@ -36,6 +36,7 @@ abstract class OrderDatabaseRepository {
   }
 
   Future<dynamic> postRemote({required String path, dynamic data}) async {
+    log("Base Url: $baseUrl");
     if (baseUrl == null) return null;
     final response = await apiBase.post(baseUrl: "http://$baseUrl:8080", path: '/api/v2/$path', data: data);
     if (response.success) return response?.data;

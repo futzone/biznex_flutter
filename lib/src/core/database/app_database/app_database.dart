@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/database/changes_database/changes_database.dart';
 import 'package:biznex/src/core/network/api.dart';
@@ -37,6 +39,7 @@ abstract class AppDatabase {
   Future<String?> connectionStatus() async {
     final url = await AppStateDatabase().getApp();
     if (url.apiUrl == null || (url.apiUrl ?? '').isEmpty) return null;
+    baseUrl = url.apiUrl;
     return url.apiUrl;
 
     // final response = await ApiBase().get(baseUrl: "http://${url.apiUrl}:8080", path: "/api/v1/docs");

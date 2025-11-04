@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/model/app_changes_model.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
@@ -31,6 +32,7 @@ class EmployeeDatabase extends AppDatabase {
     final List<Employee> productInfoList = [];
 
     if ((await connectionStatus()) != null) {
+      log("connection have");
       final response = await getRemote(boxName: boxName);
       if (response != null) {
         for (final item in jsonDecode(response)) {

@@ -40,7 +40,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   easy_localization: ^3.0.7
-  file_picker: ^10.1.0
+  file_picker: ^10.3.3
 
   sliver_tools: ^0.2.12
   iconly: ^1.0.1

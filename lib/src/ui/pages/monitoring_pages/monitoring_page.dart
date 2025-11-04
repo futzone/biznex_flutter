@@ -29,7 +29,7 @@ class MonitoringPage extends StatefulHookConsumerWidget {
 }
 
 class _MonitoringPageState extends ConsumerState<MonitoringPage> {
-  final _filter = OrderFilterModel();
+  final _filter = OrderFilterModel(forAll: true);
   DateTime? _startDate;
   DateTime? _endDate;
   DateTime? _currentDate;

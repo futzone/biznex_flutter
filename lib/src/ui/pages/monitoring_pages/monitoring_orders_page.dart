@@ -16,7 +16,7 @@ import '../../widgets/helpers/app_back_button.dart';
 class MonitoringOrdersPage extends HookConsumerWidget {
   MonitoringOrdersPage({super.key});
 
-  final OrderFilterModel orderFilterModel = OrderFilterModel();
+  final OrderFilterModel orderFilterModel = OrderFilterModel(forAll: true);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

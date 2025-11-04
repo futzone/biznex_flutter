@@ -14,10 +14,12 @@ import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
 import 'package:biznex/src/ui/widgets/custom/app_empty_widget.dart';
 import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
+import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 
+import '../../../../main.dart';
 import 'order_card.dart';
 
 class OrdersPage extends StatefulHookConsumerWidget {
@@ -30,7 +32,8 @@ class OrdersPage extends StatefulHookConsumerWidget {
 class _OrdersPageState extends ConsumerState<OrdersPage> {
   @override
   Widget build(BuildContext context) {
-    final orderFilter = useState(OrderFilterModel());
+    final page = useState(1);
+    final orderFilter = useState(OrderFilterModel(page: page.value));
     final placeFather = useState<Place?>(null);
     final searchController = useTextEditingController();
 
@@ -108,6 +111,7 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                           OrderFilterModel filterModel =
                                               orderFilter.value;
                                           filterModel.place = null;
+                                          filterModel.page = 1;
                                           orderFilter.value = filterModel;
                                           setState(() {});
                                           ref.invalidate(ordersFilterProvider);
@@ -120,17 +124,21 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                             if (pls.children != null &&
                                                 pls.children!.isNotEmpty) {
                                               placeFather.value = pls;
+
                                               OrderFilterModel filterModel =
                                                   orderFilter.value;
                                               filterModel.place = pls.id;
+                                              filterModel.page = 1;
                                               orderFilter.value = filterModel;
                                               setState(() {});
                                               return;
                                             }
 
                                             placeFather.value = null;
+
                                             OrderFilterModel filterModel =
                                                 orderFilter.value;
+                                            filterModel.page = 1;
                                             filterModel.place = pls.id;
                                             orderFilter.value = filterModel;
                                             setState(() {});
@@ -193,6 +201,8 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                         onPressed: () {
                                           OrderFilterModel filterModel =
                                               orderFilter.value;
+                                          filterModel.page = 1;
+
                                           filterModel.employee = null;
                                           orderFilter.value = filterModel;
                                           setState(() {});
@@ -213,6 +223,8 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                             onPressed: () {
                                               OrderFilterModel filterModel =
                                                   orderFilter.value;
+                                              filterModel.page = 1;
+
                                               filterModel.employee = item.id;
                                               orderFilter.value = filterModel;
                                               setState(() {});
@@ -287,6 +299,8 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                               orderFilter.value;
                                           filterModel.product = null;
                                           orderFilter.value = filterModel;
+                                          filterModel.page = 1;
+
                                           setState(() {});
                                           ref.invalidate(ordersFilterProvider);
                                         },
@@ -304,6 +318,8 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                                 orderFilter.value;
                                             filterModel.product = places[i].id;
                                             orderFilter.value = filterModel;
+                                            filterModel.page = 1;
+
                                             setState(() {});
 
                                             ref.invalidate(
@@ -369,6 +385,8 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                       OrderFilterModel filterModel =
                                           orderFilter.value;
                                       filterModel.dateTime = date;
+                                      filterModel.page = 1;
+
                                       orderFilter.value = filterModel;
                                       setState(() {});
 
@@ -418,6 +436,8 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                                               OrderFilterModel filterModel =
                                                   orderFilter.value;
                                               filterModel.dateTime = null;
+                                              filterModel.page = 1;
+
                                               orderFilter.value = filterModel;
                                               setState(() {});
                                               ref.invalidate(
@@ -461,6 +481,8 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                               onChanged: (char) {
                                 OrderFilterModel filterModel =
                                     orderFilter.value;
+                                filterModel.page = 1;
+
                                 filterModel.query = char;
                                 orderFilter.value = filterModel;
                                 setState(() {});
@@ -485,23 +507,130 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                       Expanded(
                         child: orders.isEmpty
                             ? AppEmptyWidget()
-                            : GridView.builder(
-                                padding: 120.bottom,
+                            : CustomScrollView(
                                 controller: controller,
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: context.w(16),
-                                  mainAxisSpacing: context.h(16),
-                                  childAspectRatio: 1.2,
-                                ),
-                                itemCount: orders.length,
-                                itemBuilder: (context, index) {
-                                  return OrderCard(
-                                    order: orders[index],
-                                    theme: theme,
-                                  );
-                                },
+                                slivers: [
+                                  SliverPadding(padding: 4.tb),
+                                  SliverGrid.builder(
+                                    // padding: 120.bottom,
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      crossAxisSpacing: context.w(16),
+                                      mainAxisSpacing: context.h(16),
+                                      childAspectRatio: 1.2,
+                                    ),
+                                    itemCount: orders.length,
+                                    itemBuilder: (context, index) {
+                                      return OrderCard(
+                                        order: orders[index],
+                                        theme: theme,
+                                      );
+                                    },
+                                  ),
+                                  SliverPadding(padding: 16.tb),
+                                  // if (orders.length > (appPageSize))
+                                  SliverToBoxAdapter(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      // mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      spacing: 16,
+                                      children: [
+                                        if (page.value - 1 > 0)
+                                          AppPrimaryButton(
+                                            theme: theme,
+                                            onPressed: () {
+                                              page.value = page.value - 1;
+                                              OrderFilterModel old =
+                                                  orderFilter.value;
+                                              old.page = page.value;
+                                              orderFilter.value = old;
+                                              setState(() {});
+                                              ref.invalidate(
+                                                  ordersFilterProvider);
+                                            },
+                                            padding: Dis.only(lr: 40, tb: 16),
+                                            // color: Colors.transparent,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Ionicons.arrow_back,
+                                                  // size: 20,
+                                                  color: Colors.white,
+                                                ),
+                                                8.w,
+                                                Text(
+                                                  "${page.value - 1}",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        AppPrimaryButton(
+                                          theme: theme,
+                                          onPressed: () {},
+                                          padding: Dis.only(lr: 40, tb: 16),
+                                          // color: Colors.transparent,
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.circle,
+                                                color: Colors.white,
+                                              ),
+                                              8.w,
+                                              Text(
+                                                "${page.value}",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        AppPrimaryButton(
+                                          theme: theme,
+                                          onPressed: () {
+                                            page.value = page.value + 1;
+
+                                            OrderFilterModel old =
+                                                orderFilter.value;
+                                            old.page = page.value;
+                                            orderFilter.value = old;
+                                            setState(() {});
+                                            ref.invalidate(
+                                                ordersFilterProvider);
+                                          },
+                                          padding: Dis.only(lr: 40, tb: 16),
+                                          // color: Colors.transparent,
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                "${page.value + 1}",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18,
+                                                ),
+                                              ),
+                                              8.w,
+                                              Icon(
+                                                Ionicons.arrow_forward,
+                                                color: Colors.white,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SliverPadding(padding: 100.tb),
+                                ],
                               ),
                       ),
                     ],

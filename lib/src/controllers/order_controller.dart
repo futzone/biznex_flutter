@@ -131,10 +131,8 @@ class OrderController {
   }
 
   static Future<Order?> getCurrentOrder(String placeId) async {
-    log("place id: $placeId");
     OrderDatabase database = OrderDatabase();
     final state = await database.getPlaceOrder(placeId);
-    log("${state?.products}");
     return state;
   }
 

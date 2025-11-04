@@ -50,6 +50,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
               },
               loading: () => AppLoadingScreen(),
               data: (employees) {
+                log("$employees");
                 if ((employees.isEmpty &&
                         getDeviceType(context) == DeviceType.mobile) ||
                     (employees.isEmpty && state.alwaysWaiter)) {

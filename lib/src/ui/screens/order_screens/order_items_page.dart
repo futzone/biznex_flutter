@@ -272,7 +272,6 @@ class OrderItemsPage extends HookConsumerWidget {
                                         ref.watch(currentEmployeeProvider),
                                   );
 
-                                  log((place.father == null).toString());
 
                                   if (order == null) {
                                     orderController.openOrder(
