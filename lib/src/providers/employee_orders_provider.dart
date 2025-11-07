@@ -1,11 +1,12 @@
-import 'dart:developer';
-  import 'package:biznex/biznex.dart';
+import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/core/model/order_models/order_filter_model.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
-import 'package:biznex/src/providers/order_cache_provider.dart';
+import 'package:flutter/foundation.dart';
 
+import '../core/isolate/employee_order_filter.dart';
+import '../core/isolate/order_filter.dart';
 
 bool isTodayOrder(DateTime dateFilter, Order order) {
   final orderDate = DateTime.parse(order.createdDate);
@@ -22,31 +23,28 @@ bool haveInPlaces(Order order, String placeId) {
   return order.products.any((element) => element.placeId == placeId);
 }
 
-final FutureProvider<List<Order>> employeeOrdersProvider =
-    FutureProvider((ref) async {
+final employeeOrdersProvider = FutureProvider<List<Order>>((ref) async {
   final employee = ref.watch(currentEmployeeProvider);
-  await ref.read(orderCacheProvider.notifier).init();
+  final orderDatabase = OrderDatabase();
+  final allOrders = await orderDatabase.getOrders();
 
-  final allOrders = ref.watch(orderCacheProvider);
+  final result = await compute(filterAndSortOrders, {
+    'orders': allOrders,
+    'employeeId': employee.id,
+  });
 
-  List<Order> list = [
-    ...allOrders.where((el) => el.employee.id == employee.id)
-  ];
-
-  // list.sort((a, b) {
-  //   final dateA = DateTime.parse(a.updatedDate);
-  //   final dateB = DateTime.parse(b.updatedDate);
-  //   return dateB.compareTo(dateA);
-  // });
-
-  return list;
+  return result;
 });
 
 final ordersFilterProvider =
     FutureProvider.family<List<Order>, OrderFilterModel>((ref, filter) async {
-      log("${filter.page} ${filter.limit}");
-  OrderDatabase orderDatabase = OrderDatabase();
-  final list = await orderDatabase.getOrders(filter: filter);
+  final orderDatabase = OrderDatabase();
+  final allOrders = await orderDatabase.getOrders();
 
-  return list;
+  final filtered = await compute(filterAndSortAllOrders, {
+    'orders': allOrders,
+    'filter': filter,
+  });
+
+  return filtered;
 });

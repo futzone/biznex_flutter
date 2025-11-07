@@ -55,7 +55,7 @@ class OrderDatabase extends OrderDatabaseRepository {
     return uuid.v1();
   }
 
-  Future<List<Order>> getOrders({OrderFilterModel? filter}) async {
+  Future<List<Order>> getOrders() async {
     List<Order> ordersList = [];
     if ((await connectionStatus()) != null) {
       final response = await getRemote(path: 'orders');
@@ -68,53 +68,12 @@ class OrderDatabase extends OrderDatabaseRepository {
       return ordersList;
     }
 
-    final query = isar.orderIsars
-        .filter()
-        .optional(filter?.employee != null,
-            (q) => q.employee((e) => e.idEqualTo(filter?.employee ?? '')))
-        .optional(
-            filter?.status != null, (q) => q.statusEqualTo(filter?.status))
-        .optional(
-            filter?.query != null,
-            (q) => q.orderNumberContains(filter?.query ?? '',
-                caseSensitive: false))
-        .optional(filter?.dateTime != null, (q) {
-          final start = DateTime(filter!.dateTime!.year, filter.dateTime!.month,
-              filter.dateTime!.day);
-          final end = start.add(const Duration(days: 1));
-          return q.updatedDateBetween(
-              start.toIso8601String(), end.toIso8601String());
-        })
-        .optional(
-            filter?.product != null,
-            (q) => q.productsElement(
-                (p) => p.product((e) => e.idEqualTo(filter?.product ?? ''))))
-        .optional(
-            filter?.place != null, (q) => q.idEqualTo(filter?.place ?? ''))
-        .sortByUpdatedDateDesc();
-
-    if (filter?.forAll ?? false) {
-      log("start: ${DateTime.now().toIso8601String()}");
-      final results = await query.findAll();
-
-      log("load: ${DateTime.now().toIso8601String()}");
-
-      final yep = results.map((el) => Order.fromIsar(el)).toList();
-      log("parse: ${DateTime.now().toIso8601String()}");
-
-      return yep;
+    final orders = await isar.orderIsars.where().findAll();
+    for (final item in orders) {
+      ordersList.add(Order.fromIsar(item));
     }
 
-    final results = await query
-        .offset(((filter?.page ?? 1) - 1) * (filter?.limit ?? appPageSize))
-        .limit(filter?.limit ?? appPageSize)
-        .findAll();
-
-    log("got");
-    final yep = results.map((el) => Order.fromIsar(el)).toList();
-    log("parsed");
-
-    return yep;
+    return ordersList;
   }
 
   Future<void> deleteOrder(String id) async {
