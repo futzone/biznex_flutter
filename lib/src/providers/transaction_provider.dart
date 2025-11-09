@@ -1,14 +1,14 @@
-import 'package:biznex/biznex.dart';
-import 'package:biznex/src/core/database/transactions_database/transactions_database.dart';
+import 'package:flutter/foundation.dart';
 
-final transactionProvider = FutureProvider((ref) async {
-  TransactionsDatabase transactionsDatabase = TransactionsDatabase();
+import '../../biznex.dart';
+import '../core/database/transactions_database/transactions_database.dart';
+import '../core/isolate/transaction_filter.dart';
+import '../core/model/transaction_model/transaction_model.dart';
+
+final transactionProvider = FutureProvider<List<Transaction>>((ref) async {
+  final transactionsDatabase = TransactionsDatabase();
   final list = await transactionsDatabase.get();
-  // list.sort((a, b) {
-  //   final dateA = DateTime.parse(a.createdDate.isNotEmpty ? a.createdDate : DateTime(2025).toIso8601String());
-  //   final dateB = DateTime.parse(b.createdDate.isNotEmpty ? b.createdDate : DateTime(2025).toIso8601String());
-  //   return dateB.compareTo(dateA);
-  // });
+  final sortedList = await compute(sortTransactions, list);
 
-  return list;
+  return sortedList;
 });

@@ -58,7 +58,7 @@ class ChangesController {
       return await _ifOrderChanges();
     }
 
-    return _ifClientChanges();
+    return await _ifClientChanges();
   }
 
   Future<bool> _ifClientChanges() async {

@@ -139,8 +139,20 @@ class TransactionsPage extends HookConsumerWidget {
                       ),
                     ),
                     0.w,
+                    IconButton(
+                      onPressed: () {
+
+                         ref.invalidate(transactionProvider);
+                      },
+                      icon: Icon(
+                        Icons.sync,
+                        size: 32,
+                        color: Colors.black,
+                      ),
+                    ),
                     SizedBox(
                       width: context.w(400),
+                      height: 52,
                       child: AppTextField(
                         title: AppLocales.search.tr(),
                         controller: searchController,
@@ -150,15 +162,7 @@ class TransactionsPage extends HookConsumerWidget {
                         // useBorder: false,
                       ),
                     ),
-                    0.w,
-                    Text(
-                      AppLocales.date.tr(),
-                      style: TextStyle(
-                        fontSize: context.s(16),
-                        fontFamily: mediumFamily,
-                        color: Colors.black,
-                      ),
-                    ),
+
                     SimpleButton(
                       onPressed: () {
                         showDatePicker(

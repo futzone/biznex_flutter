@@ -43,24 +43,21 @@ class MonitoringController {
 
   Future<List<Order>> _getDayOrders(DateTime day) async {
     List<Order> ordersList = [];
-    final allOrders = await orderDatabase.getOrders();
+    final allOrders = await orderDatabase.getDayOrders(day);
 
-    final dayOrders = allOrders.where((item) {
-      final createdDate = DateTime.parse(item.createdDate);
-      return createdDate.year == day.year && createdDate.month == day.month && createdDate.day == day.day;
-    });
-
-    ordersList = [...dayOrders];
+    ordersList = [for (final order in allOrders) Order.fromIsar(order)];
 
     return ordersList;
   }
 
-  Future<Map<String, OrderItem>> _onCalculateProductMonitoring(List<Order> ordersList) async {
+  Future<Map<String, OrderItem>> _onCalculateProductMonitoring(
+      List<Order> ordersList) async {
     final products = await productDatabase.get();
     Map<String, OrderItem> reportsMap = {};
     for (final product in products) {
       final amount = ordersList.fold(0.0, (total, item) {
-        final productSubs = item.products.where((el) => el.product.id == product.id).toList();
+        final productSubs =
+            item.products.where((el) => el.product.id == product.id).toList();
         return total += (productSubs.fold((0.0), (a, el) => a += el.amount));
       });
 
@@ -68,7 +65,8 @@ class MonitoringController {
       if (oldValue == null) {
         oldValue = OrderItem(product: product, amount: amount, placeId: '');
       } else {
-        oldValue = OrderItem(product: product, amount: (oldValue.amount + amount), placeId: '');
+        oldValue = OrderItem(
+            product: product, amount: (oldValue.amount + amount), placeId: '');
       }
 
       reportsMap[product.id] = oldValue;
@@ -77,23 +75,42 @@ class MonitoringController {
     return reportsMap;
   }
 
-  Future<Map<String, EM>> _onCalculateEmployeeMonitoring(List<Order> ordersList) async {
+  Future<Map<String, EM>> _onCalculateEmployeeMonitoring(
+      List<Order> ordersList) async {
     final employees = await employeeDatabase.get();
     final percentMonitoring = await percentDatabase.get();
     final allPercents = percentMonitoring.fold(0.0, (a, el) => a += el.percent);
     Map<String, EM> employeesMonitoring = {};
     for (final item in employees) {
-      final orders = ordersList.where((el) => el.employee.id == item.id).toList();
-      final percentOrders = orders.where((el) => !el.place.percentNull).toList();
+      final orders =
+          ordersList.where((el) => el.employee.id == item.id).toList();
+      final percentOrders =
+          orders.where((el) => !el.place.percentNull).toList();
       EM employeeMonitoring = EM(
         ordersCount: orders.length,
-        percentSumm: percentOrders.fold(0.0, (a, el) => a += (el.price * (allPercents / 100))),
+        percentSumm: percentOrders.fold(
+            0.0, (a, el) => a += (el.price * (allPercents / 100))),
         totalSumm: orders.fold(0.0, (a, el) => a += el.price),
         employee: item,
       );
 
       employeesMonitoring[item.id] = employeeMonitoring;
     }
+
+    final orders = ordersList
+        .where((el) => el.employee.roleName.toLowerCase() == 'admin')
+        .toList();
+    final percentOrders = orders.where((el) => !el.place.percentNull).toList();
+    EM employeeMonitoring = EM(
+      ordersCount: orders.length,
+      percentSumm: percentOrders.fold(
+          0.0, (a, el) => a += (el.price * (allPercents / 100))),
+      totalSumm: orders.fold(0.0, (a, el) => a += el.price),
+      employee: Employee(
+          fullname: "Admin", roleId: "", roleName: "Admin", id: "admin"),
+    );
+
+    employeesMonitoring["admin"] = employeeMonitoring;
 
     return employeesMonitoring;
   }
@@ -113,7 +130,9 @@ class MonitoringController {
     final ordersTotalSumm = dayOrders.fold(0.0, (a, item) => a += item.price);
     final ordersTotalProductSumm = dayOrders.fold(0.0, (a, item) {
       final orderProfit = item.products.fold(0.0, (b, pr) {
-        return b += pr.amount * (pr.product.price - (pr.product.price / ((100 + pr.product.percent) / 100)));
+        return b += pr.amount *
+            (pr.product.price -
+                (pr.product.price / ((100 + pr.product.percent) / 100)));
       });
 
       return a += orderProfit;
@@ -124,8 +143,10 @@ class MonitoringController {
     final orderPercentSumm = orderPrecent <= 0
         ? 0.0
         : dayOrders.fold(0.0, (a, order) {
-      return a += (order.place.percentNull ? 0.0 : ((order.price * (1 - (100 / (100 + orderPrecent))))));
-    });
+            return a += (order.place.percentNull
+                ? 0.0
+                : ((order.price * (1 - (100 / (100 + orderPrecent))))));
+          });
 
     PrinterMonitoringServices pms = PrinterMonitoringServices(
       model: state,

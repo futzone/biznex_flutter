@@ -120,7 +120,10 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                   final orders =
                       ref.watch(ordersFilterProvider(orderFilterModel)).value ??
                           [];
-                  final employees = ref.watch(employeeProvider).value ?? [];
+                  final employees = [
+                    Employee(fullname: "Admin", roleId: '', roleName: "Admin"),
+                    ...(ref.watch(employeeProvider).value ?? [])
+                  ];
 
                   List<EmployeeExcel> list = [];
                   for (final employee in employees) {
@@ -150,8 +153,9 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                         return value;
                       }
 
-                      if (element.employee.id == employeeId)
+                      if (element.employee.id == employeeId) {
                         return value += element.price;
+                      }
                       return value;
                     });
 
@@ -238,8 +242,288 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                     employees as List<Employee>;
 
                     return ListView.builder(
-                      itemCount: employees.length,
+                      itemCount: employees.length + 1,
                       itemBuilder: (context, index) {
+                        if (index == employees.length) {
+                          final adminEmployee = Employee(
+                            fullname: "Admin",
+                            roleId: "",
+                            roleName: "Admin",
+                          );
+
+                          final double ordersSumm =
+                              orders.fold(0.0, (value, element) {
+                            if (selectedDate.value != null &&
+                                filterType.value == 'monthly') {
+                              if (element.employee.roleName.toLowerCase() ==
+                                      adminEmployee.roleName.toLowerCase() &&
+                                  AppDateUtils.isMonthOrder(selectedDate.value!,
+                                      element.createdDate)) {
+                                return value += element.price;
+                              }
+
+                              return value;
+                            }
+
+                            if (selectedDate.value != null &&
+                                filterType.value == 'daily') {
+                              if (element.employee.roleName.toLowerCase() ==
+                                      adminEmployee.roleName.toLowerCase() &&
+                                  AppDateUtils.isTodayOrder(selectedDate.value!,
+                                      element.createdDate)) {
+                                return value += element.price;
+                              }
+
+                              return value;
+                            }
+
+                            if (element.employee.roleName.toLowerCase() ==
+                                adminEmployee.roleName.toLowerCase()) {
+                              return value += element.price;
+                            }
+                            return value;
+                          });
+
+                          final double salarySumm =
+                              orders.fold(0.0, (value, element) {
+                            if (selectedDate.value != null &&
+                                filterType.value == 'monthly') {
+                              if (element.employee.roleName.toLowerCase() ==
+                                      adminEmployee.roleName.toLowerCase() &&
+                                  AppDateUtils.isMonthOrder(selectedDate.value!,
+                                      element.createdDate)) {
+                                final t = element.price *
+                                    (1 - (100 / (100 + percents)));
+                                if (element.place.percentNull) return value;
+                                return value += t;
+                              }
+
+                              return value;
+                            }
+
+                            if (selectedDate.value != null &&
+                                filterType.value == 'daily') {
+                              if (element.employee.roleName.toLowerCase() ==
+                                      adminEmployee.roleName.toLowerCase() &&
+                                  AppDateUtils.isTodayOrder(selectedDate.value!,
+                                      element.createdDate)) {
+                                final t = element.price *
+                                    (1 - (100 / (100 + percents)));
+                                if (element.place.percentNull) return value;
+                                return value += t;
+                              }
+
+                              return value;
+                            }
+
+                            if (element.employee.roleName.toLowerCase() ==
+                                adminEmployee.roleName.toLowerCase()) {
+                              final t = element.price *
+                                  (1 - (100 / (100 + percents)));
+                              if (element.place.percentNull) return value;
+                              return value += t;
+                            }
+                            return value;
+                          });
+
+                          final int ordersCount =
+                              orders.fold(0, (value, element) {
+                            if (selectedDate.value != null &&
+                                filterType.value == 'monthly') {
+                              if (element.employee.roleName.toLowerCase() ==
+                                      adminEmployee.roleName.toLowerCase() &&
+                                  AppDateUtils.isMonthOrder(selectedDate.value!,
+                                      element.createdDate)) {
+                                return value += 1;
+                              }
+
+                              return value;
+                            }
+
+                            if (selectedDate.value != null &&
+                                filterType.value == 'daily') {
+                              if (element.employee.roleName.toLowerCase() ==
+                                      adminEmployee.roleName.toLowerCase() &&
+                                  AppDateUtils.isTodayOrder(selectedDate.value!,
+                                      element.createdDate)) {
+                                return value += 1;
+                              }
+
+                              return value;
+                            }
+
+                            if (element.employee.roleName.toLowerCase() ==
+                                adminEmployee.roleName.toLowerCase()) {
+                              return value += 1;
+                            }
+                            return value;
+                          });
+
+                          return SimpleButton(
+                            onPressed: () {
+                              showDesktopModal(
+                                width: MediaQuery.of(context).size.width * 0.6,
+                                context: context,
+                                body: EmployeeMonitoringPage(
+                                  theme,
+                                  adminEmployee,
+                                ),
+                              );
+                            },
+                            child: Container(
+                              margin: 16.bottom,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: theme.accentColor,
+                              ),
+                              padding: Dis.only(lr: 16, tb: 8),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      spacing: 8,
+                                      children: [
+                                        Icon(
+                                          Iconsax.user,
+                                          color: theme.mainColor,
+                                        ),
+                                        Text(
+                                          adminEmployee.fullname,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontFamily: boldFamily,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      spacing: 8,
+                                      children: [
+                                        Icon(
+                                          Iconsax.briefcase,
+                                          color: theme.mainColor,
+                                        ),
+                                        Text(
+                                          adminEmployee.roleName,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontFamily: boldFamily,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      spacing: 8,
+                                      children: [
+                                        Icon(Iconsax.bag,
+                                            color: theme.mainColor),
+                                        Text(
+                                          "${AppLocales.orders.tr()}: $ordersCount",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontFamily: boldFamily,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      spacing: 8,
+                                      children: [
+                                        Icon(
+                                          Iconsax.percentage_circle,
+                                          color: theme.mainColor,
+                                        ),
+                                        Text(
+                                          salarySumm.priceUZS,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontFamily: boldFamily,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      spacing: 8,
+                                      children: [
+                                        Icon(Iconsax.wallet,
+                                            color: theme.mainColor),
+                                        Text(
+                                          ordersSumm.priceUZS,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontFamily: boldFamily,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      spacing: 8,
+                                      children: [
+                                        IgnorePointer(
+                                          ignoring: true,
+                                          child: AppPrimaryButton(
+                                            // title:,
+                                            theme: theme,
+                                            onPressed: () {},
+                                            padding: Dis.only(lr: 16, tb: 4),
+                                            // title:,
+                                            radius: 12,
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  AppLocales.about.tr(),
+                                                  style: TextStyle(
+                                                    fontFamily: mediumFamily,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                8.w,
+                                                Icon(
+                                                  Icons.arrow_forward,
+                                                  size: 20,
+                                                  color: Colors.white,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+
                         final employeeId = employees[index].id;
 
                         final double ordersSumm =
@@ -266,8 +550,9 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                             return value;
                           }
 
-                          if (element.employee.id == employeeId)
+                          if (element.employee.id == employeeId) {
                             return value += element.price;
+                          }
                           return value;
                         });
 
@@ -334,15 +619,16 @@ class MonitoringEmployeesPage extends HookConsumerWidget {
                             return value;
                           }
 
-                          if (element.employee.id == employeeId)
+                          if (element.employee.id == employeeId) {
                             return value += 1;
+                          }
                           return value;
                         });
 
                         return SimpleButton(
                           onPressed: () {
                             showDesktopModal(
-                              width: MediaQuery.of(context).size.width*0.6,
+                              width: MediaQuery.of(context).size.width * 0.6,
                               context: context,
                               body: EmployeeMonitoringPage(
                                 theme,

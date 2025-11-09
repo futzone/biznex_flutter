@@ -352,10 +352,10 @@ void startServer() async {
   });
 
   app.get('/api/v2/orders', (Request request) async {
-    final data = await orderDatabase.getOrders();
+    final data = await orderDatabase.getDayOrders(DateTime.now());
     final dataList = [];
     for (final item in data) {
-      dataList.add(item.toJson());
+      dataList.add(Order.fromIsar(item).toJson());
     }
     return Response(200, body: jsonEncode(dataList));
   });

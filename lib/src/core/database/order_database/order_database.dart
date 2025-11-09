@@ -8,6 +8,7 @@ import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/database/changes_database/changes_database.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/isar_database/isar_extension.dart';
+import 'package:biznex/src/core/database/transactions_database/transactions_database.dart';
 import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/model/order_models/order_filter_model.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
@@ -16,7 +17,9 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../biznex.dart';
 import '../../../controllers/warehouse_monitoring_controller.dart';
+import '../../model/app_changes_model.dart';
 import '../../model/product_models/product_model.dart';
+import '../../model/transaction_model/transaction_model.dart';
 import '../../services/printer_multiple_services.dart';
 import '../../services/printer_services.dart';
 import '../product_database/product_database.dart';
@@ -76,6 +79,13 @@ class OrderDatabase extends OrderDatabaseRepository {
     return ordersList;
   }
 
+  Future<List<OrderIsar>> getDayOrders(DateTime day) {
+    return isar.orderIsars
+        .filter()
+        .createdDateStartsWith(day.toIso8601String().split("T").first)
+        .findAll();
+  }
+
   Future<void> deleteOrder(String id) async {
     await isar.writeTxn(() async {
       final orderIsar =
@@ -119,6 +129,19 @@ class OrderDatabase extends OrderDatabaseRepository {
     await _onUpdateAmounts(order);
 
     try {
+      Transaction transaction = Transaction(
+        value: order.price,
+        order: order,
+        employee: order.employee,
+        paymentType: order.paymentTypes.map((e) => e.name).toList().join(", "),
+        note: AppLocales.byOrder.tr(),
+      );
+      await TransactionsDatabase().set(data: transaction);
+    } catch (error) {
+      log("Error on creating transaction:", error: error);
+    }
+
+    try {
       await WarehouseMonitoringController.updateIngredientDetails(
         products: order.products,
       );
@@ -126,6 +149,16 @@ class OrderDatabase extends OrderDatabaseRepository {
       log("Error on save AAA: $error");
       return;
     }
+
+    try {
+      await changesDatabase.set(
+        data: Change(
+          database: 'orders',
+          method: 'create',
+          itemId: order.id,
+        ),
+      );
+    } catch (_) {}
 
     try {
       final model = await AppStateDatabase().getApp();
@@ -291,8 +324,6 @@ class OrderDatabase extends OrderDatabaseRepository {
     if (order != null) {
       await _onUpdateAmounts(order);
       await saveOrder(order);
-
-      log('AAA message');
     }
   }
 

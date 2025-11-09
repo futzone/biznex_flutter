@@ -9,6 +9,7 @@ import 'package:biznex/src/core/database/order_database/order_percent_database.d
 import 'package:biznex/src/core/database/product_database/product_database.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
+import 'package:biznex/src/core/model/order_models/percent_model.dart';
 import 'package:biznex/src/core/model/other_models/customer_model.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
@@ -23,6 +24,7 @@ import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 
 import '../core/model/app_changes_model.dart';
 import '../providers/recipe_providers.dart';
+import '../providers/transaction_provider.dart';
 
 class OrderController {
   final Employee employee;
@@ -75,8 +77,10 @@ class OrderController {
 
     if (!context.mounted) return;
     AppRouter.close(context);
-    ref.invalidate(ordersProvider(place.id));
-    ref.invalidate(ordersProvider);
+    try {
+      ref.invalidate(ordersProvider(place.id));
+      ref.invalidate(ordersProvider);
+    } catch (_) {}
     ShowToast.success(context, AppLocales.orderCreatedSuccessfully.tr());
 
     // PrinterMultipleServices printerMultipleServices = PrinterMultipleServices();
@@ -94,39 +98,38 @@ class OrderController {
     DateTime? scheduledDate,
   }) async {
     if (!context.mounted) return;
-    showAppLoadingDialog(context);
+    try {
+      showAppLoadingDialog(context);
 
-    Order? currentState = await _database.getPlaceOrder(place.id);
-    if (currentState == null) {
-      if (context.mounted) AppRouter.close(context);
-      return;
-    }
+      Order? currentState = await _database.getPlaceOrder(place.id);
+      if (currentState == null) {
+        if (context.mounted) AppRouter.close(context);
+        return;
+      }
 
-    Order updatedOrder =
-        currentState.copyWith(products: List<OrderItem>.from(newItemsList));
+      double totalPrice = newItemsList.fold(0.0, (oldValue, element) {
+        return oldValue + (element.amount * element.product.price);
+      });
 
-    double totalPrice = newItemsList.fold(0.0, (oldValue, element) {
-      return oldValue + (element.amount * element.product.price);
-    });
-    updatedOrder = updatedOrder.copyWith(price: totalPrice);
+      Order updatedOrder = currentState.copyWith(
+        products: List<OrderItem>.from(newItemsList),
+        price: totalPrice,
+        customer: customer ?? currentState.customer,
+        note: note ?? currentState.note,
+        scheduledDate:
+            scheduledDate?.toIso8601String() ?? currentState.scheduledDate,
+        updatedDate: DateTime.now().toIso8601String(),
+      );
 
-    if (customer != null) {
-      updatedOrder = updatedOrder.copyWith(customer: customer);
-    }
-    if (note != null) updatedOrder = updatedOrder.copyWith(note: note);
-    if (scheduledDate != null) {
-      updatedOrder =
-          updatedOrder.copyWith(scheduledDate: scheduledDate.toIso8601String());
-    }
-
-    updatedOrder =
-        updatedOrder.copyWith(updatedDate: DateTime.now().toIso8601String());
-
-    await _database.updatePlaceOrder(data: updatedOrder, placeId: place.id, message: message);
+      await _database.updatePlaceOrder(
+          data: updatedOrder, placeId: place.id, message: message);
+    } catch (_) {}
 
     if (!context.mounted) return;
-    ref.invalidate(ordersProvider(place.id));
-    ref.invalidate(ordersProvider);
+    try {
+      ref.invalidate(ordersProvider(place.id));
+      ref.invalidate(ordersProvider);
+    } catch (_) {}
     AppRouter.close(context);
   }
 
@@ -199,46 +202,28 @@ class OrderController {
     }
 
     finalOrder = finalOrder.copyWith(
-      place: place,
-      status: Order.completed,
-      updatedDate: DateTime.now().toIso8601String(),
-    );
+        place: place,
+        status: Order.completed,
+        updatedDate: DateTime.now().toIso8601String(),
+        paymentTypes: [Percent(name: paymentType ?? "cash", percent: 100)]);
 
     await _database.saveOrder(finalOrder);
 
     await _database.closeOrder(placeId: place.id);
-    await _database.changesDatabase.set(
-      data: Change(
-        database: 'orders',
-        method: 'create',
-        itemId: finalOrder.id,
-      ),
-    );
+
 
     try {
       ref.invalidate(ordersProvider(place.id));
       ref.invalidate(ordersProvider);
+      ref.invalidate(dayOrdersProvider);
+      ref.invalidate(todayOrdersProvider);
       ref.invalidate(productsProvider);
       ref.invalidate(employeeOrdersProvider);
       ref.invalidate(ingredientTransactionsProvider);
       ref.invalidate(ingredientsProvider);
+      ref.invalidate(transactionProvider);
       final notifier = ref.read(orderSetProvider.notifier);
       notifier.clearPlaceItemsCloser(place.id);
-
-      TransactionController transactionController = TransactionController(
-        context: context,
-        state: model,
-        useLoading: false,
-      );
-      Transaction transaction = Transaction(
-        value: finalOrder.price,
-        order: finalOrder,
-        employee: finalOrder.employee,
-        paymentType: paymentType ?? Transaction.cash,
-        note: AppLocales.byOrder.tr(),
-      );
-      transactionController.create(transaction);
-
       ShowToast.success(context, AppLocales.orderClosedSuccessfully.tr());
     } catch (_) {}
 

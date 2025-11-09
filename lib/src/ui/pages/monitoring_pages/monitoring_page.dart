@@ -1,4 +1,5 @@
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/price_percent_provider.dart';
 import 'package:biznex/src/providers/products_provider.dart';
@@ -14,9 +15,11 @@ import 'package:biznex/src/ui/pages/monitoring_pages/monitoring_products_page.da
 import 'package:biznex/src/ui/pages/monitoring_pages/monitoring_orders_page.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
+import 'package:flutter/foundation.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 import '../../../controllers/monitoring_controller.dart';
+import '../../../core/isolate/time_range_filter.dart';
 import '../../../core/model/order_models/order_model.dart';
 import '../../widgets/helpers/app_decorated_button.dart';
 import 'monitoring_ingredients_page.dart';
@@ -39,45 +42,24 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
   bool _textForRange = false;
   double _placePrice = 0.0;
 
-  void _onChooseRange(DateTimeRange? range, List<Order> orders) {
+  Future<void> _onChooseRange(DateTimeRange? range, List<Order> orders) async {
     if (range == null) return;
 
     _textForRange = true;
-
-    _ordersSumm = 0.0;
-    _totalSumm = 0.0;
-    _percentsSumm = 0.0;
     _startDate = range.start;
     _endDate = range.end;
 
-    final ordersList = orders.where((order) {
-      final createdDate = DateTime.parse(order.createdDate);
-      return _startDate!.isBefore(createdDate) &&
-          _endDate!.isAfter(createdDate);
-    }).toList();
+    final result = await compute(calculateRangeStatsIsolate, {
+      'orders': orders.map((e) => e.toJson()).toList(),
+      'start': _startDate!.toIso8601String(),
+      'end': _endDate!.toIso8601String(),
+      'percentItems': ref.read(orderPercentProvider).value ?? [],
+    });
 
-    final percent = (ref.watch(orderPercentProvider).value ?? [])
-        .fold(0.0, (perc, item) => perc += item.percent);
-
-    for (final order in ordersList) {
-      final productOldPrice = order.products.fold(0.0, (value, product) {
-        final kPrice = (product.amount *
-            (product.product.price *
-                (1 - (100 / (100 + product.product.percent)))));
-
-        return value += kPrice;
-      });
-
-      _ordersSumm += order.price;
-      _totalSumm += productOldPrice;
-      if (!order.place.percentNull) {
-        _percentsSumm += (order.price * (1 - (100 / (100 + percent))));
-      }
-
-      if (order.place.price != null) {
-        _placePrice += order.place.price!;
-      }
-    }
+    _ordersSumm = result['ordersSumm'] ?? 0.0;
+    _totalSumm = result['totalSumm'] ?? 0.0;
+    _percentsSumm = result['percentsSumm'] ?? 0.0;
+    _placePrice = result['placePrice'] ?? 0.0;
 
     setState(() {});
   }
@@ -85,7 +67,7 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
   @override
   Widget build(BuildContext context) {
     final date = DateTime.now();
-    final data = ref.watch(ordersFilterProvider(_filter)).value ?? [];
+    final data = ref.watch(todayOrdersProvider).value ?? [];
     final percent = (ref.watch(orderPercentProvider).value ?? [])
         .fold(0.0, (perc, item) => perc + item.percent);
 
@@ -125,7 +107,8 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
       return getTotalSumm() + getPercentsSumm();
     }
 
-    for (final order in ordersList) {
+    for (final kOrder in ordersList) {
+      final order = Order.fromIsar(kOrder);
       final productOldPrice = order.products.fold(0.0, (value, product) {
         final kPrice = (product.amount *
             (product.product.price *
@@ -275,7 +258,7 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                     context: context,
                                     firstDate: DateTime(2025),
                                     lastDate: DateTime.now(),
-                                  ).then((date) {
+                                  ).then((date) async {
                                     if (date == null) return;
                                     _textForRange = false;
 
@@ -283,13 +266,8 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                     _totalSumm = 0.0;
                                     _percentsSumm = 0.0;
                                     _placePrice = 0.0;
-                                    final ordersList = data.where((order) {
-                                      final createdDate =
-                                          DateTime.parse(order.createdDate);
-                                      return date.day == createdDate.day &&
-                                          date.month == createdDate.month &&
-                                          date.year == createdDate.year;
-                                    }).toList();
+                                    final ordersList = await OrderDatabase()
+                                        .getDayOrders(date);
 
                                     final percent = (ref
                                                 .watch(orderPercentProvider)
@@ -300,8 +278,9 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                             (perc, item) =>
                                                 perc += item.percent);
 
-                                    for (final order in ordersList) {
-                                      order as Order;
+                                    for (final kItem in ordersList) {
+                                      var order = Order.fromIsar(kItem);
+
                                       final productOldPrice = order.products
                                           .fold(0.0, (value, product) {
                                         final kPrice = (product.amount *
