@@ -424,6 +424,17 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                       ),
                     ),
                   ),
+                  IconButton(
+                    onPressed: () {
+                      ref.invalidate(todayOrdersProvider);
+                    },
+                    icon: Icon(
+                      Icons.sync,
+                      size: 32,
+                      color: Colors.black,
+                    ),
+                  ),
+                  16.w,
                   SizedBox(
                     width: 300,
                     child: AppTextField(

@@ -83,6 +83,7 @@ class OrderDatabase extends OrderDatabaseRepository {
     return isar.orderIsars
         .filter()
         .createdDateStartsWith(day.toIso8601String().split("T").first)
+        .sortByCreatedDateDesc()
         .findAll();
   }
 

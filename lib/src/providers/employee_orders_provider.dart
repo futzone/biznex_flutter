@@ -52,13 +52,11 @@ final ordersFilterProvider =
 final todayOrdersProvider = FutureProvider((ref) async {
   final orderDatabase = OrderDatabase();
   final allOrders = await orderDatabase.getDayOrders(DateTime.now());
-
   return allOrders;
 });
 
 final dayOrdersProvider = FutureProvider.family((ref, DateTime day) async {
   final orderDatabase = OrderDatabase();
   final allOrders = await orderDatabase.getDayOrders(day);
-
   return allOrders;
 });
