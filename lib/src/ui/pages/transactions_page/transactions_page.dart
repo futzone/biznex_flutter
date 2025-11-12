@@ -2,10 +2,13 @@ import 'dart:developer';
 
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/controllers/transaction_controller.dart';
+import 'package:biznex/src/core/config/router.dart';
+import 'package:biznex/src/core/database/transactions_database/transactions_database.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/providers/transaction_provider.dart';
 import 'package:biznex/src/ui/pages/transactions_page/add_transaction_page.dart';
 import 'package:biznex/src/ui/widgets/custom/app_empty_widget.dart';
+import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
@@ -23,41 +26,21 @@ class TransactionsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final providerListener = ref.watch(transactionProvider).value ?? [];
     final searchController = useTextEditingController();
     final searchResultList = useState(<Transaction>[]);
-    final selectedDate = useState<DateTime?>(null);
+    final selectedDate = useState<DateTime>(DateTime.now());
+    final providerListener =
+        ref.watch(transactionProvider(selectedDate.value)).value ?? [];
 
-    List<Transaction> buildList() {
-      if (selectedDate.value != null) {
-        return searchResultList.value;
-      }
-
-      if (searchController.text.trim().isNotEmpty) {
-        return searchResultList.value;
-      }
-
-      return providerListener;
-    }
-
-    void onSearchChanged(dynamic query) {
+    void onSearchChanged(dynamic query) async {
       if (query is DateTime) {
-        log('date filter working');
-        searchResultList.value = [
-          ...providerListener.where((element) {
-            final date = DateTime.parse(element.createdDate);
-            return query.day == date.day &&
-                query.month == date.month &&
-                query.year == date.year;
-          }),
-        ];
+        searchResultList.value =
+            await TransactionsDatabase().getDayTransactions(query);
 
-        log(searchResultList.value.length.toString());
+        log("${searchResultList.value.length} in UI");
 
         return;
       }
-
-      selectedDate.value = null;
 
       if (query.trim().isEmpty) {
         searchResultList.value.clear();
@@ -139,29 +122,7 @@ class TransactionsPage extends HookConsumerWidget {
                       ),
                     ),
                     0.w,
-                    IconButton(
-                      onPressed: () {
 
-                         ref.invalidate(transactionProvider);
-                      },
-                      icon: Icon(
-                        Icons.sync,
-                        size: 32,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(
-                      width: context.w(400),
-                      height: 52,
-                      child: AppTextField(
-                        title: AppLocales.search.tr(),
-                        controller: searchController,
-                        theme: theme,
-                        fillColor: Colors.white,
-                        onChanged: onSearchChanged,
-                        // useBorder: false,
-                      ),
-                    ),
 
                     SimpleButton(
                       onPressed: () {
@@ -170,8 +131,8 @@ class TransactionsPage extends HookConsumerWidget {
                           firstDate: DateTime(2025),
                           lastDate: DateTime.now(),
                         ).then((date) {
-                          selectedDate.value = date;
                           if (date == null) return;
+                          selectedDate.value = date;
                           onSearchChanged(date);
                         });
                       },
@@ -186,31 +147,16 @@ class TransactionsPage extends HookConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            if (selectedDate.value == null)
-                              Text(
-                                AppLocales.all.tr(),
-                                style: TextStyle(
-                                    color: theme.secondaryTextColor,
-                                    fontSize: context.s(14)),
-                              ),
-                            if (selectedDate.value == null) 16.w,
-                            if (selectedDate.value == null)
-                              Icon(
-                                Icons.arrow_forward_ios_outlined,
-                                size: context.s(16),
+                            Text(
+                              DateFormat('yyyy, d-MMMM',
+                                      context.locale.languageCode)
+                                  .format(selectedDate.value)
+                                  .toLowerCase(),
+                              style: TextStyle(
                                 color: theme.secondaryTextColor,
+                                fontSize: context.s(14),
                               ),
-                            if (selectedDate.value != null)
-                              Text(
-                                DateFormat('yyyy, d-MMMM',
-                                        context.locale.languageCode)
-                                    .format(selectedDate.value!)
-                                    .toLowerCase(),
-                                style: TextStyle(
-                                  color: theme.secondaryTextColor,
-                                  fontSize: context.s(14),
-                                ),
-                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -261,7 +207,7 @@ class TransactionsPage extends HookConsumerWidget {
               ),
             ),
             state.whenProviderDataSliver(
-              provider: transactionProvider,
+              provider: transactionProvider(selectedDate.value),
               builder: (transactions) {
                 transactions as List<Transaction>;
                 if (transactions.isEmpty) {
@@ -272,21 +218,14 @@ class TransactionsPage extends HookConsumerWidget {
                   );
                 }
 
-                final list = buildList();
 
-                if (list.isEmpty) {
-                  return SliverToBoxAdapter(
-                    child: Padding(
-                        padding: Dis.all(context.s(100)),
-                        child: AppEmptyWidget()),
-                  );
-                }
+
 
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
-                    childCount: list.length,
+                    childCount: transactions.length,
                     (context, index) {
-                      final item = list[index];
+                      final item = transactions[index];
                       return Container(
                         margin: Dis.only(lr: context.s(24)),
                         padding: Dis.only(lr: context.w(20), tb: context.h(20)),

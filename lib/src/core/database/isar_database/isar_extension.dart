@@ -8,6 +8,8 @@ import '../../model/other_models/customer_model.dart';
 import '../../model/place_models/place_model.dart';
 import '../../model/product_models/product_model.dart';
 import '../../model/product_params_models/product_info.dart';
+import '../../model/transaction_model/transaction_isar.dart' hide EmployeeIsar;
+import '../../model/transaction_model/transaction_model.dart';
 
 extension CustomerToIsar on Customer {
   CustomerIsar toIsar() => CustomerIsar()
@@ -110,7 +112,6 @@ extension PlaceToIsarSafe on Place {
   }
 }
 
-
 extension OrderToIsar on Order {
   OrderIsar toIsar() {
     final o = OrderIsar()
@@ -130,3 +131,4 @@ extension OrderToIsar on Order {
     return o;
   }
 }
+

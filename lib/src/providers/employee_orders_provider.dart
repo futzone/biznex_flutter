@@ -49,6 +49,12 @@ final ordersFilterProvider =
   return filtered;
 });
 
+final orderLengthProvider = FutureProvider((ref)async {
+  final orderDatabase = OrderDatabase();
+  final allOrders = await orderDatabase.getOrders();
+  return allOrders.length;
+});
+
 final todayOrdersProvider = FutureProvider((ref) async {
   final orderDatabase = OrderDatabase();
   final allOrders = await orderDatabase.getDayOrders(DateTime.now());

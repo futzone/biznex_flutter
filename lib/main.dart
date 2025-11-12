@@ -16,7 +16,7 @@ import 'package:toastification/toastification.dart';
 import 'package:path/path.dart' as path;
 
 bool debugMode = true;
-const appVersion = '2.4.22';
+const appVersion = '2.4.23';
 const appPageSize = 12;
 
 void main() async {

@@ -87,6 +87,14 @@ class OrderDatabase extends OrderDatabaseRepository {
         .findAll();
   }
 
+  Future<List<OrderIsar>> getRangeOrders(DateTime start, DateTime end) {
+    return isar.orderIsars
+        .filter()
+        .createdDateBetween(start.toIso8601String(), end.toIso8601String())
+        .sortByCreatedDateDesc()
+        .findAll();
+  }
+
   Future<void> deleteOrder(String id) async {
     await isar.writeTxn(() async {
       final orderIsar =
@@ -134,7 +142,9 @@ class OrderDatabase extends OrderDatabaseRepository {
         value: order.price,
         order: order,
         employee: order.employee,
-        paymentType: order.paymentTypes.map((e) => e.name).toList().join(", "),
+        paymentType: order.paymentTypes.isEmpty
+            ? 'cash'
+            : order.paymentTypes.map((e) => e.name).toList().join(", "),
         note: AppLocales.byOrder.tr(),
       );
       await TransactionsDatabase().set(data: transaction);

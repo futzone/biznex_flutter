@@ -75,16 +75,34 @@ class OrderController {
       message: message,
     );
 
-    if (!context.mounted) return;
-    AppRouter.close(context);
+
     try {
       ref.invalidate(ordersProvider(place.id));
       ref.invalidate(ordersProvider);
+      await ref
+          .refresh(ordersProvider(place.id).future)
+          .then((order) {
+        if (order != null) {
+          ref
+              .read(orderSetProvider.notifier)
+              .clearPlaceItems(place.id);
+          Future.delayed(Duration(milliseconds: 100));
+          ref
+              .read(orderSetProvider.notifier)
+              .addMultiple(order.products, context,
+              order: order);
+        } else {
+          // ref.read(orderSetProvider.notifier).clear();
+        }
+      });
+
     } catch (_) {}
     ShowToast.success(context, AppLocales.orderCreatedSuccessfully.tr());
 
     // PrinterMultipleServices printerMultipleServices = PrinterMultipleServices();
     // printerMultipleServices.printForBack(order, products);
+    if (!context.mounted) return;
+    AppRouter.close(context);
   }
 
   Future<void> addItems(
@@ -222,6 +240,7 @@ class OrderController {
       ref.invalidate(ingredientTransactionsProvider);
       ref.invalidate(ingredientsProvider);
       ref.invalidate(transactionProvider);
+      ref.invalidate(orderLengthProvider);
       final notifier = ref.read(orderSetProvider.notifier);
       notifier.clearPlaceItemsCloser(place.id);
       ShowToast.success(context, AppLocales.orderClosedSuccessfully.tr());

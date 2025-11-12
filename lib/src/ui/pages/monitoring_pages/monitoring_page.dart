@@ -1,4 +1,5 @@
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/price_percent_provider.dart';
@@ -7,12 +8,12 @@ import 'package:biznex/src/providers/recipe_providers.dart';
 import 'package:biznex/src/providers/transaction_provider.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/providers/employee_orders_provider.dart';
-import 'package:biznex/src/core/model/order_models/order_filter_model.dart';
 import 'package:biznex/src/ui/pages/monitoring_pages/monitoring_transactions_page.dart';
 import 'package:biznex/src/ui/pages/monitoring_pages/monitoring_employees_page.dart';
 import 'package:biznex/src/ui/screens/monitoring_screen/monitoring_card_screen.dart';
 import 'package:biznex/src/ui/pages/monitoring_pages/monitoring_products_page.dart';
 import 'package:biznex/src/ui/pages/monitoring_pages/monitoring_orders_page.dart';
+import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:flutter/foundation.dart';
@@ -32,7 +33,7 @@ class MonitoringPage extends StatefulHookConsumerWidget {
 }
 
 class _MonitoringPageState extends ConsumerState<MonitoringPage> {
-  final _filter = OrderFilterModel(forAll: true);
+  // final _filter = OrderFilterModel(forAll: true);
   DateTime? _startDate;
   DateTime? _endDate;
   DateTime? _currentDate;
@@ -42,15 +43,18 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
   bool _textForRange = false;
   double _placePrice = 0.0;
 
-  Future<void> _onChooseRange(DateTimeRange? range, List<Order> orders) async {
+  Future<void> _onChooseRange(DateTimeRange? range) async {
     if (range == null) return;
+
+    showAppLoadingDialog(context);
 
     _textForRange = true;
     _startDate = range.start;
     _endDate = range.end;
 
+    final orders = await OrderDatabase().getRangeOrders(range.start, range.end);
     final result = await compute(calculateRangeStatsIsolate, {
-      'orders': orders.map((e) => e.toJson()).toList(),
+      'orders': orders.map((e) => Order.fromIsar(e)).toList(),
       'start': _startDate!.toIso8601String(),
       'end': _endDate!.toIso8601String(),
       'percentItems': ref.read(orderPercentProvider).value ?? [],
@@ -62,21 +66,15 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
     _placePrice = result['placePrice'] ?? 0.0;
 
     setState(() {});
+
+    AppRouter.close(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    final date = DateTime.now();
     final data = ref.watch(todayOrdersProvider).value ?? [];
     final percent = (ref.watch(orderPercentProvider).value ?? [])
         .fold(0.0, (perc, item) => perc + item.percent);
-
-    final ordersList = data.where((order) {
-      final createdDate = DateTime.parse(order.createdDate);
-      return date.day == createdDate.day &&
-          date.month == createdDate.month &&
-          date.year == createdDate.year;
-    }).toList();
 
     double ordersSumm = 0.0;
     double totalSumm = 0.0;
@@ -107,7 +105,7 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
       return getTotalSumm() + getPercentsSumm();
     }
 
-    for (final kOrder in ordersList) {
+    for (final kOrder in data) {
       final order = Order.fromIsar(kOrder);
       final productOldPrice = order.products.fold(0.0, (value, product) {
         final kPrice = (product.amount *
@@ -190,227 +188,220 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                   ),
                 ),
               ),
-              state.whenProviderDataSliver(
-                provider: ordersFilterProvider(_filter),
-                builder: (data) {
-                  return SliverToBoxAdapter(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: theme.white,
-                      ),
-                      margin: Dis.only(lr: context.w(24), bottom: 24),
-                      padding: context.s(24).all,
-                      // duration: theme.animationDuration,
-                      child: Column(
+              SliverToBoxAdapter(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: theme.white,
+                  ),
+                  margin: Dis.only(lr: context.w(24), bottom: 24),
+                  padding: context.s(24).all,
+                  // duration: theme.animationDuration,
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              if (_textForRange) ...[
-                                Text(
-                                  DateFormat('yyyy, dd-MMMM',
-                                          context.locale.languageCode)
-                                      .format(_startDate ?? DateTime.now()),
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontFamily: boldFamily,
-                                  ),
-                                ),
-                                4.w,
-                                Text(
-                                  DateFormat('yyyy, dd-MMMM',
-                                          context.locale.languageCode)
-                                      .format(_endDate ?? DateTime.now()),
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontFamily: boldFamily,
-                                  ),
-                                ),
-                                4.w,
-                                Text(
-                                  AppLocales.reportsForRange.tr(),
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ] else ...[
-                                Text(
-                                  DateFormat('yyyy, dd-MMMM',
-                                          context.locale.languageCode)
-                                      .format(_currentDate ?? DateTime.now()),
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontFamily: boldFamily,
-                                  ),
-                                ),
-                                4.w,
-                                Text(
-                                  AppLocales.reportsForDay.tr(),
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ],
-                              Spacer(),
-                              SimpleButton(
-                                onPressed: () {
-                                  showDatePicker(
-                                    context: context,
-                                    firstDate: DateTime(2025),
-                                    lastDate: DateTime.now(),
-                                  ).then((date) async {
-                                    if (date == null) return;
-                                    _textForRange = false;
+                          if (_textForRange) ...[
+                            Text(
+                              DateFormat('yyyy, dd-MMMM',
+                                      context.locale.languageCode)
+                                  .format(_startDate ?? DateTime.now()),
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: boldFamily,
+                              ),
+                            ),
+                            4.w,
+                            Text(
+                              DateFormat('yyyy, dd-MMMM',
+                                      context.locale.languageCode)
+                                  .format(_endDate ?? DateTime.now()),
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: boldFamily,
+                              ),
+                            ),
+                            4.w,
+                            Text(
+                              AppLocales.reportsForRange.tr(),
+                              style: TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
+                          ] else ...[
+                            Text(
+                              DateFormat('yyyy, dd-MMMM',
+                                      context.locale.languageCode)
+                                  .format(_currentDate ?? DateTime.now()),
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: boldFamily,
+                              ),
+                            ),
+                            4.w,
+                            Text(
+                              AppLocales.reportsForDay.tr(),
+                              style: TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                          Spacer(),
+                          SimpleButton(
+                            onPressed: () {
+                              showDatePicker(
+                                context: context,
+                                firstDate: DateTime(2025),
+                                lastDate: DateTime.now(),
+                              ).then((date) async {
+                                if (date == null) return;
+                                _textForRange = false;
 
-                                    _ordersSumm = 0.0;
-                                    _totalSumm = 0.0;
-                                    _percentsSumm = 0.0;
-                                    _placePrice = 0.0;
-                                    final ordersList = await OrderDatabase()
-                                        .getDayOrders(date);
+                                _ordersSumm = 0.0;
+                                _totalSumm = 0.0;
+                                _percentsSumm = 0.0;
+                                _placePrice = 0.0;
+                                final ordersList =
+                                    await OrderDatabase().getDayOrders(date);
 
-                                    final percent = (ref
-                                                .watch(orderPercentProvider)
-                                                .value ??
-                                            [])
-                                        .fold(
-                                            0.0,
-                                            (perc, item) =>
-                                                perc += item.percent);
+                                final percent = (ref
+                                            .watch(orderPercentProvider)
+                                            .value ??
+                                        [])
+                                    .fold(0.0,
+                                        (perc, item) => perc += item.percent);
 
-                                    for (final kItem in ordersList) {
-                                      var order = Order.fromIsar(kItem);
+                                for (final kItem in ordersList) {
+                                  var order = Order.fromIsar(kItem);
 
-                                      final productOldPrice = order.products
-                                          .fold(0.0, (value, product) {
-                                        final kPrice = (product.amount *
-                                            (product.product.price *
-                                                (1 -
-                                                    (100 /
-                                                        (100 +
-                                                            product.product
-                                                                .percent)))));
+                                  final productOldPrice = order.products
+                                      .fold(0.0, (value, product) {
+                                    final kPrice = (product.amount *
+                                        (product.product.price *
+                                            (1 -
+                                                (100 /
+                                                    (100 +
+                                                        product.product
+                                                            .percent)))));
 
-                                        return value += kPrice;
-                                      });
-
-                                      _ordersSumm += order.price;
-                                      _totalSumm += productOldPrice;
-                                      if (!order.place.percentNull) {
-                                        _percentsSumm += (order.price *
-                                            (1 - (100 / (100 + percent))));
-                                      }
-
-                                      if (order.place.price != null) {
-                                        _placePrice += order.place.price!;
-                                      }
-                                    }
-
-                                    _currentDate = date;
-
-                                    setState(() {});
+                                    return value += kPrice;
                                   });
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: theme.scaffoldBgColor,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  padding: 12.all,
-                                  child: Row(
-                                    spacing: 8,
-                                    children: [
-                                      Icon(Iconsax.calendar_1_copy),
-                                      Text(
-                                        AppLocales.date.tr(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+
+                                  _ordersSumm += order.price;
+                                  _totalSumm += productOldPrice;
+                                  if (!order.place.percentNull) {
+                                    _percentsSumm += (order.price *
+                                        (1 - (100 / (100 + percent))));
+                                  }
+
+                                  if (order.place.price != null) {
+                                    _placePrice += order.place.price!;
+                                  }
+                                }
+
+                                _currentDate = date;
+
+                                setState(() {});
+                              });
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: theme.scaffoldBgColor,
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              16.w,
-                              SimpleButton(
-                                onPressed: () {
-                                  showDateRangePicker(
-                                    context: context,
-                                    firstDate: DateTime(2025),
-                                    lastDate: DateTime.now(),
-                                    locale: context.locale,
-                                  ).then((val) {
-                                    _onChooseRange(val, data);
-                                  });
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: theme.scaffoldBgColor,
-                                    borderRadius: BorderRadius.circular(8),
+                              padding: 12.all,
+                              child: Row(
+                                spacing: 8,
+                                children: [
+                                  Icon(Iconsax.calendar_1_copy),
+                                  Text(
+                                    AppLocales.date.tr(),
                                   ),
-                                  padding: 12.all,
-                                  child: Row(
-                                    spacing: 8,
-                                    children: [
-                                      Icon(Iconsax.calendar_1_copy),
-                                      Text(
-                                        AppLocales.dateRange.tr(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  "${AppLocales.totalOrderSumm.tr()}: ${getOrdersSumm().priceUZS}",
-                                  style: TextStyle(
-                                      fontSize: 20, fontFamily: boldFamily),
-                                ),
+                          16.w,
+                          SimpleButton(
+                            onPressed: () {
+                              showDateRangePicker(
+                                context: context,
+                                firstDate: DateTime(2025),
+                                lastDate: DateTime.now(),
+                                locale: context.locale,
+                              ).then((val) async {
+                                await _onChooseRange(val);
+                              });
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: theme.scaffoldBgColor,
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              Expanded(
-                                child: Text(
-                                  "${AppLocales.totalProfit.tr()}: ${getTotalProfit().priceUZS}",
-                                  style: TextStyle(
-                                      fontSize: 20, fontFamily: boldFamily),
-                                ),
+                              padding: 12.all,
+                              child: Row(
+                                spacing: 8,
+                                children: [
+                                  Icon(Iconsax.calendar_1_copy),
+                                  Text(
+                                    AppLocales.dateRange.tr(),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                          8.h,
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  "${AppLocales.profitFromProducts.tr()}: ${getTotalSumm().priceUZS}",
-                                  style: TextStyle(
-                                      fontSize: 20, fontFamily: boldFamily),
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  "${AppLocales.profitFromPercents.tr()}: ${getPercentsSumm().priceUZS}",
-                                  style: TextStyle(
-                                      fontSize: 20, fontFamily: boldFamily),
-                                ),
-                              ),
-                            ],
-                          ),
-                          8.h,
-                          Row(
-                            children: [
-                              Text(
-                                "${AppLocales.profitFromPlacePrice.tr()}: ${getPlacePriceSumm().priceUZS}",
-                                style: TextStyle(
-                                    fontSize: 20, fontFamily: boldFamily),
-                              ),
-                            ],
-                          )
                         ],
                       ),
-                    ),
-                  );
-                },
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "${AppLocales.totalOrderSumm.tr()}: ${getOrdersSumm().priceUZS}",
+                              style: TextStyle(
+                                  fontSize: 20, fontFamily: boldFamily),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              "${AppLocales.totalProfit.tr()}: ${getTotalProfit().priceUZS}",
+                              style: TextStyle(
+                                  fontSize: 20, fontFamily: boldFamily),
+                            ),
+                          ),
+                        ],
+                      ),
+                      8.h,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "${AppLocales.profitFromProducts.tr()}: ${getTotalSumm().priceUZS}",
+                              style: TextStyle(
+                                  fontSize: 20, fontFamily: boldFamily),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              "${AppLocales.profitFromPercents.tr()}: ${getPercentsSumm().priceUZS}",
+                              style: TextStyle(
+                                  fontSize: 20, fontFamily: boldFamily),
+                            ),
+                          ),
+                        ],
+                      ),
+                      8.h,
+                      Row(
+                        children: [
+                          Text(
+                            "${AppLocales.profitFromPlacePrice.tr()}: ${getPlacePriceSumm().priceUZS}",
+                            style:
+                                TextStyle(fontSize: 20, fontFamily: boldFamily),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
               ),
               SliverPadding(
                 padding: Dis.only(lr: context.w(24)),
@@ -470,10 +461,10 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                         children: [
                           Expanded(
                             child: state.whenProviderData(
-                              provider: ordersFilterProvider(_filter),
+                              provider: orderLengthProvider,
                               builder: (ord) {
                                 return MonitoringCard(
-                                  count: ord.length,
+                                  count: ord,
                                   icon: Iconsax.bag_happy,
                                   theme: theme,
                                   title: AppLocales.orders.tr(),

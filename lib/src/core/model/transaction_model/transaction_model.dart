@@ -1,15 +1,30 @@
+import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
+import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
+import 'package:biznex/src/core/model/transaction_model/transaction_isar.dart';
+import 'package:isar/isar.dart';
 
 class Transaction {
   static const String cash = 'cash';
   static const String card = 'card';
   static const String debt = 'debt';
   static const String other = 'other';
+  static const String oson = 'oson';
+  static const String uzum = 'uzum';
   static const String click = 'click';
   static const String payme = 'payme';
 
-  static final List<String> values = [cash, card, debt, other, click, payme];
+  static final List<String> values = [
+    cash,
+    card,
+    debt,
+    click,
+    payme,
+    oson,
+    uzum,
+    other,
+  ];
 
   String id;
   String createdDate;
@@ -33,11 +48,40 @@ class Transaction {
     return Transaction(
       id: json['id'] ?? '',
       value: (json['value'] ?? 0).toDouble(),
-      createdDate: (json['createdDate'] ?? '').toString().isEmpty?DateTime.now().toIso8601String():json['createdDate'],
+      createdDate: (json['createdDate'] ?? '').toString().isEmpty
+          ? DateTime.now().toIso8601String()
+          : json['createdDate'],
       paymentType: json['paymentType'] ?? 'cash',
       note: json['note'] ?? '',
-      employee: json['employee'] != null ? Employee.fromJson(json['employee']) : null,
+      employee:
+          json['employee'] != null ? Employee.fromJson(json['employee']) : null,
       order: json['order'] != null ? Order.fromJson(json['order']) : null,
+    );
+  }
+
+  factory Transaction.fromIsar(TransactionIsar isar) {
+    OrderIsar? orderIsar = (isar.orderId == null
+        ? null
+        : IsarDatabase.instance.isar.orderIsars
+            .filter()
+            .idEqualTo(isar.orderId ?? '_')
+            .findFirstSync());
+    return Transaction(
+      id: isar.id,
+      value: isar.value,
+      createdDate: isar.createdDate,
+      paymentType: isar.paymentType,
+      note: isar.note,
+      employee: isar.employee != null
+          ? Employee(
+              fullname: isar.employee?.fullname ?? '',
+              roleId: isar.employee?.roleId ?? '',
+              roleName: isar.employee?.roleName ?? '',
+              id: isar.employee?.id ?? '',
+              createdDate: isar.employee?.createdDate ?? '',
+            )
+          : null,
+      order: orderIsar == null ? null : Order.fromIsar(orderIsar),
     );
   }
 
@@ -45,7 +89,8 @@ class Transaction {
     return {
       'id': id,
       'value': value,
-      'createdDate': createdDate.isEmpty ? DateTime.now().toIso8601String() : createdDate,
+      'createdDate':
+          createdDate.isEmpty ? DateTime.now().toIso8601String() : createdDate,
       'paymentType': paymentType,
       'note': note,
       'employee': employee?.toJson(),
@@ -53,7 +98,6 @@ class Transaction {
     };
   }
 }
-
 
 class CloudTransaction {
   String id;

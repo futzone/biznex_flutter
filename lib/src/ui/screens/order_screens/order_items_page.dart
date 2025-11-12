@@ -5,16 +5,20 @@ import 'package:biznex/src/controllers/order_controller.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
+import 'package:biznex/src/core/model/order_models/percent_model.dart';
 import 'package:biznex/src/core/model/other_models/customer_model.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/ui/screens/order_screens/order_item_card.dart';
+import 'package:biznex/src/ui/screens/order_screens/order_payment_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_empty_widget.dart';
 import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
+import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../providers/orders_provider.dart';
 
@@ -82,6 +86,8 @@ class OrderItemsPage extends HookConsumerWidget {
         final customerNotifier = useState<Customer?>(order?.customer);
         final addressController = useTextEditingController();
         final phoneController = useTextEditingController();
+        final paymentTypes =
+            useState(<Percent>[...(order?.paymentTypes ?? [])]);
         return Expanded(
           flex: getDeviceType(context) == DeviceType.tablet ? 6 : 4,
           child: placeOrderItems.isEmpty
@@ -172,44 +178,42 @@ class OrderItemsPage extends HookConsumerWidget {
                                   fontFamily: mediumFamily,
                                 ),
                               ),
-                              Wrap(
-                                crossAxisAlignment: WrapCrossAlignment.start,
-                                runAlignment: WrapAlignment.start,
-                                spacing: 16,
-                                runSpacing: Platform.isWindows ? 16 : 8,
-                                children: [
-                                  ...[
-                                    AppLocales.useCash,
-                                    AppLocales.useDebt,
-                                    AppLocales.useCard,
-                                    AppLocales.payme,
-                                    AppLocales.click,
-                                  ].map((type) {
-                                    return ChoiceChip(
-                                      backgroundColor: theme.scaffoldBgColor,
-                                      selectedColor: theme.mainColor,
-                                      padding: Dis.only(),
-                                      checkmarkColor: paymentType.value == type
-                                          ? Colors.white
-                                          : Colors.black,
-                                      label: Text(
-                                        type.tr(),
-                                        style: TextStyle(
-                                          color: paymentType.value == type
-                                              ? Colors.white
-                                              : Colors.black,
-                                          fontSize: context.s(14),
-                                        ),
-                                      ),
-                                      selected: paymentType.value == type,
-                                      onSelected: (_) {
-                                        paymentType.value = type;
-                                      },
-                                    );
-                                  }),
-                                ],
-                              ),
+                              //
 
+                              AppTextField(
+                                onTap: () {
+                                  showDesktopModal(
+                                    context: context,
+                                    width: 560,
+                                    body: OrderPaymentScreen(
+                                      percentList: [...paymentTypes.value],
+                                      theme: theme,
+                                      state: state,
+                                      totalSumm: totalPrice,
+                                      onComplete: (payments) {
+                                        paymentTypes.value = payments;
+                                      },
+                                    ),
+                                  );
+                                },
+                                prefixIcon: Icon(Iconsax.wallet_1_copy),
+                                suffixIcon: Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 16,
+                                ),
+                                title: AppLocales.paymentType.tr(),
+                                controller: TextEditingController(
+                                  text: paymentTypes.value.isEmpty
+                                      ? ''
+                                      : paymentTypes.value
+                                          .map((el) => el.name.tr().capitalize)
+                                          .join(", "),
+                                ),
+                                onlyRead: true,
+                                theme: theme,
+                                // useBorder: true,
+                                fillColor: theme.accentColor,
+                              ),
                               Container(
                                 height: 1,
                                 margin: 16.tb,
@@ -271,7 +275,6 @@ class OrderItemsPage extends HookConsumerWidget {
                                     employee:
                                         ref.watch(currentEmployeeProvider),
                                   );
-
 
                                   if (order == null) {
                                     orderController.openOrder(

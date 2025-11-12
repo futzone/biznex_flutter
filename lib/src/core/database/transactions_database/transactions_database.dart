@@ -1,42 +1,97 @@
+import 'dart:developer';
+
 import 'package:biznex/src/core/database/app_database/app_database.dart';
+import 'package:biznex/src/core/database/isar_database/isar.dart';
+import 'package:biznex/src/core/database/isar_database/isar_transaction.dart';
 import 'package:biznex/src/core/extensions/for_double.dart';
 import 'package:biznex/src/core/model/app_changes_model.dart';
+import 'package:biznex/src/core/model/transaction_model/transaction_isar.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
+import 'package:isar/isar.dart';
 
 class TransactionsDatabase extends AppDatabase {
+  final String _boxName = 'transactions';
   final String boxName = 'transactions';
 
+  final Isar isar = IsarDatabase.instance.isar;
+
   Future<void> clear() async {
-    final box = await openBox(boxName);
+    final box = await openBox(_boxName);
     await box.clear();
+  }
+
+  Future<List<Transaction>> getDayTransactions(DateTime day) async {
+    final List<Transaction> productInfoList = [];
+    final orders = await isar.transactionIsars
+        .filter()
+        .createdDateStartsWith(day.toIso8601String().split('T').first)
+        .sortByCreatedDateDesc()
+        .findAll();
+    for (final order in orders) {
+      try {
+        productInfoList.add(Transaction.fromIsar(order));
+      } catch (error) {
+        log("Error on Transaction <-> TransactionIsar:", error: error);
+      }
+    }
+
+    log("${productInfoList.length} ta transactions");
+
+    return productInfoList;
+  }
+
+  Future<void> migrateFromHive() async {
+    final box = await Hive.openBox(boxName);
+    if (box.isEmpty) return;
+
+    final transactions = box.values
+        .map((value) => Transaction.fromJson(value).toIsar())
+        .toList();
+
+    await isar.writeTxn(() async {
+      await isar.transactionIsars.putAll(transactions);
+    });
+
+    await clear();
+
+    log("transaction migrated to Isar");
   }
 
   @override
   Future delete({required String key}) async {
-    final box = await openBox(boxName);
-
     final transaction = await getTransactionById(key);
+    log("founded: $transaction");
     if (transaction == null) return;
     await changesDatabase.set(
       data: Change(
-        database: boxName,
+        database: _boxName,
         method: 'delete',
         itemId: transaction.id,
         data: transaction.value.priceUZS,
       ),
     );
 
-    await box.delete(key);
+    final old = await isar.transactionIsars.filter().idEqualTo(key).findFirst();
+    if (old != null) {
+      await isar.writeTxn(() async {
+        await isar.transactionIsars.delete(old.isarId);
+      });
+    }
   }
 
   @override
   Future<List<Transaction>> get() async {
-    final box = await openBox(boxName);
-    final boxData = box.values;
-
     final List<Transaction> productInfoList = [];
-    for (final item in boxData) {
-      productInfoList.add(Transaction.fromJson(item));
+    final DateTime now = DateTime.now();
+    final orders = await isar.transactionIsars
+        .filter()
+        .createdDateStartsWith(now.toIso8601String().split('T').first)
+        .sortByCreatedDateDesc()
+        .findAll();
+    for (final order in orders) {
+      try {
+        productInfoList.add(Transaction.fromIsar(order));
+      } catch (_) {}
     }
 
     return productInfoList;
@@ -47,14 +102,17 @@ class TransactionsDatabase extends AppDatabase {
     if (data is! Transaction) return;
 
     Transaction productInfo = data;
-    productInfo.id = generateID;
 
-    final box = await openBox(boxName);
-    await box.put(productInfo.id, productInfo.toJson());
+    productInfo.id = generateID;
+    productInfo.createdDate = DateTime.now().toIso8601String();
+    // productInfo.u = DateTime.now().toIso8601String();
+    await isar.writeTxn(() async {
+      await isar.transactionIsars.put(productInfo.toIsar());
+    });
 
     await changesDatabase.set(
       data: Change(
-        database: boxName,
+        database: _boxName,
         method: 'create',
         itemId: productInfo.id,
       ),
@@ -65,12 +123,18 @@ class TransactionsDatabase extends AppDatabase {
   Future<void> update({required String key, required data}) async {
     if (data is! Transaction) return;
 
-    final box = await openBox(boxName);
-    box.put(key, data.toJson());
+    final old = await isar.transactionIsars.filter().idEqualTo(key).findFirst();
+    if (old == null) return;
+    TransactionIsar transactionIsar = data.toIsar();
+    transactionIsar.isarId = old.isarId;
+
+    await isar.writeTxn(() async {
+      await isar.transactionIsars.put(transactionIsar);
+    });
 
     await changesDatabase.set(
       data: Change(
-        database: boxName,
+        database: _boxName,
         method: 'update',
         itemId: key,
       ),
@@ -78,18 +142,18 @@ class TransactionsDatabase extends AppDatabase {
   }
 
   Future<Transaction?> getTransactionById(String id) async {
-    final box = await openBox(boxName);
-    final data = box.get(id);
-    if (data == null) return null;
-    return Transaction.fromJson(data);
+    final transaction =
+        await isar.transactionIsars.filter().idEqualTo(id).findFirst();
+    if (transaction == null) return null;
+    return Transaction.fromIsar(transaction);
   }
 
   Future<Transaction?> getOrderTransaction(String orderId) async {
-    final box = await openBox(boxName);
-    final data = box.values.where((el) {
-      return (el['order'] != null) && (el['order']['id'] == orderId);
-    }).firstOrNull;
-    if (data == null) return null;
-    return Transaction.fromJson(data);
+    final transaction = await isar.transactionIsars
+        .filter()
+        .orderIdEqualTo(orderId)
+        .findFirst();
+    if (transaction == null) return null;
+    return Transaction.fromIsar(transaction);
   }
 }
