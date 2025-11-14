@@ -26,7 +26,8 @@ class OrderSettingsScreen extends HookConsumerWidget {
     final percentNameController = useTextEditingController();
     final percentController = useTextEditingController();
     final showNameController = useTextEditingController(text: state.shopName);
-    final showAddressController = useTextEditingController(text: state.shopAddress);
+    final showAddressController =
+        useTextEditingController(text: state.shopAddress);
     final byeTextController = useTextEditingController(text: state.byeText);
     final printPhone = useTextEditingController(text: state.printPhone);
     final imagePath = useState<String?>(state.imagePath);
@@ -40,7 +41,9 @@ class OrderSettingsScreen extends HookConsumerWidget {
             Row(
               spacing: 16,
               children: [
-                SimpleButton(child: Icon(Icons.arrow_back_ios_new), onPressed: () => AppRouter.close(context)),
+                SimpleButton(
+                    child: Icon(Icons.arrow_back_ios_new),
+                    onPressed: () => AppRouter.close(context)),
                 AppText.$18Bold(AppLocales.settings.tr()),
               ],
             ),
@@ -57,6 +60,18 @@ class OrderSettingsScreen extends HookConsumerWidget {
                 return CustomPopupMenu(
                   theme: theme,
                   children: [
+                    CustomPopupItem(
+                      icon: Icons.cancel_outlined,
+                      title: AppLocales.cancel.tr(),
+                      onPressed: () {
+                        AppModel kApp = state;
+                        kApp.token = '';
+                        kApp.refresh = '';
+                        AppStateDatabase().updateApp(kApp).then((_) {
+                          ref.invalidate(appStateProvider);
+                        });
+                      },
+                    ),
                     for (final item in devices)
                       CustomPopupItem(
                         icon: Ionicons.print_outline,
@@ -81,7 +96,8 @@ class OrderSettingsScreen extends HookConsumerWidget {
                     child: Row(
                       spacing: 16,
                       children: [
-                        Icon(Ionicons.print_outline, size: 20, color: theme.textColor),
+                        Icon(Ionicons.print_outline,
+                            size: 20, color: theme.textColor),
                         Text(
                           AppLocales.printing.tr(),
                         ),
@@ -122,7 +138,8 @@ class OrderSettingsScreen extends HookConsumerWidget {
                   child: AppPrimaryButton(
                     theme: theme,
                     onPressed: () {
-                      OrderPercentController opController = OrderPercentController(
+                      OrderPercentController opController =
+                          OrderPercentController(
                         context: context,
                         state: state,
                         onCompleted: () {
@@ -132,7 +149,8 @@ class OrderSettingsScreen extends HookConsumerWidget {
                       );
                       Percent percent = Percent(
                         name: percentNameController.text.trim(),
-                        percent: double.tryParse(percentController.text.trim()) ?? 0,
+                        percent:
+                            double.tryParse(percentController.text.trim()) ?? 0,
                       );
 
                       opController.create(percent);
@@ -153,10 +171,13 @@ class OrderSettingsScreen extends HookConsumerWidget {
                     if (percents.isNotEmpty) 8.h,
                     for (final percent in percents)
                       AppListTile(
-                        title: "${percent.name} — ${percent.percent.toStringAsFixed(1)} %",
+                        title:
+                            "${percent.name} — ${percent.percent.toStringAsFixed(1)} %",
                         theme: theme,
                         onDelete: () {
-                          OrderPercentController opController = OrderPercentController(context: context, state: state);
+                          OrderPercentController opController =
+                              OrderPercentController(
+                                  context: context, state: state);
                           opController.delete(percent.id);
                         },
                       )
@@ -167,25 +188,39 @@ class OrderSettingsScreen extends HookConsumerWidget {
             24.h,
             AppText.$18Bold(AppLocales.shopName.tr()),
             8.h,
-            AppTextField(title: AppLocales.shopNameHint.tr(), controller: showNameController, theme: theme),
+            AppTextField(
+                title: AppLocales.shopNameHint.tr(),
+                controller: showNameController,
+                theme: theme),
             24.h,
             AppText.$18Bold(AppLocales.shopAddressLabel.tr()),
             8.h,
-            AppTextField(title: AppLocales.shopAddressHint.tr(), controller: showAddressController, theme: theme),
+            AppTextField(
+                title: AppLocales.shopAddressHint.tr(),
+                controller: showAddressController,
+                theme: theme),
             24.h,
             AppText.$18Bold(AppLocales.orderCheckByeText.tr()),
             8.h,
-            AppTextField(title: AppLocales.orderCheckByeTextHint.tr(), controller: byeTextController, theme: theme),
+            AppTextField(
+                title: AppLocales.orderCheckByeTextHint.tr(),
+                controller: byeTextController,
+                theme: theme),
             24.h,
             AppText.$18Bold(AppLocales.phoneForPrintLabel.tr()),
             8.h,
-            AppTextField(title: AppLocales.enterPhoneNumber.tr(), controller: printPhone, theme: theme),
+            AppTextField(
+                title: AppLocales.enterPhoneNumber.tr(),
+                controller: printPhone,
+                theme: theme),
             24.h,
             AppText.$18Bold(AppLocales.shopLogoLabel.tr()),
             8.h,
             SimpleButton(
               onPressed: () {
-                ImagePicker().pickImage(source: ImageSource.gallery).then((img) {
+                ImagePicker()
+                    .pickImage(source: ImageSource.gallery)
+                    .then((img) {
                   if (img != null) imagePath.value = img.path;
                 });
               },
@@ -202,7 +237,9 @@ class OrderSettingsScreen extends HookConsumerWidget {
                           fit: BoxFit.cover,
                         ),
                 ),
-                child: imagePath.value == null || imagePath.value!.isEmpty ? Icon(Icons.cloud_upload_outlined, size: 60) : null,
+                child: imagePath.value == null || imagePath.value!.isEmpty
+                    ? Icon(Icons.cloud_upload_outlined, size: 60)
+                    : null,
               ),
             ),
             24.h,

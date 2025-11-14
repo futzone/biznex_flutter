@@ -88,8 +88,7 @@ class CacheController {
     if (collections.contains("orders")) {
       await _isar.writeTxn(() async {
         await _isar.orderIsars.clear().then((_) {
-          ref.invalidate(ordersFilterProvider);
-          ref.invalidate(ordersProvider);
+           ref.invalidate(ordersProvider);
           ref.invalidate(employeeOrdersProvider);
           ref.read(orderSetProvider).clear();
         });

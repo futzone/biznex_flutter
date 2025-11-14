@@ -103,7 +103,86 @@ const OrderIsarSchema = CollectionSchema(
   deserialize: _orderIsarDeserialize,
   deserializeProp: _orderIsarDeserializeProp,
   idName: r'isarId',
-  indexes: {},
+  indexes: {
+    r'id': IndexSchema(
+      id: -3268401673993471357,
+      name: r'id',
+      unique: true,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'id',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'createdDate': IndexSchema(
+      id: 7275501510556639048,
+      name: r'createdDate',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'createdDate',
+          type: IndexType.hash,
+          caseSensitive: false,
+        )
+      ],
+    ),
+    r'updatedDate': IndexSchema(
+      id: -3721050249094173894,
+      name: r'updatedDate',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'updatedDate',
+          type: IndexType.hash,
+          caseSensitive: false,
+        )
+      ],
+    ),
+    r'status': IndexSchema(
+      id: -107785170620420283,
+      name: r'status',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'status',
+          type: IndexType.hash,
+          caseSensitive: true,
+        )
+      ],
+    ),
+    r'closed': IndexSchema(
+      id: -6969061955408041,
+      name: r'closed',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'closed',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
+    ),
+    r'scheduledDate': IndexSchema(
+      id: -6773496565145745994,
+      name: r'scheduledDate',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'scheduledDate',
+          type: IndexType.hash,
+          caseSensitive: false,
+        )
+      ],
+    )
+  },
   links: {},
   embeddedSchemas: {
     r'CustomerIsar': CustomerIsarSchema,
@@ -184,7 +263,12 @@ int _orderIsarEstimateSize(
       bytesCount += 3 + value.length * 3;
     }
   }
-  bytesCount += 3 + object.updatedDate.length * 3;
+  {
+    final value = object.updatedDate;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   return bytesCount;
 }
 
@@ -284,7 +368,7 @@ OrderIsar _orderIsarDeserialize(
   object.realPrice = reader.readDoubleOrNull(offsets[11]);
   object.scheduledDate = reader.readStringOrNull(offsets[12]);
   object.status = reader.readStringOrNull(offsets[13]);
-  object.updatedDate = reader.readString(offsets[14]);
+  object.updatedDate = reader.readStringOrNull(offsets[14]);
   return object;
 }
 
@@ -350,7 +434,7 @@ P _orderIsarDeserializeProp<P>(
     case 13:
       return (reader.readStringOrNull(offset)) as P;
     case 14:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -368,11 +452,73 @@ void _orderIsarAttach(IsarCollection<dynamic> col, Id id, OrderIsar object) {
   object.isarId = id;
 }
 
+extension OrderIsarByIndex on IsarCollection<OrderIsar> {
+  Future<OrderIsar?> getById(String id) {
+    return getByIndex(r'id', [id]);
+  }
+
+  OrderIsar? getByIdSync(String id) {
+    return getByIndexSync(r'id', [id]);
+  }
+
+  Future<bool> deleteById(String id) {
+    return deleteByIndex(r'id', [id]);
+  }
+
+  bool deleteByIdSync(String id) {
+    return deleteByIndexSync(r'id', [id]);
+  }
+
+  Future<List<OrderIsar?>> getAllById(List<String> idValues) {
+    final values = idValues.map((e) => [e]).toList();
+    return getAllByIndex(r'id', values);
+  }
+
+  List<OrderIsar?> getAllByIdSync(List<String> idValues) {
+    final values = idValues.map((e) => [e]).toList();
+    return getAllByIndexSync(r'id', values);
+  }
+
+  Future<int> deleteAllById(List<String> idValues) {
+    final values = idValues.map((e) => [e]).toList();
+    return deleteAllByIndex(r'id', values);
+  }
+
+  int deleteAllByIdSync(List<String> idValues) {
+    final values = idValues.map((e) => [e]).toList();
+    return deleteAllByIndexSync(r'id', values);
+  }
+
+  Future<Id> putById(OrderIsar object) {
+    return putByIndex(r'id', object);
+  }
+
+  Id putByIdSync(OrderIsar object, {bool saveLinks = true}) {
+    return putByIndexSync(r'id', object, saveLinks: saveLinks);
+  }
+
+  Future<List<Id>> putAllById(List<OrderIsar> objects) {
+    return putAllByIndex(r'id', objects);
+  }
+
+  List<Id> putAllByIdSync(List<OrderIsar> objects, {bool saveLinks = true}) {
+    return putAllByIndexSync(r'id', objects, saveLinks: saveLinks);
+  }
+}
+
 extension OrderIsarQueryWhereSort
     on QueryBuilder<OrderIsar, OrderIsar, QWhere> {
   QueryBuilder<OrderIsar, OrderIsar, QAfterWhere> anyIsarId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhere> anyClosed() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'closed'),
+      );
     });
   }
 }
@@ -445,6 +591,336 @@ extension OrderIsarQueryWhere
         upper: upperIsarId,
         includeUpper: includeUpper,
       ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> idEqualTo(String id) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'id',
+        value: [id],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> idNotEqualTo(
+      String id) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'id',
+              lower: [],
+              upper: [id],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'id',
+              lower: [id],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'id',
+              lower: [id],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'id',
+              lower: [],
+              upper: [id],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> createdDateEqualTo(
+      String createdDate) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'createdDate',
+        value: [createdDate],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> createdDateNotEqualTo(
+      String createdDate) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'createdDate',
+              lower: [],
+              upper: [createdDate],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'createdDate',
+              lower: [createdDate],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'createdDate',
+              lower: [createdDate],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'createdDate',
+              lower: [],
+              upper: [createdDate],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> updatedDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'updatedDate',
+        value: [null],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> updatedDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'updatedDate',
+        lower: [null],
+        includeLower: false,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> updatedDateEqualTo(
+      String? updatedDate) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'updatedDate',
+        value: [updatedDate],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> updatedDateNotEqualTo(
+      String? updatedDate) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'updatedDate',
+              lower: [],
+              upper: [updatedDate],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'updatedDate',
+              lower: [updatedDate],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'updatedDate',
+              lower: [updatedDate],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'updatedDate',
+              lower: [],
+              upper: [updatedDate],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> statusIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'status',
+        value: [null],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> statusIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'status',
+        lower: [null],
+        includeLower: false,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> statusEqualTo(
+      String? status) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'status',
+        value: [status],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> statusNotEqualTo(
+      String? status) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'status',
+              lower: [],
+              upper: [status],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'status',
+              lower: [status],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'status',
+              lower: [status],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'status',
+              lower: [],
+              upper: [status],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> closedEqualTo(
+      bool closed) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'closed',
+        value: [closed],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> closedNotEqualTo(
+      bool closed) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'closed',
+              lower: [],
+              upper: [closed],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'closed',
+              lower: [closed],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'closed',
+              lower: [closed],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'closed',
+              lower: [],
+              upper: [closed],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> scheduledDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'scheduledDate',
+        value: [null],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause>
+      scheduledDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'scheduledDate',
+        lower: [null],
+        includeLower: false,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> scheduledDateEqualTo(
+      String? scheduledDate) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'scheduledDate',
+        value: [scheduledDate],
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterWhereClause> scheduledDateNotEqualTo(
+      String? scheduledDate) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'scheduledDate',
+              lower: [],
+              upper: [scheduledDate],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'scheduledDate',
+              lower: [scheduledDate],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'scheduledDate',
+              lower: [scheduledDate],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'scheduledDate',
+              lower: [],
+              upper: [scheduledDate],
+              includeUpper: false,
+            ));
+      }
     });
   }
 }
@@ -1712,8 +2188,26 @@ extension OrderIsarQueryFilter
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      updatedDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'updatedDate',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      updatedDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'updatedDate',
+      ));
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition> updatedDateEqualTo(
-    String value, {
+    String? value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -1727,7 +2221,7 @@ extension OrderIsarQueryFilter
 
   QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
       updatedDateGreaterThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1742,7 +2236,7 @@ extension OrderIsarQueryFilter
   }
 
   QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition> updatedDateLessThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -1757,8 +2251,8 @@ extension OrderIsarQueryFilter
   }
 
   QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition> updatedDateBetween(
-    String lower,
-    String upper, {
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -2310,7 +2804,7 @@ extension OrderIsarQueryProperty
     });
   }
 
-  QueryBuilder<OrderIsar, String, QQueryOperations> updatedDateProperty() {
+  QueryBuilder<OrderIsar, String?, QQueryOperations> updatedDateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'updatedDate');
     });
@@ -5680,13 +6174,18 @@ const ProductIsarSchema = Schema(
       name: r'tagnumber',
       type: IsarType.string,
     ),
-    r'updatedDate': PropertySchema(
+    r'unlimited': PropertySchema(
       id: 17,
+      name: r'unlimited',
+      type: IsarType.bool,
+    ),
+    r'updatedDate': PropertySchema(
+      id: 18,
       name: r'updatedDate',
       type: IsarType.string,
     ),
     r'variants': PropertySchema(
-      id: 18,
+      id: 19,
       name: r'variants',
       type: IsarType.objectList,
       target: r'ProductIsar',
@@ -5850,9 +6349,10 @@ void _productIsarSerialize(
   writer.writeString(offsets[14], object.productId);
   writer.writeString(offsets[15], object.size);
   writer.writeString(offsets[16], object.tagnumber);
-  writer.writeString(offsets[17], object.updatedDate);
+  writer.writeBool(offsets[17], object.unlimited);
+  writer.writeString(offsets[18], object.updatedDate);
   writer.writeObjectList<ProductIsar>(
-    offsets[18],
+    offsets[19],
     allOffsets,
     ProductIsarSchema.serialize,
     object.variants,
@@ -5892,9 +6392,10 @@ ProductIsar _productIsarDeserialize(
   object.productId = reader.readStringOrNull(offsets[14]);
   object.size = reader.readStringOrNull(offsets[15]);
   object.tagnumber = reader.readStringOrNull(offsets[16]);
-  object.updatedDate = reader.readStringOrNull(offsets[17]);
+  object.unlimited = reader.readBool(offsets[17]);
+  object.updatedDate = reader.readStringOrNull(offsets[18]);
   object.variants = reader.readObjectList<ProductIsar>(
-    offsets[18],
+    offsets[19],
     ProductIsarSchema.deserialize,
     allOffsets,
     ProductIsar(),
@@ -5953,8 +6454,10 @@ P _productIsarDeserializeProp<P>(
     case 16:
       return (reader.readStringOrNull(offset)) as P;
     case 17:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 18:
+      return (reader.readStringOrNull(offset)) as P;
+    case 19:
       return (reader.readObjectList<ProductIsar>(
         offset,
         ProductIsarSchema.deserialize,
@@ -8152,6 +8655,16 @@ extension ProductIsarQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'tagnumber',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<ProductIsar, ProductIsar, QAfterFilterCondition>
+      unlimitedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'unlimited',
+        value: value,
       ));
     });
   }

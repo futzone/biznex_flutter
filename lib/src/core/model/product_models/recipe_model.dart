@@ -29,7 +29,7 @@ class Recipe {
     );
   }
 
-  toJson() => {
+  dynamic toJson() => {
         'id': id,
         'items': [for (final item in items) item.toJson()],
         'product': product.toJson(),

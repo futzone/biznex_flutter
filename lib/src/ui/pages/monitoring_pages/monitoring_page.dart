@@ -482,32 +482,6 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                           ),
                           Expanded(
                             child: state.whenProviderData(
-                              provider: transactionProvider,
-                              builder: (trs) {
-                                return MonitoringCard(
-                                  icon: Iconsax.send_sqaure_2,
-                                  theme: theme,
-                                  title: AppLocales.transactions.tr(),
-                                  onPressed: () {
-                                    showDesktopModal(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.8,
-                                      context: context,
-                                      body: MonitoringTransactionsPage(),
-                                    );
-                                  },
-                                  count: trs.length,
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        spacing: context.w(24),
-                        children: [
-                          Expanded(
-                            child: state.whenProviderData(
                               provider: ingredientsProvider,
                               builder: (ord) {
                                 return MonitoringCard(
@@ -529,12 +503,12 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                           ),
                           // Expanded(
                           //   child: state.whenProviderData(
-                          //     provider: shoppingProvider,
+                          //     provider: transactionProvider,
                           //     builder: (trs) {
                           //       return MonitoringCard(
-                          //         icon: Icons.shop_2_outlined,
+                          //         icon: Iconsax.send_sqaure_2,
                           //         theme: theme,
-                          //         title: AppLocales.shopping.tr(),
+                          //         title: AppLocales.transactions.tr(),
                           //         onPressed: () {
                           //           showDesktopModal(
                           //             width: MediaQuery.of(context).size.width *
@@ -548,9 +522,36 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                           //     },
                           //   ),
                           // ),
-                          Expanded(child: SizedBox())
                         ],
-                      )
+                      ),
+                      // Row(
+                      //   spacing: context.w(24),
+                      //   children: [
+                      //
+                      //     // Expanded(
+                      //     //   child: state.whenProviderData(
+                      //     //     provider: shoppingProvider,
+                      //     //     builder: (trs) {
+                      //     //       return MonitoringCard(
+                      //     //         icon: Icons.shop_2_outlined,
+                      //     //         theme: theme,
+                      //     //         title: AppLocales.shopping.tr(),
+                      //     //         onPressed: () {
+                      //     //           showDesktopModal(
+                      //     //             width: MediaQuery.of(context).size.width *
+                      //     //                 0.8,
+                      //     //             context: context,
+                      //     //             body: MonitoringTransactionsPage(),
+                      //     //           );
+                      //     //         },
+                      //     //         count: trs.length,
+                      //     //       );
+                      //     //     },
+                      //     //   ),
+                      //     // ),
+                      //     Expanded(child: SizedBox())
+                      //   ],
+                      // )
                     ],
                   ),
                 ),

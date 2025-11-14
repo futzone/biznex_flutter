@@ -28,7 +28,6 @@ class _ActivationTestPageState extends State<ActivationCodeScreen> {
   late AppSubscriptionController _controller;
   int? code;
   bool _initializing = true;
-  final Isar isar = IsarDatabase.instance.isar;
 
   _initialize() async {
     setState(() {

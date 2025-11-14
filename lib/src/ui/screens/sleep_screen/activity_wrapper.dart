@@ -25,18 +25,13 @@ class ActivityWrapper extends StatefulWidget {
 
 class _ActivityWrapperState extends State<ActivityWrapper> {
   final ChangesDatabase _changesDatabase = ChangesDatabase();
-  final Isar isar = IsarDatabase.instance.isar;
 
   void _localChangesSync() async {
-    // await _backupDatabase.syncLocalData();
-
     if (!(await Network().isConnected())) return;
 
     if (widget.ref.watch(appStateProvider).value?.apiUrl != null) return;
-    log('syncing saved changes');
     final changesList = await _changesDatabase.get();
     for (final item in changesList) {
-      log("${item.method} ${item.database}");
       ChangesController changesController = ChangesController(item);
       await changesController.saveStatus();
       await _changesDatabase.delete(key: item.id);
@@ -50,31 +45,12 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
     networkServices.updateClient(neClient).then((_) {
       widget.ref.invalidate(clientStateProvider);
     });
-
-    log('syncing changes is completed!');
-  }
-
-  void _initializeIsarWatcher() async {
-    log("watchers is working");
-    try {
-      isar.orderIsars.watchLazy().listen((_) {
-        widget.ref.invalidate(todayOrdersProvider);
-        widget.ref.invalidate(orderSetProvider);
-        widget.ref.invalidate(employeeOrdersProvider);
-      });
-
-      isar.transactionIsars.watchLazy().listen((_) {
-        log("we have new tra");
-        widget.ref.invalidate(transactionProvider);
-      });
-    } catch (_) {}
   }
 
   @override
   void initState() {
     super.initState();
     _localChangesSync();
-    _initializeIsarWatcher();
   }
 
   @override

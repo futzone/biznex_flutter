@@ -121,6 +121,7 @@ class OrdersRouter {
     ProductDatabase productDatabase = ProductDatabase();
     for (final item in order.products) {
       Product product = item.product;
+      if (product.unlimited) continue;
       if (product.amount == 1) continue;
 
       product.amount = product.amount - item.amount;

@@ -63,6 +63,7 @@ class _AddProductPageState extends State<AddProductPage> {
       TextEditingController();
   final List<String> _imagesList = [];
   final List<ProductInfo> _productInformations = [];
+  bool _isUnlimited = false;
 
   void _onConfirmPressed() async {
     if (nameController.text.trim().isEmpty) {
@@ -75,6 +76,7 @@ class _AddProductPageState extends State<AddProductPage> {
       return;
     }
     Product product = Product(
+      unlimited: _isUnlimited,
       cratedDate: widget.product?.cratedDate,
       updatedDate: DateTime.now().toIso8601String(),
       id: widget.product == null ? '' : widget.product!.id,
@@ -129,8 +131,11 @@ class _AddProductPageState extends State<AddProductPage> {
       _category = product.category;
       _descriptionController.text = product.description ?? '';
       if (product.images != null) _imagesList.addAll(product.images ?? []);
-      if (product.informations != null)
+      if (product.informations != null) {
         _productInformations.addAll(product.informations ?? []);
+      }
+
+      _isUnlimited = product.unlimited;
       setState(() {});
     }
   }
@@ -425,6 +430,30 @@ class _AddProductPageState extends State<AddProductPage> {
               theme: theme,
               minLines: 4,
               // prefixIcon: Icon(Icons.text_fields),
+            ),
+            24.h,
+            AppText.$18Bold(AppLocales.unlimitedMode.tr()),
+            8.h,
+            Container(
+              padding: 12.all,
+              decoration: BoxDecoration(
+                color: theme.accentColor,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: SwitchListTile(
+                // tileColor: theme.cardColor,
+                contentPadding: Dis.only(),
+                activeThumbColor: theme.mainColor,
+                value: _isUnlimited,
+                onChanged: (unl) => setState(() => _isUnlimited = unl),
+                title: Text(
+                  AppLocales.isUnlimitedModeHint.tr(),
+                  style: TextStyle(
+                      fontSize: 16,
+                      // fontFamily: boldFamily,
+                      fontFamily: regularFamily),
+                ),
+              ),
             ),
             32.h,
             Row(

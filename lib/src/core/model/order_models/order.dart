@@ -11,16 +11,27 @@ class OrderIsar {
 
   Id isarId = Isar.autoIncrement;
 
+  @Index(unique: true, type: IndexType.hash)
   late String id;
+
+  @Index(caseSensitive: false)
   late String createdDate;
-  late String updatedDate;
+
+  @Index(caseSensitive: false)
+  String? updatedDate;
+
+  @Index()
+  String? status;
+
+  @Index()
   bool closed = false;
+
+  @Index(caseSensitive: false)
   String? scheduledDate;
 
   CustomerIsar? customer;
   late EmployeeIsar employee;
 
-  String? status;
   double? realPrice;
   late double price;
   String? note;
@@ -97,6 +108,7 @@ class ProductIsar {
   String? productId;
   List<ProductIsar>? variants;
   CategoryIsar? category;
+  bool unlimited = false;
 }
 
 @embedded

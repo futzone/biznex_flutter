@@ -1,25 +1,22 @@
 import 'package:biznex/biznex.dart';
-import 'package:biznex/src/core/config/router.dart';
+import 'package:biznex/main.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
+import 'package:biznex/src/core/extensions/for_date.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
-import 'package:biznex/src/core/model/order_models/order_filter_model.dart';
+import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
-import 'package:biznex/src/providers/employee_orders_provider.dart';
-import 'package:biznex/src/providers/employee_provider.dart';
-import 'package:biznex/src/providers/places_provider.dart';
-import 'package:biznex/src/providers/products_provider.dart';
-import 'package:biznex/src/ui/pages/waiter_pages/waiter_page.dart';
-import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
+import 'package:biznex/src/ui/screens/order_screens/orders_widgets/add_order_btn.dart';
+import 'package:biznex/src/ui/screens/order_screens/orders_widgets/items_body.dart';
+import 'package:biznex/src/ui/screens/order_screens/orders_widgets/order_filter_widget.dart';
+import 'package:biznex/src/ui/screens/order_screens/orders_widgets/search_bar.dart';
 import 'package:biznex/src/ui/widgets/custom/app_empty_widget.dart';
-import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
-import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
-import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
-
+import 'package:isar/isar.dart';
+import '../../../core/database/isar_database/isar.dart';
 import '../../../core/model/order_models/order_model.dart';
-import 'order_card.dart';
+import 'orders_loading_screen.dart';
+import 'orders_widgets/order_pinned_widget.dart';
 
 class OrdersPage extends StatefulHookConsumerWidget {
   const OrdersPage({super.key});
@@ -29,13 +26,120 @@ class OrdersPage extends StatefulHookConsumerWidget {
 }
 
 class _OrdersPageState extends ConsumerState<OrdersPage> {
+  bool _isLoading = true;
+  final List<Order> _ordersList = [];
+  int _currentPage = 1;
+  final TextEditingController _searchController = TextEditingController();
+  Place? _fatherPlace;
+  Place? _place;
+  DateTime _dateTime = DateTime.now();
+  Employee? _employee;
+  Product? _product;
+  final Isar isar = IsarDatabase.instance.isar;
+
+  Future<void> _onLoadData({
+    int page = 1,
+    int pageSize = appPageSize,
+  }) async {
+    setState(() {
+      _isLoading = true;
+      _ordersList.clear();
+    });
+
+    final dayPrefix = _dateTime.toIso8601String().split("T").first;
+    final searchQuery = _searchController.text.trim();
+
+    var filterQuery = isar.orderIsars
+        .where()
+        .filter()
+        .createdDateStartsWith(dayPrefix)
+        .optional(
+          _place != null,
+          (o) => o.place((p) => p.idEqualTo(_place!.id)),
+        )
+        .optional(
+          _employee != null,
+          (o) => o.employee((p) => p.idEqualTo(_employee!.id)),
+        )
+        .optional(
+          _product != null,
+          (o) => o.productsElement(
+            (p) => p.product((j) => j.idEqualTo(_product!.id)),
+          ),
+        )
+        .optional(
+          (searchQuery.length > 2),
+          (o) => o
+              .idContains(searchQuery)
+              .or()
+              .noteContains(searchQuery)
+              .or()
+              .customer((ct) => ct.nameContains(searchQuery))
+              .or()
+              .employee((ct) => ct.fullnameContains(searchQuery))
+              .or()
+              .place((pl) => pl.nameContains(searchQuery)),
+        );
+
+    final data = await filterQuery
+        .sortByCreatedDateDesc()
+        .offset((page - 1) * pageSize)
+        .limit(pageSize)
+        .findAll();
+
+    for (final item in data) {
+      _ordersList.add(Order.fromIsar(item));
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  void _onLoadNextPage() async {
+    setState(() {
+      _currentPage++;
+    });
+
+    await _onLoadData(page: _currentPage);
+  }
+
+  void _onLoadPreviousPage() async {
+    if (_currentPage == 1) return;
+    setState(() {
+      _currentPage--;
+    });
+
+    await _onLoadData(page: _currentPage);
+  }
+
+  void _initializeIsarWatcher() async {
+    isar.orderIsars.watchLazy().listen((event) async {
+      if (_isLoading) return;
+      if (!_dateTime.isToday) return;
+      await _onLoadData();
+    });
+  }
+
+  void _initialize() async {
+    await _onLoadData();
+    _initializeIsarWatcher();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initialize();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final orderFilter = useState(OrderFilterModel());
-
-    final placeFather = useState<Place?>(null);
-    final searchController = useTextEditingController();
-
     final controller = useScrollController();
     final pinned = useState(false);
 
@@ -48,472 +152,119 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
 
     return AppStateWrapper(builder: (theme, state) {
       return Scaffold(
-        floatingActionButton: WebButton(
-          onPressed: () {
-            AppRouter.go(context, WaiterPage(haveBack: true));
-          },
-          builder: (focused) => AnimatedContainer(
-            duration: theme.animationDuration,
-            height: focused ? 80 : 64,
-            width: focused ? 80 : 64,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Color(0xff5CF6A9), width: 2),
-              color: theme.mainColor,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  spreadRadius: 3,
-                  blurRadius: 5,
-                  offset: Offset(3, 3),
-                )
-              ],
-            ),
-            child: Center(
-              child: Icon(Iconsax.add_copy,
-                  color: Colors.white, size: focused ? 40 : 32),
-            ),
-          ),
-        ),
+        floatingActionButton: AddOrderBtn(theme: theme),
         body: Padding(
           padding: Dis.only(lr: context.w(24), top: context.h(24)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: Dis.only(tb: context.h(4), lr: context.w(4)),
-                height: context.h(58),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: Colors.white,
-                ),
-                child: Row(
-                  spacing: context.w(16),
-                  children: [
-                    Expanded(
-                      child: state.whenProviderData(
-                        provider: placesProvider,
-                        builder: (places) {
-                          places as List<Place>;
+              OrderFilterWidget(
+                place: _place,
+                fatherPlace: _fatherPlace,
+                product: _product,
+                employee: _employee,
+                theme: theme,
+                state: state,
+                dateTime: _dateTime,
+                onChangePlace: (pls) async {
+                  if (pls == null) {
+                    setState(() {
+                      _fatherPlace = null;
+                      _place = null;
+                    });
+                    _onLoadData();
+                  } else {
+                    if (pls.children != null && pls.children!.isNotEmpty) {
+                      _fatherPlace = pls;
+                      setState(() {});
+                      return;
+                    }
 
-                          return CustomPopupMenu(
-                            theme: theme,
-                            children: [
-                              CustomPopupItem(
-                                title: AppLocales.all.tr(),
-                                onPressed: () {
-                                  placeFather.value = null;
-                                  OrderFilterModel filterModel =
-                                      orderFilter.value;
-                                  filterModel.place = null;
-                                  orderFilter.value = filterModel;
-                                  setState(() {});
-                                  ref.invalidate(ordersFilterProvider);
-                                },
-                              ),
-                              for (final pls in places)
-                                CustomPopupItem(
-                                  title: pls.name,
-                                  onPressed: () {
-                                    if (pls.children != null &&
-                                        pls.children!.isNotEmpty) {
-                                      placeFather.value = pls;
-                                      OrderFilterModel filterModel =
-                                          orderFilter.value;
-                                      filterModel.place = pls.id;
-                                      orderFilter.value = filterModel;
-                                      setState(() {});
-                                      return;
-                                    }
+                    setState(() {
+                      _place = pls;
+                      _currentPage = 1;
+                    });
 
-                                    placeFather.value = null;
-                                    OrderFilterModel filterModel =
-                                        orderFilter.value;
-                                    filterModel.place = pls.id;
-                                    orderFilter.value = filterModel;
-                                    setState(() {});
-                                    ref.invalidate(ordersFilterProvider);
-                                  },
-                                )
-                            ],
-                            child: Container(
-                              padding: Dis.only(
-                                  lr: context.w(24), tb: context.h(10)),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: orderFilter.value.place == null
-                                    ? null
-                                    : theme.mainColor,
-                                border: orderFilter.value.place == null
-                                    ? null
-                                    : Border.all(color: theme.mainColor),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  orderFilter.value.place == null
-                                      ? AppLocales.places.tr()
-                                      : placeFather.value != null
-                                          ? placeFather.value!.name
-                                          : places
-                                              .firstWhere((el) =>
-                                                  el.id ==
-                                                  orderFilter.value.place)
-                                              .name,
-                                  style: TextStyle(
-                                    fontSize: context.s(16),
-                                    fontFamily: mediumFamily,
-                                    color: orderFilter.value.place == null
-                                        ? theme.secondaryTextColor
-                                        : theme.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: state.whenProviderData(
-                        provider: employeeProvider,
-                        builder: (places) {
-                          places as List<Employee>;
+                    await _onLoadData();
+                  }
+                },
+                onChangeEmployee: (employee) async {
+                  if (employee == null) {
+                    setState(() {
+                      _employee = null;
+                      _currentPage = 1;
+                    });
 
-                          return CustomPopupMenu(
-                            theme: theme,
-                            children: [
-                              CustomPopupItem(
-                                title: AppLocales.all.tr(),
-                                onPressed: () {
-                                  OrderFilterModel filterModel =
-                                      orderFilter.value;
-                                  filterModel.employee = null;
-                                  orderFilter.value = filterModel;
-                                  setState(() {});
-                                  ref.invalidate(ordersFilterProvider);
-                                },
-                              ),
-                              for (final item in [
-                                Employee(
-                                  fullname: "Admin",
-                                  roleId: "0",
-                                  roleName: "Admin",
-                                  pincode: state.pincode,
-                                ),
-                                ...places
-                              ])
-                                CustomPopupItem(
-                                    title: item.fullname,
-                                    onPressed: () {
-                                      OrderFilterModel filterModel =
-                                          orderFilter.value;
-                                      filterModel.employee = item.id;
-                                      orderFilter.value = filterModel;
-                                      setState(() {});
+                    await _onLoadData();
+                  } else {
+                    setState(() {
+                      _employee = employee;
+                      _currentPage = 1;
+                    });
 
-                                      ref.invalidate(ordersFilterProvider);
-                                    }),
-                            ],
-                            child: Container(
-                              padding: Dis.only(
-                                  lr: context.w(24), tb: context.h(10)),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                border: orderFilter.value.employee == null
-                                    ? null
-                                    : Border.all(color: theme.mainColor),
-                                color: orderFilter.value.employee == null
-                                    ? null
-                                    : theme.mainColor,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  orderFilter.value.employee == null
-                                      ? AppLocales.employees.tr()
-                                      : places
-                                          .firstWhere(
-                                            (el) =>
-                                                el.id ==
-                                                orderFilter.value.employee,
-                                            orElse: () => Employee(
-                                              fullname:
-                                                  AppLocales.employees.tr(),
-                                              roleId: '',
-                                              roleName: ''
-                                                  '',
-                                            ),
-                                          )
-                                          .fullname,
-                                  style: TextStyle(
-                                    fontSize: context.s(16),
-                                    fontFamily: mediumFamily,
-                                    color: orderFilter.value.employee == null
-                                        ? theme.secondaryTextColor
-                                        : theme.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: state.whenProviderData(
-                        provider: productsProvider,
-                        builder: (places) {
-                          places as List<Product>;
+                    await _onLoadData();
+                  }
+                },
+                onChangeProduct: (product) async {
+                  if (product == null) {
+                    setState(() {
+                      _product = null;
+                      _currentPage = 1;
+                    });
 
-                          return CustomPopupMenu(
-                            theme: theme,
-                            children: [
-                              CustomPopupItem(
-                                title: AppLocales.all.tr(),
-                                onPressed: () {
-                                  OrderFilterModel filterModel =
-                                      orderFilter.value;
-                                  filterModel.product = null;
-                                  orderFilter.value = filterModel;
-                                  setState(() {});
-                                  ref.invalidate(ordersFilterProvider);
-                                },
-                              ),
-                              for (int i = 0;
-                                  i <
-                                      ((places.length > 100)
-                                          ? 100
-                                          : places.length);
-                                  i++)
-                                CustomPopupItem(
-                                  title: places[i].name,
-                                  onPressed: () {
-                                    OrderFilterModel filterModel =
-                                        orderFilter.value;
-                                    filterModel.product = places[i].id;
-                                    orderFilter.value = filterModel;
-                                    setState(() {});
+                    await _onLoadData();
+                  } else {
+                    setState(() {
+                      _product = product;
+                      _currentPage = 1;
+                    });
 
-                                    ref.invalidate(ordersFilterProvider);
-                                  },
-                                )
-                            ],
-                            child: Container(
-                              padding: Dis.only(
-                                  lr: context.w(24), tb: context.h(10)),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: orderFilter.value.product == null
-                                    ? null
-                                    : theme.mainColor,
-                                border: orderFilter.value.product == null
-                                    ? null
-                                    : Border.all(color: theme.mainColor),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  orderFilter.value.product == null
-                                      ? AppLocales.products.tr()
-                                      : places
-                                          .firstWhere(
-                                            (el) =>
-                                                el.id ==
-                                                orderFilter.value.product,
-                                            orElse: () => Product(
-                                                name: AppLocales.products.tr(),
-                                                price: 0),
-                                          )
-                                          .name,
-                                  style: TextStyle(
-                                    fontSize: context.s(16),
-                                    fontFamily: mediumFamily,
-                                    color: orderFilter.value.product == null
-                                        ? theme.secondaryTextColor
-                                        : theme.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: SimpleButton(
-                        onPressed: () {
-                          showDatePicker(
-                                  context: context,
-                                  firstDate: DateTime(2025, 1),
-                                  lastDate: DateTime.now())
-                              .then((date) {
-                            if (date != null) {
-                              OrderFilterModel filterModel = orderFilter.value;
-                              filterModel.dateTime = date;
-                              orderFilter.value = filterModel;
-                              setState(() {});
+                    await _onLoadData();
+                  }
+                },
+                onChangeDateTime: () {
+                  showDatePicker(
+                    context: context,
+                    firstDate: DateTime(2025, 1),
+                    lastDate: DateTime.now(),
+                  ).then((date) async {
+                    if (date != null) {
+                      setState(() {
+                        _dateTime = date;
+                        _currentPage = 1;
+                      });
 
-                              ref.invalidate(ordersFilterProvider);
-                            }
-                          });
-                        },
-                        child: Container(
-                          padding:
-                              Dis.only(lr: context.w(24), tb: context.h(10)),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            // color: theme.accentColor,
-                            border: orderFilter.value.dateTime == null
-                                ? null
-                                : Border.all(color: theme.mainColor),
-                            color: orderFilter.value.dateTime == null
-                                ? null
-                                : theme.mainColor,
-                          ),
-                          child: Center(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  orderFilter.value.dateTime == null
-                                      ? AppLocales.date.tr()
-                                      : DateFormat('d-MMMM')
-                                          .format(orderFilter.value.dateTime!),
-                                  style: TextStyle(
-                                    fontSize: context.s(16),
-                                    fontFamily: mediumFamily,
-                                    color: orderFilter.value.dateTime == null
-                                        ? theme.secondaryTextColor
-                                        : theme.white,
-                                  ),
-                                ),
-                                if (orderFilter.value.dateTime != null) 16.w,
-                                if (orderFilter.value.dateTime != null)
-                                  SimpleButton(
-                                    onPressed: () {
-                                      OrderFilterModel filterModel =
-                                          orderFilter.value;
-                                      filterModel.dateTime = null;
-                                      orderFilter.value = filterModel;
-                                      setState(() {});
-                                      ref.invalidate(ordersFilterProvider);
-                                    },
-                                    child: Icon(
-                                      Ionicons.close_circle_outline,
-                                      color: Colors.red,
-                                    ),
-                                  )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                      await _onLoadData();
+                    }
+                  });
+                },
               ),
-              16.h,
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      AppLocales.orders.tr(),
-                      style: TextStyle(
-                        fontFamily: boldFamily,
-                        fontSize: context.s(24),
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
+              OrderSearchBar(
+                  theme: theme,
+                  controller: _searchController,
+                  onSearch: (char) {
+                    if (char.length <= 2) return;
+                    if (_isLoading) return;
 
-                  16.w,
-                  SizedBox(
-                    width: 300,
-                    child: AppTextField(
-                      title: AppLocales.enterOrderId.tr(),
-                      controller: searchController,
-                      theme: theme,
-                      suffixIcon: Icon(Iconsax.search_normal_1_copy),
-                      fillColor: Colors.white,
-                      onChanged: (char) {
-                        OrderFilterModel filterModel = orderFilter.value;
-                        filterModel.query = char;
-                        orderFilter.value = filterModel;
-                        setState(() {});
-                        ref.invalidate(ordersFilterProvider);
-                      },
-                    ),
-                  )
-                ],
-              ),
-              16.h,
-              if (pinned.value)
-                Container(
-                  height: 8,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: theme.secondaryTextColor.withValues(alpha: 0.4),
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(4)),
-                  ),
-                ),
-              if (orderFilter.value.isActive())
-                ref.watch(ordersFilterProvider(orderFilter.value)).when(
-                      data: (orders) {
-                        return Expanded(
-                          child: orders.isEmpty
-                              ? AppEmptyWidget()
-                              : GridView.builder(
-                                  padding: 120.bottom,
-                                  controller: controller,
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    crossAxisSpacing: context.w(16),
-                                    mainAxisSpacing: context.h(16),
-                                    childAspectRatio: 1.2,
-                                  ),
-                                  itemCount: orders.length,
-                                  itemBuilder: (context, index) {
-                                    return OrderCard(
-                                      order: orders[index],
-                                      theme: theme,
-                                    );
-                                  },
-                                ),
-                        );
-                      },
-                      error: RefErrorScreen,
-                      loading: RefLoadingScreen,
-                    )
-              else
-                ref.watch(todayOrdersProvider).when(
-                      data: (orders) {
-                        return Expanded(
-                          child: orders.isEmpty
-                              ? AppEmptyWidget()
-                              : GridView.builder(
-                                  padding: 120.bottom,
-                                  controller: controller,
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    crossAxisSpacing: context.w(16),
-                                    mainAxisSpacing: context.h(16),
-                                    childAspectRatio: 1.2,
-                                  ),
-                                  itemCount: orders.length,
-                                  itemBuilder: (context, index) {
-                                    return OrderCard(
-                                      order: Order.fromIsar(orders[index]),
-                                      theme: theme,
-                                    );
-                                  },
-                                ),
-                        );
-                      },
-                      error: RefErrorScreen,
-                      loading: RefLoadingScreen,
-                    ),
+                    setState(() {
+                      _currentPage = 1;
+                    });
+
+                    _onLoadData();
+                  }),
+              if (pinned.value) OrderPinnedWidget(theme: theme),
+              if (_isLoading) OrdersLoadingScreen(theme: theme),
+              if (_ordersList.isEmpty && !_isLoading)
+                Expanded(child: AppEmptyWidget()),
+              if (_ordersList.isNotEmpty && !_isLoading)
+                OrderItemsBody(
+                  controller: controller,
+                  theme: theme,
+                  orders: _ordersList,
+                  currentPage: _currentPage,
+                  onLoadNextPage: _onLoadNextPage,
+                  onLoadPreviousPage: _onLoadPreviousPage,
+                )
             ],
           ),
         ),

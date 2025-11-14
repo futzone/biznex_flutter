@@ -1,14 +1,10 @@
-import 'dart:developer';
 import 'dart:io';
-
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
 import 'package:biznex/src/core/model/order_models/order_filter_model.dart';
-import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/services/warehouse_printer_services.dart';
-import 'package:biznex/src/providers/employee_orders_provider.dart';
 import 'package:biznex/src/providers/product_order_provider.dart';
 import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_back_button.dart';
@@ -68,14 +64,13 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
 
   Widget buildMobile(BuildContext context, WidgetRef ref) {
     final selectedDate = useState<DateTime>(DateTime.now());
-    final orders = ref.watch(ordersFilterProvider(orderFilter)).value ?? [];
-    final filter = useMemoized(
+     final filter = useMemoized(
         () => ProductOrderFilter(
               day: selectedDate.value,
-              orders: orders,
+              orders: [],
               employee: employee,
             ),
-        [selectedDate.value, orders, employee]);
+        [selectedDate.value, [], employee]);
 
     final productMapListener = ref.watch(productOrdersProvider(filter));
 
@@ -258,14 +253,14 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
     final style = TextStyle(fontFamily: mediumFamily, fontSize: context.s(14));
 
     final selectedDate = useState<DateTime>(DateTime.now());
-    final orders = ref.watch(ordersFilterProvider(orderFilter)).value ?? [];
+    // final orders = ref.watch(ordersFilterProvider(orderFilter)).value ?? [];
     final filter = useMemoized(
         () => ProductOrderFilter(
               day: selectedDate.value,
-              orders: orders,
+              orders: [],
               employee: employee,
             ),
-        [selectedDate.value, orders, employee]);
+        [selectedDate.value, [], employee]);
 
     final productMapListener = ref.watch(productOrdersProvider(filter));
 

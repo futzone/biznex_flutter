@@ -2,10 +2,8 @@ import 'dart:developer';
 import 'dart:ui';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
-import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
-import 'package:biznex/src/core/network/api.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:biznex/src/providers/category_provider.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
@@ -15,6 +13,7 @@ import 'package:biznex/src/server/constants/api_endpoints.dart';
 import 'package:biznex/src/ui/pages/login_pages/login_page.dart';
 import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
+import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
@@ -82,6 +81,12 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                               padding: Dis.only(tb: 12),
                               theme: theme,
                               onPressed: () {
+                                if (_controller.text.trim().isEmpty) {
+                                  ShowToast.error(
+                                      context, AppLocales.enterAddress.tr());
+                                  return;
+                                }
+
                                 AppModel nm = state;
                                 nm.apiUrl = _controller.text.trim();
                                 AppStateDatabase().updateApp(nm).then((_) {
@@ -112,7 +117,10 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                 // }
                 if (getDeviceType(context) == DeviceType.mobile) {
                   return OnboardMobile(
-                      employees: employees, theme: theme, state: state);
+                    employees: employees,
+                    theme: theme,
+                    state: state,
+                  );
                 }
 
                 return Scaffold(
@@ -122,7 +130,8 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         image: AssetImage(
-                            'assets/images/0307ca967f3a160c45813e6188ae5bf31a7a7ecf.png'),
+                          'assets/images/0307ca967f3a160c45813e6188ae5bf31a7a7ecf.png',
+                        ),
                         filterQuality: FilterQuality.low,
                         fit: BoxFit.cover,
                       ),
@@ -313,7 +322,9 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                   ? employees.length + 1
                                   : employees.length,
                               itemBuilder: (context, index) {
-                                if (index == 0 && state.apiUrl == null) {
+                                if (index == 0 &&
+                                    (state.apiUrl == null ||
+                                        (state.apiUrl ?? '').isEmpty)) {
                                   return OnboardCard(
                                     theme: theme,
                                     roleName: "Admin",

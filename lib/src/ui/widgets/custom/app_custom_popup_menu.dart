@@ -7,7 +7,11 @@ class CustomPopupMenu extends StatelessWidget {
   final AppColors theme;
   final List<CustomPopupItem> children;
 
-  const CustomPopupMenu({super.key, required this.child, required this.theme, required this.children});
+  const CustomPopupMenu(
+      {super.key,
+      required this.child,
+      required this.theme,
+      required this.children});
 
   @override
   Widget build(BuildContext context) {
@@ -30,19 +34,31 @@ class CustomPopupItem {
   final IconData? icon;
   final void Function()? onPressed;
   final Color? iconColor;
+  final Widget? child;
 
-  const CustomPopupItem({this.iconColor, required this.title, this.icon, this.onPressed});
+  const CustomPopupItem({
+    this.iconColor,
+    this.child,
+    required this.title,
+    this.icon,
+    this.onPressed,
+  });
 
   PopupMenuItem build(BuildContext context) {
     return PopupMenuItem(
       onTap: () => (onPressed != null) ? onPressed!() : () {},
-      child: Row(
-        children: [
-          if (icon != null) Icon(icon, size: 20, color: iconColor),
-          if (icon != null) const SizedBox(width: 8),
-          Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: iconColor)),
-        ],
-      ),
+      child: child ??
+          Row(
+            children: [
+              if (icon != null) Icon(icon, size: 20, color: iconColor),
+              if (icon != null) const SizedBox(width: 8),
+              Text(title,
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: iconColor)),
+            ],
+          ),
     );
   }
 }

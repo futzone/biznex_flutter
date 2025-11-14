@@ -1,8 +1,12 @@
 import 'dart:io';
+import 'package:biznex/src/core/database/database_schema/schema.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/utils/printer_fonts.dart';
+import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/license_status_provider.dart';
+import 'package:biznex/src/providers/places_provider.dart';
+import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/server/start.dart';
 import 'package:biznex/src/ui/pages/login_pages/onboard_page.dart';
 import 'package:biznex/src/ui/screens/sleep_screen/activity_wrapper.dart';
@@ -17,7 +21,7 @@ import 'package:path/path.dart' as path;
 
 bool debugMode = true;
 const appVersion = '2.4.23';
-const appPageSize = 12;
+const appPageSize = 30;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +45,13 @@ void main() async {
   // await AppBackupDatabase.instance.init();
   await EasyLocalization.ensureInitialized();
 
+  // await DatabaseSchema().test();
+
+  final container = ProviderContainer();
+  await container.read(placesProvider.future);
+  await container.read(employeeProvider.future);
+  await container.read(productsProvider.future);
+
   runApp(
     EasyLocalization(
       supportedLocales: const [
@@ -50,7 +61,10 @@ void main() async {
       ],
       fallbackLocale: const Locale('uz', 'UZ'),
       path: 'assets/localization',
-      child: const ProviderScope(child: MyApp()),
+      child: UncontrolledProviderScope(
+        container: container,
+        child: MyApp(),
+      ),
     ),
   );
 }

@@ -1,12 +1,11 @@
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
-import 'package:biznex/src/core/model/order_models/order_filter_model.dart';
+import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:flutter/foundation.dart';
-
 import '../core/isolate/employee_order_filter.dart';
-import '../core/isolate/order_filter.dart';
 
 bool isTodayOrder(DateTime dateFilter, Order order) {
   final orderDate = DateTime.parse(order.createdDate);
@@ -36,23 +35,10 @@ final employeeOrdersProvider = FutureProvider<List<Order>>((ref) async {
   return result;
 });
 
-final ordersFilterProvider =
-    FutureProvider.family<List<Order>, OrderFilterModel>((ref, filter) async {
-  final orderDatabase = OrderDatabase();
-  final allOrders = await orderDatabase.getOrders();
-
-  final filtered = await compute(filterAndSortAllOrders, {
-    'orders': allOrders,
-    'filter': filter,
-  });
-
-  return filtered;
-});
-
-final orderLengthProvider = FutureProvider((ref)async {
-  final orderDatabase = OrderDatabase();
-  final allOrders = await orderDatabase.getOrders();
-  return allOrders.length;
+final orderLengthProvider = FutureProvider((ref) async {
+  final orderDatabase = IsarDatabase.instance.isar;
+  final allOrders = await orderDatabase.orderIsars.count();
+  return allOrders;
 });
 
 final todayOrdersProvider = FutureProvider((ref) async {

@@ -86,6 +86,10 @@ class AppTextField extends StatelessWidget {
               },
             ),
           );
+        } else {
+          try {
+            SystemChannels.textInput.invokeMethod('TextInput.show');
+          } catch (_) {}
         }
 
         if (onTap != null) onTap!();

@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:developer';
 import 'package:biznex/src/core/extensions/for_dynamic.dart';
 import 'package:biznex/src/core/model/category_model/category_model.dart';
 import 'package:biznex/src/core/model/product_params_models/product_info.dart';
@@ -25,8 +26,10 @@ class Product {
   String? productId;
   List<Product>? variants;
   Category? category;
+  bool unlimited;
 
   Product({
+    this.unlimited = false,
     required this.name,
     required this.price,
     this.barcode,
@@ -69,10 +72,13 @@ class Product {
       'productId': productId,
       'variants': variants?.map((e) => e.toJson()).toList(),
       'category': category?.toJson(),
+      'unlimited': unlimited,
     };
   }
 
   factory Product.fromJson(json) {
+
+
     double safeDouble(num? value, {double fallback = 0.0}) {
       if (value == null) return fallback;
       final d = value.toDouble();
@@ -80,7 +86,10 @@ class Product {
       return d;
     }
 
+
+
     return Product(
+      unlimited: json['unlimited'] ?? false,
       name: json['name'],
       barcode: json['barcode'],
       tagnumber: json['tagnumber'],
@@ -127,6 +136,7 @@ class Product {
     double? amount,
     double? percent,
     String? id,
+    bool? unlimited,
     String? productId,
     List<Product>? variants,
     Category? category,
@@ -173,12 +183,15 @@ class Product {
       amount: amount ?? this.amount,
       variants: setVariantsToNull == true ? null : variants ?? this.variants,
       category: setCategoryToNull == true ? null : category ?? this.category,
+      unlimited: unlimited ?? this.unlimited,
     );
   }
 
   factory Product.fromIsar(ProductIsar isar) {
+    // log("fromIsar: ${isar.unlimited}");
     return Product(
       name: isar.name,
+      unlimited: isar.unlimited,
       barcode: isar.barcode,
       tagnumber: isar.tagnumber,
       cratedDate: isar.cratedDate,

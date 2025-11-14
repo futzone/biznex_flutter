@@ -578,4 +578,7 @@ abstract class AppLocales {
   static var phone = "phone";
   static var cancelOrderFeature = "cancelOrderFeature";
   static var doNotDecreaseText = "doNotDecreaseText";
+  static var unlimitedMode = "unlimitedMode";
+  static var isUnlimitedModeHint = "isUnlimitedModeHint";
+  static var firstSaveOrder = "firstSaveOrder";
 }

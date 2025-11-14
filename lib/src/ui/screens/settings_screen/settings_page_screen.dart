@@ -6,14 +6,14 @@ import 'package:biznex/src/core/database/changes_database/changes_database.dart'
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/model/app_changes_model.dart';
 import 'package:biznex/src/core/model/order_models/percent_model.dart';
-  import 'package:biznex/src/providers/app_state_provider.dart';
+import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:biznex/src/providers/price_percent_provider.dart';
 import 'package:biznex/src/providers/printer_devices_provider.dart';
 import 'package:biznex/src/ui/screens/settings_screen/app_updater_screen.dart';
 import 'package:biznex/src/ui/screens/settings_screen/network_interface_screen.dart';
- import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
+import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
 import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
- import 'package:biznex/src/ui/widgets/custom/app_list_tile.dart';
+import 'package:biznex/src/ui/widgets/custom/app_list_tile.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
@@ -215,7 +215,7 @@ class SettingsPageScreen extends HookConsumerWidget {
                                   style: TextStyle(
                                       fontSize: 16, fontFamily: mediumFamily),
                                 ),
-                                 SimpleButton(
+                                SimpleButton(
                                   onPressed: () {
                                     FilePicker.platform
                                         .pickFiles()
@@ -322,15 +322,39 @@ class SettingsPageScreen extends HookConsumerWidget {
                                         return CustomPopupMenu(
                                           theme: theme,
                                           children: [
+                                            CustomPopupItem(
+                                              icon: Icons.cancel_outlined,
+                                              title: AppLocales.cancel.tr(),
+                                              onPressed: () {
+                                                AppModel kApp = state;
+                                                kApp.token = '';
+                                                kApp.refresh = '';
+                                                AppStateDatabase()
+                                                    .updateApp(kApp)
+                                                    .then((_) {
+                                                  ref.invalidate(
+                                                      appStateProvider);
+                                                });
+
+                                                printer.value =
+                                                    Printer(url: '');
+                                                printerController.clear();
+                                                ShowToast.success(
+                                                    context,
+                                                    AppLocales.savedSuccessfully
+                                                        .tr());
+                                              },
+                                            ),
                                             for (final device in devices)
                                               CustomPopupItem(
-                                                  title: device.name,
-                                                  icon: Iconsax.printer_copy,
-                                                  onPressed: () {
-                                                    printer.value = device;
-                                                    printerController.text =
-                                                        device.name;
-                                                  }),
+                                                title: device.name,
+                                                icon: Iconsax.printer_copy,
+                                                onPressed: () {
+                                                  printer.value = device;
+                                                  printerController.text =
+                                                      device.name;
+                                                },
+                                              ),
                                           ],
                                           child: IgnorePointer(
                                             ignoring: true,

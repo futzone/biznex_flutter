@@ -466,5 +466,7 @@
   "productEnded": "Ended",
   "profitFromPlacePrice": "Profit from price for places",
   "deleteRecipeQuestion": "Are you sure you want to delete the recipe?",
-  "contactWithUs": "Contact us"
+  "contactWithUs": "Contact us",
+  "unlimitedMode": "Unlimited mode",
+  "isUnlimitedModeHint": "This does not reduce the amount of products and dishes."
 }

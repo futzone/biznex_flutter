@@ -8,8 +8,6 @@ import '../../model/other_models/customer_model.dart';
 import '../../model/place_models/place_model.dart';
 import '../../model/product_models/product_model.dart';
 import '../../model/product_params_models/product_info.dart';
-import '../../model/transaction_model/transaction_isar.dart' hide EmployeeIsar;
-import '../../model/transaction_model/transaction_model.dart';
 
 extension CustomerToIsar on Customer {
   CustomerIsar toIsar() => CustomerIsar()
@@ -54,6 +52,7 @@ extension ProductToIsar on Product {
   ProductIsar toIsar() {
     final p = ProductIsar()
       ..id = id
+      ..unlimited = unlimited
       ..name = name
       ..barcode = barcode
       ..tagnumber = tagnumber
@@ -128,7 +127,12 @@ extension OrderToIsar on Order {
       ..place = place.toIsar()
       ..orderNumber = orderNumber;
     o.products = products.map((p) => p.toIsar()).toList();
+    o.paymentTypes = paymentTypes.map((pt) {
+      PercentIsar percentIsar = PercentIsar()
+        ..name = pt.name
+        ..amount = pt.percent;
+      return percentIsar;
+    }).toList();
     return o;
   }
 }
-

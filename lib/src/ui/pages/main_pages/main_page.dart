@@ -49,17 +49,21 @@ class MainPage extends HookConsumerWidget {
                 if (pageValue.value == 0) return SettingsPageScreen();
                 if (pageValue.value == 1) return OrderSetPage();
                 if (pageValue.value == 2) return OrdersPage();
-                if (pageValue.value == 3)
+                if (pageValue.value == 3) {
                   return CategoryPage(appbar: appbar, fab);
-                if (pageValue.value == 10)
+                }
+                if (pageValue.value == 10) {
                   return PlacesPage(appbar: appbar, fab);
+                }
                 // if (pageValue.value == 5) return ProductInformationsPage(appbar: appbar, fab);
                 if (pageValue.value == 6) return ProductMeasureReponsive();
-                if (pageValue.value == 8)
+                if (pageValue.value == 8) {
                   return EmployeePage(appbar: appbar, fab);
+                }
                 if (pageValue.value == 7) return MonitoringPage();
-                if (pageValue.value == 9)
-                  return TransactionsPage(fab, appbar: appbar);
+                if (pageValue.value == 9) {
+                  return TransactionsPage();
+                }
                 if (pageValue.value == 11) return CloudPage();
                 if (pageValue.value == 12) return ShoppingPage();
                 return ProductsPage(fab, appbar: appbar);

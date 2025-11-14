@@ -106,6 +106,7 @@ class OrderDatabase extends OrderDatabaseRepository {
   }
 
   Future<void> saveOrder(Order order) async {
+
     if ((await connectionStatus()) != null) {
       await postRemote(path: 'orders', data: jsonEncode(order.toJson()));
       return;
@@ -342,6 +343,9 @@ class OrderDatabase extends OrderDatabaseRepository {
     try {
       ProductDatabase productDatabase = ProductDatabase();
       for (final item in order.products) {
+        log('${item.product.unlimited}');
+        if (item.product.unlimited) continue;
+
         Product product = item.product;
         if (product.amount <= item.amount) {
           product.amount = 0;

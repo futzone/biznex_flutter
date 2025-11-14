@@ -560,5 +560,7 @@
   "productEnded": "Нет",
   "profitFromPlacePrice": "Прибыль от цены за места",
   "deleteRecipeQuestion": "Вы уверены, что хотите удалить рецепт?",
-  "contactWithUs": "Свяжитесь с нами"
+  "contactWithUs": "Свяжитесь с нами",
+  "unlimitedMode": "Безлимитный режим",
+  "isUnlimitedModeHint": "Это не уменьшает количество продуктов и блюд."
 }

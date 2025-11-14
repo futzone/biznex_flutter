@@ -90,221 +90,221 @@ class MonitoringProductsPage extends HookConsumerWidget {
                 ),
               ),
               16.w,
-              SimpleButton(
-                onPressed: () {
-                  showAppLoadingDialog(context);
-                  final orders = ref.watch(ordersFilterProvider(orderFilterModel)).value ?? [];
-                  final employees = ref.watch(productsProvider).value ?? [];
-
-                  List<ProductsExcelModel> list = [];
-                  for (final employee in employees) {
-                    final employeeId = employee.id;
-
-                    final double ordersSumm = orders.fold(0.0, (value, element) {
-                      if (selectedDate.value != null && filterType.value == 'monthly') {
-                        if (element.employee.id == employeeId && AppDateUtils.isMonthOrder(selectedDate.value!, element.createdDate)) {
-                          return value += element.price;
-                        }
-
-                        return value;
-                      }
-
-                      if (selectedDate.value != null && filterType.value == 'daily') {
-                        if (element.employee.id == employeeId && AppDateUtils.isTodayOrder(selectedDate.value!, element.createdDate)) {
-                          return value += element.price;
-                        }
-
-                        return value;
-                      }
-
-                      if (element.employee.id == employeeId) return value += element.price;
-                      return value;
-                    });
-
-                    final int ordersCount = orders.fold(0, (value, element) {
-                      if (selectedDate.value != null && filterType.value == 'monthly') {
-                        if (element.employee.id == employeeId && AppDateUtils.isMonthOrder(selectedDate.value!, element.createdDate)) {
-                          return value += 1;
-                        }
-
-                        return value;
-                      }
-
-                      if (selectedDate.value != null && filterType.value == 'daily') {
-                        if (element.employee.id == employeeId && AppDateUtils.isTodayOrder(selectedDate.value!, element.createdDate)) {
-                          return value += 1;
-                        }
-
-                        return value;
-                      }
-
-                      if (element.employee.id == employeeId) return value += 1;
-                      return value;
-                    });
-
-                    final ProductsExcelModel excel = ProductsExcelModel(
-                      ordersCount: ordersCount,
-                      ordersSumm: ordersSumm,
-                      dateTime: selectedDate.value == null
-                          ? 'all'.tr()
-                          : DateFormat(filterType.value == 'monthly' ? 'MMMM' : 'd-MMMM', context.locale.languageCode).format(selectedDate.value!),
-                      price: employee.price,
-                      productName: employee.name,
-                    );
-
-                    list.add(excel);
-                  }
-
-                  AppRouter.close(context);
-                  ProductsExcelModel.saveFileDialog(list);
-                },
-                child: Container(
-                  padding: Dis.only(lr: context.w(16), tb: context.h(13)),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: theme.mainColor),
-                  child: Row(
-                    children: [
-                      Text(
-                        AppLocales.export.tr(),
-                        style: TextStyle(fontFamily: mediumFamily, fontSize: 16, color: Colors.white),
-                      ),
-                      8.w,
-                      Icon(Iconsax.document_download, size: 20, color: Colors.white)
-                    ],
-                  ),
-                ),
-              ),
+              // SimpleButton(
+              //   onPressed: () {
+              //     showAppLoadingDialog(context);
+              //     // final orders = ref.watch(ordersFilterProvider(orderFilterModel)).value ?? [];
+              //     final employees = ref.watch(productsProvider).value ?? [];
+              //
+              //     List<ProductsExcelModel> list = [];
+              //     for (final employee in employees) {
+              //       final employeeId = employee.id;
+              //
+              //       final double ordersSumm = orders.fold(0.0, (value, element) {
+              //         if (selectedDate.value != null && filterType.value == 'monthly') {
+              //           if (element.employee.id == employeeId && AppDateUtils.isMonthOrder(selectedDate.value!, element.createdDate)) {
+              //             return value += element.price;
+              //           }
+              //
+              //           return value;
+              //         }
+              //
+              //         if (selectedDate.value != null && filterType.value == 'daily') {
+              //           if (element.employee.id == employeeId && AppDateUtils.isTodayOrder(selectedDate.value!, element.createdDate)) {
+              //             return value += element.price;
+              //           }
+              //
+              //           return value;
+              //         }
+              //
+              //         if (element.employee.id == employeeId) return value += element.price;
+              //         return value;
+              //       });
+              //
+              //       final int ordersCount = orders.fold(0, (value, element) {
+              //         if (selectedDate.value != null && filterType.value == 'monthly') {
+              //           if (element.employee.id == employeeId && AppDateUtils.isMonthOrder(selectedDate.value!, element.createdDate)) {
+              //             return value += 1;
+              //           }
+              //
+              //           return value;
+              //         }
+              //
+              //         if (selectedDate.value != null && filterType.value == 'daily') {
+              //           if (element.employee.id == employeeId && AppDateUtils.isTodayOrder(selectedDate.value!, element.createdDate)) {
+              //             return value += 1;
+              //           }
+              //
+              //           return value;
+              //         }
+              //
+              //         if (element.employee.id == employeeId) return value += 1;
+              //         return value;
+              //       });
+              //
+              //       final ProductsExcelModel excel = ProductsExcelModel(
+              //         ordersCount: ordersCount,
+              //         ordersSumm: ordersSumm,
+              //         dateTime: selectedDate.value == null
+              //             ? 'all'.tr()
+              //             : DateFormat(filterType.value == 'monthly' ? 'MMMM' : 'd-MMMM', context.locale.languageCode).format(selectedDate.value!),
+              //         price: employee.price,
+              //         productName: employee.name,
+              //       );
+              //
+              //       list.add(excel);
+              //     }
+              //
+              //     AppRouter.close(context);
+              //     ProductsExcelModel.saveFileDialog(list);
+              //   },
+              //   child: Container(
+              //     padding: Dis.only(lr: context.w(16), tb: context.h(13)),
+              //     decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: theme.mainColor),
+              //     child: Row(
+              //       children: [
+              //         Text(
+              //           AppLocales.export.tr(),
+              //           style: TextStyle(fontFamily: mediumFamily, fontSize: 16, color: Colors.white),
+              //         ),
+              //         8.w,
+              //         Icon(Iconsax.document_download, size: 20, color: Colors.white)
+              //       ],
+              //     ),
+              //   ),
+              // ),
             ],
           ),
           16.h,
-          Expanded(
-            child: state.whenProviderData(
-              provider: productsProvider,
-              builder: (employees) {
-                return state.whenProviderData(
-                  provider: ordersFilterProvider(orderFilterModel),
-                  builder: (orders) {
-                    orders as List<Order>;
-                    employees as List<Product>;
-
-                    return ListView.builder(
-                      itemCount: employees.length,
-                      itemBuilder: (context, index) {
-                        final employeeId = employees[index].id;
-
-                        final double ordersSumm = orders.fold(0.0, (value, element) {
-                          if (selectedDate.value != null && filterType.value == 'monthly') {
-                            if (element.products.where((el) => el.product.id == employeeId).isNotEmpty &&
-                                AppDateUtils.isMonthOrder(selectedDate.value!, element.createdDate)) {
-                              final kProduct = (element.products.firstWhere((item) => item.product.id == employeeId));
-                              return value += (kProduct.amount * kProduct.product.price);
-                            }
-
-                            return value;
-                          }
-
-                          if (selectedDate.value != null && filterType.value == 'daily') {
-                            if (element.products.where((el) => el.product.id == employeeId).isNotEmpty &&
-                                AppDateUtils.isTodayOrder(selectedDate.value!, element.createdDate)) {
-                              final kProduct = (element.products.firstWhere((item) => item.product.id == employeeId));
-                              return value += (kProduct.amount * kProduct.product.price);
-                            }
-
-                            return value;
-                          }
-
-                          if (element.products.where((el) => el.product.id == employeeId).isNotEmpty) {
-                            final kProduct = (element.products.firstWhere((item) => item.product.id == employeeId));
-                            return value += (kProduct.amount * kProduct.product.price);
-                          }
-                          return value;
-                        });
-
-                        final double ordersCount = orders.fold(0.0, (value, element) {
-                          if (selectedDate.value != null && filterType.value == 'monthly') {
-                            if (element.products.where((el) => el.product.id == employeeId).isNotEmpty &&
-                                AppDateUtils.isMonthOrder(selectedDate.value!, element.createdDate)) {
-                              return value += (element.products.firstWhere((item) => item.product.id == employeeId).amount);
-                            }
-
-                            return value;
-                          }
-
-                          if (selectedDate.value != null && filterType.value == 'daily') {
-                            if (element.products.where((el) => el.product.id == employeeId).isNotEmpty &&
-                                AppDateUtils.isTodayOrder(selectedDate.value!, element.createdDate)) {
-                              return value += (element.products.firstWhere((item) => item.product.id == employeeId).amount);
-                            }
-
-                            return value;
-                          }
-
-                          if (element.products.where((el) => el.product.id == employeeId).isNotEmpty) {
-                            return value += (element.products.firstWhere((item) => item.product.id == employeeId).amount);
-                          }
-                          return value;
-                        });
-
-                        return Container(
-                          margin: 16.bottom,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            color: theme.accentColor,
-                          ),
-                          padding: 18.all,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  spacing: 8,
-                                  children: [
-                                    Icon(Iconsax.reserve, color: theme.mainColor),
-                                    Text(employees[index].name, style: TextStyle(fontSize: 16, fontFamily: boldFamily))
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: 8,
-                                  children: [
-                                    Icon(Iconsax.coin_1, color: theme.mainColor),
-                                    Text(employees[index].price.priceUZS, style: TextStyle(fontSize: 16, fontFamily: boldFamily)),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: 8,
-                                  children: [
-                                    Icon(Iconsax.bag, color: theme.mainColor),
-                                    Text("${AppLocales.orders.tr()}: ${ordersCount.toMeasure}", style: TextStyle(fontSize: 16, fontFamily: boldFamily)),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  spacing: 8,
-                                  children: [
-                                    Icon(Iconsax.wallet, color: theme.mainColor),
-                                    Text(ordersSumm.priceUZS, style: TextStyle(fontSize: 16, fontFamily: boldFamily))
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  },
-                );
-              },
-            ),
-          ),
+          // Expanded(
+          //   child: state.whenProviderData(
+          //     provider: productsProvider,
+          //     builder: (employees) {
+          //       return state.whenProviderData(
+          //         provider: ordersFilterProvider(orderFilterModel),
+          //         builder: (orders) {
+          //           orders as List<Order>;
+          //           employees as List<Product>;
+          //
+          //           return ListView.builder(
+          //             itemCount: employees.length,
+          //             itemBuilder: (context, index) {
+          //               final employeeId = employees[index].id;
+          //
+          //               final double ordersSumm = orders.fold(0.0, (value, element) {
+          //                 if (selectedDate.value != null && filterType.value == 'monthly') {
+          //                   if (element.products.where((el) => el.product.id == employeeId).isNotEmpty &&
+          //                       AppDateUtils.isMonthOrder(selectedDate.value!, element.createdDate)) {
+          //                     final kProduct = (element.products.firstWhere((item) => item.product.id == employeeId));
+          //                     return value += (kProduct.amount * kProduct.product.price);
+          //                   }
+          //
+          //                   return value;
+          //                 }
+          //
+          //                 if (selectedDate.value != null && filterType.value == 'daily') {
+          //                   if (element.products.where((el) => el.product.id == employeeId).isNotEmpty &&
+          //                       AppDateUtils.isTodayOrder(selectedDate.value!, element.createdDate)) {
+          //                     final kProduct = (element.products.firstWhere((item) => item.product.id == employeeId));
+          //                     return value += (kProduct.amount * kProduct.product.price);
+          //                   }
+          //
+          //                   return value;
+          //                 }
+          //
+          //                 if (element.products.where((el) => el.product.id == employeeId).isNotEmpty) {
+          //                   final kProduct = (element.products.firstWhere((item) => item.product.id == employeeId));
+          //                   return value += (kProduct.amount * kProduct.product.price);
+          //                 }
+          //                 return value;
+          //               });
+          //
+          //               final double ordersCount = orders.fold(0.0, (value, element) {
+          //                 if (selectedDate.value != null && filterType.value == 'monthly') {
+          //                   if (element.products.where((el) => el.product.id == employeeId).isNotEmpty &&
+          //                       AppDateUtils.isMonthOrder(selectedDate.value!, element.createdDate)) {
+          //                     return value += (element.products.firstWhere((item) => item.product.id == employeeId).amount);
+          //                   }
+          //
+          //                   return value;
+          //                 }
+          //
+          //                 if (selectedDate.value != null && filterType.value == 'daily') {
+          //                   if (element.products.where((el) => el.product.id == employeeId).isNotEmpty &&
+          //                       AppDateUtils.isTodayOrder(selectedDate.value!, element.createdDate)) {
+          //                     return value += (element.products.firstWhere((item) => item.product.id == employeeId).amount);
+          //                   }
+          //
+          //                   return value;
+          //                 }
+          //
+          //                 if (element.products.where((el) => el.product.id == employeeId).isNotEmpty) {
+          //                   return value += (element.products.firstWhere((item) => item.product.id == employeeId).amount);
+          //                 }
+          //                 return value;
+          //               });
+          //
+          //               return Container(
+          //                 margin: 16.bottom,
+          //                 decoration: BoxDecoration(
+          //                   borderRadius: BorderRadius.circular(16),
+          //                   color: theme.accentColor,
+          //                 ),
+          //                 padding: 18.all,
+          //                 child: Row(
+          //                   children: [
+          //                     Expanded(
+          //                       child: Row(
+          //                         spacing: 8,
+          //                         children: [
+          //                           Icon(Iconsax.reserve, color: theme.mainColor),
+          //                           Text(employees[index].name, style: TextStyle(fontSize: 16, fontFamily: boldFamily))
+          //                         ],
+          //                       ),
+          //                     ),
+          //                     Expanded(
+          //                       child: Row(
+          //                         crossAxisAlignment: CrossAxisAlignment.center,
+          //                         mainAxisAlignment: MainAxisAlignment.center,
+          //                         spacing: 8,
+          //                         children: [
+          //                           Icon(Iconsax.coin_1, color: theme.mainColor),
+          //                           Text(employees[index].price.priceUZS, style: TextStyle(fontSize: 16, fontFamily: boldFamily)),
+          //                         ],
+          //                       ),
+          //                     ),
+          //                     Expanded(
+          //                       child: Row(
+          //                         crossAxisAlignment: CrossAxisAlignment.center,
+          //                         mainAxisAlignment: MainAxisAlignment.center,
+          //                         spacing: 8,
+          //                         children: [
+          //                           Icon(Iconsax.bag, color: theme.mainColor),
+          //                           Text("${AppLocales.orders.tr()}: ${ordersCount.toMeasure}", style: TextStyle(fontSize: 16, fontFamily: boldFamily)),
+          //                         ],
+          //                       ),
+          //                     ),
+          //                     Expanded(
+          //                       child: Row(
+          //                         crossAxisAlignment: CrossAxisAlignment.end,
+          //                         mainAxisAlignment: MainAxisAlignment.end,
+          //                         spacing: 8,
+          //                         children: [
+          //                           Icon(Iconsax.wallet, color: theme.mainColor),
+          //                           Text(ordersSumm.priceUZS, style: TextStyle(fontSize: 16, fontFamily: boldFamily))
+          //                         ],
+          //                       ),
+          //                     ),
+          //                   ],
+          //                 ),
+          //               );
+          //             },
+          //           );
+          //         },
+          //       );
+          //     },
+          //   ),
+          // ),
         ],
       );
     });

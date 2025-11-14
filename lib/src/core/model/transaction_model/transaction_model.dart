@@ -2,6 +2,7 @@ import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
 import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
+import 'package:biznex/src/core/model/order_models/percent_model.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_isar.dart';
 import 'package:isar/isar.dart';
 
@@ -33,6 +34,7 @@ class Transaction {
   double value;
   Employee? employee;
   Order? order;
+  List<Percent>? paymentTypes;
 
   Transaction({
     this.id = '',
@@ -42,6 +44,7 @@ class Transaction {
     this.createdDate = '',
     this.note = '',
     this.paymentType = Transaction.cash,
+    this.paymentTypes,
   });
 
   factory Transaction.fromJson(json) {
@@ -56,6 +59,8 @@ class Transaction {
       employee:
           json['employee'] != null ? Employee.fromJson(json['employee']) : null,
       order: json['order'] != null ? Order.fromJson(json['order']) : null,
+      paymentTypes:
+          json['paymentTypes']?.map((e) => Percent.fromJson(e)).toList(),
     );
   }
 
@@ -67,22 +72,25 @@ class Transaction {
             .idEqualTo(isar.orderId ?? '_')
             .findFirstSync());
     return Transaction(
-      id: isar.id,
-      value: isar.value,
-      createdDate: isar.createdDate,
-      paymentType: isar.paymentType,
-      note: isar.note,
-      employee: isar.employee != null
-          ? Employee(
-              fullname: isar.employee?.fullname ?? '',
-              roleId: isar.employee?.roleId ?? '',
-              roleName: isar.employee?.roleName ?? '',
-              id: isar.employee?.id ?? '',
-              createdDate: isar.employee?.createdDate ?? '',
-            )
-          : null,
-      order: orderIsar == null ? null : Order.fromIsar(orderIsar),
-    );
+        id: isar.id,
+        value: isar.value,
+        createdDate: isar.createdDate,
+        paymentType: isar.paymentType,
+        note: isar.note,
+        employee: isar.employee != null
+            ? Employee(
+                fullname: isar.employee?.fullname ?? '',
+                roleId: isar.employee?.roleId ?? '',
+                roleName: isar.employee?.roleName ?? '',
+                id: isar.employee?.id ?? '',
+                createdDate: isar.employee?.createdDate ?? '',
+              )
+            : null,
+        order: orderIsar == null ? null : Order.fromIsar(orderIsar),
+        paymentTypes: [
+          for (final item in isar.paymentTypes)
+            Percent(name: item.name, percent: item.amount)
+        ]);
   }
 
   Map<String, dynamic> toJson() {
@@ -95,6 +103,7 @@ class Transaction {
       'note': note,
       'employee': employee?.toJson(),
       'order': order?.toJson(),
+      'paymentTypes': [for (final item in (paymentTypes ?? [])) item.toJson()]
     };
   }
 }

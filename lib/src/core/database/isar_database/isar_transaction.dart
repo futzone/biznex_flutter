@@ -24,7 +24,12 @@ extension TransactionToIsar on Transaction {
         ..pincode = employee!.pincode;
     }
 
-    t.paymentTypes = [];
+    t.paymentTypes = [
+      for (final item in paymentTypes ?? [])
+        PercentIsar()
+          ..name = item.name
+          ..amount = item.percent
+    ];
 
     return t;
   }

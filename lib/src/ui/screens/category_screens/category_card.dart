@@ -20,7 +20,8 @@ class CategoryCard extends AppStatelessWidget {
   const CategoryCard(this.category, {super.key, this.count});
 
   @override
-  Widget builder(BuildContext context, AppColors theme, WidgetRef ref, AppModel state) {
+  Widget builder(
+      BuildContext context, AppColors theme, WidgetRef ref, AppModel state) {
     return Container(
       padding: Dis.only(left: 12, right: 12, tb: 12),
       margin: Dis.only(tb: 8, lr: context.w(24)),
@@ -123,12 +124,24 @@ class CategoryCard extends AppStatelessWidget {
               return CustomPopupMenu(
                 theme: theme,
                 children: [
+                  CustomPopupItem(
+                    icon: Icons.cancel_outlined,
+                    title: AppLocales.cancel.tr(),
+                    onPressed: () {
+                      CategoryController cController =
+                          CategoryController(context: context, state: state);
+                      Category cCategory = category;
+                      cCategory.printerParams = null;
+                      cController.forceUpdate(cCategory, cCategory.id);
+                    },
+                  ),
                   for (final item in devices)
                     CustomPopupItem(
                       icon: Ionicons.print_outline,
                       title: item.name,
                       onPressed: () {
-                        CategoryController cController = CategoryController(context: context, state: state);
+                        CategoryController cController =
+                            CategoryController(context: context, state: state);
                         Category cCategory = category;
                         cCategory.printerParams = {
                           "name": item.name,

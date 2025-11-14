@@ -31,8 +31,6 @@ class OrderDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log("Order place price: ${order.place.price}");
-
     return AppStateWrapper(builder: (theme, state) {
       return SingleChildScrollView(
         padding: Dis.all(context.s(16)),
@@ -333,8 +331,20 @@ class OrderDetail extends StatelessWidget {
                   );
                 },
               ),
+            if (order.paymentTypes.isNotEmpty) ...[
+              for (final item in order.paymentTypes)
+                Row(
+                  children: [
+                    Text(item.name),
+                    Text(item.percent.priceUZS),
+                  ],
+                )
+            ],
             Container(
-                height: 1, color: Colors.grey.shade200, width: double.infinity),
+              height: 1,
+              color: Colors.grey.shade200,
+              width: double.infinity,
+            ),
             0.h,
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,

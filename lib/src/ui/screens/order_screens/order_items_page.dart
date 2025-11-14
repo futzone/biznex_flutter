@@ -14,6 +14,7 @@ import 'package:biznex/src/ui/screens/order_screens/order_payment_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_empty_widget.dart';
 import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
+import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
@@ -171,14 +172,18 @@ class OrderItemsPage extends HookConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             spacing: 8,
                             children: [
-                              Text(
-                                "${AppLocales.paymentType.tr()}:",
-                                style: TextStyle(
-                                  fontSize: context.s(16),
-                                  fontFamily: mediumFamily,
+                              SimpleButton(
+                                onPressed: () {
+                                  log("${order?.toJson().toString()}");
+                                },
+                                child: Text(
+                                  "${AppLocales.paymentType.tr()}:",
+                                  style: TextStyle(
+                                    fontSize: context.s(16),
+                                    fontFamily: mediumFamily,
+                                  ),
                                 ),
                               ),
-                              //
 
                               AppTextField(
                                 onTap: () {
@@ -190,8 +195,52 @@ class OrderItemsPage extends HookConsumerWidget {
                                       theme: theme,
                                       state: state,
                                       totalSumm: totalPrice,
-                                      onComplete: (payments) {
+                                      onComplete: (payments) async {
+                                        if (order == null) {
+                                          ShowToast.error(context,
+                                              AppLocales.firstSaveOrder.tr());
+                                          return;
+                                        }
+
                                         paymentTypes.value = payments;
+                                        OrderController oc = OrderController(
+                                          model: state,
+                                          place: place,
+                                          employee: ref
+                                              .watch(currentEmployeeProvider),
+                                        );
+
+                                        await oc.saveOrderPayments(
+                                            context, ref, payments, order);
+
+                                        try {
+                                          await Future.delayed(
+                                              Duration(milliseconds: 300));
+
+                                          await ref
+                                              .refresh(ordersProvider(place.id)
+                                                  .future)
+                                              .then((order) {
+                                            if (order != null) {
+                                              ref
+                                                  .read(
+                                                      orderSetProvider.notifier)
+                                                  .clearPlaceItems(place.id);
+                                              Future.delayed(
+                                                  Duration(milliseconds: 100));
+                                              ref
+                                                  .read(
+                                                      orderSetProvider.notifier)
+                                                  .addMultiple(
+                                                    order.products,
+                                                    context,
+                                                    order: order,
+                                                  );
+                                            } else {
+                                              // ref.read(orderSetProvider.notifier).clear();
+                                            }
+                                          });
+                                        } catch (_) {}
                                       },
                                     ),
                                   );
@@ -214,6 +263,44 @@ class OrderItemsPage extends HookConsumerWidget {
                                 // useBorder: true,
                                 fillColor: theme.accentColor,
                               ),
+                              // Wrap(
+                              //   crossAxisAlignment: WrapCrossAlignment.start,
+                              //   runAlignment: WrapAlignment.start,
+                              //   spacing: 16,
+                              //   runSpacing: Platform.isWindows ? 16 : 8,
+                              //   children: [
+                              //     ...[
+                              //       AppLocales.useCash,
+                              //       AppLocales.useDebt,
+                              //       AppLocales.useCard,
+                              //       AppLocales.payme,
+                              //       AppLocales.click,
+                              //     ].map((type) {
+                              //       return ChoiceChip(
+                              //         backgroundColor: theme.scaffoldBgColor,
+                              //         selectedColor: theme.mainColor,
+                              //         padding: Dis.only(),
+                              //         checkmarkColor: paymentType.value == type
+                              //             ? Colors.white
+                              //             : Colors.black,
+                              //         label: Text(
+                              //           type.tr(),
+                              //           style: TextStyle(
+                              //             color: paymentType.value == type
+                              //                 ? Colors.white
+                              //                 : Colors.black,
+                              //             fontSize: context.s(14),
+                              //           ),
+                              //         ),
+                              //         selected: paymentType.value == type,
+                              //         onSelected: (_) {
+                              //           paymentType.value = type;
+                              //         },
+                              //       );
+                              //     }),
+                              //   ],
+                              // ),
+
                               Container(
                                 height: 1,
                                 margin: 16.tb,
@@ -429,6 +516,9 @@ class OrderItemsPage extends HookConsumerWidget {
 
                                   noteController.clear();
                                   customerNotifier.value = null;
+
+                                  paymentType.value = '';
+                                  paymentTypes.value = [];
                                 },
                                 textColor: Colors.white,
                                 border: Border.all(color: Colors.blue),
