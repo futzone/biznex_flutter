@@ -1,7 +1,9 @@
 import 'dart:developer';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
+import 'package:biznex/src/core/extensions/for_date.dart';
 import 'package:biznex/src/core/model/product_models/shopping_model.dart';
+import 'package:biznex/src/providers/employee_orders_provider.dart';
 import '../../../controllers/warehouse_monitoring_controller.dart';
 
 class ShoppingDatabase {
@@ -58,6 +60,26 @@ class ShoppingDatabase {
     }
 
     return list;
+  }
+
+  Future<double> getShoppingStats(DateTime day, {DateTime? end}) async {
+    final box = await Hive.openBox(_boxName);
+    final data = box.values;
+
+    double totalSum = 0.0;
+
+    for (final item in data) {
+      final shopping = Shopping.fromMap(item);
+      if (end != null && end.dayEqualTo(shopping.createdDate)) {
+        totalSum += shopping.totalPrice;
+        continue;
+      }
+      if (day.dayEqualTo(shopping.createdDate)) {
+        totalSum += shopping.totalPrice;
+      }
+    }
+
+    return totalSum;
   }
 
   Future<Shopping?> getShopping(id) async {

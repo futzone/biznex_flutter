@@ -19,6 +19,7 @@ import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
@@ -51,6 +52,19 @@ class SettingsPageScreen extends HookConsumerWidget {
 
     return AppStateWrapper(
       builder: (theme, state) {
+        final decoded = JWT.decode(state.licenseKey).payload;
+
+        String? expireText;
+
+        if (decoded.containsKey("exp")) {
+          int exp = decoded["exp"];
+          DateTime expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+          expireText = DateFormat(
+            'yyyy, dd-MMMM, HH:mm',
+            context.locale.languageCode,
+          ).format(expiryDate);
+        }
+
         return Scaffold(
           body: SingleChildScrollView(
             padding: context.w(24).lr,
@@ -74,6 +88,35 @@ class SettingsPageScreen extends HookConsumerWidget {
                           ),
                         ),
                       ),
+                      if (expireText != null)
+                        Container(
+                          padding: Dis.only(lr: 12, tb: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Text(
+                                "${AppLocales.expireDate.tr()}:",
+                                style: TextStyle(
+                                  fontSize: context.s(14),
+                                  fontFamily: mediumFamily,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              2.w,
+                              Text(
+                                expireText,
+                                style: TextStyle(
+                                  fontSize: context.s(14),
+                                  fontFamily: boldFamily,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       state.whenProviderData(
                         provider: appUpdaterProvider,
                         builder: (data) {

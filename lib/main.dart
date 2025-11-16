@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:biznex/src/core/config/locale.dart';
 import 'package:biznex/src/core/database/database_schema/schema.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
@@ -20,7 +21,7 @@ import 'package:toastification/toastification.dart';
 import 'package:path/path.dart' as path;
 
 bool debugMode = true;
-const appVersion = '2.4.23';
+const appVersion = '2.5.0';
 const appPageSize = 30;
 
 void main() async {
@@ -44,6 +45,7 @@ void main() async {
 
   // await AppBackupDatabase.instance.init();
   await EasyLocalization.ensureInitialized();
+  await onGenerateCyrillLocalization();
 
   // await DatabaseSchema().test();
 
@@ -57,6 +59,7 @@ void main() async {
       supportedLocales: const [
         Locale('ru', 'RU'),
         Locale('uz', 'UZ'),
+        Locale('uz', 'Cyrl'),
         Locale('en', 'US'),
       ],
       fallbackLocale: const Locale('uz', 'UZ'),

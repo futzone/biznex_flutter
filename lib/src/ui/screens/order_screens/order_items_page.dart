@@ -22,6 +22,7 @@ import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../providers/orders_provider.dart';
+import '../../../providers/price_percent_provider.dart';
 
 class OrderItemsPage extends HookConsumerWidget {
   final Place place;
@@ -46,6 +47,7 @@ class OrderItemsPage extends HookConsumerWidget {
     final scheduledTime = useState<DateTime?>(null);
     final useCheck = useState(true);
     final paymentType = useState(AppLocales.useCash);
+    final percents = ref.read(orderPercentProvider).value ?? [];
 
     // final placeOrderItems = useMemoized(
     //   () => orderItems.where((e) => e.placeId == place.id).toList(),
@@ -79,16 +81,24 @@ class OrderItemsPage extends HookConsumerWidget {
           sum + (item.customPrice ?? item.amount * item.product.price),
     );
 
+    final totalPercents = percents.fold(0.0, (a, b) {
+      return a += b.percent;
+    });
+
     return orderAsyncValue.when(
       loading: () => AppLoadingScreen(),
       error: RefErrorScreen,
       data: (order) {
+        final percentSum =
+            (totalPrice + (order?.place.price ?? 0.0)) * (totalPercents / 100);
+        final finalPrice = totalPrice + percentSum + (order?.place.price??0.0);
         final noteController = useTextEditingController(text: order?.note);
         final customerNotifier = useState<Customer?>(order?.customer);
         final addressController = useTextEditingController();
         final phoneController = useTextEditingController();
         final paymentTypes =
             useState(<Percent>[...(order?.paymentTypes ?? [])]);
+
         return Expanded(
           flex: getDeviceType(context) == DeviceType.tablet ? 6 : 4,
           child: placeOrderItems.isEmpty
@@ -194,7 +204,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                       percentList: [...paymentTypes.value],
                                       theme: theme,
                                       state: state,
-                                      totalSumm: totalPrice,
+                                      totalSumm: finalPrice,
                                       onComplete: (payments) async {
                                         if (order == null) {
                                           ShowToast.error(context,
@@ -329,6 +339,81 @@ class OrderItemsPage extends HookConsumerWidget {
                                 color: theme.accentColor,
                               ),
 
+                              if (order?.place.price != null)
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      AppLocales.placePrice.tr(),
+                                      style: TextStyle(
+                                        fontSize: context.s(16),
+                                        fontFamily: mediumFamily,
+                                        color: theme.secondaryTextColor,
+                                      ),
+                                    ),
+                                    Text(
+                                      "${order?.place.price?.priceUZS}",
+                                      style: TextStyle(
+                                        fontSize: context.s(16),
+                                        fontFamily: mediumFamily,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (order != null && !order.place.percentNull)
+                                state.whenProviderData(
+                                  provider: orderPercentProvider,
+                                  builder: (percents) {
+                                    // percents as List<Percent>;
+                                    // final total = percents
+
+                                    percents as List<Percent>;
+
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        for (final item in percents)
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                "${item.name}: ${item.percent.toMeasure} %",
+                                                style: TextStyle(
+                                                  fontSize: context.s(16),
+                                                  fontFamily: mediumFamily,
+                                                  color:
+                                                      theme.secondaryTextColor,
+                                                ),
+                                              ),
+                                              Text(
+                                                ((totalPrice +
+                                                            (order.place
+                                                                    .price ??
+                                                                0.0)) *
+                                                        (item.percent / 100))
+                                                    .priceUZS,
+                                                style: TextStyle(
+                                                  fontSize: context.s(16),
+                                                  fontFamily: mediumFamily,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                      ],
+                                    );
+                                  },
+                                ),
+
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment:
@@ -342,7 +427,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                     ),
                                   ),
                                   Text(
-                                    totalPrice.priceUZS,
+                                    finalPrice.priceUZS,
                                     style: TextStyle(
                                       fontSize: context.s(20),
                                       fontFamily: boldFamily,

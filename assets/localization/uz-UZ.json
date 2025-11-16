@@ -576,5 +576,8 @@
   "address": "Manzil",
   "phone": "Telefon raqam",
   "unlimitedMode": "Cheklanmagan rejim",
-  "isUnlimitedModeHint": "Bunda mahsulot va taomlarning miqdori kamaymaydi."
+  "isUnlimitedModeHint": "Bunda mahsulot va taomlarning miqdori kamaymaydi.",
+  "payments": "To'lovlar",
+  "firstSaveOrder": "Iltimos, avval buyurtmani saqlang!",
+  "doNotDecreaseText": "Buyurtma mahsulotini faqat admin kamaytira oladi!"
 }

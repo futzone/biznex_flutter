@@ -6,4 +6,10 @@ extension DateTimeExtension on DateTime {
         (month == dateFilter.month) &&
         (day == dateFilter.day);
   }
+
+  bool dayEqualTo(DateTime dateFilter) {
+    return (year == dateFilter.year) &&
+        (month == dateFilter.month) &&
+        (day == dateFilter.day);
+  }
 }

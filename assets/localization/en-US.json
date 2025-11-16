@@ -468,5 +468,9 @@
   "deleteRecipeQuestion": "Are you sure you want to delete the recipe?",
   "contactWithUs": "Contact us",
   "unlimitedMode": "Unlimited mode",
-  "isUnlimitedModeHint": "This does not reduce the amount of products and dishes."
+  "isUnlimitedModeHint": "This does not reduce the amount of products and dishes.",
+  "payments": "Payments",
+  "firstSaveOrder": "Please save the order first!",
+  "doNotDecreaseText": "Don't try to decrease. You're not admin",
+  "subscriptionPaymentTextForCode": "Your subscription has expired. To continue your subscription, please make a payment and tell us the following code:"
 }

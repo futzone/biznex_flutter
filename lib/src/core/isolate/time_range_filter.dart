@@ -1,13 +1,13 @@
-import 'package:biznex/src/core/model/order_models/percent_model.dart';
+import '../model/order_models/percent_model.dart';
 
-Map<String, double> calculateRangeStatsIsolate(Map<String, dynamic> args) {
-  final List ordersJson = args['orders'];
+Map<String, double> calculateRangeStatsIsolate(Map args) {
+  final List orders = args['orders'];
   final List percentItems = args['percentItems'];
 
-  double ordersSumm = 0.0;
-  double totalSumm = 0.0;
-  double percentsSumm = 0.0;
-  double placePrice = 0.0;
+  double ordersSumm = args['ordersSumm'] ?? 0.0;
+  double totalSumm = args['totalSumm'] ?? 0.0;
+  double percentsSumm = args['percentsSumm'] ?? 0.0;
+  double placePrice = args['placePrice'] ?? 0.0;
 
   final percent = percentItems.fold<double>(0.0, (sum, item) {
     if (item is Map) return sum + (item['percent'] ?? 0);
@@ -15,11 +15,11 @@ Map<String, double> calculateRangeStatsIsolate(Map<String, dynamic> args) {
     return sum;
   });
 
-  for (final order in ordersJson) {
+  for (final order in orders) {
     final productOldPrice = order.products.fold(0.0, (val, product) {
-      final kPrice = (product.amount *
+      final kPrice = product.amount *
           (product.product.price *
-              (1 - (100 / (100 + product.product.percent)))));
+              (1 - (100 / (100 + product.product.percent))));
       return val + kPrice;
     });
 
@@ -27,7 +27,7 @@ Map<String, double> calculateRangeStatsIsolate(Map<String, dynamic> args) {
     totalSumm += productOldPrice;
 
     if (!order.place.percentNull) {
-      percentsSumm += (order.price * (1 - (100 / (100 + percent))));
+      percentsSumm += order.price * (1 - (100 / (100 + percent)));
     }
 
     if (order.place.price != null) {

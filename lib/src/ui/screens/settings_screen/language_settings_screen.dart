@@ -58,13 +58,50 @@ class _AppLanguageBarState extends State<AppLanguageBar> {
                         spacing: 12,
                         children: [
                           Icon(
-                            context.locale.languageCode == 'uz'
+                            (context.locale.languageCode == 'uz' &&
+                                    context.locale.countryCode == 'UZ')
                                 ? Icons.check_circle_outline
                                 : Icons.circle_outlined,
                             color: theme.mainColor,
                           ),
                           Text(
                             "O'zbekcha",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: mediumFamily,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: SimpleButton(
+                    onPressed: () {
+                      context.setLocale(Locale('uz', 'Cyrl')).then((_) {
+                        setState(() {});
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: theme.scaffoldBgColor,
+                      ),
+                      padding: Dis.only(lr: 12, tb: 12),
+                      child: Row(
+                        spacing: 12,
+                        children: [
+                          Icon(
+                            (context.locale.languageCode == 'uz' &&
+                                    context.locale.countryCode == 'Cyrl')
+                                ? Icons.check_circle_outline
+                                : Icons.circle_outlined,
+                            color: theme.mainColor,
+                          ),
+                          Text(
+                            "Ўзбекча",
                             style: TextStyle(
                               fontSize: 16,
                               fontFamily: mediumFamily,

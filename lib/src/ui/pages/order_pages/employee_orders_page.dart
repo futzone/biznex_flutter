@@ -38,8 +38,7 @@ class EmployeeOrdersMobilePage extends HookConsumerWidget {
   Widget build(BuildContext context, ref) {
     final dateFilter = useState<DateTime?>(null);
     final employeeOrders = ref.watch(employeeOrdersProvider);
-    final employee = ref.watch(currentEmployeeProvider);
-    final filterResult = useState(<Order>[]);
+     final filterResult = useState(<Order>[]);
     final orders = employeeOrders.value ?? [];
 
     return Scaffold(

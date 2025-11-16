@@ -47,7 +47,6 @@ class OrderController {
     Customer? customer,
     DateTime? scheduledDate,
     String? message,
-    List<Percent>? paymentTypes,
   }) async {
     if (!context.mounted) return;
     showAppLoadingDialog(context);
@@ -57,7 +56,7 @@ class OrderController {
     });
 
     Order order = Order(
-      paymentTypes: [if (paymentTypes != null) ...paymentTypes],
+      paymentTypes: [],
       place: place,
       employee: employee,
       price: totalPrice,
@@ -104,7 +103,6 @@ class OrderController {
     WidgetRef ref,
     List<OrderItem> newItemsList,
     Order oldOrderState, {
-    List<Percent>? paymentTypes,
     String? note,
     String? message,
     Customer? customer,
@@ -125,16 +123,14 @@ class OrderController {
       });
 
       Order updatedOrder = currentState.copyWith(
-          products: List<OrderItem>.from(newItemsList),
-          price: totalPrice,
-          customer: customer ?? currentState.customer,
-          note: note ?? currentState.note,
-          scheduledDate:
-              scheduledDate?.toIso8601String() ?? currentState.scheduledDate,
-          updatedDate: DateTime.now().toIso8601String(),
-          paymentTypes: [
-            if (paymentTypes != null) ...paymentTypes,
-          ]);
+        products: List<OrderItem>.from(newItemsList),
+        price: totalPrice,
+        customer: customer ?? currentState.customer,
+        note: note ?? currentState.note,
+        scheduledDate:
+            scheduledDate?.toIso8601String() ?? currentState.scheduledDate,
+        updatedDate: DateTime.now().toIso8601String(),
+      );
 
       await _database.updatePlaceOrder(
           data: updatedOrder, placeId: place.id, message: message);
@@ -164,7 +160,6 @@ class OrderController {
     bool useCheck = true,
     String? address,
     String? phone,
-    List<Percent>? paymentTypes,
   }) async {
     if (!context.mounted) return;
     showAppLoadingDialog(context);
@@ -182,9 +177,7 @@ class OrderController {
       });
 
       orderToProcess = Order(
-        paymentTypes: [
-          if (paymentTypes != null) ...paymentTypes,
-        ],
+        paymentTypes: [],
         place: place,
         employee: employee,
         price: totalPrice,
@@ -198,16 +191,16 @@ class OrderController {
       orderToProcess = currentOrderData;
     }
 
-    Order finalOrder = orderToProcess.copyWith(paymentTypes: [
-      if (paymentTypes != null) ...paymentTypes,
-    ]);
+    Order finalOrder = orderToProcess;
 
     final percents = await OrderPercentDatabase().get();
     if (!place.percentNull) {
       final totalPercent =
           percents.map((e) => e.percent).fold(0.0, (a, b) => a + b);
       finalOrder = finalOrder.copyWith(
-          price: finalOrder.price + (finalOrder.price * (totalPercent / 100)));
+          price: finalOrder.price +
+              ((finalOrder.price + (finalOrder.place.price ?? 0.0)) *
+                  (totalPercent / 100)));
     }
 
     if (place.price != null) {
@@ -222,12 +215,10 @@ class OrderController {
     }
 
     finalOrder = finalOrder.copyWith(
-        place: place,
-        status: Order.completed,
-        updatedDate: DateTime.now().toIso8601String(),
-        paymentTypes: [
-          if (paymentTypes != null) ...paymentTypes,
-        ]);
+      place: place,
+      status: Order.completed,
+      updatedDate: DateTime.now().toIso8601String(),
+    );
 
     await _database.saveOrder(finalOrder);
 
@@ -236,13 +227,10 @@ class OrderController {
     try {
       ref.invalidate(ordersProvider(place.id));
       ref.invalidate(ordersProvider);
-      ref.invalidate(dayOrdersProvider);
-      ref.invalidate(todayOrdersProvider);
       ref.invalidate(productsProvider);
       ref.invalidate(employeeOrdersProvider);
       ref.invalidate(ingredientTransactionsProvider);
       ref.invalidate(ingredientsProvider);
-      ref.invalidate(transactionProvider);
       ref.invalidate(orderLengthProvider);
       final notifier = ref.read(orderSetProvider.notifier);
       notifier.clearPlaceItemsCloser(place.id);

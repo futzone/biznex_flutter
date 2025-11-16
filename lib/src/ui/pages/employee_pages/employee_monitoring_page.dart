@@ -5,6 +5,7 @@ import 'package:biznex/src/core/model/employee_models/employee_model.dart';
 import 'package:biznex/src/core/model/order_models/order_filter_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/services/warehouse_printer_services.dart';
+import 'package:biznex/src/providers/employee_orders_provider.dart';
 import 'package:biznex/src/providers/product_order_provider.dart';
 import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_back_button.dart';
@@ -20,8 +21,6 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
   final Employee employee;
 
   EmployeeMonitoringPage(this.theme, this.employee, {super.key});
-
-  final OrderFilterModel orderFilter = OrderFilterModel();
 
   // Map _calculateProductOrder(DateTime day, List<Order> orders) {
   //   final Map<String, dynamic> categoryMap = {};
@@ -64,13 +63,14 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
 
   Widget buildMobile(BuildContext context, WidgetRef ref) {
     final selectedDate = useState<DateTime>(DateTime.now());
-     final filter = useMemoized(
+    final orders = ref.read(dayOrdersProvider(selectedDate.value)).value ?? [];
+    final filter = useMemoized(
         () => ProductOrderFilter(
               day: selectedDate.value,
-              orders: [],
+              orders: orders,
               employee: employee,
             ),
-        [selectedDate.value, [], employee]);
+        [selectedDate.value, orders, employee]);
 
     final productMapListener = ref.watch(productOrdersProvider(filter));
 
@@ -253,14 +253,15 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
     final style = TextStyle(fontFamily: mediumFamily, fontSize: context.s(14));
 
     final selectedDate = useState<DateTime>(DateTime.now());
-    // final orders = ref.watch(ordersFilterProvider(orderFilter)).value ?? [];
-    final filter = useMemoized(
+    final orders = ref.read(dayOrdersProvider(selectedDate.value)).value ?? [];
+
+     final filter = useMemoized(
         () => ProductOrderFilter(
               day: selectedDate.value,
-              orders: [],
+              orders: orders,
               employee: employee,
             ),
-        [selectedDate.value, [], employee]);
+        [selectedDate.value, orders, employee]);
 
     final productMapListener = ref.watch(productOrdersProvider(filter));
 

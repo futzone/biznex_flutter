@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/extensions/for_string.dart';
@@ -11,6 +10,7 @@ import 'package:biznex/src/ui/widgets/custom/app_file_image.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import '../../../core/extensions/color_generator.dart';
@@ -31,6 +31,7 @@ class OrderDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    log(order.paymentTypes.toString());
     return AppStateWrapper(builder: (theme, state) {
       return SingleChildScrollView(
         padding: Dis.all(context.s(16)),
@@ -332,13 +333,34 @@ class OrderDetail extends StatelessWidget {
                 },
               ),
             if (order.paymentTypes.isNotEmpty) ...[
+              Container(
+                height: 1,
+                color: Colors.grey.shade200,
+                width: double.infinity,
+              ),
               for (final item in order.paymentTypes)
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(item.name),
-                    Text(item.percent.priceUZS),
+                    Text(
+                      item.name.tr().capitalize,
+                      style: TextStyle(
+                        fontSize: context.s(16),
+                        fontFamily: mediumFamily,
+                        color: theme.secondaryTextColor,
+                      ),
+                    ),
+                    Text(
+                      item.percent.priceUZS,
+                      style: TextStyle(
+                        fontSize: context.s(16),
+                        fontFamily: mediumFamily,
+                        color: Colors.black,
+                      ),
+                    ),
                   ],
-                )
+                ),
             ],
             Container(
               height: 1,

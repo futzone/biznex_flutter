@@ -3,8 +3,10 @@ import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
+import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:flutter/foundation.dart';
+import 'package:isar/isar.dart';
 import '../core/isolate/employee_order_filter.dart';
 
 bool isTodayOrder(DateTime dateFilter, Order order) {
@@ -24,15 +26,16 @@ bool haveInPlaces(Order order, String placeId) {
 
 final employeeOrdersProvider = FutureProvider<List<Order>>((ref) async {
   final employee = ref.watch(currentEmployeeProvider);
-  final orderDatabase = OrderDatabase();
-  final allOrders = await orderDatabase.getOrders();
+  final orderDatabase = IsarDatabase.instance.isar;
+  final employeeOrders = await orderDatabase.orderIsars
+      .where()
+      .filter()
+      .createdDateStartsWith(DateTime.now().toIso8601String().split("T").first)
+      .employee((e) => e.idEqualTo(employee.id))
+      .sortByCreatedDateDesc()
+      .findAll();
 
-  final result = await compute(filterAndSortOrders, {
-    'orders': allOrders,
-    'employeeId': employee.id,
-  });
-
-  return result;
+  return employeeOrders.map((l) => Order.fromIsar(l)).toList();
 });
 
 final orderLengthProvider = FutureProvider((ref) async {
@@ -50,5 +53,30 @@ final todayOrdersProvider = FutureProvider((ref) async {
 final dayOrdersProvider = FutureProvider.family((ref, DateTime day) async {
   final orderDatabase = OrderDatabase();
   final allOrders = await orderDatabase.getDayOrders(day);
-  return allOrders;
+  return allOrders.map((e) => Order.fromIsar(e)).toList();
+});
+
+final dayPaymentsProvider = FutureProvider.family((ref, DateTime day) async {
+  final Isar isar = IsarDatabase.instance.isar;
+
+  final prefix = day.toIso8601String().split("T").first;
+  final orderData = await isar.orderIsars
+      .where()
+      .filter()
+      .createdDateStartsWith(prefix)
+      .findAll();
+  Map<String, double> data = {};
+  for (final order in orderData) {
+    for (final type in Transaction.values) {
+      final paymentType = order.paymentTypes
+          .where((element) => element.name == type)
+          .firstOrNull;
+
+      if (paymentType != null) {
+        data[type] = (data[type] ?? 0.0) + paymentType.amount;
+      }
+    }
+  }
+
+  return data;
 });

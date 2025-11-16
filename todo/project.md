@@ -1,0 +1,2 @@
+ - Food image for all
+ - Don't close order: waiter
