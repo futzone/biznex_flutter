@@ -9,6 +9,7 @@ import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 
 import '../core/database/order_database/order_database.dart';
+import '../core/model/transaction_model/transaction_model.dart';
 import '../core/services/printer_monitoring_services.dart';
 
 class EM {
@@ -75,6 +76,23 @@ class MonitoringController {
     return reportsMap;
   }
 
+  Map<String, double> _calculatePaymentMonitoring(List<Order> orderData) {
+    Map<String, double> data = {};
+    for (final order in orderData) {
+      for (final type in Transaction.values) {
+        final paymentType = order.paymentTypes
+            .where((element) => element.name == type)
+            .firstOrNull;
+
+        if (paymentType != null) {
+          data[type] = (data[type] ?? 0.0) + paymentType.percent;
+        }
+      }
+    }
+
+    return data;
+  }
+
   Future<Map<String, EM>> _onCalculateEmployeeMonitoring(
       List<Order> ordersList) async {
     final employees = await employeeDatabase.get();
@@ -126,6 +144,7 @@ class MonitoringController {
 
     final employeesMonitoring = await _onCalculateEmployeeMonitoring(dayOrders);
     final productsMonitoring = await _onCalculateProductMonitoring(dayOrders);
+    final paymentMonitoring = _calculatePaymentMonitoring(dayOrders);
     final ordersCount = dayOrders.length;
     final ordersTotalSumm = dayOrders.fold(0.0, (a, item) => a += item.price);
     final ordersTotalProductSumm = dayOrders.fold(0.0, (a, item) {
@@ -136,6 +155,14 @@ class MonitoringController {
       });
 
       return a += orderProfit;
+    });
+
+    final placesTotalSumm = dayOrders.fold(0.0, (a, b) {
+      if (b.place.price != null && b.place.price != 0.0) {
+        return a += (b.place.price ?? 0.0);
+      }
+
+      return a;
     });
 
     final percents = await percentDatabase.get();
@@ -157,6 +184,8 @@ class MonitoringController {
       ordersTotalProductSumm: ordersTotalProductSumm,
       ordersTotalSumm: ordersTotalSumm,
       productsMonitoring: productsMonitoring,
+      paymentMonitoring: paymentMonitoring,
+      placesTotalSumm: placesTotalSumm,
     );
 
     pms.printOrderCheck();

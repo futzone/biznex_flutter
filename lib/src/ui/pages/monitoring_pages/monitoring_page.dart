@@ -26,12 +26,10 @@ import 'package:sliver_tools/sliver_tools.dart';
 import '../../../controllers/monitoring_controller.dart';
 import '../../../core/isolate/time_range_filter.dart';
 import '../../../core/model/order_models/order_model.dart';
-import '../../screens/chart_screens/chart_screens.dart';
 import '../../screens/chart_screens/monitoring_chart_screen.dart';
 import '../../widgets/helpers/app_decorated_button.dart';
 import 'monitoring_ingredients_page.dart';
 import 'monitoring_payments_page.dart';
-import 'monitoring_transactions_page.dart';
 
 class MonitoringPage extends StatefulHookConsumerWidget {
   const MonitoringPage({super.key});
@@ -414,7 +412,7 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                     AppLocales.date.tr(),
                                     style: TextStyle(
                                         // color: Colors.white
-                                    ),
+                                        ),
                                   ),
                                 ],
                               ),
@@ -465,7 +463,6 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                   ),
                 ),
               ),
-
               SliverToBoxAdapter(
                 child: MonitoringChartScreen(),
               ),
@@ -593,7 +590,6 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                       Row(
                         spacing: context.w(24),
                         children: [
-
                           Expanded(
                             child: state.whenProviderData(
                               provider: todayOrdersProvider,

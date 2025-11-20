@@ -9,9 +9,11 @@ import 'package:biznex/src/core/model/transaction_model/transaction_isar.dart';
 import 'package:biznex/src/ui/pages/transactions_page/add_transaction_page.dart';
 import 'package:biznex/src/ui/pages/transactions_page/transaction_loader_screen.dart';
 import 'package:biznex/src/ui/pages/transactions_page/transactions_filter.dart';
+import 'package:biznex/src/ui/screens/order_screens/order_detail_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_empty_widget.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:isar/isar.dart';
 import 'package:sliver_tools/sliver_tools.dart';
@@ -195,18 +197,15 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 ),
               ),
             ),
-
-            if(_isLoading)
+            if (_isLoading)
               SliverList(
                 delegate: SliverChildBuilderDelegate(
                   childCount: 30,
-                      (context, index) {
-                     return TransactionLoaderScreen(theme: theme);
+                  (context, index) {
+                    return TransactionLoaderScreen(theme: theme);
                   },
                 ),
               ),
-
-
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 childCount: _transactions.length,
@@ -274,7 +273,10 @@ class _TransactionsPageState extends State<TransactionsPage> {
                           flex: 3,
                           child: Center(
                             child: Text(
-                              item.paymentType.tr(),
+                              item.paymentType
+                                  .split(",")
+                                  .map((e) => e.trim().tr().capitalize)
+                                  .join(", "),
                               style: TextStyle(
                                 fontFamily: mediumFamily,
                                 fontSize: context.s(16),
@@ -331,6 +333,29 @@ class _TransactionsPageState extends State<TransactionsPage> {
                                       color: theme.secondaryTextColor,
                                     ),
                                   ),
+                                )
+                              else
+                                SimpleButton(
+                                  onPressed: () {
+                                    showDesktopModal(
+                                      context: context,
+                                      body: OrderDetail(order: item.order!),
+                                    );
+                                  },
+                                  child: Container(
+                                    height: context.s(36),
+                                    width: context.s(36),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: theme.scaffoldBgColor,
+                                    ),
+                                    padding: Dis.all(context.s(8)),
+                                    child: Icon(
+                                      Icons.info_outline,
+                                      size: context.s(20),
+                                      color: theme.secondaryTextColor,
+                                    ),
+                                  ),
                                 ),
                               SimpleButton(
                                 onPressed: () {
@@ -369,7 +394,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 padding: 80.tb,
                 sliver: SliverToBoxAdapter(child: AppEmptyWidget()),
               ),
-            if (!_isLoading&& _transactions.isNotEmpty)
+            if (!_isLoading && _transactions.isNotEmpty)
               SliverToBoxAdapter(
                 child: Row(
                   spacing: 24,

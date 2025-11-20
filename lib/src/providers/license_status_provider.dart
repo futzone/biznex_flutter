@@ -30,7 +30,9 @@ class LicenseStatusWrapper extends ConsumerWidget {
       return state.whenProviderData(
         provider: licenseStatusProvider(state.licenseKey),
         builder: (status) {
+
           status as bool;
+          return ActivationCodeScreen(ref: ref, state: state);
           if (status) {
 
             if(state.alwaysWaiter) {
@@ -42,7 +44,7 @@ class LicenseStatusWrapper extends ConsumerWidget {
                 : OnboardPage();
           }
 
-          return ActivationCodeScreen(ref: ref, state: state);
+
         },
       );
     });

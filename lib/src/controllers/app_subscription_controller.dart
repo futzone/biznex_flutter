@@ -22,18 +22,29 @@ class AppSubscriptionController {
 
   Future<String> codeIsCorrect(int code) async {
     final deviceId = await deviceIdService.getDeviceId();
+
+    final filter =
+        '(code = $code && status = "$_pending") || (client_id = "$deviceId" && status = "$_pending")';
+
     try {
-      final data = await pb.collection('subscriptions').getFirstListItem(
-        '(code = $code && status = "$_pending") || (client_id = "$deviceId" && status = "$_pending")',
+      final result = await pb.collection('subscriptions').getList(
+        filter: filter,
+        perPage: 1,
         headers: {"password": _password},
       );
 
-      if (data.data['client_id'] == deviceId) {
-        return 'already';
+      if (result.items.isEmpty) {
+        return "free";
+      }
+
+      final item = result.items.first;
+
+      if (item.data['client_id'] == deviceId) {
+        return "already";
       }
 
       return "renew";
-    } on ClientException catch (_) {
+    } catch (_) {
       return "free";
     }
   }
@@ -51,17 +62,25 @@ class AppSubscriptionController {
       final deviceId = await deviceIdService.getDeviceId();
 
       if (status == "already") {
-        final old = await pb.collection('subscriptions').getFirstListItem(
-          'client_id = "$deviceId" && status = "$_pending"',
-          headers: {"password": _password},
-        );
-        await pb.collection('subscriptions').delete(
-          old.id,
-          body: {'client_id': deviceId},
-        );
+        try {
+          final old = await pb.collection('subscriptions').getList(
+            perPage: 1,
+            filter: 'client_id = "$deviceId" && status = "$_pending"',
+            headers: {"password": _password},
+          );
+
+          if (old.items.isNotEmpty) {
+            final id = old.items.first.id;
+
+            await pb.collection('subscriptions').delete(
+              id,
+              body: {'client_id': deviceId},
+            );
+          }
+        } catch (_) {}
       }
 
-      final body = <String, dynamic>{
+      final body = {
         "client_id": deviceId,
         "code": code,
         "token": "",
@@ -70,14 +89,14 @@ class AppSubscriptionController {
       };
 
       final record = await pb.collection('subscriptions').create(body: body);
+
       log("Created: ${record.id}");
       return code;
     } on ClientException catch (error) {
       log(error.response.toString(), error: error);
       ShowToast.error(context, error.response['message'].toString());
+      return null;
     }
-
-    return null;
   }
 
   Future<void> confirmSubscription(String id, String token) async {

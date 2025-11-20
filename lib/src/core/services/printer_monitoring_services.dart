@@ -1,6 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -11,10 +13,12 @@ import '../../controllers/monitoring_controller.dart';
 class PrinterMonitoringServices {
   final AppModel model;
   final Map<String, EM> employeesMonitoring;
+  final Map<String, double> paymentMonitoring;
   final Map<String, OrderItem> productsMonitoring;
   final int ordersCount;
   final double ordersTotalSumm;
   final double ordersTotalProductSumm;
+  final double placesTotalSumm;
   final double orderPercentSumm;
   final DateTime dateTime;
 
@@ -27,6 +31,8 @@ class PrinterMonitoringServices {
     required this.ordersTotalProductSumm,
     required this.ordersTotalSumm,
     required this.productsMonitoring,
+    required this.paymentMonitoring,
+    required this.placesTotalSumm,
   });
 
   Future<Uint8List?> shopLogoImage() async {
@@ -127,6 +133,25 @@ class PrinterMonitoringServices {
                 children: [
                   pw.Expanded(
                     child: pw.Text(
+                      "${AppLocales.profitFromPlacePrice.tr()}:",
+                      style: pdfTheme,
+                      overflow: pw.TextOverflow.clip,
+                      maxLines: 2,
+                    ),
+                  ),
+                  pw.Text(
+                    placesTotalSumm.priceUZS,
+                    style: pdfTheme,
+                    overflow: pw.TextOverflow.clip,
+                    maxLines: 2,
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 4),
+              pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: pw.Text(
                       "${AppLocales.totalProfit.tr()}:",
                       style: pdfTheme,
                       overflow: pw.TextOverflow.clip,
@@ -163,6 +188,54 @@ class PrinterMonitoringServices {
             ],
           ),
         ),
+        if (productsMonitoring.isNotEmpty) ...[
+          pw.SizedBox(height: 8),
+          pw.Container(color: PdfColor.fromHex("#000000"), height: 1),
+          pw.SizedBox(height: 8),
+          for (final item in Transaction.values)
+            if (paymentMonitoring[item] != null &&
+                paymentMonitoring[item] != 0.0)
+              pw.Padding(
+                padding: const pw.EdgeInsets.only(bottom: 2),
+                child: pw.Column(
+                  children: [
+                    pw.Row(children: [
+                      pw.Text(
+                        "${item.tr().capitalize}:",
+                        style: pdfTheme,
+                        overflow: pw.TextOverflow.clip,
+                        maxLines: 2,
+                      ),
+                      pw.Expanded(
+                        child: pw.Text(paymentMonitoring[item]?.priceUZS ?? '',
+                            style: pdfTheme,
+                            overflow: pw.TextOverflow.clip,
+                            maxLines: 2,
+                            textAlign: pw.TextAlign.end),
+                      ),
+                    ]),
+                    pw.SizedBox(height: 4),
+                    pw.Row(
+                      crossAxisAlignment: pw.CrossAxisAlignment.center,
+                      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                      children: [
+                        ...List.generate(15, (index) {
+                          return pw.Container(
+                            height: 1,
+                            width: 4,
+                            decoration: pw.BoxDecoration(
+                              color: PdfColor.fromHex("#000000"),
+                              borderRadius: pw.BorderRadius.circular(1),
+                            ),
+                          );
+                        })
+                      ],
+                    ),
+                    pw.SizedBox(height: 4),
+                  ],
+                ),
+              ),
+        ],
         pw.SizedBox(height: 8),
         pw.Container(color: PdfColor.fromHex("#000000"), height: 1),
         pw.SizedBox(height: 8),
@@ -344,7 +417,8 @@ class PrinterMonitoringServices {
     );
 
     final pageHeight = (productsMonitoring.values.length * 20.0 +
-            20.0 * employeesMonitoring.length) +
+            20.0 * employeesMonitoring.length +
+            paymentMonitoring.length * 20.0) +
         2200.0;
 
     doc.addPage(
