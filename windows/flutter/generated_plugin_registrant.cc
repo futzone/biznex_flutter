@@ -9,6 +9,7 @@
 #include <audioplayers_windows/audioplayers_windows_plugin.h>
 #include <file_selector_windows/file_selector_windows.h>
 #include <fullscreen_window/fullscreen_window_plugin_c_api.h>
+#include <image_compression_flutter/image_compression_flutter_plugin.h>
 #include <isar_flutter_libs/isar_flutter_libs_plugin.h>
 #include <printing/printing_plugin.h>
 
@@ -19,6 +20,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("FileSelectorWindows"));
   FullscreenWindowPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("FullscreenWindowPluginCApi"));
+  ImageCompressionFlutterPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("ImageCompressionFlutterPlugin"));
   IsarFlutterLibsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("IsarFlutterLibsPlugin"));
   PrintingPluginRegisterWithRegistrar(

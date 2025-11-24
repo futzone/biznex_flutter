@@ -1,10 +1,18 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:flutter/services.dart';
+import 'package:image_compression_flutter/image_compression_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 class ImageService {
+  static final Configuration config = Configuration(
+    outputType: ImageOutputType.webpThenJpg,
+    useJpgPngNativeCompressor: false,
+    quality: 30,
+  );
+
   final ImagePicker _picker = ImagePicker();
 
   Future<String?> pickAndSaveImage() async {
@@ -31,12 +39,21 @@ class ImageService {
       await imagesDir.create(recursive: true);
     }
 
+    final param = ImageFileConfiguration(
+      input: ImageFile(
+        filePath: imagePath,
+        rawBytes: (await (File(imagePath)).readAsBytes()),
+      ),
+      config: config,
+    );
+    final output = await compressor.compress(param);
+
     final fileName = path.basename(imagePath);
 
     final destPath = path.join(imagesDir.path, fileName);
     final destFile = File(destPath);
 
-    await File(imagePath).copy(destFile.path);
+    await destFile.writeAsBytes(output.rawBytes);
 
     log(destFile.path);
     return destFile.path;

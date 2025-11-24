@@ -275,6 +275,7 @@ class ProductCardNew extends ConsumerWidget {
                       child: Stack(
                         children: [
                           AppFileImage(
+                            id: product.id,
                             name: product.name,
                             path: product.images?.firstOrNull,
                             color: colors.scaffoldBgColor,
@@ -295,7 +296,8 @@ class ProductCardNew extends ConsumerWidget {
                                   Icon(Iconsax.reserve_copy,
                                       color: Colors.white, size: context.s(24)),
                                   Text(
-                                    "${product.amount.toMeasure} ${product.measure ?? ''}".toLowerCase(),
+                                    "${product.amount.toMeasure} ${product.measure ?? ''}"
+                                        .toLowerCase(),
                                     style: TextStyle(
                                       fontSize: context.s(16),
                                       fontFamily: boldFamily,

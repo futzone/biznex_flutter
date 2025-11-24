@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/controllers/category_controller.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
@@ -114,89 +116,114 @@ class CategoryPage extends HookConsumerWidget {
                   ),
                 ),
               ),
-              body: CustomScrollView(
-                controller: controller,
-                slivers: [
-                  SliverPinnedHeader(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: theme.scaffoldBgColor,
-                        boxShadow: [
-                          BoxShadow(
-                            offset: Offset(0, 2),
-                            color: !pinned.value
-                                ? Colors.transparent
-                                : theme.secondaryTextColor
-                                    .withValues(alpha: 0.5),
-                            spreadRadius: 5,
-                            blurRadius: 5,
-                          ),
-                        ],
-                      ),
-                      padding: Dis.only(lr: context.w(24), tb: context.h(24)),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        spacing: context.w(16),
-                        children: [
-                          Expanded(
-                            child: Text(
-                              AppLocales.categories.tr(),
-                              style: TextStyle(
-                                fontSize: context.s(24),
-                                fontFamily: mediumFamily,
-                                color: Colors.black,
-                              ),
+              body: Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: theme.scaffoldBgColor,
+                      boxShadow: [
+                        BoxShadow(
+                          offset: Offset(0, 2),
+                          color: !pinned.value
+                              ? Colors.transparent
+                              : theme.secondaryTextColor.withValues(alpha: 0.5),
+                          spreadRadius: 5,
+                          blurRadius: 5,
+                        ),
+                      ],
+                    ),
+                    padding: Dis.only(lr: context.w(24), tb: context.h(24)),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      spacing: context.w(16),
+                      children: [
+                        Expanded(
+                          child: Text(
+                            AppLocales.categories.tr(),
+                            style: TextStyle(
+                              fontSize: context.s(24),
+                              fontFamily: mediumFamily,
+                              color: Colors.black,
                             ),
                           ),
-                          0.w,
-                          SizedBox(
-                            width: context.w(400),
-                            child: AppTextField(
-                              prefixIcon: Icon(Iconsax.search_normal_copy),
-                              title: AppLocales.search.tr(),
-                              controller: searchController,
-                              onChanged: (_) {
-                                list.value = categories.where((el) {
-                                  return el.name.trim().toLowerCase().contains(
-                                      searchController.text
-                                          .trim()
-                                          .toLowerCase());
-                                }).toList();
-                              },
-                              theme: theme,
-                              fillColor: Colors.white,
-                              // useBorder: false,
-                            ),
+                        ),
+                        0.w,
+                        SizedBox(
+                          width: context.w(400),
+                          child: AppTextField(
+                            prefixIcon: Icon(Iconsax.search_normal_copy),
+                            title: AppLocales.search.tr(),
+                            controller: searchController,
+                            onChanged: (_) {
+                              list.value = categories.where((el) {
+                                return el.name.trim().toLowerCase().contains(
+                                    searchController.text.trim().toLowerCase());
+                              }).toList();
+                            },
+                            theme: theme,
+                            fillColor: Colors.white,
+                            // useBorder: false,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                   if (list.value.isEmpty &&
                       searchController.text.trim().isNotEmpty)
-                    SliverPadding(
+                    Padding(
                       padding: 80.all,
-                      sliver: SliverToBoxAdapter(
-                        child: Center(child: AppEmptyWidget()),
+                      child: Center(child: AppEmptyWidget()),
+                    ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 24),
+                      child: ReorderableListView.builder(
+                        key: Key("value"),
+                        itemBuilder: (context, index) {
+                          final ctg = searchController.text.trim().isEmpty
+                              ? categories[index]
+                              : list.value[index];
+
+                          log("${ctg.name} -> ${ctg.index}");
+                          return CategoryCard(ctg,
+                              reordable: true,
+                              key: ValueKey(ctg),
+                              count: providerListener
+                                  .where((el) => ctg.id == el.category?.id)
+                                  .length);
+                        },
+                        itemCount: (searchController.text.trim().isEmpty
+                                ? categories
+                                : list.value)
+                            .length,
+                        onReorder: (int oldIndex, int newIndex) {
+                          if (oldIndex == newIndex) return;
+
+                          final ctg = searchController.text.trim().isEmpty
+                              ? categories[oldIndex]
+                              : list.value[oldIndex];
+
+                          final ctg2 = searchController.text.trim().isEmpty
+                              ? categories[newIndex]
+                              : list.value[newIndex];
+
+                          Category updated = ctg;
+                          Category updated2 = ctg2;
+                          updated.index = newIndex;
+                          updated2.index = oldIndex;
+
+
+
+                          CategoryController(context: context, state: state)
+                              .update(updated, ctg.id, force: true);
+
+                          CategoryController(context: context, state: state)
+                              .update(updated2, ctg2.id, force: true);
+                        },
                       ),
                     ),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      childCount: searchController.text.trim().isEmpty
-                          ? categories.length
-                          : list.value.length,
-                      (context, index) {
-                        final ctg = searchController.text.trim().isEmpty
-                            ? categories[index]
-                            : list.value[index];
-                        return CategoryCard(ctg,
-                            count: providerListener
-                                .where((el) => ctg.id == el.category?.id)
-                                .length);
-                      },
-                    ),
                   ),
-                  SliverPadding(padding: 100.tb),
+                  Padding(padding: 100.tb),
                 ],
               ),
             );

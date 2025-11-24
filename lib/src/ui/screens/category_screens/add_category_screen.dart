@@ -13,7 +13,8 @@ class AddCategoryScreen extends HookWidget {
   final Category? editCategory;
   final Category? addSubcategoryTo;
 
-  const AddCategoryScreen({super.key, this.editCategory, this.addSubcategoryTo});
+  const AddCategoryScreen(
+      {super.key, this.editCategory, this.addSubcategoryTo});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +26,8 @@ class AddCategoryScreen extends HookWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              AppText.$18Bold(AppLocales.categoryNameLabel.tr(), padding: 8.bottom),
+              AppText.$18Bold(AppLocales.categoryNameLabel.tr(),
+                  padding: 8.bottom),
               AppTextField(
                 title: AppLocales.categoryNameHint.tr(),
                 controller: nameController,
@@ -35,9 +37,14 @@ class AddCategoryScreen extends HookWidget {
               ConfirmCancelButton(
                 cancelColor: Colors.white,
                 onConfirm: () async {
-                  CategoryController controller = CategoryController(context: context, state: state);
+                  CategoryController controller =
+                      CategoryController(context: context, state: state);
                   if (editCategory == null) {
-                    Category category = Category(name: nameController.text, parentId: addSubcategoryTo?.id);
+                    Category category = Category(
+                      name: nameController.text,
+                      parentId: addSubcategoryTo?.id,
+                      index: 9999,
+                    );
                     controller.create(category);
                     return;
                   }

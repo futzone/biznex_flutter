@@ -28,10 +28,6 @@ class ChangesDatabase extends AppDatabase {
   Future<void> set({required data}) async {
     if (data is! Change) return;
 
-    ChangesController changesController = ChangesController(data);
-    final status = await changesController.saveStatus();
-    if (status) return;
-
     Change productInfo = data;
     productInfo.id = generateID;
 

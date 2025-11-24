@@ -16,15 +16,16 @@ import 'package:printing/printing.dart';
 class CategoryCard extends AppStatelessWidget {
   final Category category;
   final int? count;
+  final bool reordable;
 
-  const CategoryCard(this.category, {super.key, this.count});
+  const CategoryCard(this.category, {super.key, this.count, this.reordable = false});
 
   @override
   Widget builder(
       BuildContext context, AppColors theme, WidgetRef ref, AppModel state) {
     return Container(
-      padding: Dis.only(left: 12, right: 12, tb: 12),
-      margin: Dis.only(tb: 8, lr: context.w(24)),
+      padding: Dis.only(left: 12, right: reordable?36: 12, tb: 12),
+      margin: Dis.only(tb: 8, left: 24, right: reordable?0:24),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: theme.white,

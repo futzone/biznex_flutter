@@ -18,6 +18,10 @@ class TransactionsDatabase extends AppDatabase {
   Future<void> clear() async {
     final box = await openBox(_boxName);
     await box.clear();
+
+    await isar.writeTxn(() async {
+      await isar.transactionIsars.clear();
+    });
   }
 
   Future<List<Transaction>> getDayTransactions(DateTime day) async {

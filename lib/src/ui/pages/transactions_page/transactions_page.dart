@@ -36,6 +36,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
   final Isar isar = IsarDatabase.instance.isar;
 
   Future<void> _onLoadData() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _transactions.clear();
@@ -64,6 +65,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
         _transactions.add(Transaction.fromIsar(item));
       }
 
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });

@@ -32,7 +32,11 @@ Map<String, dynamic> calculateProductOrderIsolate(Map<String, dynamic> data) {
 
         if (!categoryMap.containsKey(categoryId)) {
           categoryMap[categoryId] = {
-            'category': category ?? Category(name: AppLocales.others.tr()),
+            'category': category ??
+                Category(
+                  name: AppLocales.others.tr(),
+                  index: 999,
+                ),
             'products': {},
           };
         }

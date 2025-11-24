@@ -126,4 +126,5 @@ class CategoryIsar {
   String? printerParams;
   List<CategoryIsar>? subcategories;
   String? icon;
+  int? index;
 }

@@ -25,6 +25,7 @@ class ActivityWrapper extends StatefulWidget {
 
 class _ActivityWrapperState extends State<ActivityWrapper> {
   final ChangesDatabase _changesDatabase = ChangesDatabase();
+  final Isar isar = IsarDatabase.instance.isar;
 
   void _localChangesSync() async {
     if (!(await Network().isConnected())) return;
@@ -32,9 +33,12 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
     if (widget.ref.watch(appStateProvider).value?.apiUrl != null) return;
     final changesList = await _changesDatabase.get();
     for (final item in changesList) {
-      ChangesController changesController = ChangesController(item);
-      await changesController.saveStatus();
-      await _changesDatabase.delete(key: item.id);
+      try {
+        log("sync changes working");
+        ChangesController changesController = ChangesController(item);
+        await changesController.saveStatus();
+        await _changesDatabase.delete(key: item.id);
+      } catch (_) {}
     }
 
     NetworkServices networkServices = NetworkServices();
@@ -47,10 +51,18 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
     });
   }
 
+  void _onListenChanges() async {
+    isar.orderIsars.watchLazy().listen((_) {
+      try {
+        _localChangesSync();
+      } catch (_) {}
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    _localChangesSync();
+    _onListenChanges();
   }
 
   @override

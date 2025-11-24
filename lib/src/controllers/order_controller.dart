@@ -1,8 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:biznex/biznex.dart';
-import 'package:biznex/src/controllers/transaction_controller.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/core/database/order_database/order_percent_database.dart';
@@ -21,10 +19,7 @@ import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/ui/pages/order_pages/table_choose_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
-
-import '../core/model/app_changes_model.dart';
 import '../providers/recipe_providers.dart';
-import '../providers/transaction_provider.dart';
 
 class OrderController {
   final Employee employee;
@@ -219,6 +214,14 @@ class OrderController {
       status: Order.completed,
       updatedDate: DateTime.now().toIso8601String(),
     );
+
+    if (finalOrder.paymentTypes.isEmpty) {
+      finalOrder = finalOrder.copyWith(
+        paymentTypes: [
+          Percent(name: Transaction.cash, percent: finalOrder.price),
+        ],
+      );
+    }
 
     await _database.saveOrder(finalOrder);
 

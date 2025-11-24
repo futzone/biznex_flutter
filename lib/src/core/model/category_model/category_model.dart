@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import '../order_models/order.dart';
 
 class Category {
+  int index;
   String name;
   String id;
   String? parentId;
@@ -19,11 +21,14 @@ class Category {
     this.subcategories,
     this.printerParams,
     this.icon,
+    required this.index,
   });
 
   factory Category.fromJson(json) {
+    log(json['index'].toString());
     return Category(
       name: json['name'],
+      index: json['index'] ?? 9999,
       parentId: json['parentId'],
       id: json['id'] ?? '',
       printerParams: json['printerParams'] ?? {},
@@ -39,6 +44,7 @@ class Category {
         "printerParams": printerParams,
         "icon": icon,
         "updatedDate": updatedDate,
+        "index": index,
       };
 
   factory Category.fromIsar(CategoryIsar isar) {
@@ -50,6 +56,7 @@ class Category {
       subcategories:
           isar.subcategories?.map((e) => Category.fromIsar(e)).toList(),
       icon: isar.icon,
+      index: isar.index ?? 9999,
     );
   }
 }

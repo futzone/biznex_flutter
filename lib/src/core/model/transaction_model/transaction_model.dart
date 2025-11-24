@@ -15,6 +15,8 @@ class Transaction {
   static const String uzum = 'uzum';
   static const String click = 'click';
   static const String payme = 'payme';
+  static const String yandex = 'yandex';
+  static const String wolt = 'wolt';
 
   static final List<String> values = [
     cash,
@@ -24,6 +26,8 @@ class Transaction {
     payme,
     oson,
     uzum,
+    yandex,
+    wolt,
     other,
   ];
 

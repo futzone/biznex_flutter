@@ -52,7 +52,9 @@ class ProductController extends AppController {
       try {
         final path = await ImageService.copyImageToAppFolder(item.toString());
         kImages.add(path);
-      } catch (_) {}
+      } catch (error) {
+        log(error.toString());
+      }
     }
 
     kProduct.images = kImages;
@@ -103,7 +105,9 @@ class ProductController extends AppController {
       try {
         final path = await ImageService.copyImageToAppFolder(item.toString());
         kImages.add(path);
-      } catch (_) {}
+      } catch (error) {
+        log("image update error: ", error: error);
+      }
     }
 
     kProduct.images = kImages;

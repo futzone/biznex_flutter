@@ -20,66 +20,26 @@ class AppSubscriptionController {
   final DeviceIdService deviceIdService = DeviceIdService();
   final pb = PocketBase('https://noco.biznex.uz');
 
-  Future<String> codeIsCorrect(int code) async {
+  Future<int?> createSubscription() async {
     final deviceId = await deviceIdService.getDeviceId();
-
-    final filter =
-        '(code = $code && status = "$_pending") || (client_id = "$deviceId" && status = "$_pending")';
+    final code = _random.nextInt(9000) + 1000;
 
     try {
-      final result = await pb.collection('subscriptions').getList(
-        filter: filter,
-        perPage: 1,
+      final oldList = await pb.collection('subscriptions').getList(
+        filter: 'client_id = "$deviceId" || code = $code',
+        perPage: 30,
         headers: {"password": _password},
       );
 
-      if (result.items.isEmpty) {
-        return "free";
+      for (final item in oldList.items) {
+        await pb.collection('subscriptions').delete(
+          item.id,
+          body: {'client_id': deviceId},
+        );
       }
-
-      final item = result.items.first;
-
-      if (item.data['client_id'] == deviceId) {
-        return "already";
-      }
-
-      return "renew";
-    } catch (_) {
-      return "free";
-    }
-  }
-
-  Future<int?> createSubscription() async {
-    int code;
-    String status = '';
-
-    do {
-      code = _random.nextInt(9000) + 1000;
-      status = await codeIsCorrect(code);
-    } while (status == "renew");
+    } catch (_) {}
 
     try {
-      final deviceId = await deviceIdService.getDeviceId();
-
-      if (status == "already") {
-        try {
-          final old = await pb.collection('subscriptions').getList(
-            perPage: 1,
-            filter: 'client_id = "$deviceId" && status = "$_pending"',
-            headers: {"password": _password},
-          );
-
-          if (old.items.isNotEmpty) {
-            final id = old.items.first.id;
-
-            await pb.collection('subscriptions').delete(
-              id,
-              body: {'client_id': deviceId},
-            );
-          }
-        } catch (_) {}
-      }
-
       final body = {
         "client_id": deviceId,
         "code": code,

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/database/category_database/category_database.dart';
 import 'package:biznex/src/core/database/customer_database/customer_database.dart';
@@ -23,6 +24,7 @@ import 'package:biznex/src/server/routes/places_router.dart';
 import 'package:biznex/src/server/routes/products_router.dart';
 import 'package:biznex/src/server/routes/stats_router.dart';
 import 'package:biznex/src/server/services/authorization_services.dart';
+import 'package:path/path.dart' as p;
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_router/shelf_router.dart';
@@ -406,6 +408,37 @@ void startServer() async {
     final percents = await percentDatabase.get();
     return Response(200,
         body: jsonEncode([for (final item in percents) item.toJson()]));
+  });
+
+  app.get('/api/v2/image/<productId>',
+      (Request request, String productId) async {
+    final productData = await productDatabase.getProductById(productId);
+    if (productData == null) return Response(404);
+    if (productData.images == null || (productData.images ?? []).isEmpty) {
+      return Response(404);
+    }
+
+    final image = productData.images?.firstOrNull;
+    if (image == null || image.isEmpty) return Response(404);
+
+    final imageFile = File(image);
+
+    if (!await imageFile.exists()) {
+      return Response(404);
+    }
+
+    final bytes = await imageFile.readAsBytes();
+
+    final extension = p.extension(imageFile.path.split('.').last).toLowerCase();
+    String contentType = 'image/jpeg';
+    if (extension == '.png') contentType = 'image/png';
+    if (extension == '.gif') contentType = 'image/gif';
+    if (extension == '.webp') contentType = 'image/webp';
+
+    return Response.ok(bytes, headers: {
+      'Content-Type': contentType,
+      'Cache-Control': 'public, max-age=3600',
+    });
   });
 
   ///

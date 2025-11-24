@@ -40,6 +40,7 @@ extension CategoryToIsar on Category {
     final c = CategoryIsar()
       ..id = id
       ..name = name
+      ..index = index
       ..parentId = parentId
       ..printerParams = jsonEncode(printerParams ?? {})
       ..icon = icon;

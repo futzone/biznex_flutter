@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/model/category_model/category_model.dart';
@@ -43,6 +44,7 @@ class CategoryDatabase extends AppDatabase {
         id: category['id'],
         name: category['name'],
         parentId: category['parentId'],
+        index: category['index'] ?? 999,
       );
     }
 

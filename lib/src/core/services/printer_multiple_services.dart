@@ -18,7 +18,7 @@ class PrinterMultipleServices {
     CategoryDatabase categoryDatabase = CategoryDatabase();
     final categories = await categoryDatabase.getAll();
     final ctg = categories.firstWhere((item) => item.id == categoryId,
-        orElse: () => Category(name: ''));
+        orElse: () => Category(name: '', index: -1));
     return ctg.printerParams;
   }
 

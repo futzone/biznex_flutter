@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/controllers/app_controller.dart';
 import 'package:biznex/src/core/database/category_database/category_database.dart';
@@ -39,14 +41,17 @@ class CategoryController extends AppController {
   }
 
   @override
-  Future<void> update(data, key) async {
+  Future<void> update(data, key, {bool force = false}) async {
     data as Category;
+
     if (data.name.isEmpty) return error(AppLocales.categoryNameInputError.tr());
     showAppLoadingDialog(context);
     CategoryDatabase sizeDatabase = CategoryDatabase();
     await sizeDatabase.update(data: data, key: data.id).then((_) {
       state.ref!.invalidate(categoryProvider);
       closeLoading();
+
+      if (force) return;
       closeLoading();
     });
   }

@@ -41,6 +41,7 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
     int page = 1,
     int pageSize = appPageSize,
   }) async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _ordersList.clear();
