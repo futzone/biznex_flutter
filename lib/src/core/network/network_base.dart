@@ -86,7 +86,7 @@ class Network {
 
   Future<bool> post(String url,
       {bool skipPassword = false,
-      Map<String, dynamic>? body,
+      dynamic body,
       String? password}) async {
     try {
       if (!(await isConnected(skipPassword: skipPassword))) return false;
@@ -173,7 +173,7 @@ class Network {
   }
 
   Future<bool> put(String url,
-      {Map<String, dynamic>? body, String? password}) async {
+      {dynamic body, String? password}) async {
     try {
       if (!(await isConnected())) return false;
       await dio.put(

@@ -50,4 +50,15 @@ class Ingredient {
       updatedAt: DateTime.parse(map['updatedAt'] as String),
     );
   }
+
+  factory Ingredient.fromJson(map) {
+    return Ingredient(
+      id: map['id'] as String,
+      name: map['name'] as String,
+      quantity: (map['amount'] as num?)?.toDouble() ?? 0,
+      unitPrice: map['price'],
+      createdAt: DateTime.parse(map['created_at'] as String),
+      updatedAt: DateTime.parse(map['updated_at'] as String),
+    );
+  }
 }

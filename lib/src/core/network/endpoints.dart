@@ -1,5 +1,6 @@
 class ApiEndpoints {
-  static const String baseUrl = "https://owner.biznex.uz";
+  // static const String baseUrl = "https://owner.biznex.uz";
+  static const String baseUrl = "http://127.0.0.1:8000";
   static const String client = "/clients/client";
 
   static String clientOne(id) => "/clients/$id";
@@ -26,7 +27,21 @@ class ApiEndpoints {
 
   static String reportOneGet(String s) => "/report/report/$s";
 
-  static String monitoringOne(String clientId) => "/monitoring/clients/$clientId";
+  static String monitoringOne(String clientId) =>
+      "/monitoring/clients/$clientId";
 
-  static String monitoringOneGet({required String clientId, required String id}) => "/monitoring/monitoring/$clientId/$id";
+  static String monitoringOneGet(
+          {required String clientId, required String id}) =>
+      "/monitoring/monitoring/$clientId/$id";
+
+  static String ingredients = "/ingredients/ingredient";
+
+  static String ingredientsList(id, int page, int pageSize) =>
+      "/ingredients/list/$id/$page/$pageSize";
+
+  static String updatedIngredientsList(id, int page, int pageSize) =>
+      "/ingredients/list-updated/$id/$page/$pageSize";
+
+  static String ingredientsOne(id) => "/ingredients/ingredient/$id";
+  static String ingredientsClear(id) => "/ingredients/ingredient/clear/$id";
 }

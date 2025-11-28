@@ -1,3 +1,4 @@
+import 'package:biznex/biznex.dart';
 import 'package:flutter/material.dart';
 
 Widget RefLoadingScreen() => AppLoadingScreen();
@@ -17,6 +18,7 @@ class AppLoadingScreen extends StatelessWidget {
           width: 80,
           child: CircularProgressIndicator(
             strokeWidth: 8,
+            color: AppColors( isDark: false).mainColor,
           ),
         ),
       ),

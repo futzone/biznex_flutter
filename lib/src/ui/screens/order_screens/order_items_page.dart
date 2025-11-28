@@ -91,11 +91,14 @@ class OrderItemsPage extends HookConsumerWidget {
       data: (order) {
         final percentSum =
             (totalPrice + (order?.place.price ?? 0.0)) * (totalPercents / 100);
-        final finalPrice = totalPrice + percentSum + (order?.place.price??0.0);
+        final finalPrice =
+            totalPrice + percentSum + (order?.place.price ?? 0.0);
         final noteController = useTextEditingController(text: order?.note);
         final customerNotifier = useState<Customer?>(order?.customer);
-        final addressController = useTextEditingController();
-        final phoneController = useTextEditingController();
+        final addressController =
+            useTextEditingController(text: order?.customer?.name);
+        final phoneController =
+            useTextEditingController(text: order?.customer?.phone);
         final paymentTypes =
             useState(<Percent>[...(order?.paymentTypes ?? [])]);
 

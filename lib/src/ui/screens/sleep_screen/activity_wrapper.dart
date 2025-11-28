@@ -5,6 +5,7 @@ import 'package:biznex/src/core/database/changes_database/changes_database.dart'
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_isar.dart';
+import 'package:biznex/src/core/network/ingredient_network.dart';
 import 'package:biznex/src/core/network/network_services.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:isar/isar.dart';
@@ -25,6 +26,7 @@ class ActivityWrapper extends StatefulWidget {
 
 class _ActivityWrapperState extends State<ActivityWrapper> {
   final ChangesDatabase _changesDatabase = ChangesDatabase();
+
   final Isar isar = IsarDatabase.instance.isar;
 
   void _localChangesSync() async {
@@ -40,6 +42,9 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
         await _changesDatabase.delete(key: item.id);
       } catch (_) {}
     }
+
+    IngredientNetwork ingredientNetwork = IngredientNetwork(changesList);
+    await ingredientNetwork.init();
 
     NetworkServices networkServices = NetworkServices();
     final client = await widget.ref.watch(clientStateProvider.future);

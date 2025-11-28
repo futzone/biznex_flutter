@@ -5,6 +5,7 @@ import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/core/database/order_database/order_percent_database.dart';
 import 'package:biznex/src/core/database/product_database/product_database.dart';
+import 'package:biznex/src/core/database/product_database/recipe_database.dart';
 import 'package:biznex/src/core/database/transactions_database/transactions_database.dart';
 import 'package:biznex/src/core/extensions/for_dynamic.dart';
 import 'package:biznex/src/core/model/app_changes_model.dart';
@@ -14,6 +15,7 @@ import 'package:biznex/src/core/model/employee_models/employee_model.dart';
 import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
+import 'package:biznex/src/core/model/product_models/recipe_model.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
 import 'package:biznex/src/core/network/endpoints.dart';
 import 'package:biznex/src/core/network/network_base.dart';
@@ -35,7 +37,6 @@ class ChangesController {
   }
 
   Future<bool> saveStatus() async {
-
     if (!(await network.isConnected())) return false;
 
     log("save status working");
@@ -78,19 +79,26 @@ class ChangesController {
         "id": Uuid().v4(),
         "client_id": await _getDeviceId(),
         "order_id": change.database == 'orders' ? change.itemId : null,
-        "employee_id": change.database == EmployeeDatabase().boxName ? change.itemId : null,
-        "product_id": change.database == ProductDatabase().boxName ? change.itemId : null,
+        "employee_id": change.database == EmployeeDatabase().boxName
+            ? change.itemId
+            : null,
+        "product_id":
+            change.database == ProductDatabase().boxName ? change.itemId : null,
         "type": change.method == 'delete' ? 'danger' : 'warning',
         "info": "$employeeName##login_to_app",
-        "created_at": change.createdDate.notNullOrEmpty(DateTime.now().toIso8601String()),
+        "created_at":
+            change.createdDate.notNullOrEmpty(DateTime.now().toIso8601String()),
       };
 
-      final response = await network.post(ApiEndpoints.action, body: requestBody);
+      final response =
+          await network.post(ApiEndpoints.action, body: requestBody);
 
       return response;
     }
 
-    if (change.database == "app" && change.method == "update" && change.itemId == "pincode") {
+    if (change.database == "app" &&
+        change.method == "update" &&
+        change.itemId == "pincode") {
       final requestBody = {
         "id": Uuid().v4(),
         "client_id": await _getDeviceId(),
@@ -99,10 +107,12 @@ class ChangesController {
         "product_id": null,
         "type": 'danger',
         "info": 'admin_changes_pincode##${change.data}',
-        "created_at": change.createdDate.notNullOrEmpty(DateTime.now().toIso8601String()),
+        "created_at":
+            change.createdDate.notNullOrEmpty(DateTime.now().toIso8601String()),
       };
 
-      final response = await network.post(ApiEndpoints.action, body: requestBody);
+      final response =
+          await network.post(ApiEndpoints.action, body: requestBody);
 
       return response;
     }
@@ -305,7 +315,8 @@ class ChangesController {
   Future<bool> _ifTransactionChanges() async {
     if (change.method == "create") {
       TransactionsDatabase transactionDatabase = TransactionsDatabase();
-      var transaction = await transactionDatabase.getTransactionById(change.itemId);
+      var transaction =
+          await transactionDatabase.getTransactionById(change.itemId);
       if (transaction == null) return true;
 
       CloudTransaction cloudTransaction = CloudTransaction(
@@ -332,7 +343,8 @@ class ChangesController {
 
     if (change.method == "update") {
       TransactionsDatabase transactionDatabase = TransactionsDatabase();
-      var transaction = await transactionDatabase.getTransactionById(change.itemId);
+      var transaction =
+          await transactionDatabase.getTransactionById(change.itemId);
       if (transaction == null) return true;
 
       CloudTransaction cloudTransaction = CloudTransaction(
@@ -359,7 +371,8 @@ class ChangesController {
 
     if (change.method == "delete") {
       TransactionsDatabase transactionDatabase = TransactionsDatabase();
-      var transaction = await transactionDatabase.getTransactionById(change.itemId);
+      var transaction =
+          await transactionDatabase.getTransactionById(change.itemId);
       if (transaction == null) return true;
 
       CloudTransaction cloudTransaction = CloudTransaction(
@@ -394,7 +407,8 @@ class ChangesController {
       var percentList = await percentDatabase.get();
 
       TransactionsDatabase transactionsDatabase = TransactionsDatabase();
-      final transaction = await transactionsDatabase.getOrderTransaction(order.id);
+      final transaction =
+          await transactionsDatabase.getOrderTransaction(order.id);
 
       CloudOrder cloudOrder = CloudOrder(
         id: order.id,
@@ -408,7 +422,9 @@ class ChangesController {
         ],
         status: order.status ?? '',
         paymentType: transaction?.paymentType ?? 'other',
-        employeeId: order.employee.id.isEmpty ? await _getDeviceId() : order.employee.id,
+        employeeId: order.employee.id.isEmpty
+            ? await _getDeviceId()
+            : order.employee.id,
         createdAt: order.createdDate,
         updatedAt: order.updatedDate,
         note: order.note ?? '',
