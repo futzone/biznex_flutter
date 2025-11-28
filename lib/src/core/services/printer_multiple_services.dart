@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:biznex/src/core/database/category_database/category_database.dart';
 import 'package:biznex/src/core/model/category_model/category_model.dart';
@@ -22,7 +23,8 @@ class PrinterMultipleServices {
     return ctg.printerParams;
   }
 
-  Future<void> printForBack(Order order, List<OrderItem> products, {required String? message}) async {
+  Future<void> printForBack(Order order, List<OrderItem> products,
+      {required String? message}) async {
     final categoryGroup = groupByCategory(products);
 
     for (final item in categoryGroup.values) {
@@ -38,12 +40,36 @@ class PrinterMultipleServices {
       if (params == null) continue;
 
       try {
-        _printCheck(item, order, params['url'], params['name'], message: message);
+        _printCheck(item, order, params['url'], params['name'],
+            message: message);
       } catch (e) {
-        for (final item in products) {
-          log("${item.product.name} -> ${item.amount}");
-        }
+        // for (final item in products) {
+        //   log("${item.product.name} -> ${item.amount}");
+        // }
       }
+    }
+
+    final AppStateDatabase stateDatabase = AppStateDatabase();
+    final app = await stateDatabase.getApp();
+    if (app.generalPrintUrl == null ||
+        app.generalPrintUrl!.isEmpty ||
+        app.generalPrintName == null ||
+        app.generalPrintName!.isEmpty) {
+      return;
+    }
+
+    try {
+      await _printCheck(
+        products,
+        order,
+        app.generalPrintUrl ?? '',
+        app.generalPrintName ?? '',
+        message: message,
+      );
+    } catch (e) {
+      // for (final item in products) {
+      //   log("${item.product.name} -> ${item.amount}");
+      // }
     }
   }
 

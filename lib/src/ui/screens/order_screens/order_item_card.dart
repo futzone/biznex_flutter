@@ -1,11 +1,13 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/controllers/order_controller.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/providers/minimalistic_menu_provider.dart';
 import 'package:biznex/src/ui/screens/order_screens/order_item_detail_screen.dart';
 import 'package:biznex/src/ui/screens/products_screens/product_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
+import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 
@@ -92,6 +94,19 @@ class OrderItemCardNew extends HookConsumerWidget {
     }, [item.amount, product.price, order]);
 
     void updateAmount(num newAmount) {
+      OrderItem kItem = item;
+      kItem.amount = newAmount.toDouble();
+      if (OrderController.hasNegativeItem(ref,
+          savedList: order?.products ?? [], item: kItem)) {
+        ShowToast.error(context, AppLocales.doNotDecreaseText.tr());
+
+        amountController.text = item.amount.toMeasure;
+        totalPriceController.text =
+            (item.amount * item.product.price).toMeasure;
+
+        return;
+      }
+
       if (newAmount <= 0) {
         orderNotifier.deleteItem(item, context, order);
       } else {
@@ -120,6 +135,7 @@ class OrderItemCardNew extends HookConsumerWidget {
         return;
       }
       final newAmount = newTotalPrice / product.price;
+
       updateAmount(newAmount);
     }
 
@@ -142,14 +158,30 @@ class OrderItemCardNew extends HookConsumerWidget {
                   child: OrderItemDetailScreen(
                     product: item,
                     onDeletePressed: () {
+                      if (OrderController.hasNegativeItem(ref,
+                          savedList: order?.products ?? [], item: item)) {
+                        ShowToast.error(
+                            context, AppLocales.doNotDecreaseText.tr());
+
+                        return;
+                      }
                       orderNotifier.deleteItem(item, context, order);
                     },
                     onUpdateItemDetails: (amount, price) {
                       OrderItem kOrderItem = item;
                       kOrderItem.amount = amount;
                       kOrderItem.customPrice = price;
-                      orderNotifier.updateItem(kOrderItem, context,
-                          order: order);
+
+                      if (OrderController.hasNegativeItem(ref,
+                          savedList: order?.products ?? [], item: kOrderItem)) {
+                        ShowToast.error(
+                            context, AppLocales.doNotDecreaseText.tr());
+
+                        return;
+                      } else {
+                        orderNotifier.updateItem(kOrderItem, context,
+                            order: order);
+                      }
                     },
                   ),
                 ),
@@ -157,6 +189,12 @@ class OrderItemCardNew extends HookConsumerWidget {
             },
             child: Dismissible(
               onDismissed: (_) {
+                if (OrderController.hasNegativeItem(ref,
+                    savedList: order?.products ?? [], item: item)) {
+                  ShowToast.error(context, AppLocales.doNotDecreaseText.tr());
+
+                  return;
+                }
                 orderNotifier.deleteItem(item, context, order);
               },
               background: Container(
@@ -244,6 +282,14 @@ class OrderItemCardNew extends HookConsumerWidget {
                       ElevatedButton.icon(
                         icon: Icon(Icons.remove, size: 20),
                         onPressed: () {
+                          if (OrderController.hasNegativeItem(ref,
+                              savedList: order?.products ?? [], item: item)) {
+                            ShowToast.error(
+                                context, AppLocales.doNotDecreaseText.tr());
+
+                            return;
+                          }
+
                           if (item.amount >= 1) updateAmount(item.amount - 1);
                         },
                         label: Text("1"),
@@ -256,6 +302,14 @@ class OrderItemCardNew extends HookConsumerWidget {
                       ElevatedButton.icon(
                         icon: Icon(Icons.remove, size: 20),
                         onPressed: () {
+                          if (OrderController.hasNegativeItem(ref,
+                              savedList: order?.products ?? [], item: item)) {
+                            ShowToast.error(
+                                context, AppLocales.doNotDecreaseText.tr());
+
+                            return;
+                          }
+
                           if (item.amount >= 0.1) {
                             updateAmount(item.amount - 0.1);
                           }
@@ -285,17 +339,33 @@ class OrderItemCardNew extends HookConsumerWidget {
                   body: OrderItemDetailScreen(
                     product: item,
                     onDeletePressed: () {
+                      if (OrderController.hasNegativeItem(ref,
+                          savedList: order?.products ?? [], item: item)) {
+                        ShowToast.error(
+                            context, AppLocales.doNotDecreaseText.tr());
+
+                        return;
+                      }
+
                       orderNotifier.deleteItem(item, context, order);
                     },
                     onUpdateItemDetails: (amount, price) {
                       OrderItem kOrderItem = item;
                       kOrderItem.amount = amount;
                       kOrderItem.customPrice = price;
-                      orderNotifier.updateItem(
-                        kOrderItem,
-                        context,
-                        order: order,
-                      );
+                      if (OrderController.hasNegativeItem(ref,
+                          savedList: order?.products ?? [], item: kOrderItem)) {
+                        ShowToast.error(
+                            context, AppLocales.doNotDecreaseText.tr());
+
+                        return;
+                      } else {
+                        orderNotifier.updateItem(
+                          kOrderItem,
+                          context,
+                          order: order,
+                        );
+                      }
                     },
                   ),
                 );
@@ -610,6 +680,15 @@ class OrderItemCardNew extends HookConsumerWidget {
                           children: [
                             SimpleButton(
                               onPressed: () {
+                                if (OrderController.hasNegativeItem(ref,
+                                    savedList: order?.products ?? [],
+                                    item: item)) {
+                                  ShowToast.error(context,
+                                      AppLocales.doNotDecreaseText.tr());
+
+                                  return;
+                                }
+
                                 orderNotifier.deleteItem(item, context, order);
                               },
                               child: Container(
@@ -652,6 +731,15 @@ class OrderItemCardNew extends HookConsumerWidget {
                               ),
                             SimpleButton(
                               onPressed: () {
+                                if (OrderController.hasNegativeItem(ref,
+                                    savedList: order?.products ?? [],
+                                    item: item)) {
+                                  ShowToast.error(context,
+                                      AppLocales.doNotDecreaseText.tr());
+
+                                  return;
+                                }
+
                                 updateAmount(item.amount - 1);
                               },
                               child: Container(
@@ -1065,6 +1153,14 @@ class OrderItemCardNew extends HookConsumerWidget {
                           children: [
                             SimpleButton(
                               onPressed: () {
+                                if (OrderController.hasNegativeItem(ref,
+                                    savedList: order?.products ?? [],
+                                    item: item)) {
+                                  ShowToast.error(context,
+                                      AppLocales.doNotDecreaseText.tr());
+
+                                  return;
+                                }
                                 orderNotifier.deleteItem(item, context, order);
                               },
                               child: Container(
@@ -1085,6 +1181,14 @@ class OrderItemCardNew extends HookConsumerWidget {
                             ),
                             SimpleButton(
                               onPressed: () {
+                                if (OrderController.hasNegativeItem(ref,
+                                    savedList: order?.products ?? [],
+                                    item: item)) {
+                                  ShowToast.error(context,
+                                      AppLocales.doNotDecreaseText.tr());
+
+                                  return;
+                                }
                                 updateAmount(item.amount - 1);
                               },
                               child: Container(

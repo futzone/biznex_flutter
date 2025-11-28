@@ -14,6 +14,7 @@ import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
 import 'package:biznex/src/core/services/printer_services.dart';
 import 'package:biznex/src/providers/employee_orders_provider.dart';
+import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/orders_provider.dart';
 import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/ui/pages/order_pages/table_choose_screen.dart';
@@ -110,6 +111,13 @@ class OrderController {
       Order? currentState = await _database.getPlaceOrder(place.id);
       if (currentState == null) {
         if (context.mounted) AppRouter.close(context);
+        return;
+      }
+
+      if (hasNegative(ref,
+          newList: newItemsList, savedList: currentState.products)) {
+        if (context.mounted) AppRouter.close(context);
+        ShowToast.error(context, AppLocales.doNotDecreaseText.tr());
         return;
       }
 
@@ -393,5 +401,44 @@ class OrderController {
 
     log(newOrder.toJson().toString());
     AppRouter.close(context);
+  }
+
+  static bool hasNegative(
+    WidgetRef ref, {
+    required List<OrderItem> newList,
+    required List<OrderItem> savedList,
+  }) {
+    final employee = ref.watch(currentEmployeeProvider);
+    if (employee.roleName.toLowerCase() == 'admin') return false;
+    if (savedList.isEmpty) return false;
+    if (newList.isEmpty) return true;
+
+    for (final item in savedList) {
+      final newItem =
+          newList.where((e) => e.product.id == item.product.id).firstOrNull;
+
+      if (newItem == null) return true;
+
+      if (newItem.amount < item.amount) return true;
+    }
+
+    return false;
+  }
+
+  static bool hasNegativeItem(
+    WidgetRef ref, {
+    required OrderItem item,
+    required List<OrderItem> savedList,
+  }) {
+    final employee = ref.watch(currentEmployeeProvider);
+    if (employee.roleName.toLowerCase() == 'admin') return false;
+
+    if (savedList.isEmpty) return false;
+
+    final savedItem = savedList.where((el) => el.product.id == item.product.id);
+    if (savedItem.isEmpty) return true;
+    if ((savedItem.firstOrNull?.amount ?? 0) > item.amount) return true;
+
+    return false;
   }
 }

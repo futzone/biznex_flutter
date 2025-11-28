@@ -6,6 +6,7 @@ import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/model/category_model/category_model.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
+import 'package:biznex/src/core/utils/scroll_behavior.dart';
 import 'package:biznex/src/providers/category_provider.dart';
 import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/ui/widgets/custom/app_empty_widget.dart';
@@ -292,209 +293,212 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SingleChildScrollView(
-                padding: Dis.only(left: context.w(24), top: context.h(24)),
-                scrollDirection: Axis.horizontal,
-                child: state.whenProviderData(
-                  provider: categoryProvider,
-                  builder: (categories) {
-                    categories as List<Category>;
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      spacing: context.w(16),
-                      children: [
-                        WebButton(
-                          onPressed: () {
-                            _searchExpand = !_searchExpand;
-                            setState(() {});
-                          },
-                          builder: (focused) => Container(
-                            padding: widget.minimalistic
-                                ? Dis.only(lr: 8, tb: 2)
-                                : Dis.all(context.s(12)),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: focused
-                                  ? Border.all(color: theme.mainColor)
-                                  : Border.all(
-                                      color: Colors.white,
-                                    ),
-                            ),
-                            child: _searchExpand
-                                ? Container(
-                                    height: context.s(48),
-                                    width: context.s(320),
-                                    child: Row(
-                                      spacing: context.w(8),
-                                      children: [
-                                        Expanded(
-                                          child: AppTextField(
-                                            autofocus: true,
-                                            prefixIcon: Icon(
-                                                Iconsax.search_normal_copy),
-                                            onChanged: _onSearchQuery,
-                                            radius: 8,
-                                            title:
-                                                AppLocales.searchBarHint.tr(),
-                                            controller: _searchController,
-                                            theme: theme,
-                                          ),
-                                        ),
-                                        Container(
-                                          height: widget.minimalistic
-                                              ? null
-                                              : context.s(40),
-                                          width: widget.minimalistic
-                                              ? null
-                                              : context.s(40),
-                                          padding: Dis.all(context.s(8)),
-                                          margin: widget.minimalistic
-                                              ? Dis.only(tb: 6)
-                                              : null,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(4),
-                                            color: theme.scaffoldBgColor,
-                                          ),
-                                          child: Center(
-                                            child: Icon(
-                                              Ionicons.close_outline,
-                                              size: context.s(24),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                : Container(
-                                    height: context.s(48),
-                                    width: context.s(48),
-                                    padding: Dis.all(context.s(8)),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4),
-                                      color: widget.minimalistic
-                                          ? null
-                                          : theme.scaffoldBgColor,
-                                    ),
-                                    child: Center(
-                                      child: Icon(
-                                        Ionicons.search_outline,
-                                        size: context.s(24),
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                        ),
-                        for (final category in categories)
+              ScrollConfiguration(
+                behavior: HorizontalScrollBehavior(),
+                child: SingleChildScrollView(
+                  padding: Dis.only(left: context.w(24), top: context.h(24)),
+                  scrollDirection: Axis.horizontal,
+                  child: state.whenProviderData(
+                    provider: categoryProvider,
+                    builder: (categories) {
+                      categories as List<Category>;
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        spacing: context.w(16),
+                        children: [
                           WebButton(
                             onPressed: () {
-                              if (_selectedCategory == category) {
-                                _selectedCategory = null;
-                              } else {
-                                _selectedCategory = category;
-                                _onCategorySelected(category.id);
-                              }
+                              _searchExpand = !_searchExpand;
                               setState(() {});
                             },
                             builder: (focused) => Container(
                               padding: widget.minimalistic
-                                  ? Dis.only(lr: 8, tb: 4)
+                                  ? Dis.only(lr: 8, tb: 2)
                                   : Dis.all(context.s(12)),
                               decoration: BoxDecoration(
-                                color: _selectedCategory?.id == category.id
-                                    ? theme.mainColor
-                                    : Colors.white,
+                                color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                                 border: focused
                                     ? Border.all(color: theme.mainColor)
                                     : Border.all(
-                                        color:
-                                            _selectedCategory?.id == category.id
-                                                ? theme.mainColor
-                                                : Colors.white,
+                                        color: Colors.white,
                                       ),
                               ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                spacing: context.s(12),
-                                children: [
-                                  if (!widget.minimalistic)
-                                    Container(
+                              child: _searchExpand
+                                  ? Container(
+                                      height: context.s(48),
+                                      width: context.s(320),
+                                      child: Row(
+                                        spacing: context.w(8),
+                                        children: [
+                                          Expanded(
+                                            child: AppTextField(
+                                              autofocus: true,
+                                              prefixIcon: Icon(
+                                                  Iconsax.search_normal_copy),
+                                              onChanged: _onSearchQuery,
+                                              radius: 8,
+                                              title:
+                                                  AppLocales.searchBarHint.tr(),
+                                              controller: _searchController,
+                                              theme: theme,
+                                            ),
+                                          ),
+                                          Container(
+                                            height: widget.minimalistic
+                                                ? null
+                                                : context.s(40),
+                                            width: widget.minimalistic
+                                                ? null
+                                                : context.s(40),
+                                            padding: Dis.all(context.s(8)),
+                                            margin: widget.minimalistic
+                                                ? Dis.only(tb: 6)
+                                                : null,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              color: theme.scaffoldBgColor,
+                                            ),
+                                            child: Center(
+                                              child: Icon(
+                                                Ionicons.close_outline,
+                                                size: context.s(24),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : Container(
                                       height: context.s(48),
                                       width: context.s(48),
                                       padding: Dis.all(context.s(8)),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(4),
-                                        color:
-                                            _selectedCategory?.id == category.id
-                                                ? theme.white
-                                                : theme.scaffoldBgColor,
+                                        color: widget.minimalistic
+                                            ? null
+                                            : theme.scaffoldBgColor,
                                       ),
                                       child: Center(
-                                        child: category.icon == null
-                                            ? Text(
-                                                category.name.trim().isNotEmpty
-                                                    ? category.name.trim()[0]
-                                                    : "🍜",
-                                                style: TextStyle(
-                                                  fontSize: context.s(24),
-                                                  fontFamily: boldFamily,
-                                                ),
-                                              )
-                                            : SvgPicture.asset(
-                                                category.icon ?? '',
-                                                width: context.s(32),
-                                                height: context.s(32),
-                                                colorFilter: ColorFilter.mode(
-                                                  _selectedCategory?.id ==
-                                                          category.id
-                                                      ? theme.mainColor
-                                                      : theme
-                                                          .secondaryTextColor,
-                                                  BlendMode.color,
-                                                ),
-                                              ),
+                                        child: Icon(
+                                          Ionicons.search_outline,
+                                          size: context.s(24),
+                                        ),
                                       ),
                                     ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        category.name.trim(),
-                                        style: TextStyle(
-                                          fontSize: context.s(16),
-                                          fontFamily: mediumFamily,
-                                          color: _selectedCategory?.id ==
-                                                  category.id
-                                              ? Colors.white
-                                              : theme.textColor,
-                                        ),
-                                      ),
-                                      Text(
-                                        "${'productCount'.tr()}: ${getProductCount(category.id)}",
-                                        style: TextStyle(
-                                          fontSize: context.s(14),
-                                          fontFamily: regularFamily,
-                                          color: _selectedCategory?.id ==
-                                                  category.id
-                                              ? Colors.white
-                                              : theme.secondaryTextColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
                             ),
                           ),
-                      ],
-                    );
-                  },
+                          for (final category in categories)
+                            WebButton(
+                              onPressed: () {
+                                if (_selectedCategory == category) {
+                                  _selectedCategory = null;
+                                } else {
+                                  _selectedCategory = category;
+                                  _onCategorySelected(category.id);
+                                }
+                                setState(() {});
+                              },
+                              builder: (focused) => Container(
+                                padding: widget.minimalistic
+                                    ? Dis.only(lr: 8, tb: 4)
+                                    : Dis.all(context.s(12)),
+                                decoration: BoxDecoration(
+                                  color: _selectedCategory?.id == category.id
+                                      ? theme.mainColor
+                                      : Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: focused
+                                      ? Border.all(color: theme.mainColor)
+                                      : Border.all(
+                                          color:
+                                              _selectedCategory?.id == category.id
+                                                  ? theme.mainColor
+                                                  : Colors.white,
+                                        ),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  spacing: context.s(12),
+                                  children: [
+                                    if (!widget.minimalistic)
+                                      Container(
+                                        height: context.s(48),
+                                        width: context.s(48),
+                                        padding: Dis.all(context.s(8)),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(4),
+                                          color:
+                                              _selectedCategory?.id == category.id
+                                                  ? theme.white
+                                                  : theme.scaffoldBgColor,
+                                        ),
+                                        child: Center(
+                                          child: category.icon == null
+                                              ? Text(
+                                                  category.name.trim().isNotEmpty
+                                                      ? category.name.trim()[0]
+                                                      : "🍜",
+                                                  style: TextStyle(
+                                                    fontSize: context.s(24),
+                                                    fontFamily: boldFamily,
+                                                  ),
+                                                )
+                                              : SvgPicture.asset(
+                                                  category.icon ?? '',
+                                                  width: context.s(32),
+                                                  height: context.s(32),
+                                                  colorFilter: ColorFilter.mode(
+                                                    _selectedCategory?.id ==
+                                                            category.id
+                                                        ? theme.mainColor
+                                                        : theme
+                                                            .secondaryTextColor,
+                                                    BlendMode.color,
+                                                  ),
+                                                ),
+                                        ),
+                                      ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          category.name.trim(),
+                                          style: TextStyle(
+                                            fontSize: context.s(16),
+                                            fontFamily: mediumFamily,
+                                            color: _selectedCategory?.id ==
+                                                    category.id
+                                                ? Colors.white
+                                                : theme.textColor,
+                                          ),
+                                        ),
+                                        Text(
+                                          "${'productCount'.tr()}: ${getProductCount(category.id)}",
+                                          style: TextStyle(
+                                            fontSize: context.s(14),
+                                            fontFamily: regularFamily,
+                                            color: _selectedCategory?.id ==
+                                                    category.id
+                                                ? Colors.white
+                                                : theme.secondaryTextColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
               Padding(

@@ -41,6 +41,8 @@ class AppModel {
   String? shopAddress;
   String? byeText;
   String? printPhone;
+  String? generalPrintUrl;
+  String? generalPrintName;
 
   bool get isAdmin => role == "admin";
 
@@ -95,6 +97,8 @@ class AppModel {
     this.shopAddress,
     this.byeText,
     this.apiUrl,
+    this.generalPrintUrl,
+    this.generalPrintName,
   });
 
   factory AppModel.fromJson(dynamic json) {
@@ -102,6 +106,8 @@ class AppModel {
       isDark: json['isDark'] ?? false,
       locale: json['locale'] ?? 'uz',
       role: json['role'],
+      generalPrintUrl: json['generalPrintUrl'],
+      generalPrintName: json['generalPrintName'],
       isServerApp: json['apiUrl'] != null,
       token: json['token'],
       refresh: json['refresh'],
@@ -203,6 +209,8 @@ class AppModel {
       "apiUrl": apiUrl,
       "offline": offline,
       "allowCancelOrder": allowCancelOrder,
+      "generalPrintName": generalPrintName,
+      "generalPrintUrl": generalPrintUrl
     };
   }
 }

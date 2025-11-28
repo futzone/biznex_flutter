@@ -1,6 +1,6 @@
 class ApiEndpoints {
-  // static const String baseUrl = "https://owner.biznex.uz";
-  static const String baseUrl = "http://127.0.0.1:8000";
+  static const String baseUrl = "https://owner.biznex.uz";
+  // static const String baseUrl = "http://127.0.0.1:8000";
   static const String client = "/clients/client";
 
   static String clientOne(id) => "/clients/$id";

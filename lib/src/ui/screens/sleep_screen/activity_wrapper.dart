@@ -1,18 +1,16 @@
 import 'dart:developer';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/controllers/changes_controller.dart';
+import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/database/changes_database/changes_database.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/model/order_models/order.dart';
-import 'package:biznex/src/core/model/transaction_model/transaction_isar.dart';
 import 'package:biznex/src/core/network/ingredient_network.dart';
 import 'package:biznex/src/core/network/network_services.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:isar/isar.dart';
 import '../../../core/model/cloud_models/client.dart';
 import '../../../core/network/network_base.dart';
-import '../../../providers/employee_orders_provider.dart';
-import '../../../providers/transaction_provider.dart';
 
 class ActivityWrapper extends StatefulWidget {
   final Widget child;
@@ -26,13 +24,16 @@ class ActivityWrapper extends StatefulWidget {
 
 class _ActivityWrapperState extends State<ActivityWrapper> {
   final ChangesDatabase _changesDatabase = ChangesDatabase();
+  final AppStateDatabase stateDatabase = AppStateDatabase();
 
   final Isar isar = IsarDatabase.instance.isar;
 
   void _localChangesSync() async {
     if (!(await Network().isConnected())) return;
 
-    if (widget.ref.watch(appStateProvider).value?.apiUrl != null) return;
+    final app = await stateDatabase.getApp();
+
+    if (app.apiUrl != null || (app.apiUrl ?? '').isNotEmpty) return;
     final changesList = await _changesDatabase.get();
     for (final item in changesList) {
       try {
@@ -45,6 +46,12 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
 
     IngredientNetwork ingredientNetwork = IngredientNetwork(changesList);
     await ingredientNetwork.init();
+
+    final box = await ingredientNetwork.recipeDatabase.ingredientsBox();
+    box.watch().listen((_) async {
+      log("ingredient listener: ping");
+      await ingredientNetwork.onSyncIngredients();
+    });
 
     NetworkServices networkServices = NetworkServices();
     final client = await widget.ref.watch(clientStateProvider.future);

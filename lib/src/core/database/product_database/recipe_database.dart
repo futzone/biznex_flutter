@@ -21,6 +21,10 @@ class RecipeDatabase {
 
   final ChangesDatabase changesDatabase = ChangesDatabase();
 
+  Future<Box> ingredientsBox() async {
+    return await Hive.openBox(_recipeBox);
+  }
+
   Future<List<Recipe>> getRecipe() async {
     final box = await Hive.openBox(_recipeBox);
     final data = box.values;

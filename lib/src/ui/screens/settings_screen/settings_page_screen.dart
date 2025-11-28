@@ -45,6 +45,14 @@ class SettingsPageScreen extends HookConsumerWidget {
     final byeTextController = useTextEditingController(text: appState.byeText);
     final printer =
         useState(Printer(url: appState.token, name: appState.refresh));
+
+    final managerPrinter = useState(
+      Printer(
+        url: appState.generalPrintUrl ?? '',
+        name: appState.generalPrintName ?? '',
+      ),
+    );
+
     final oldPincodeController = useTextEditingController();
     final newPincodeController = useTextEditingController();
     final percentController = useTextEditingController();
@@ -415,6 +423,71 @@ class SettingsPageScreen extends HookConsumerWidget {
                                         );
                                       },
                                     ),
+                                    0.h,
+                                    Text(
+                                      AppLocales.generalPrint.tr(),
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontFamily: mediumFamily),
+                                    ),
+                                    state.whenProviderData(
+                                      provider: printerDevicesProvider,
+                                      builder: (devices) {
+                                        devices as List<Printer>;
+                                        return CustomPopupMenu(
+                                          theme: theme,
+                                          children: [
+                                            CustomPopupItem(
+                                              icon: Icons.cancel_outlined,
+                                              title: AppLocales.cancel.tr(),
+                                              onPressed: () {
+                                                AppModel kApp = state;
+                                                kApp.generalPrintName = null;
+                                                kApp.generalPrintUrl = null;
+                                                AppStateDatabase()
+                                                    .updateApp(kApp)
+                                                    .then((_) {
+                                                  ref.invalidate(
+                                                      appStateProvider);
+                                                });
+
+                                                managerPrinter.value =
+                                                    Printer(url: '');
+                                                printerController.clear();
+                                                ShowToast.success(
+                                                    context,
+                                                    AppLocales.savedSuccessfully
+                                                        .tr());
+                                              },
+                                            ),
+                                            for (final device in devices)
+                                              CustomPopupItem(
+                                                title: device.name,
+                                                icon: Iconsax.printer_copy,
+                                                onPressed: () {
+                                                  managerPrinter.value = device;
+                                                },
+                                              ),
+                                          ],
+                                          child: IgnorePointer(
+                                            ignoring: true,
+                                            child: AppTextField(
+                                              prefixIcon:
+                                                  Icon(Iconsax.printer_copy),
+                                              onlyRead: true,
+                                              title: managerPrinter
+                                                      .value.name.isEmpty
+                                                  ? AppLocales.print.tr()
+                                                  : managerPrinter.value.name,
+                                              controller: TextEditingController(
+                                                text: managerPrinter.value.name,
+                                              ),
+                                              theme: theme,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   ],
                                 ),
                                 ConfirmCancelButton(
@@ -433,6 +506,13 @@ class SettingsPageScreen extends HookConsumerWidget {
                                         byeTextController.text.trim();
                                     newState.token = printer.value.url;
                                     newState.refresh = printer.value.name;
+
+                                    if (managerPrinter.value.name.isNotEmpty) {
+                                      newState.generalPrintUrl =
+                                          managerPrinter.value.url;
+                                      newState.generalPrintName =
+                                          managerPrinter.value.name;
+                                    }
 
                                     AppStateDatabase()
                                         .updateApp(newState)

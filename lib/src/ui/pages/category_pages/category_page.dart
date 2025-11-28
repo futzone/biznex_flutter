@@ -178,6 +178,7 @@ class CategoryPage extends HookConsumerWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(right: 24),
                       child: ReorderableListView.builder(
+                        padding: Dis.only(bottom: 200),
                         key: Key("value"),
                         itemBuilder: (context, index) {
                           final ctg = searchController.text.trim().isEmpty
@@ -223,7 +224,7 @@ class CategoryPage extends HookConsumerWidget {
                       ),
                     ),
                   ),
-                  Padding(padding: 100.tb),
+
                 ],
               ),
             );

@@ -175,7 +175,7 @@ class CloudPage extends HookConsumerWidget {
                               'yyyy, dd-MMMM, HH:mm',
                               context.locale.languageCode,
                             ).format(
-                              DateTime.parse(client.updatedAt).add(Duration(hours: 2)),
+                              DateTime.parse(client.updatedAt),
                             )}",
                             style: TextStyle(
                               fontSize: context.s(14),
@@ -233,119 +233,121 @@ class CloudPage extends HookConsumerWidget {
                             ),
                           ),
 
-                          Expanded(
-                            child: Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    color: Colors.white,
-                                  ),
-                                  padding: Dis.all(24),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          if (jsonDecode(client.name) is Map &&
-                                              jsonDecode(client.name)['token'].toString().isNotEmpty)
-                                            Icon(
-                                              Ionicons.checkmark_done_circle_outline,
-                                              color: theme.mainColor,
-                                            ),
-                                          if (jsonDecode(client.name) is Map &&
-                                              jsonDecode(client.name)['token'].toString().isNotEmpty)
-                                            12.w,
-                                          Text(
-                                            AppLocales.telegramNotificationFields.tr(),
-                                            style: TextStyle(
-                                              fontSize: context.s(18),
-                                              color: Colors.black,
-                                              fontFamily: boldFamily,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      16.h,
-                                      AppTextField(
-                                        title: AppLocales.botToken.tr(),
-                                        controller: tokenController,
-                                        theme: theme,
-                                        suffixIcon: IconButton(
-                                          onPressed: () async {
-                                            await Clipboard.getData('text/plain').then((data) {
-                                              tokenController.text = data?.text ?? "";
-                                            });
-                                          },
-                                          icon: Icon(
-                                            Iconsax.clipboard_text_copy,
-                                            color: theme.secondaryTextColor,
-                                          ),
-                                        ),
-                                      ),
-                                      16.h,
-                                      AppTextField(
-                                        title: AppLocales.channelAddress.tr(),
-                                        controller: channelAddressController,
-                                        theme: theme,
-                                        suffixIcon: IconButton(
-                                          onPressed: () async {
-                                            await Clipboard.getData('text/plain').then((data) {
-                                              channelAddressController.text = data?.text ?? "";
-                                            });
-                                          },
-                                          icon: Icon(
-                                            Iconsax.clipboard_text_copy,
-                                            color: theme.secondaryTextColor,
-                                          ),
-                                        ),
-                                      ),
-                                      16.h,
-                                      AppTextField(
-                                        title: AppLocales.productLimitNotification.tr(),
-                                        controller: countController,
-                                        theme: theme,
-                                        textInputType: TextInputType.number,
-                                        maxLines: 1,
-                                      ),
-                                      16.h,
-                                      AppPrimaryButton(
-                                        theme: theme,
-                                        title: AppLocales.save.tr(),
-                                        onPressed: () async {
-                                          showAppLoadingDialog(context);
-                                          Client newClient = client;
-                                          final oldMap = jsonDecode(client.name) is Map ? jsonDecode(client.name) : {};
-                                          newClient.updatedAt = DateTime.now().toIso8601String();
-                                          newClient.name = jsonEncode({
-                                            "name": state.shopName.notNullOrEmpty("Biznex Client"),
-                                            "channel": channelAddressController.text.trim().isEmpty
-                                                ? (oldMap["channel"] ?? '')
-                                                : channelAddressController.text.trim(),
-                                            "token": tokenController.text.trim().isEmpty
-                                                ? (oldMap["token"] ?? '')
-                                                : tokenController.text.trim(),
-                                            "count": int.tryParse(countController.text.trim()) ?? 10,
-                                          });
+                          Expanded(child: SizedBox()),
 
-                                          NetworkServices ns = NetworkServices();
-                                          await ns.updateClient(newClient).then((_) {
-                                            AppRouter.close(context);
-                                            ref.invalidate(clientStateProvider);
-                                            ShowToast.success(context, AppLocales.savedSuccessfully.tr());
-                                            channelAddressController.clear();
-                                            tokenController.clear();
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          // Expanded(
+                          //   child: Column(
+                          //     children: [
+                          //       Container(
+                          //         decoration: BoxDecoration(
+                          //           borderRadius: BorderRadius.circular(16),
+                          //           color: Colors.white,
+                          //         ),
+                          //         padding: Dis.all(24),
+                          //         child: Column(
+                          //           crossAxisAlignment: CrossAxisAlignment.start,
+                          //           mainAxisAlignment: MainAxisAlignment.start,
+                          //           mainAxisSize: MainAxisSize.min,
+                          //           children: [
+                          //             Row(
+                          //               children: [
+                          //                 if (jsonDecode(client.name) is Map &&
+                          //                     jsonDecode(client.name)['token'].toString().isNotEmpty)
+                          //                   Icon(
+                          //                     Ionicons.checkmark_done_circle_outline,
+                          //                     color: theme.mainColor,
+                          //                   ),
+                          //                 if (jsonDecode(client.name) is Map &&
+                          //                     jsonDecode(client.name)['token'].toString().isNotEmpty)
+                          //                   12.w,
+                          //                 Text(
+                          //                   AppLocales.telegramNotificationFields.tr(),
+                          //                   style: TextStyle(
+                          //                     fontSize: context.s(18),
+                          //                     color: Colors.black,
+                          //                     fontFamily: boldFamily,
+                          //                   ),
+                          //                 ),
+                          //               ],
+                          //             ),
+                          //             16.h,
+                          //             AppTextField(
+                          //               title: AppLocales.botToken.tr(),
+                          //               controller: tokenController,
+                          //               theme: theme,
+                          //               suffixIcon: IconButton(
+                          //                 onPressed: () async {
+                          //                   await Clipboard.getData('text/plain').then((data) {
+                          //                     tokenController.text = data?.text ?? "";
+                          //                   });
+                          //                 },
+                          //                 icon: Icon(
+                          //                   Iconsax.clipboard_text_copy,
+                          //                   color: theme.secondaryTextColor,
+                          //                 ),
+                          //               ),
+                          //             ),
+                          //             16.h,
+                          //             AppTextField(
+                          //               title: AppLocales.channelAddress.tr(),
+                          //               controller: channelAddressController,
+                          //               theme: theme,
+                          //               suffixIcon: IconButton(
+                          //                 onPressed: () async {
+                          //                   await Clipboard.getData('text/plain').then((data) {
+                          //                     channelAddressController.text = data?.text ?? "";
+                          //                   });
+                          //                 },
+                          //                 icon: Icon(
+                          //                   Iconsax.clipboard_text_copy,
+                          //                   color: theme.secondaryTextColor,
+                          //                 ),
+                          //               ),
+                          //             ),
+                          //             16.h,
+                          //             AppTextField(
+                          //               title: AppLocales.productLimitNotification.tr(),
+                          //               controller: countController,
+                          //               theme: theme,
+                          //               textInputType: TextInputType.number,
+                          //               maxLines: 1,
+                          //             ),
+                          //             16.h,
+                          //             AppPrimaryButton(
+                          //               theme: theme,
+                          //               title: AppLocales.save.tr(),
+                          //               onPressed: () async {
+                          //                 showAppLoadingDialog(context);
+                          //                 Client newClient = client;
+                          //                 final oldMap = jsonDecode(client.name) is Map ? jsonDecode(client.name) : {};
+                          //                 newClient.updatedAt = DateTime.now().toIso8601String();
+                          //                 newClient.name = jsonEncode({
+                          //                   "name": state.shopName.notNullOrEmpty("Biznex Client"),
+                          //                   "channel": channelAddressController.text.trim().isEmpty
+                          //                       ? (oldMap["channel"] ?? '')
+                          //                       : channelAddressController.text.trim(),
+                          //                   "token": tokenController.text.trim().isEmpty
+                          //                       ? (oldMap["token"] ?? '')
+                          //                       : tokenController.text.trim(),
+                          //                   "count": int.tryParse(countController.text.trim()) ?? 10,
+                          //                 });
+                          //
+                          //                 NetworkServices ns = NetworkServices();
+                          //                 await ns.updateClient(newClient).then((_) {
+                          //                   AppRouter.close(context);
+                          //                   ref.invalidate(clientStateProvider);
+                          //                   ShowToast.success(context, AppLocales.savedSuccessfully.tr());
+                          //                   channelAddressController.clear();
+                          //                   tokenController.clear();
+                          //                 });
+                          //               },
+                          //             ),
+                          //           ],
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
 
                           // AppPrimaryButton(
                           //   theme: theme,

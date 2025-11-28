@@ -394,6 +394,8 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
 
                                 _currentDate = date;
 
+                                ordersCount = ordersList.length;
+
                                 setState(() {});
                               });
                             },

@@ -13,6 +13,7 @@ import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:sliver_tools/sliver_tools.dart';
+import '../../../core/utils/scroll_behavior.dart';
 import '../../screens/products_screens/product_card.dart';
 
 class ProductsPage extends HookConsumerWidget {
@@ -213,88 +214,29 @@ class ProductsPage extends HookConsumerWidget {
                         ),
                       ],
                     ),
-                    child: SingleChildScrollView(
-                      padding: Dis.only(lr: context.w(24), tb: context.h(24)),
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        spacing: context.w(16),
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          WebButton(
-                            onPressed: () {
-                              selectedCategory.value = '';
-                            },
-                            builder: (focused) => Container(
-                              padding: Dis.all(context.s(12)),
-                              decoration: BoxDecoration(
-                                color: selectedCategory.value.isEmpty ? theme.mainColor : Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border: focused
-                                    ? Border.all(color: theme.mainColor)
-                                    : Border.all(
-                                        color: selectedCategory.value.isEmpty ? theme.mainColor : Colors.white,
-                                      ),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                spacing: context.s(12),
-                                children: [
-                                  Container(
-                                    padding: Dis.all(context.s(8)),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4),
-                                      color: selectedCategory.value.isEmpty ? theme.white : theme.scaffoldBgColor,
-                                    ),
-                                    child: Center(
-                                      child: Icon(
-                                        Ionicons.grid_outline,
-                                        size: context.s(32),
-                                        color: selectedCategory.value.isEmpty ? theme.mainColor : theme.secondaryTextColor,
-                                      ),
-                                    ),
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        AppLocales.all.tr(),
-                                        style: TextStyle(
-                                          fontSize: context.s(16),
-                                          fontFamily: mediumFamily,
-                                          color: selectedCategory.value.isEmpty ? Colors.white : theme.textColor,
-                                        ),
-                                      ),
-                                      Text(
-                                        "${'productCount'.tr()}: ${getProductCount(0)}",
-                                        style: TextStyle(
-                                          fontSize: context.s(14),
-                                          fontFamily: regularFamily,
-                                          color: selectedCategory.value.isEmpty ? Colors.white : theme.secondaryTextColor,
-                                        ),
-                                      )
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                          for (final item in categories)
+                    child: ScrollConfiguration(
+                      behavior: HorizontalScrollBehavior(),
+                      child: SingleChildScrollView(
+                        padding: Dis.only(lr: context.w(24), tb: context.h(24)),
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          spacing: context.w(16),
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
                             WebButton(
                               onPressed: () {
-                                selectedCategory.value = item.id;
+                                selectedCategory.value = '';
                               },
                               builder: (focused) => Container(
                                 padding: Dis.all(context.s(12)),
                                 decoration: BoxDecoration(
-                                  color: selectedCategory.value.contains(item.id) ? theme.mainColor : Colors.white,
+                                  color: selectedCategory.value.isEmpty ? theme.mainColor : Colors.white,
                                   borderRadius: BorderRadius.circular(12),
                                   border: focused
                                       ? Border.all(color: theme.mainColor)
                                       : Border.all(
-                                          color: selectedCategory.value.contains(item.id) ? theme.mainColor : Colors.white,
+                                          color: selectedCategory.value.isEmpty ? theme.mainColor : Colors.white,
                                         ),
                                 ),
                                 child: Row(
@@ -303,60 +245,122 @@ class ProductsPage extends HookConsumerWidget {
                                   spacing: context.s(12),
                                   children: [
                                     Container(
-                                      height: context.s(48),
-                                      width: context.s(48),
                                       padding: Dis.all(context.s(8)),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(4),
-                                        color: selectedCategory.value.contains(item.id) ? theme.white : theme.scaffoldBgColor,
+                                        color: selectedCategory.value.isEmpty ? theme.white : theme.scaffoldBgColor,
                                       ),
                                       child: Center(
-                                        child: item.icon == null
-                                            ? Text(
-                                                item.name.trim().isNotEmpty ? item.name.trim()[0] : "🍜",
-                                                style: TextStyle(
-                                                  fontSize: context.s(24),
-                                                  fontFamily: boldFamily,
-                                                ),
-                                              )
-                                            : SvgPicture.asset(
-                                                item.icon ?? '',
-                                                width: context.s(32),
-                                                height: context.s(32),
-                                                colorFilter: ColorFilter.mode(
-                                                  selectedCategory.value.contains(item.id) ? theme.mainColor : theme.secondaryTextColor,
-                                                  BlendMode.color,
-                                                ),
-                                              ),
+                                        child: Icon(
+                                          Ionicons.grid_outline,
+                                          size: context.s(32),
+                                          color: selectedCategory.value.isEmpty ? theme.mainColor : theme.secondaryTextColor,
+                                        ),
                                       ),
                                     ),
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.start,
                                       children: [
                                         Text(
-                                          item.name,
+                                          AppLocales.all.tr(),
                                           style: TextStyle(
                                             fontSize: context.s(16),
                                             fontFamily: mediumFamily,
-                                            color: selectedCategory.value.contains(item.id) ? Colors.white : theme.textColor,
+                                            color: selectedCategory.value.isEmpty ? Colors.white : theme.textColor,
                                           ),
                                         ),
                                         Text(
-                                          "${'productCount'.tr()}: ${getProductCount(item.id)}",
+                                          "${'productCount'.tr()}: ${getProductCount(0)}",
                                           style: TextStyle(
                                             fontSize: context.s(14),
                                             fontFamily: regularFamily,
-                                            color: selectedCategory.value.contains(item.id) ? Colors.white : theme.secondaryTextColor,
+                                            color: selectedCategory.value.isEmpty ? Colors.white : theme.secondaryTextColor,
                                           ),
-                                        ),
+                                        )
                                       ],
-                                    ),
+                                    )
                                   ],
                                 ),
                               ),
                             ),
-                        ],
+                            for (final item in categories)
+                              WebButton(
+                                onPressed: () {
+                                  selectedCategory.value = item.id;
+                                },
+                                builder: (focused) => Container(
+                                  padding: Dis.all(context.s(12)),
+                                  decoration: BoxDecoration(
+                                    color: selectedCategory.value.contains(item.id) ? theme.mainColor : Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: focused
+                                        ? Border.all(color: theme.mainColor)
+                                        : Border.all(
+                                            color: selectedCategory.value.contains(item.id) ? theme.mainColor : Colors.white,
+                                          ),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    spacing: context.s(12),
+                                    children: [
+                                      Container(
+                                        height: context.s(48),
+                                        width: context.s(48),
+                                        padding: Dis.all(context.s(8)),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(4),
+                                          color: selectedCategory.value.contains(item.id) ? theme.white : theme.scaffoldBgColor,
+                                        ),
+                                        child: Center(
+                                          child: item.icon == null
+                                              ? Text(
+                                                  item.name.trim().isNotEmpty ? item.name.trim()[0] : "🍜",
+                                                  style: TextStyle(
+                                                    fontSize: context.s(24),
+                                                    fontFamily: boldFamily,
+                                                  ),
+                                                )
+                                              : SvgPicture.asset(
+                                                  item.icon ?? '',
+                                                  width: context.s(32),
+                                                  height: context.s(32),
+                                                  colorFilter: ColorFilter.mode(
+                                                    selectedCategory.value.contains(item.id) ? theme.mainColor : theme.secondaryTextColor,
+                                                    BlendMode.color,
+                                                  ),
+                                                ),
+                                        ),
+                                      ),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            item.name,
+                                            style: TextStyle(
+                                              fontSize: context.s(16),
+                                              fontFamily: mediumFamily,
+                                              color: selectedCategory.value.contains(item.id) ? Colors.white : theme.textColor,
+                                            ),
+                                          ),
+                                          Text(
+                                            "${'productCount'.tr()}: ${getProductCount(item.id)}",
+                                            style: TextStyle(
+                                              fontSize: context.s(14),
+                                              fontFamily: regularFamily,
+                                              color: selectedCategory.value.contains(item.id) ? Colors.white : theme.secondaryTextColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

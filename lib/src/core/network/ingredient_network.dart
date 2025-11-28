@@ -24,7 +24,7 @@ class IngredientNetwork {
     clientId = await _getDeviceId();
     _isConnected = await network.isConnected();
     _onSyncOwnerChanges();
-    _onSyncIngredients();
+    onSyncIngredients();
   }
 
   Future<void> _onSyncOwnerChanges() async {
@@ -46,7 +46,7 @@ class IngredientNetwork {
     }
   }
 
-  Future<void> _onSyncIngredients() async {
+  Future<void> onSyncIngredients() async {
     if (!_isConnected) return;
     List<Change> creates = [];
     List<Change> updates = [];

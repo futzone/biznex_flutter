@@ -582,4 +582,5 @@ abstract class AppLocales {
   static var isUnlimitedModeHint = "isUnlimitedModeHint";
   static var firstSaveOrder = "firstSaveOrder";
   static var payments = "payments";
+  static var generalPrint = "generalPrint";
 }
