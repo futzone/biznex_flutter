@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:io';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/controllers/order_controller.dart';
 import 'package:biznex/src/core/config/router.dart';
@@ -43,6 +42,7 @@ class OrderItemsPage extends HookConsumerWidget {
     final mobile = getDeviceType(context) == DeviceType.mobile;
     // final orderItems = ref.watch(orderSetProvider);
     // final orderNotifier = ref.read(orderSetProvider.notifier);
+    final currentEmployee = ref.watch(currentEmployeeProvider);
 
     final scheduledTime = useState<DateTime?>(null);
     final useCheck = useState(true);
@@ -91,8 +91,9 @@ class OrderItemsPage extends HookConsumerWidget {
       data: (order) {
         final percentSum =
             (totalPrice + (order?.place.price ?? 0.0)) * (totalPercents / 100);
-        final finalPrice =
-            totalPrice + percentSum + (order?.place.price ?? 0.0);
+        final finalPrice = totalPrice +
+            (place.percentNull ? 0 : percentSum) +
+            (order?.place.price ?? 0.0);
         final noteController = useTextEditingController(text: order?.note);
         final customerNotifier = useState<Customer?>(order?.customer);
         final addressController =
@@ -121,6 +122,7 @@ class OrderItemsPage extends HookConsumerWidget {
                       children: [
                         for (final item in placeOrderItems)
                           OrderItemCardNew(
+                            employee: currentEmployee,
                             item: item,
                             theme: theme,
                             order: order,

@@ -1,17 +1,17 @@
 import 'dart:developer';
-import 'dart:io';
+
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/controllers/order_controller.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/providers/minimalistic_menu_provider.dart';
 import 'package:biznex/src/ui/screens/order_screens/order_item_detail_screen.dart';
-import 'package:biznex/src/ui/screens/products_screens/product_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import '../../../core/extensions/device_type.dart';
+import '../../../core/model/employee_models/employee_model.dart';
 import '../../../core/model/order_models/order_model.dart';
 import '../../widgets/custom/app_file_image.dart';
 
@@ -20,12 +20,14 @@ class OrderItemCardNew extends HookConsumerWidget {
   final AppColors theme;
   final bool infoView;
   final Order? order;
+  final Employee employee;
 
   const OrderItemCardNew({
     super.key,
     this.order,
     this.infoView = false,
     required this.item,
+    required this.employee,
     required this.theme,
   });
 
@@ -96,6 +98,9 @@ class OrderItemCardNew extends HookConsumerWidget {
     void updateAmount(num newAmount) {
       OrderItem kItem = item;
       kItem.amount = newAmount.toDouble();
+
+      log("${item.amount}");
+
       if (OrderController.hasNegativeItem(ref,
           savedList: order?.products ?? [], item: kItem)) {
         ShowToast.error(context, AppLocales.doNotDecreaseText.tr());
@@ -139,6 +144,8 @@ class OrderItemCardNew extends HookConsumerWidget {
       updateAmount(newAmount);
     }
 
+    bool isAdmin = employee.roleName.toLowerCase() == 'admin';
+
     return AppStateWrapper(builder: (theme, _) {
       if (mobile) {
         return Padding(
@@ -158,6 +165,16 @@ class OrderItemCardNew extends HookConsumerWidget {
                   child: OrderItemDetailScreen(
                     product: item,
                     onDeletePressed: () {
+                      if(order == null) {
+                        orderNotifier.deleteItem(item, context, order);
+                      }
+
+                      if (!isAdmin) {
+                        ShowToast.error(
+                            context, AppLocales.doNotDecreaseText.tr());
+                        return;
+                      }
+
                       if (OrderController.hasNegativeItem(ref,
                           savedList: order?.products ?? [], item: item)) {
                         ShowToast.error(
@@ -189,6 +206,15 @@ class OrderItemCardNew extends HookConsumerWidget {
             },
             child: Dismissible(
               onDismissed: (_) {
+                if(order == null) {
+                  orderNotifier.deleteItem(item, context, order);
+                }
+
+                if (!isAdmin) {
+                  ShowToast.error(context, AppLocales.doNotDecreaseText.tr());
+                  return;
+                }
+
                 if (OrderController.hasNegativeItem(ref,
                     savedList: order?.products ?? [], item: item)) {
                   ShowToast.error(context, AppLocales.doNotDecreaseText.tr());
@@ -279,48 +305,50 @@ class OrderItemCardNew extends HookConsumerWidget {
                           iconSize: 20,
                         ),
                       ),
-                      ElevatedButton.icon(
-                        icon: Icon(Icons.remove, size: 20),
-                        onPressed: () {
-                          if (OrderController.hasNegativeItem(ref,
-                              savedList: order?.products ?? [], item: item)) {
-                            ShowToast.error(
-                                context, AppLocales.doNotDecreaseText.tr());
+                      if (!isAdmin)
+                        ElevatedButton.icon(
+                          icon: Icon(Icons.remove, size: 20),
+                          onPressed: () {
+                            if (OrderController.hasNegativeItem(ref,
+                                savedList: order?.products ?? [], item: item)) {
+                              ShowToast.error(
+                                  context, AppLocales.doNotDecreaseText.tr());
 
-                            return;
-                          }
+                              return;
+                            }
 
-                          if (item.amount >= 1) updateAmount(item.amount - 1);
-                        },
-                        label: Text("1"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red.shade100,
-                          padding: Dis.only(lr: 12, tb: 8),
-                          iconSize: 20,
+                            if (item.amount >= 1) updateAmount(item.amount - 1);
+                          },
+                          label: Text("1"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red.shade100,
+                            padding: Dis.only(lr: 12, tb: 8),
+                            iconSize: 20,
+                          ),
                         ),
-                      ),
-                      ElevatedButton.icon(
-                        icon: Icon(Icons.remove, size: 20),
-                        onPressed: () {
-                          if (OrderController.hasNegativeItem(ref,
-                              savedList: order?.products ?? [], item: item)) {
-                            ShowToast.error(
-                                context, AppLocales.doNotDecreaseText.tr());
+                      if (itemIsSaved.value || isAdmin)
+                        ElevatedButton.icon(
+                          icon: Icon(Icons.remove, size: 20),
+                          onPressed: () {
+                            if (OrderController.hasNegativeItem(ref,
+                                savedList: order?.products ?? [], item: item)) {
+                              ShowToast.error(
+                                  context, AppLocales.doNotDecreaseText.tr());
 
-                            return;
-                          }
+                              return;
+                            }
 
-                          if (item.amount >= 0.1) {
-                            updateAmount(item.amount - 0.1);
-                          }
-                        },
-                        label: Text("0.1"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red.shade100,
-                          padding: Dis.only(lr: 12, tb: 8),
-                          iconSize: 20,
+                            if (item.amount >= 0.1) {
+                              updateAmount(item.amount - 0.1);
+                            }
+                          },
+                          label: Text("0.1"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red.shade100,
+                            padding: Dis.only(lr: 12, tb: 8),
+                            iconSize: 20,
+                          ),
                         ),
-                      ),
                     ],
                   )
                 ],
@@ -339,6 +367,18 @@ class OrderItemCardNew extends HookConsumerWidget {
                   body: OrderItemDetailScreen(
                     product: item,
                     onDeletePressed: () {
+                      if(order == null) {
+                        orderNotifier.deleteItem(item, context, order);
+                      }
+
+
+                      if (!isAdmin ) {
+                        ShowToast.error(
+                            context, AppLocales.doNotDecreaseText.tr());
+
+                        return;
+                      }
+
                       if (OrderController.hasNegativeItem(ref,
                           savedList: order?.products ?? [], item: item)) {
                         ShowToast.error(
@@ -435,169 +475,90 @@ class OrderItemCardNew extends HookConsumerWidget {
                 )
               : Column(
                   children: [
-                    if (minimalistic) ...[
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        spacing: context.h(12),
-                        children: [
-                          Expanded(
-                            child: Text(
-                              product.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  fontSize: context.s(14),
-                                  fontFamily: regularFamily),
-                            ),
-                          ),
-                          if (!infoView)
-                            Expanded(
-                              child: SizedBox(
-                                // width: double.infinity,
-                                child: TextField(
-                                  controller: totalPriceController,
-                                  textAlign: TextAlign.start,
-                                  keyboardType: TextInputType.numberWithOptions(
-                                      decimal: true),
-                                  style: TextStyle(color: theme.textColor),
-                                  cursorHeight: context.h(16),
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.grey.shade100,
-                                    isDense: true,
-                                    hintText: "Umumiy narx",
-                                    contentPadding: Dis.only(
-                                        tb: context.h(8), lr: context.w(12)),
-                                    suffixIcon: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'UZS',
-                                          style: TextStyle(
-                                            fontSize: context.s(16),
-                                            fontFamily: regularFamily,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    constraints:
-                                        const BoxConstraints(maxWidth: 120),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.transparent),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.transparent),
-                                    ),
-                                    disabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.transparent),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: theme.mainColor),
-                                    ),
-                                  ),
-                                  onSubmitted: (text) {
-                                    final value = _tryParseNum(text);
-                                    if (value != null) {
-                                      updateTotalPrice(value);
-                                    } else {
-                                      _updateControllerText(
-                                          totalPriceController,
-                                          item.amount * product.price);
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                "Noto'g'ri narx kiritildi!")),
-                                      );
-                                    }
-                                  },
-                                  onTapOutside: (_) {
-                                    final value =
-                                        _tryParseNum(totalPriceController.text);
-                                    final currentDisplayedPrice =
-                                        item.amount * product.price;
-
-                                    if (value != null &&
-                                        _formatDecimal(value) !=
-                                            _formatDecimal(
-                                                currentDisplayedPrice)) {
-                                      updateTotalPrice(value);
-                                    } else if (value == null &&
-                                        totalPriceController.text.isNotEmpty) {
-                                      _updateControllerText(
-                                          totalPriceController,
-                                          currentDisplayedPrice);
-                                    } else if (value != null &&
-                                        _formatDecimal(value) ==
-                                            _formatDecimal(
-                                                currentDisplayedPrice)) {
-                                      _updateControllerText(
-                                          totalPriceController,
-                                          currentDisplayedPrice);
-                                    }
-                                    FocusScope.of(context).unfocus();
-                                  },
-                                ),
-                              ),
-                            )
-                          else
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        AppFileImage(
+                          name: product.name,
+                          path: product.images?.firstOrNull,
+                          size: context.s(94),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              spacing: context.h(12),
                               children: [
-                                if (!infoView &&
-                                    product.size != null &&
-                                    product.size!.isNotEmpty)
-                                  Text(product.size ?? '',
-                                      style: TextStyle(
-                                          color: theme.secondaryTextColor)),
-                                if (!infoView &&
-                                    product.size != null &&
-                                    product.size!.isNotEmpty)
-                                  SizedBox(width: 16),
+                                Text(
+                                  product.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                      fontSize: context.s(14),
+                                      fontFamily: regularFamily),
+                                ),
                                 if (!infoView)
                                   SizedBox(
-                                    width: context.w(120),
+                                    width: double.infinity,
                                     child: TextField(
                                       controller: totalPriceController,
-                                      textAlign: TextAlign.center,
+                                      textAlign: TextAlign.start,
                                       keyboardType:
                                           TextInputType.numberWithOptions(
                                               decimal: true),
                                       style: TextStyle(color: theme.textColor),
                                       cursorHeight: context.h(16),
                                       decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.grey.shade100,
                                         isDense: true,
                                         hintText: "Umumiy narx",
                                         contentPadding: Dis.only(
-                                            tb: context.h(8), lr: context.w(4)),
+                                            tb: context.h(8),
+                                            lr: context.w(12)),
+                                        suffixIcon: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              'UZS',
+                                              style: TextStyle(
+                                                fontSize: context.s(16),
+                                                fontFamily: regularFamily,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                         constraints:
                                             const BoxConstraints(maxWidth: 120),
                                         border: OutlineInputBorder(
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(24)),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                           borderSide: BorderSide(
-                                              color: theme.mainColor),
+                                              color: Colors.transparent),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                              color: Colors.transparent),
+                                        ),
+                                        disabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                              color: Colors.transparent),
                                         ),
                                         focusedBorder: OutlineInputBorder(
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(24)),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                           borderSide: BorderSide(
-                                              color: theme.mainColor,
-                                              width: 2.0),
+                                              color: theme.mainColor),
                                         ),
                                       ),
                                       onSubmitted: (text) {
@@ -644,513 +605,144 @@ class OrderItemCardNew extends HookConsumerWidget {
                                         FocusScope.of(context).unfocus();
                                       },
                                     ),
-                                  ),
-                                if (infoView)
-                                  Text(
-                                    "${_formatDecimal(item.amount)} × ${product.price.priceUZS}",
-                                    style: TextStyle(
-                                        fontFamily: boldFamily,
-                                        fontSize: context.s(16)),
+                                  )
+                                else
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      if (!infoView &&
+                                          product.size != null &&
+                                          product.size!.isNotEmpty)
+                                        Text(product.size ?? '',
+                                            style: TextStyle(
+                                                color:
+                                                    theme.secondaryTextColor)),
+                                      if (!infoView &&
+                                          product.size != null &&
+                                          product.size!.isNotEmpty)
+                                        SizedBox(width: 16),
+                                      if (!infoView)
+                                        SizedBox(
+                                          width: context.w(120),
+                                          child: TextField(
+                                            controller: totalPriceController,
+                                            textAlign: TextAlign.center,
+                                            keyboardType:
+                                                TextInputType.numberWithOptions(
+                                                    decimal: true),
+                                            style: TextStyle(
+                                                color: theme.textColor),
+                                            cursorHeight: context.h(16),
+                                            decoration: InputDecoration(
+                                              isDense: true,
+                                              hintText: "Umumiy narx",
+                                              contentPadding: Dis.only(
+                                                  tb: context.h(8),
+                                                  lr: context.w(4)),
+                                              constraints: const BoxConstraints(
+                                                  maxWidth: 120),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    const BorderRadius.all(
+                                                        Radius.circular(24)),
+                                                borderSide: BorderSide(
+                                                    color: theme.mainColor),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    const BorderRadius.all(
+                                                        Radius.circular(24)),
+                                                borderSide: BorderSide(
+                                                    color: theme.mainColor,
+                                                    width: 2.0),
+                                              ),
+                                            ),
+                                            onSubmitted: (text) {
+                                              final value = _tryParseNum(text);
+                                              if (value != null) {
+                                                updateTotalPrice(value);
+                                              } else {
+                                                _updateControllerText(
+                                                    totalPriceController,
+                                                    item.amount *
+                                                        product.price);
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                      content: Text(
+                                                          "Noto'g'ri narx kiritildi!")),
+                                                );
+                                              }
+                                            },
+                                            onTapOutside: (_) {
+                                              final value = _tryParseNum(
+                                                  totalPriceController.text);
+                                              final currentDisplayedPrice =
+                                                  item.amount * product.price;
+
+                                              if (value != null &&
+                                                  _formatDecimal(value) !=
+                                                      _formatDecimal(
+                                                          currentDisplayedPrice)) {
+                                                updateTotalPrice(value);
+                                              } else if (value == null &&
+                                                  totalPriceController
+                                                      .text.isNotEmpty) {
+                                                _updateControllerText(
+                                                    totalPriceController,
+                                                    currentDisplayedPrice);
+                                              } else if (value != null &&
+                                                  _formatDecimal(value) ==
+                                                      _formatDecimal(
+                                                          currentDisplayedPrice)) {
+                                                _updateControllerText(
+                                                    totalPriceController,
+                                                    currentDisplayedPrice);
+                                              }
+                                              FocusScope.of(context).unfocus();
+                                            },
+                                          ),
+                                        ),
+                                      if (infoView)
+                                        Text(
+                                          "${_formatDecimal(item.amount)} × ${product.price.priceUZS}",
+                                          style: TextStyle(
+                                              fontFamily: boldFamily,
+                                              fontSize: context.s(16)),
+                                        ),
+                                    ],
                                   ),
                               ],
                             ),
-                        ],
-                      ),
-                      8.h,
-                      if (infoView)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "${AppLocales.total.tr()}:",
-                              style: TextStyle(fontSize: context.s(18)),
-                            ),
-                            Text(
-                              (item.amount * item.product.price).priceUZS,
-                              style: TextStyle(
-                                  fontSize: context.s(18),
-                                  fontFamily: boldFamily),
-                            ),
-                          ],
+                          ),
                         ),
-                      if (!infoView)
-                        Row(
-                          spacing: context.w(12),
-                          children: [
-                            SimpleButton(
-                              onPressed: () {
-                                if (OrderController.hasNegativeItem(ref,
-                                    savedList: order?.products ?? [],
-                                    item: item)) {
-                                  ShowToast.error(context,
-                                      AppLocales.doNotDecreaseText.tr());
-
-                                  return;
-                                }
-
-                                orderNotifier.deleteItem(item, context, order);
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(40),
-                                  border: Border.all(color: Colors.red),
-                                ),
-                                height: context.s(40),
-                                width: context.s(40),
-                                child: Center(
-                                  child: Icon(
-                                    Iconsax.trash_copy,
-                                    color: Colors.red,
-                                    size: context.s(24),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            if (minimalistic)
-                              SimpleButton(
-                                onPressed: () {
-                                  updateAmount(item.amount + 1);
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(40),
-                                    color: theme.mainColor,
-                                    border: Border.all(color: theme.mainColor),
-                                  ),
-                                  height: context.s(40),
-                                  width: context.s(40),
-                                  child: Center(
-                                    child: Icon(
-                                      Icons.add,
-                                      color: Colors.white,
-                                      size: context.s(24),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            SimpleButton(
-                              onPressed: () {
-                                if (OrderController.hasNegativeItem(ref,
-                                    savedList: order?.products ?? [],
-                                    item: item)) {
-                                  ShowToast.error(context,
-                                      AppLocales.doNotDecreaseText.tr());
-
-                                  return;
-                                }
-
-                                updateAmount(item.amount - 1);
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(40),
-                                  color: theme.scaffoldBgColor,
-                                  border:
-                                      Border.all(color: theme.scaffoldBgColor),
-                                ),
-                                height: context.s(40),
-                                width: context.s(40),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.remove,
-                                    color: Colors.black,
-                                    size: context.s(24),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: TextField(
-                                controller: amountController,
-                                textAlign: TextAlign.start,
-                                keyboardType: TextInputType.numberWithOptions(
-                                    decimal: true),
-                                style: TextStyle(color: theme.textColor),
-                                cursorHeight: context.h(16),
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.grey.shade100,
-                                  isDense: true,
-                                  hintText: "Miqdor",
-                                  contentPadding: Dis.only(
-                                      tb: context.h(8), lr: context.w(12)),
-                                  suffixIcon: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        product.measure ?? '',
-                                        style: TextStyle(
-                                          fontSize: context.s(16),
-                                          fontFamily: regularFamily,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  constraints:
-                                      const BoxConstraints(maxWidth: 120),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                        BorderSide(color: Colors.transparent),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                        BorderSide(color: Colors.transparent),
-                                  ),
-                                  disabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                        BorderSide(color: Colors.transparent),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                        BorderSide(color: theme.mainColor),
-                                  ),
-                                ),
-                                onSubmitted: (text) {
-                                  final value = _tryParseNum(text);
-                                  if (value != null) {
-                                    updateAmount(value);
-                                  } else {
-                                    _updateControllerText(
-                                        amountController, item.amount);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                              "Noto'g'ri miqdor kiritildi!")),
-                                    );
-                                  }
-                                },
-                                onTapOutside: (_) {
-                                  final value =
-                                      _tryParseNum(amountController.text);
-
-                                  if (value != null &&
-                                      _formatDecimal(value) !=
-                                          _formatDecimal(item.amount)) {
-                                    updateAmount(value);
-                                  } else if (value == null &&
-                                      amountController.text.isNotEmpty) {
-                                    _updateControllerText(
-                                        amountController, item.amount);
-                                  } else if (value != null &&
-                                      _formatDecimal(value) ==
-                                          _formatDecimal(item.amount)) {
-                                    _updateControllerText(
-                                        amountController, item.amount);
-                                  }
-                                  FocusScope.of(context).unfocus();
-                                },
-                              ),
-                            ),
-                            if (!minimalistic)
-                              SimpleButton(
-                                onPressed: () {
-                                  updateAmount(item.amount + 1);
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(40),
-                                    color: theme.mainColor,
-                                    border: Border.all(color: theme.mainColor),
-                                  ),
-                                  height: context.s(40),
-                                  width: context.s(40),
-                                  child: Center(
-                                    child: Icon(
-                                      Icons.add,
-                                      color: Colors.white,
-                                      size: context.s(24),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      Container(
-                        margin: Dis.only(top: context.h(16)),
-                        height: 1,
-                        width: double.infinity,
-                        color: theme.accentColor,
-                      ),
-                    ] else ...[
+                      ],
+                    ),
+                    8.h,
+                    if (infoView)
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          AppFileImage(
-                            name: product.name,
-                            path: product.images?.firstOrNull,
-                            size: context.s(94),
+                          Text(
+                            "${AppLocales.total.tr()}:",
+                            style: TextStyle(fontSize: context.s(18)),
                           ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                spacing: context.h(12),
-                                children: [
-                                  Text(
-                                    product.name,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                        fontSize: context.s(14),
-                                        fontFamily: regularFamily),
-                                  ),
-                                  if (!infoView)
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: TextField(
-                                        controller: totalPriceController,
-                                        textAlign: TextAlign.start,
-                                        keyboardType:
-                                            TextInputType.numberWithOptions(
-                                                decimal: true),
-                                        style:
-                                            TextStyle(color: theme.textColor),
-                                        cursorHeight: context.h(16),
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.grey.shade100,
-                                          isDense: true,
-                                          hintText: "Umumiy narx",
-                                          contentPadding: Dis.only(
-                                              tb: context.h(8),
-                                              lr: context.w(12)),
-                                          suffixIcon: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                'UZS',
-                                                style: TextStyle(
-                                                  fontSize: context.s(16),
-                                                  fontFamily: regularFamily,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          constraints: const BoxConstraints(
-                                              maxWidth: 120),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            borderSide: BorderSide(
-                                                color: Colors.transparent),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            borderSide: BorderSide(
-                                                color: Colors.transparent),
-                                          ),
-                                          disabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            borderSide: BorderSide(
-                                                color: Colors.transparent),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            borderSide: BorderSide(
-                                                color: theme.mainColor),
-                                          ),
-                                        ),
-                                        onSubmitted: (text) {
-                                          final value = _tryParseNum(text);
-                                          if (value != null) {
-                                            updateTotalPrice(value);
-                                          } else {
-                                            _updateControllerText(
-                                                totalPriceController,
-                                                item.amount * product.price);
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                  content: Text(
-                                                      "Noto'g'ri narx kiritildi!")),
-                                            );
-                                          }
-                                        },
-                                        onTapOutside: (_) {
-                                          final value = _tryParseNum(
-                                              totalPriceController.text);
-                                          final currentDisplayedPrice =
-                                              item.amount * product.price;
-
-                                          if (value != null &&
-                                              _formatDecimal(value) !=
-                                                  _formatDecimal(
-                                                      currentDisplayedPrice)) {
-                                            updateTotalPrice(value);
-                                          } else if (value == null &&
-                                              totalPriceController
-                                                  .text.isNotEmpty) {
-                                            _updateControllerText(
-                                                totalPriceController,
-                                                currentDisplayedPrice);
-                                          } else if (value != null &&
-                                              _formatDecimal(value) ==
-                                                  _formatDecimal(
-                                                      currentDisplayedPrice)) {
-                                            _updateControllerText(
-                                                totalPriceController,
-                                                currentDisplayedPrice);
-                                          }
-                                          FocusScope.of(context).unfocus();
-                                        },
-                                      ),
-                                    )
-                                  else
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        if (!infoView &&
-                                            product.size != null &&
-                                            product.size!.isNotEmpty)
-                                          Text(product.size ?? '',
-                                              style: TextStyle(
-                                                  color: theme
-                                                      .secondaryTextColor)),
-                                        if (!infoView &&
-                                            product.size != null &&
-                                            product.size!.isNotEmpty)
-                                          SizedBox(width: 16),
-                                        if (!infoView)
-                                          SizedBox(
-                                            width: context.w(120),
-                                            child: TextField(
-                                              controller: totalPriceController,
-                                              textAlign: TextAlign.center,
-                                              keyboardType: TextInputType
-                                                  .numberWithOptions(
-                                                      decimal: true),
-                                              style: TextStyle(
-                                                  color: theme.textColor),
-                                              cursorHeight: context.h(16),
-                                              decoration: InputDecoration(
-                                                isDense: true,
-                                                hintText: "Umumiy narx",
-                                                contentPadding: Dis.only(
-                                                    tb: context.h(8),
-                                                    lr: context.w(4)),
-                                                constraints:
-                                                    const BoxConstraints(
-                                                        maxWidth: 120),
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(24)),
-                                                  borderSide: BorderSide(
-                                                      color: theme.mainColor),
-                                                ),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(24)),
-                                                  borderSide: BorderSide(
-                                                      color: theme.mainColor,
-                                                      width: 2.0),
-                                                ),
-                                              ),
-                                              onSubmitted: (text) {
-                                                final value =
-                                                    _tryParseNum(text);
-                                                if (value != null) {
-                                                  updateTotalPrice(value);
-                                                } else {
-                                                  _updateControllerText(
-                                                      totalPriceController,
-                                                      item.amount *
-                                                          product.price);
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    SnackBar(
-                                                        content: Text(
-                                                            "Noto'g'ri narx kiritildi!")),
-                                                  );
-                                                }
-                                              },
-                                              onTapOutside: (_) {
-                                                final value = _tryParseNum(
-                                                    totalPriceController.text);
-                                                final currentDisplayedPrice =
-                                                    item.amount * product.price;
-
-                                                if (value != null &&
-                                                    _formatDecimal(value) !=
-                                                        _formatDecimal(
-                                                            currentDisplayedPrice)) {
-                                                  updateTotalPrice(value);
-                                                } else if (value == null &&
-                                                    totalPriceController
-                                                        .text.isNotEmpty) {
-                                                  _updateControllerText(
-                                                      totalPriceController,
-                                                      currentDisplayedPrice);
-                                                } else if (value != null &&
-                                                    _formatDecimal(value) ==
-                                                        _formatDecimal(
-                                                            currentDisplayedPrice)) {
-                                                  _updateControllerText(
-                                                      totalPriceController,
-                                                      currentDisplayedPrice);
-                                                }
-                                                FocusScope.of(context)
-                                                    .unfocus();
-                                              },
-                                            ),
-                                          ),
-                                        if (infoView)
-                                          Text(
-                                            "${_formatDecimal(item.amount)} × ${product.price.priceUZS}",
-                                            style: TextStyle(
-                                                fontFamily: boldFamily,
-                                                fontSize: context.s(16)),
-                                          ),
-                                      ],
-                                    ),
-                                ],
-                              ),
-                            ),
+                          Text(
+                            (item.amount * item.product.price).priceUZS,
+                            style: TextStyle(
+                                fontSize: context.s(18),
+                                fontFamily: boldFamily),
                           ),
                         ],
                       ),
-                      8.h,
-                      if (infoView)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "${AppLocales.total.tr()}:",
-                              style: TextStyle(fontSize: context.s(18)),
-                            ),
-                            Text(
-                              (item.amount * item.product.price).priceUZS,
-                              style: TextStyle(
-                                  fontSize: context.s(18),
-                                  fontFamily: boldFamily),
-                            ),
-                          ],
-                        ),
-                      if (!infoView)
-                        Row(
-                          spacing: context.w(12),
-                          children: [
+                    if (!infoView)
+                      Row(
+                        spacing: context.w(12),
+                        children: [
+                          if (isAdmin)
                             SimpleButton(
                               onPressed: () {
                                 if (OrderController.hasNegativeItem(ref,
@@ -1179,6 +771,7 @@ class OrderItemCardNew extends HookConsumerWidget {
                                 ),
                               ),
                             ),
+                          if (isAdmin || itemIsSaved.value)
                             SimpleButton(
                               onPressed: () {
                                 if (OrderController.hasNegativeItem(ref,
@@ -1195,8 +788,9 @@ class OrderItemCardNew extends HookConsumerWidget {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(40),
                                   color: theme.scaffoldBgColor,
-                                  border:
-                                      Border.all(color: theme.scaffoldBgColor),
+                                  border: Border.all(
+                                    color: theme.scaffoldBgColor,
+                                  ),
                                 ),
                                 height: context.s(40),
                                 width: context.s(40),
@@ -1209,124 +803,129 @@ class OrderItemCardNew extends HookConsumerWidget {
                                 ),
                               ),
                             ),
-                            Expanded(
-                              child: TextField(
-                                controller: amountController,
-                                textAlign: TextAlign.start,
-                                keyboardType: TextInputType.numberWithOptions(
-                                    decimal: true),
-                                style: TextStyle(color: theme.textColor),
-                                cursorHeight: context.h(16),
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.grey.shade100,
-                                  isDense: true,
-                                  hintText: "Miqdor",
-                                  contentPadding: Dis.only(
-                                      tb: context.h(8), lr: context.w(12)),
-                                  suffixIcon: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        product.measure ?? '',
-                                        style: TextStyle(
-                                          fontSize: context.s(16),
-                                          fontFamily: regularFamily,
-                                        ),
+                          Expanded(
+                            child: TextField(
+                              controller: amountController,
+                              textAlign: TextAlign.start,
+                              keyboardType: TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
+                              style: TextStyle(color: theme.textColor),
+                              cursorHeight: context.h(16),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.grey.shade100,
+                                isDense: true,
+                                hintText: "Miqdor",
+                                contentPadding: Dis.only(
+                                    tb: context.h(8), lr: context.w(12)),
+                                suffixIcon: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      product.measure ?? '',
+                                      style: TextStyle(
+                                        fontSize: context.s(16),
+                                        fontFamily: regularFamily,
                                       ),
-                                    ],
-                                  ),
-                                  constraints:
-                                      const BoxConstraints(maxWidth: 120),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                        BorderSide(color: Colors.transparent),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                        BorderSide(color: Colors.transparent),
-                                  ),
-                                  disabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                        BorderSide(color: Colors.transparent),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                        BorderSide(color: theme.mainColor),
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                                onSubmitted: (text) {
-                                  final value = _tryParseNum(text);
-                                  if (value != null) {
-                                    updateAmount(value);
-                                  } else {
-                                    _updateControllerText(
-                                        amountController, item.amount);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text(
-                                              "Noto'g'ri miqdor kiritildi!")),
-                                    );
-                                  }
-                                },
-                                onTapOutside: (_) {
-                                  final value =
-                                      _tryParseNum(amountController.text);
-
-                                  if (value != null &&
-                                      _formatDecimal(value) !=
-                                          _formatDecimal(item.amount)) {
-                                    updateAmount(value);
-                                  } else if (value == null &&
-                                      amountController.text.isNotEmpty) {
-                                    _updateControllerText(
-                                        amountController, item.amount);
-                                  } else if (value != null &&
-                                      _formatDecimal(value) ==
-                                          _formatDecimal(item.amount)) {
-                                    _updateControllerText(
-                                        amountController, item.amount);
-                                  }
-                                  FocusScope.of(context).unfocus();
-                                },
+                                constraints:
+                                    const BoxConstraints(maxWidth: 120),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide:
+                                      BorderSide(color: Colors.transparent),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide:
+                                      BorderSide(color: Colors.transparent),
+                                ),
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide:
+                                      BorderSide(color: Colors.transparent),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide:
+                                      BorderSide(color: theme.mainColor),
+                                ),
                               ),
-                            ),
-                            SimpleButton(
-                              onPressed: () {
-                                updateAmount(item.amount + 1);
+                              onSubmitted: (text) {
+                                final value = _tryParseNum(text);
+                                if (value != null) {
+                                  if (!itemIsSaved.value &&
+                                      item.amount < value) {
+                                    updateAmount(value);
+                                  }
+                                } else {
+                                  _updateControllerText(
+                                      amountController, item.amount);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            "Noto'g'ri miqdor kiritildi!")),
+                                  );
+                                }
                               },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(40),
-                                  color: theme.mainColor,
-                                  border: Border.all(color: theme.mainColor),
-                                ),
-                                height: context.s(40),
-                                width: context.s(40),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.add,
-                                    color: Colors.white,
-                                    size: context.s(24),
-                                  ),
+                              onTapOutside: (_) {
+                                final value =
+                                    _tryParseNum(amountController.text);
+
+                                if (value != null &&
+                                    _formatDecimal(value) !=
+                                        _formatDecimal(item.amount)) {
+                                  if (!itemIsSaved.value &&
+                                      item.amount < value) {
+                                    updateAmount(value);
+                                  }
+                                } else if (value == null &&
+                                    amountController.text.isNotEmpty) {
+                                  _updateControllerText(
+                                      amountController, item.amount);
+                                } else if (value != null &&
+                                    _formatDecimal(value) ==
+                                        _formatDecimal(item.amount)) {
+                                  _updateControllerText(
+                                      amountController, item.amount);
+                                }
+                                FocusScope.of(context).unfocus();
+                              },
+                            ),
+                          ),
+                          SimpleButton(
+                            onPressed: () {
+                              updateAmount(item.amount + 1);
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(40),
+                                color: theme.mainColor,
+                                border: Border.all(color: theme.mainColor),
+                              ),
+                              height: context.s(40),
+                              width: context.s(40),
+                              child: Center(
+                                child: Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                  size: context.s(24),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                      Container(
-                        margin: Dis.only(top: context.h(16)),
-                        height: 1,
-                        width: double.infinity,
-                        color: theme.accentColor,
+                          ),
+                        ],
                       ),
-                    ]
+                    Container(
+                      margin: Dis.only(top: context.h(16)),
+                      height: 1,
+                      width: double.infinity,
+                      color: theme.accentColor,
+                    ),
                   ],
                 ),
         ),

@@ -29,7 +29,8 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
   final Isar isar = IsarDatabase.instance.isar;
 
   void _localChangesSync() async {
-    if (!(await Network().isConnected())) return;
+    log("sync changes working");
+    if (!(await Network().isConnected(skipPassword: true))) return;
 
     final app = await stateDatabase.getApp();
 
@@ -37,7 +38,6 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
     final changesList = await _changesDatabase.get();
     for (final item in changesList) {
       try {
-        log("sync changes working");
         ChangesController changesController = ChangesController(item);
         await changesController.saveStatus();
         await _changesDatabase.delete(key: item.id);
@@ -47,20 +47,16 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
     IngredientNetwork ingredientNetwork = IngredientNetwork(changesList);
     await ingredientNetwork.init();
 
-    final box = await ingredientNetwork.recipeDatabase.ingredientsBox();
-    box.watch().listen((_) async {
-      log("ingredient listener: ping");
-      await ingredientNetwork.onSyncIngredients();
-    });
-
-    NetworkServices networkServices = NetworkServices();
-    final client = await widget.ref.watch(clientStateProvider.future);
-    if (client == null) return;
-    Client neClient = client;
-    neClient.updatedAt = DateTime.now().toIso8601String();
-    networkServices.updateClient(neClient).then((_) {
-      widget.ref.invalidate(clientStateProvider);
-    });
+    try {
+      NetworkServices networkServices = NetworkServices();
+      final client = await widget.ref.watch(clientStateProvider.future);
+      if (client == null) return;
+      Client neClient = client;
+      neClient.updatedAt = DateTime.now().toIso8601String();
+      networkServices.updateClient(neClient).then((_) {
+        widget.ref.invalidate(clientStateProvider);
+      });
+    } catch (_) {}
   }
 
   void _onListenChanges() async {
@@ -74,6 +70,7 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
   @override
   void initState() {
     super.initState();
+    _localChangesSync();
     _onListenChanges();
   }
 

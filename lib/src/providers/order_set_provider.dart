@@ -54,8 +54,9 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
 
   void removeItem(OrderItem item, AppModel model, context) {
     final current = ref.watch(currentEmployeeProvider);
-    if (current.roleName.toLowerCase() != 'admin' && _itemIsSaved(item, null))
+    if (current.roleName.toLowerCase() != 'admin' && _itemIsSaved(item, null)) {
       return;
+    }
 
     final index = state.indexWhere(
         (e) => e.product.id == item.product.id && e.placeId == item.placeId);
@@ -71,6 +72,20 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
   }
 
   void deleteItem(OrderItem item, context, Order? kOrder) async {
+    if(kOrder == null) {
+      final index = state.indexWhere(
+              (e) => e.product.id == item.product.id && e.placeId == item.placeId);
+      if (index != -1) {
+        state = [
+          ...state.where((e) =>
+          !(e.product.id == item.product.id && e.placeId == item.placeId))
+        ];
+      }
+
+      _onDeleteCache(item.placeId, ref);
+      return;
+    }
+
     final current = ref.watch(currentEmployeeProvider);
     if (current.roleName.toLowerCase() != 'admin' &&
         _itemIsSaved(item, kOrder)) {
@@ -78,6 +93,15 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
     }
 
     final order = ref.watch(ordersProvider(item.placeId)).value;
+
+    final oldItem = (order?.products ?? [])
+        .where((e) => e.product.id == item.product.id)
+        .firstOrNull;
+
+    if (oldItem != null && current.roleName.toLowerCase() != 'admin') {
+      ShowToast.error(context, AppLocales.doNotDecreaseText.tr());
+      return;
+    }
 
     if (order != null &&
         order.products.isNotEmpty &&

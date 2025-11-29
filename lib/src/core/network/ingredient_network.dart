@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:biznex/src/core/database/product_database/recipe_database.dart';
 import 'package:biznex/src/core/model/app_changes_model.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
@@ -16,6 +19,31 @@ class IngredientNetwork {
   final LicenseServices licenseServices = LicenseServices();
   final RecipeDatabase recipeDatabase = RecipeDatabase();
 
+  Future<void> create() async {
+    if (!_isConnected) return;
+    final List list = [];
+    final ingredients = await recipeDatabase.getIngredients();
+    for (final ing in ingredients) {
+      list.add({
+        "id": ing.id,
+        "client_id": clientId,
+        "name": ing.name,
+        "last_updater": "local",
+        "created_at": ing.createdAt.toIso8601String(),
+        "updated_at": ing.updatedAt.toIso8601String(),
+        "price": ing.unitPrice,
+        "amount": ing.quantity,
+      });
+    }
+
+    await network
+        .post(
+          ApiEndpoints.ingredients,
+          body: list,
+        )
+        .then(printResponse);
+  }
+
   Future<String> _getDeviceId() async {
     return await licenseServices.getDeviceId() ?? '';
   }
@@ -23,8 +51,9 @@ class IngredientNetwork {
   Future<void> init() async {
     clientId = await _getDeviceId();
     _isConnected = await network.isConnected();
-    _onSyncOwnerChanges();
-    onSyncIngredients();
+    await create();
+    await _onSyncOwnerChanges();
+    await onSyncIngredients();
   }
 
   Future<void> _onSyncOwnerChanges() async {
@@ -48,6 +77,9 @@ class IngredientNetwork {
 
   Future<void> onSyncIngredients() async {
     if (!_isConnected) return;
+    if (changes.isEmpty) return;
+
+    log('sync for ingredients');
     List<Change> creates = [];
     List<Change> updates = [];
     List<Change> deletes = [];
@@ -149,5 +181,11 @@ class IngredientNetwork {
         }
       }
     }
+
+    log('sync for ingredients completed');
+  }
+
+  void printResponse(bool value) {
+    log('create ing-s: $value');
   }
 }

@@ -34,24 +34,37 @@ class OrderInfoScreen extends HookConsumerWidget {
             children: [
               2.h,
               AppText.$18Bold(AppLocales.orderItems.tr()),
-              for (final item in order.products) OrderItemCardNew(item: item, theme: theme, infoView: true),
+              for (final item in order.products)
+                OrderItemCardNew(
+                  item: item,
+                  theme: theme,
+                  infoView: true,
+                  employee: currentEmployee,
+                ),
               0.h,
               Row(
                 children: [
-                  Text("${AppLocales.status.tr()}: ", style: TextStyle(fontSize: 16)),
+                  Text("${AppLocales.status.tr()}: ",
+                      style: TextStyle(fontSize: 16)),
                   AppText.$18Bold(order.status?.tr() ?? ''),
                   Spacer(),
-                  Text("${AppLocales.total.tr()}: ", style: TextStyle(fontSize: 16)),
+                  Text("${AppLocales.total.tr()}: ",
+                      style: TextStyle(fontSize: 16)),
                   AppText.$18Bold(order.price.priceUZS),
                 ],
               ),
               0.h,
               Row(
                 children: [
-                  Text("${AppLocales.place.tr()}: ", style: TextStyle(fontSize: 16)),
-                  AppText.$18Bold((order.place.father == null || order.place.father!.name.isEmpty) ? order.place.name : "${order.place.father?.name}, ${order.place.name}"),
+                  Text("${AppLocales.place.tr()}: ",
+                      style: TextStyle(fontSize: 16)),
+                  AppText.$18Bold((order.place.father == null ||
+                          order.place.father!.name.isEmpty)
+                      ? order.place.name
+                      : "${order.place.father?.name}, ${order.place.name}"),
                   Spacer(),
-                  Text("${order.employee.roleName}: ", style: TextStyle(fontSize: 16)),
+                  Text("${order.employee.roleName}: ",
+                      style: TextStyle(fontSize: 16)),
                   AppText.$18Bold(order.employee.fullname),
                 ],
               ),
@@ -59,8 +72,11 @@ class OrderInfoScreen extends HookConsumerWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if (order.customer != null) Text("${AppLocales.customer.tr()}: ", style: TextStyle(fontSize: 16)),
-                  if (order.customer != null) AppText.$18Bold(order.customer!.name),
+                  if (order.customer != null)
+                    Text("${AppLocales.customer.tr()}: ",
+                        style: TextStyle(fontSize: 16)),
+                  if (order.customer != null)
+                    AppText.$18Bold(order.customer!.name),
                   Spacer(),
                   AppPrimaryButton(
                     color: theme.accentColor,
@@ -74,7 +90,8 @@ class OrderInfoScreen extends HookConsumerWidget {
                       ],
                     ),
                     onPressed: () {
-                      PrinterServices printerServices = PrinterServices(order: order, model: state);
+                      PrinterServices printerServices =
+                          PrinterServices(order: order, model: state);
                       printerServices.printOrderCheck();
                     },
                   ),
@@ -86,8 +103,10 @@ class OrderInfoScreen extends HookConsumerWidget {
                   spacing: 4,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("${AppLocales.orderNote.tr()}: ", style: TextStyle(fontSize: 16)),
-                    Text(order.note ?? '', style: TextStyle(fontSize: 16, fontFamily: boldFamily)),
+                    Text("${AppLocales.orderNote.tr()}: ",
+                        style: TextStyle(fontSize: 16)),
+                    Text(order.note ?? '',
+                        style: TextStyle(fontSize: 16, fontFamily: boldFamily)),
                   ],
                 ),
               16.h,
@@ -149,7 +168,8 @@ class ConfirmPaymentScreen extends HookConsumerWidget {
                       child: AppTextField(
                         onlyRead: true,
                         title: AppLocales.paymentType.tr(),
-                        controller: TextEditingController(text: selectedMethod.value.tr()),
+                        controller: TextEditingController(
+                            text: selectedMethod.value.tr()),
                         theme: theme,
                       ),
                     ),
@@ -159,9 +179,11 @@ class ConfirmPaymentScreen extends HookConsumerWidget {
                   child: AppPrimaryButton(
                     theme: theme,
                     onPressed: () {
-                      TransactionController transactionController = TransactionController(context: context, state: state);
+                      TransactionController transactionController =
+                          TransactionController(context: context, state: state);
                       Transaction transaction = Transaction(
-                        value: double.tryParse(priceController.text.trim()) ?? 0.0,
+                        value:
+                            double.tryParse(priceController.text.trim()) ?? 0.0,
                         paymentType: selectedMethod.value,
                         order: order,
                         employee: ref.watch(currentEmployeeProvider),
@@ -188,7 +210,8 @@ class ConfirmPaymentScreen extends HookConsumerWidget {
             builder: (transactions) {
               transactions as List<Transaction>;
 
-              final list = transactions.where((el) => el.order?.id == order?.id);
+              final list =
+                  transactions.where((el) => el.order?.id == order?.id);
 
               return Column(
                 children: [
