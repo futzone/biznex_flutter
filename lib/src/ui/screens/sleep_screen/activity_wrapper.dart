@@ -44,8 +44,8 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
       } catch (_) {}
     }
 
-    IngredientNetwork ingredientNetwork = IngredientNetwork(changesList);
-    await ingredientNetwork.init();
+    IngredientNetwork ingredientNetwork = IngredientNetwork();
+    await ingredientNetwork.init(false);
 
     try {
       NetworkServices networkServices = NetworkServices();

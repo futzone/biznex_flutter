@@ -7,6 +7,7 @@ import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/model/product_models/recipe_item_model.dart';
 import 'package:biznex/src/core/model/product_models/recipe_model.dart';
+import 'package:biznex/src/core/utils/action_listener.dart';
 import 'package:hive/hive.dart';
 
 import '../../../controllers/warehouse_monitoring_controller.dart';
@@ -75,6 +76,8 @@ class RecipeDatabase {
     changesDatabase.set(
       data: Change(database: ingBox, method: "delete", itemId: id),
     );
+
+    ActionController.add('value');
   }
 
   Future<void> deleteRecipe(id) async {
@@ -130,6 +133,8 @@ class RecipeDatabase {
       );
     }
 
+    ActionController.add('value');
+
     await box.put(ing.id, ing.toMap());
   }
 
@@ -145,5 +150,7 @@ class RecipeDatabase {
     await changesDatabase.set(
       data: Change(database: ingBox, method: "clear", itemId: "all"),
     );
+
+    ActionController.add('value');
   }
 }

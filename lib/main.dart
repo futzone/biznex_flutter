@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
+import 'package:biznex/src/core/utils/action_listener.dart';
 import 'package:biznex/src/core/utils/printer_fonts.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/license_status_provider.dart';
@@ -19,7 +20,7 @@ import 'package:toastification/toastification.dart';
 import 'package:path/path.dart' as path;
 
 bool debugMode = true;
-const appVersion = '2.5.7';
+const appVersion = '2.5.8';
 const appPageSize = 30;
 
 void main() async {
@@ -36,7 +37,12 @@ void main() async {
 
     Hive.init(dir.path);
     await IsarDatabase.instance.init(isarDir.path);
-    await PrinterFonts.instance.init();
+
+    await ActionController.onSyncOwner(false);
+
+    ActionController.stream.listen((_) async {
+      await ActionController.onSyncOwner(false);
+    });
 
     startServer();
   } else {
@@ -81,8 +87,6 @@ void main() async {
       ),
     ),
   );
-
-
 
   // runZonedGuarded(() async {
   //   WidgetsFlutterBinding.ensureInitialized();

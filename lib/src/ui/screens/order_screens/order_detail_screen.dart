@@ -31,7 +31,6 @@ class OrderDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log(order.paymentTypes.toString());
     return AppStateWrapper(builder: (theme, state) {
       return SingleChildScrollView(
         padding: Dis.all(context.s(16)),
@@ -216,8 +215,42 @@ class OrderDetail extends StatelessWidget {
               ),
             0.h,
             Container(
-                height: 1, color: Colors.grey.shade200, width: double.infinity),
+              height: 1,
+              color: Colors.grey.shade200,
+              width: double.infinity,
+            ),
             0.h,
+            if (order.customer != null && order.customer!.name.isNotEmpty) ...[
+              Container(
+                height: 1,
+                color: Colors.grey.shade200,
+                width: double.infinity,
+              ),
+              0.h,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppLocales.customer.tr(),
+                    style: TextStyle(
+                      fontSize: context.s(18),
+                      fontFamily: mediumFamily,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                  Text(
+                    "${order.customer?.name}, ${order.customer?.phone}",
+                    style: TextStyle(
+                      fontSize: context.s(16),
+                      fontFamily: mediumFamily,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+              0.h,
+            ],
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

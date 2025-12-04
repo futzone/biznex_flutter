@@ -1,15 +1,7 @@
-import 'dart:developer';
 import 'package:biznex/src/controllers/app_subscription_controller.dart';
-import 'package:biznex/src/core/database/isar_database/isar.dart';
-import 'package:biznex/src/core/model/order_models/order.dart';
-import 'package:biznex/src/core/model/transaction_model/transaction_isar.dart';
 import 'package:biznex/src/core/services/license_services.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
-import 'package:biznex/src/providers/employee_orders_provider.dart';
-import 'package:biznex/src/providers/orders_provider.dart';
-import 'package:biznex/src/providers/transaction_provider.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
-import 'package:isar/isar.dart';
 import '../../../../biznex.dart';
 import '../../../core/database/app_database/app_state_database.dart';
 
@@ -52,13 +44,11 @@ class _ActivationTestPageState extends State<ActivationCodeScreen> {
     });
   }
 
-
-
   @override
   void initState() {
     super.initState();
     _initialize();
-   }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -20,7 +20,7 @@ class EmployeeMonitoringPage extends HookConsumerWidget {
   final AppColors theme;
   final Employee employee;
 
-  EmployeeMonitoringPage(this.theme, this.employee, {super.key});
+  const EmployeeMonitoringPage(this.theme, this.employee, {super.key});
 
   // Map _calculateProductOrder(DateTime day, List<Order> orders) {
   //   final Map<String, dynamic> categoryMap = {};
