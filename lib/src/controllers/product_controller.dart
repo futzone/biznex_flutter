@@ -50,8 +50,8 @@ class ProductController extends AppController {
 
     for (final item in images ?? []) {
       try {
-        final path = await ImageService.copyImageToAppFolder(item.toString());
-        kImages.add(path);
+        // final path = await ImageService.copyImageToAppFolder(item.toString());
+        // kImages.add(path);
       } catch (error) {
         log(error.toString());
       }
@@ -103,8 +103,8 @@ class ProductController extends AppController {
 
     for (final item in images ?? []) {
       try {
-        final path = await ImageService.copyImageToAppFolder(item.toString());
-        kImages.add(path);
+        // final path = await ImageService.copyImageToAppFolder(item.toString());
+        // kImages.add(path);
       } catch (error) {
         log("image update error: ", error: error);
       }

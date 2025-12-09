@@ -30,9 +30,9 @@ class RecipeController {
   }) async {
     String? imageUrl;
     if (product.images?.firstOrNull != null) {
-      imageUrl = await ImageService.copyImageToAppFolder(
-        product.images?.firstOrNull ?? '',
-      );
+      // imageUrl = await ImageService.copyImageToAppFolder(
+      //   product.images?.firstOrNull ?? '',
+      // );
     }
 
     final Ingredient ingredient = Ingredient(
@@ -79,7 +79,7 @@ class RecipeController {
   }) async {
     String? imageUrl;
     if (image != null && image.isNotEmpty) {
-      imageUrl = await ImageService.copyImageToAppFolder(image);
+      // imageUrl = await ImageService.copyImageToAppFolder(image);
     }
 
     if (name != null && name.isEmpty && id == null) {

@@ -21,14 +21,6 @@ class OrderPercentDatabase extends AppDatabase {
     final box = await openBox(boxName);
     await box.delete(key);
 
-    await changesDatabase.set(
-      data: Change(
-        database: boxName,
-        method: 'delete',
-        itemId: key,
-        data: "${percent.name} (${percent.percent}%)",
-      ),
-    );
   }
 
   @override
@@ -66,14 +58,7 @@ class OrderPercentDatabase extends AppDatabase {
     final box = await openBox(boxName);
     await box.put(productInfo.id, productInfo.toJson());
 
-    await changesDatabase.set(
-      data: Change(
-        database: boxName,
-        method: 'create',
-        itemId: productInfo.id,
-        // data: "${percent.name} (${percent.percent}%)",
-      ),
-    );
+
   }
 
   @override

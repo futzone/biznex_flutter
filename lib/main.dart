@@ -20,7 +20,7 @@ import 'package:toastification/toastification.dart';
 import 'package:path/path.dart' as path;
 
 bool debugMode = true;
-const appVersion = '2.5.8';
+const appVersion = '2.5.9';
 const appPageSize = 30;
 
 void main() async {
@@ -64,12 +64,12 @@ void main() async {
   // await onGenerateCyrillLocalization();
   // await DatabaseSchema().test();
 
-  final container = ProviderContainer();
-  try {
-    await container.read(placesProvider.future);
-    await container.read(employeeProvider.future);
-    await container.read(productsProvider.future);
-  } catch (_) {}
+  // final container = ProviderContainer();
+  // try {
+  //   await container.read(placesProvider.future);
+  //   await container.read(employeeProvider.future);
+  //   await container.read(productsProvider.future);
+  // } catch (_) {}
 
   runApp(
     EasyLocalization(
@@ -81,8 +81,8 @@ void main() async {
       ],
       fallbackLocale: const Locale('uz', 'UZ'),
       path: 'assets/localization',
-      child: UncontrolledProviderScope(
-        container: container,
+      child: ProviderScope(
+        // container: container,
         child: MyApp(),
       ),
     ),

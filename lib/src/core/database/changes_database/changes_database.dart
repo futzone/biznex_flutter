@@ -1,17 +1,16 @@
 import 'package:biznex/src/controllers/changes_controller.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/model/app_changes_model.dart';
+import 'package:uuid/uuid.dart';
 
-class ChangesDatabase extends AppDatabase {
+class ChangesDatabase {
   final String boxName = 'changes';
 
-  @override
   Future delete({required String key}) async {
     final box = await openBox(boxName);
     await box.delete(key);
   }
 
-  @override
   Future<List<Change>> get() async {
     final box = await openBox(boxName);
     final boxData = box.values;
@@ -24,7 +23,16 @@ class ChangesDatabase extends AppDatabase {
     return productInfoList;
   }
 
-  @override
+  Future<Box> openBox(String boxName) async {
+    final box = await Hive.openBox(boxName);
+    return box;
+  }
+
+  String get generateID {
+    var uuid = Uuid();
+    return uuid.v1();
+  }
+
   Future<void> set({required data}) async {
     if (data is! Change) return;
 
@@ -35,7 +43,6 @@ class ChangesDatabase extends AppDatabase {
     await box.put(productInfo.id, productInfo.toJson());
   }
 
-  @override
   Future<void> update({required String key, required data}) async {
     if (data is! Change) return;
 

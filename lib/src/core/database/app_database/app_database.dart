@@ -16,6 +16,8 @@ abstract class AppDatabase {
   bool isClientApp = false;
   String? baseUrl;
 
+  final ChangesDatabase changesDatabase = ChangesDatabase();
+
   Future<void> set({required dynamic data});
 
   Future<void> update({required String key, required dynamic data});
@@ -34,7 +36,6 @@ abstract class AppDatabase {
     return uuid.v1();
   }
 
-  ChangesDatabase get changesDatabase => ChangesDatabase();
 
   Future<String?> connectionStatus() async {
     final url = await AppStateDatabase().getApp();

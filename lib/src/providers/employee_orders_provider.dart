@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
@@ -26,16 +28,23 @@ bool haveInPlaces(Order order, String placeId) {
 
 final employeeOrdersProvider = FutureProvider<List<Order>>((ref) async {
   final employee = ref.watch(currentEmployeeProvider);
-  final orderDatabase = IsarDatabase.instance.isar;
-  final employeeOrders = await orderDatabase.orderIsars
-      .where()
-      .filter()
-      .createdDateStartsWith(DateTime.now().toIso8601String().split("T").first)
-      .employee((e) => e.idEqualTo(employee.id))
-      .sortByCreatedDateDesc()
-      .findAll();
+  if (Platform.isWindows) {
+    final orderDatabase = IsarDatabase.instance.isar;
+    final employeeOrders = await orderDatabase.orderIsars
+        .where()
+        .filter()
+        .createdDateStartsWith(
+            DateTime.now().toIso8601String().split("T").first)
+        .employee((e) => e.idEqualTo(employee.id))
+        .sortByCreatedDateDesc()
+        .findAll();
 
-  return employeeOrders.map((l) => Order.fromIsar(l)).toList();
+    return employeeOrders.map((l) => Order.fromIsar(l)).toList();
+  }
+
+  OrderDatabase orderDatabase = OrderDatabase();
+  final orders = await orderDatabase.getOrders();
+  return [...orders.where((e) => e.employee.id == employee.id)];
 });
 
 final orderLengthProvider = FutureProvider((ref) async {

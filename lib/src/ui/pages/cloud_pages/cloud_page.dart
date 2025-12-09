@@ -1,12 +1,9 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/controllers/cloud_data_controller.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
-import 'package:biznex/src/core/extensions/for_dynamic.dart';
 import 'package:biznex/src/core/model/cloud_models/client.dart';
-import 'package:biznex/src/core/network/network_services.dart';
 import 'package:biznex/src/core/services/license_services.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:biznex/src/ui/pages/main_pages/main_page.dart';
@@ -15,7 +12,6 @@ import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
-import 'package:flutter/services.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -28,9 +24,6 @@ class CloudPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final passwordController = useTextEditingController();
     final expireDateController = useTextEditingController();
-    final channelAddressController = useTextEditingController();
-    final tokenController = useTextEditingController();
-    final countController = useTextEditingController();
     return AppStateWrapper(
       builder: (theme, state) {
         return Scaffold(
@@ -56,8 +49,10 @@ class CloudPage extends HookConsumerWidget {
                           Center(
                             child: GestureDetector(
                               onLongPress: () async {
-                                final deviceID = await LicenseServices().getDeviceId();
-                                CloudDataController cloudDataController = CloudDataController();
+                                final deviceID =
+                                    await LicenseServices().getDeviceId();
+                                CloudDataController cloudDataController =
+                                    CloudDataController();
                                 cloudDataController.networkServices
                                     .deleteClient(
                                   deviceID ?? '',
@@ -97,7 +92,8 @@ class CloudPage extends HookConsumerWidget {
                                 lastDate: DateTime(2100),
                               ).then((date) {
                                 if (date != null) {
-                                  expireDateController.text = DateFormat('yyyy-MM-dd').format(date);
+                                  expireDateController.text =
+                                      DateFormat('yyyy-MM-dd').format(date);
                                 }
                               });
                             },
@@ -131,8 +127,11 @@ class CloudPage extends HookConsumerWidget {
 
                               await Future.delayed(Duration(milliseconds: 300));
                               showAppLoadingTitleDialog(context);
-                              CloudSynchronisingController cSc = CloudSynchronisingController();
-                              cSc.syncData().then((_) => AppRouter.close(context));
+                              CloudSynchronisingController cSc =
+                                  CloudSynchronisingController();
+                              cSc
+                                  .syncData()
+                                  .then((_) => AppRouter.close(context));
                             },
                           ),
                         ],
@@ -165,7 +164,8 @@ class CloudPage extends HookConsumerWidget {
                           ),
                         ),
                         Container(
-                          padding: Dis.only(lr: context.w(16), tb: context.h(8)),
+                          padding:
+                              Dis.only(lr: context.w(16), tb: context.h(8)),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
                             color: theme.white,
@@ -216,13 +216,15 @@ class CloudPage extends HookConsumerWidget {
                                   ),
                                   16.h,
                                   QrImageView(
-                                    data: "${client.id}#${client.hiddenPassword}",
+                                    data:
+                                        client.id,
                                     version: QrVersions.auto,
                                     // size: context.s(400.0),
                                   ),
                                   16.h,
                                   Text(
-                                    AppLocales.cloudAddressQrCodeDescription.tr(),
+                                    AppLocales.cloudAddressQrCodeDescription
+                                        .tr(),
                                     style: TextStyle(
                                       fontSize: context.s(14),
                                       fontFamily: regularFamily,
