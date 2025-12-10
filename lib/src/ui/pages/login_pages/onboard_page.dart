@@ -75,7 +75,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                               theme: theme,
                               useBorder: true,
                               fillColor: theme.accentColor,
-                              // textInputType: TextInputType.,
+                              textInputType: TextInputType.numberWithOptions(decimal: true),
                             ),
                             AppPrimaryButton(
                               padding: Dis.only(tb: 12),
