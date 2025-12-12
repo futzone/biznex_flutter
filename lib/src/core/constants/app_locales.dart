@@ -583,4 +583,7 @@ abstract class AppLocales {
   static var firstSaveOrder = "firstSaveOrder";
   static var payments = "payments";
   static var generalPrint = "generalPrint";
+  static var enterPlacePercent = "enterPlacePercent";
+  static var placePercent = "placePercent";
+  static var placePercentProfit = "placePercentProfit";
 }

@@ -23,6 +23,7 @@ class AddPlace extends HookWidget {
     final percentNull = useState(editCategory?.percentNull ?? false);
     final numberController = useTextEditingController();
     final priceController = useTextEditingController();
+    final percentController = useTextEditingController();
     return AppStateWrapper(
       builder: (theme, state) {
         return SingleChildScrollView(
@@ -39,11 +40,26 @@ class AddPlace extends HookWidget {
               ),
               24.h,
               AppText.$18Bold(AppLocales.placePrice.tr(), padding: 8.bottom),
-              AppTextField(
-                title: AppLocales.placePriceHint.tr(),
-                controller: priceController,
-                theme: theme,
-                textInputType: TextInputType.number,
+              Row(
+                spacing: 16,
+                children: [
+                  Expanded(
+                    child: AppTextField(
+                      title: AppLocales.placePriceHint.tr(),
+                      controller: priceController,
+                      theme: theme,
+                      textInputType: TextInputType.number,
+                    ),
+                  ),
+                  Expanded(
+                    child: AppTextField(
+                      title: AppLocales.enterPlacePercent.tr(),
+                      controller: percentController,
+                      theme: theme,
+                      textInputType: TextInputType.number,
+                    ),
+                  ),
+                ],
               ),
               24.h,
               AppText.$18Bold(AppLocales.placesCount.tr(), padding: 8.bottom),
@@ -66,6 +82,7 @@ class AddPlace extends HookWidget {
                 onConfirm: () async {
                   final count = int.tryParse(numberController.text.trim());
                   final price = double.tryParse(priceController.text.trim());
+                  final percent = double.tryParse(percentController.text.trim());
                   PlaceController controller =
                       PlaceController(context: context, state: state);
                   if (nameController.text.trim().isEmpty) {
@@ -82,6 +99,7 @@ class AddPlace extends HookWidget {
                       place.children!.add(
                         Place(
                           price: price,
+                          percent: percent,
                           name: nameController.text.tr(),
                           id: ProductUtils.generateID,
                         ),
@@ -91,6 +109,7 @@ class AddPlace extends HookWidget {
                         place.children!.add(
                           Place(
                             price: price,
+                            percent: percent,
                             name: "$i - ${nameController.text.tr()}",
                             id: ProductUtils.generateID,
                           ),
@@ -109,6 +128,7 @@ class AddPlace extends HookWidget {
                     place.name = nameController.text.trim();
                     place.percentNull = percentNull.value;
                     place.price = price;
+                    place.percent = percent;
                     father.children ??= [];
                     father.children = [
                       place,
@@ -127,6 +147,7 @@ class AddPlace extends HookWidget {
                         percentNull: percentNull.value,
                         father: addSubcategoryTo,
                         price: price,
+                        percent: percent,
                       );
                       controller.create(category);
                     } else {
@@ -135,7 +156,9 @@ class AddPlace extends HookWidget {
                             name: "$i - ${nameController.text}",
                             percentNull: percentNull.value,
                             father: addSubcategoryTo,
-                            price: price);
+                            price: price,
+                          percent: percent,
+                        );
                         controller.create(category, multiple: true);
                       }
                     }
@@ -145,6 +168,7 @@ class AddPlace extends HookWidget {
                   Place category = editCategory!;
                   category.name = nameController.text;
                   category.price = price;
+                  category.percent = percent;
                   category.percentNull = percentNull.value;
                   await controller.update(category, category.id);
                 },

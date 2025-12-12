@@ -472,5 +472,11 @@
   "payments": "Payments",
   "firstSaveOrder": "Please save the order first!",
   "doNotDecreaseText": "Don't try to decrease. You're not admin",
-  "subscriptionPaymentTextForCode": "Your subscription has expired. To continue your subscription, please make a payment and tell us the following code:"
+  "subscriptionPaymentTextForCode": "Your subscription has expired. To continue your subscription, please make a payment and tell us the following code:",
+  "address": "Address",
+  "phone": "Phone number",
+  "generalPrint": "General print",
+  "enterPlacePercent": "Enter percentage for place",
+  "placePercent": "Percent for place",
+  "placePercentProfit": "Profit from place percentage"
 }

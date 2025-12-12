@@ -31,7 +31,6 @@ class CustomerController extends AppController {
         showAppLoadingDialog(context);
         CustomerDatabase sizeDatabase = CustomerDatabase();
         await sizeDatabase.delete(key: key).then((_) {
-          state.ref!.invalidate(customerProvider);
           closeLoading();
         });
       },

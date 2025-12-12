@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-
-import 'package:biznex/main.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/database/changes_database/changes_database.dart';
@@ -10,11 +8,9 @@ import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/isar_database/isar_extension.dart';
 import 'package:biznex/src/core/database/transactions_database/transactions_database.dart';
 import 'package:biznex/src/core/model/order_models/order.dart';
-import 'package:biznex/src/core/model/order_models/order_filter_model.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
-
 import '../../../../biznex.dart';
 import '../../../controllers/warehouse_monitoring_controller.dart';
 import '../../model/app_changes_model.dart';
@@ -106,7 +102,6 @@ class OrderDatabase extends OrderDatabaseRepository {
   }
 
   Future<void> saveOrder(Order order) async {
-
     if ((await connectionStatus()) != null) {
       await postRemote(path: 'orders', data: jsonEncode(order.toJson()));
       return;
@@ -115,16 +110,13 @@ class OrderDatabase extends OrderDatabaseRepository {
     final placeOrder = await getPlaceOrderIsar(order.place.id);
     if (placeOrder == null) {
       order.id = generateID;
-      log("Saving place price: ${order.place.price}");
       await isar.writeTxn(() async {
         OrderIsar orderIsar = order.toIsar();
         orderIsar.closed = true;
         orderIsar.status = Order.completed;
-        log("Saving place price (isar): ${orderIsar.place.price}");
         await isar.orderIsars.put(orderIsar);
       });
     } else {
-      log("2 Saving place price: ${order.place.price}");
       order.id = placeOrder.id;
       await isar.writeTxn(() async {
         OrderIsar orderIsar = order.toIsar();
@@ -132,7 +124,6 @@ class OrderDatabase extends OrderDatabaseRepository {
         orderIsar.status = Order.completed;
         orderIsar.isarId = placeOrder.isarId;
         await isar.orderIsars.put(orderIsar);
-        log("2 Saving place price (isar): ${orderIsar.place.price}");
       });
     }
 
@@ -354,10 +345,8 @@ class OrderDatabase extends OrderDatabaseRepository {
         }
         await productDatabase.update(key: product.id, data: product);
       }
-
-      log("Update amounts completed for: ${order.id}");
-    } catch (_) {
-      log("Error on update amounts: ", error: _);
+    } catch (e) {
+      log("Error on update amounts: ", error: e);
 
       ///
     }

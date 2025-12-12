@@ -223,16 +223,14 @@ class AppSidebar extends HookConsumerWidget {
                     sidebarItemBuilder(
                         Iconsax.chart_square, AppLocales.reports.tr(), 7),
                     sidebarItemBuilder(
-                        Iconsax.profile_2user, AppLocales.employees.tr(), 8),
+                        Iconsax.user_square, AppLocales.employees.tr(), 8),
+
+                    sidebarItemBuilder(
+                        Iconsax.profile_2user_copy, AppLocales.customers.tr(), 13),
 
                     if(!state.offline)
-                    state.whenProviderData(
-                      provider: clientStateProvider,
-                      builder: (data) {
-                        return sidebarItemBuilder(
-                            Iconsax.cloud_copy, AppLocales.cloudData.tr(), 11);
-                      },
-                    ),
+                      sidebarItemBuilder(
+                          Iconsax.cloud_copy, AppLocales.cloudData.tr(), 11),
                     SimpleButton(
                       onPressed: () async {
                         final isFullScreen = await ScreenDatabase.get();

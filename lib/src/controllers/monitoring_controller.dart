@@ -157,6 +157,16 @@ class MonitoringController {
       return a += orderProfit;
     });
 
+    final placePercentSumm = dayOrders.fold(0.0, (a, b) {
+      if (b.place.percent != null && b.place.percent != 0) {
+        final productsSumm =
+            b.products.fold(0.0, (k, q) => k += (q.amount * q.product.price));
+        return a += (productsSumm * 0.01 * (b.place.percent ?? 0.0));
+      }
+
+      return a;
+    });
+
     final placesTotalSumm = dayOrders.fold(0.0, (a, b) {
       if (b.place.price != null && b.place.price != 0.0) {
         return a += (b.place.price ?? 0.0);

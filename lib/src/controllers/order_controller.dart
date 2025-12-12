@@ -201,9 +201,11 @@ class OrderController {
       final totalPercent =
           percents.map((e) => e.percent).fold(0.0, (a, b) => a + b);
       finalOrder = finalOrder.copyWith(
-          price: finalOrder.price +
-              ((finalOrder.price + (finalOrder.place.price ?? 0.0)) *
-                  (totalPercent / 100)));
+        price: finalOrder.price +
+            (finalOrder.price * (finalOrder.place.percent ?? 0) * 0.01) +
+            ((finalOrder.price + (finalOrder.place.price ?? 0.0)) *
+                (totalPercent / 100)),
+      );
     }
 
     if (place.price != null) {
@@ -354,11 +356,18 @@ class OrderController {
 
     final percents = await OrderPercentDatabase().get();
     if (!place.percentNull) {
-      log(place.toJson().toString());
       final totalPercent =
           percents.map((e) => e.percent).fold(0.0, (a, b) => a + b);
       finalOrder = finalOrder.copyWith(
-          price: finalOrder.price + (finalOrder.price * (totalPercent / 100)));
+        price: finalOrder.price +
+            (finalOrder.price * (finalOrder.place.percent ?? 0) * 0.01) +
+            ((finalOrder.price + (finalOrder.place.price ?? 0.0)) *
+                (totalPercent / 100)),
+      );
+    }
+
+    if (place.price != null) {
+      finalOrder = finalOrder.copyWith(price: finalOrder.price + place.price!);
     }
 
     if (customer != null) finalOrder = finalOrder.copyWith(customer: customer);

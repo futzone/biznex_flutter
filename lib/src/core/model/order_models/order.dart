@@ -62,6 +62,10 @@ class CustomerIsar {
   String name = '';
   String phone = '';
   String id = '';
+  DateTime? created;
+  DateTime? updated;
+  String? note;
+  String? address;
 }
 
 @embedded
@@ -85,6 +89,7 @@ class PlaceIsar {
   PlaceIsar? father;
   bool percentNull = false;
   double? price;
+  double? percent;
 }
 
 @embedded

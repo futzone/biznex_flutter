@@ -234,6 +234,88 @@ class PrinterServices {
                 ),
               ],
             )),
+
+        if (order.place.percent != null && order.place.percent != 0.0) ...[
+          pw.SizedBox(height: 8),
+          dottedLine(),
+          pw.SizedBox(height: 4),
+          for (final item in percents)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 2, bottom: 2),
+              child: pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: pw.Text(
+                      "${AppLocales.placePercent.tr()} (${order.place.percent!.toMeasure} %):",
+                      style: pdfTheme,
+                      overflow: pw.TextOverflow.clip,
+                      maxLines: 2,
+                    ),
+                  ),
+                  pw.SizedBox(width: 8),
+                  pw.Text(
+                    ((order.products.fold(
+                                0.0,
+                                (tot, el) =>
+                                    tot += el.amount * el.product.price)) *
+                            (order.place.percent ?? 0.0) *
+                            0.01)
+                        .priceUZS,
+                    style: boldStyle,
+                  ),
+                ],
+              ),
+            ),
+          if (order.place.price != null)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 2, bottom: 2),
+              child: pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: pw.Text(
+                      "${AppLocales.placePrice.tr()}: ",
+                      style: pdfTheme,
+                      overflow: pw.TextOverflow.clip,
+                      maxLines: 2,
+                    ),
+                  ),
+                  pw.SizedBox(width: 8),
+                  pw.Text(
+                    "${order.place.price?.priceUZS}",
+                    style: boldStyle,
+                  ),
+                ],
+              ),
+            ),
+          if (!order.place.percentNull && (order.place.percent ?? 0) > 0)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 2, bottom: 2),
+              child: pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: pw.Text(
+                      "${AppLocales.placePercent.tr()} (${order.place.percent}%): ",
+                      style: pdfTheme,
+                      overflow: pw.TextOverflow.clip,
+                      maxLines: 2,
+                    ),
+                  ),
+                  pw.SizedBox(width: 8),
+                  pw.Text(
+                    ((order.products.fold(
+                                0.0,
+                                (tot, el) =>
+                                    tot += el.amount * el.product.price)) *
+                            (order.place.percent ?? 0) *
+                            0.01)
+                        .priceUZS,
+                    style: boldStyle,
+                  ),
+                ],
+              ),
+            ),
+        ],
+
         if ((percents.isNotEmpty && !order.place.percentNull) ||
             order.place.price != null) ...[
           pw.SizedBox(height: 8),
@@ -282,6 +364,33 @@ class PrinterServices {
                   pw.SizedBox(width: 8),
                   pw.Text(
                     "${order.place.price?.priceUZS}",
+                    style: boldStyle,
+                  ),
+                ],
+              ),
+            ),
+          if (!order.place.percentNull && (order.place.percent ?? 0) > 0)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(top: 2, bottom: 2),
+              child: pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: pw.Text(
+                      "${AppLocales.placePercent.tr()} (${order.place.percent}%): ",
+                      style: pdfTheme,
+                      overflow: pw.TextOverflow.clip,
+                      maxLines: 2,
+                    ),
+                  ),
+                  pw.SizedBox(width: 8),
+                  pw.Text(
+                    ((order.products.fold(
+                                0.0,
+                                (tot, el) =>
+                                    tot += el.amount * el.product.price)) *
+                            (order.place.percent ?? 0) *
+                            0.01)
+                        .priceUZS,
                     style: boldStyle,
                   ),
                 ],

@@ -8,6 +8,7 @@ class Place {
   Place? father;
   bool percentNull;
   double? price;
+  double? percent;
 
   String updatedDate;
 
@@ -19,12 +20,14 @@ class Place {
     this.id = '',
     this.percentNull = false,
     this.price,
+    this.percent,
     this.updatedDate = '',
   });
 
   factory Place.fromIsar(PlaceIsar isar, {bool includeFather = true}) {
     return Place(
       name: isar.name,
+      percent: isar.percent,
       id: isar.id,
       image: isar.image,
       percentNull: isar.percentNull,
@@ -44,6 +47,7 @@ class Place {
       father: json['father'] == null ? null : Place.fromJson(json['father']),
       name: json['name'] ?? '',
       price: json['price'],
+      percent: json['percent'],
       id: json['id'] ?? '',
       image: json['image'],
       percentNull: json['percentNull'] ?? false,
@@ -59,6 +63,7 @@ class Place {
       'name': name,
       'price': price,
       'id': id,
+      'percent': percent,
       'image': image,
       'percentNull': percentNull,
       'children': children != null
@@ -72,6 +77,7 @@ class Place {
     return {
       'name': name,
       'price': price,
+      'percent': percent,
       'id': id,
       'image': image,
       'percentNull': percentNull,

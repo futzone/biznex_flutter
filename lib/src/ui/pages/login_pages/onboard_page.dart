@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math' as mth;
 import 'dart:ui';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
@@ -122,6 +123,8 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                     state: state,
                   );
                 }
+
+                final random = mth.Random();
 
                 return Scaffold(
                   body: Container(

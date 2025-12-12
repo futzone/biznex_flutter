@@ -1,6 +1,5 @@
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
-import 'package:biznex/src/providers/app_state_provider.dart';
 
 const _boxName = "menu_mode";
 const _key = "key";
@@ -8,7 +7,7 @@ const _key = "key";
 Future<bool> _getMenuMode() async {
   final box = await Hive.openBox(_boxName);
   final mode = await box.get(_key);
-  return mode ?? false;
+  return mode ?? true;
 }
 
 Future<void> setMenuMode(WidgetRef ref, bool mode) async {

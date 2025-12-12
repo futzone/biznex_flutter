@@ -1,6 +1,7 @@
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/ui/pages/category_pages/category_page.dart';
 import 'package:biznex/src/ui/pages/cloud_pages/cloud_page.dart';
+import 'package:biznex/src/ui/pages/customer_pages/customers_page.dart';
 import 'package:biznex/src/ui/pages/order_pages/order_set_page.dart';
 import 'package:biznex/src/ui/pages/places_pages/places_page.dart';
 import 'package:biznex/src/ui/pages/shopping_pages/shopping_page.dart';
@@ -66,6 +67,7 @@ class MainPage extends HookConsumerWidget {
                 }
                 if (pageValue.value == 11) return CloudPage();
                 if (pageValue.value == 12) return ShoppingPage();
+                if (pageValue.value == 13) return CustomersPage();
                 return ProductsPage(fab, appbar: appbar);
               },
             ),

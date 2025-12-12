@@ -329,6 +329,35 @@ class OrderDetail extends StatelessWidget {
                   ),
                 ],
               ),
+            if (!order.place.percentNull && (order.place.percent ?? 0) > 0)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "${AppLocales.placePercent.tr()} (${order.place.percent}%)",
+                    style: TextStyle(
+                      fontSize: context.s(16),
+                      fontFamily: mediumFamily,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                  Text(
+                    (order.products.fold(0.0, (oldValue, element) {
+                              return oldValue +
+                                  (element.amount * element.product.price);
+                            }) *
+                            (order.place.percent ?? 0) *
+                            0.01)
+                        .priceUZS,
+                    style: TextStyle(
+                      fontSize: context.s(16),
+                      fontFamily: mediumFamily,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
             if (!order.place.percentNull)
               state.whenProviderData(
                 provider: orderPercentProvider,

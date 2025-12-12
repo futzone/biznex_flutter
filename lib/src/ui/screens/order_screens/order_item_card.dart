@@ -165,7 +165,7 @@ class OrderItemCardNew extends HookConsumerWidget {
                   child: OrderItemDetailScreen(
                     product: item,
                     onDeletePressed: () {
-                      if(order == null) {
+                      if (order == null) {
                         orderNotifier.deleteItem(item, context, order);
                       }
 
@@ -206,7 +206,7 @@ class OrderItemCardNew extends HookConsumerWidget {
             },
             child: Dismissible(
               onDismissed: (_) {
-                if(order == null) {
+                if (order == null) {
                   orderNotifier.deleteItem(item, context, order);
                 }
 
@@ -367,12 +367,11 @@ class OrderItemCardNew extends HookConsumerWidget {
                   body: OrderItemDetailScreen(
                     product: item,
                     onDeletePressed: () {
-                      if(order == null) {
+                      if (order == null) {
                         orderNotifier.deleteItem(item, context, order);
                       }
 
-
-                      if (!isAdmin ) {
+                      if (!isAdmin) {
                         ShowToast.error(
                             context, AppLocales.doNotDecreaseText.tr());
 
@@ -858,10 +857,7 @@ class OrderItemCardNew extends HookConsumerWidget {
                               onSubmitted: (text) {
                                 final value = _tryParseNum(text);
                                 if (value != null) {
-                                  if (!itemIsSaved.value &&
-                                      item.amount < value) {
-                                    updateAmount(value);
-                                  }
+                                  updateAmount(value);
                                 } else {
                                   _updateControllerText(
                                       amountController, item.amount);
@@ -879,10 +875,7 @@ class OrderItemCardNew extends HookConsumerWidget {
                                 if (value != null &&
                                     _formatDecimal(value) !=
                                         _formatDecimal(item.amount)) {
-                                  if (!itemIsSaved.value &&
-                                      item.amount < value) {
-                                    updateAmount(value);
-                                  }
+                                  updateAmount(value);
                                 } else if (value == null &&
                                     amountController.text.isNotEmpty) {
                                   _updateControllerText(

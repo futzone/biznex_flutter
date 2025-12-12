@@ -13,6 +13,10 @@ extension CustomerToIsar on Customer {
   CustomerIsar toIsar() => CustomerIsar()
     ..id = id
     ..name = name
+    ..updated = updated
+    ..created = created
+    ..address = address
+    ..note = note
     ..phone = phone;
 }
 
@@ -91,6 +95,7 @@ extension PlaceToIsarSafe on Place {
     if (visited.contains(id)) {
       return PlaceIsar()
         ..id = id
+        ..percent = percent
         ..name = name
         ..price = price
         ..percentNull = percentNull;
@@ -103,6 +108,7 @@ extension PlaceToIsarSafe on Place {
       ..name = name
       ..image = image
       ..price = price
+      ..percent = percent
       ..percentNull = percentNull;
 
     p.children = children?.map((c) => c.toIsar(visited: visited)).toList();
