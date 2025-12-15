@@ -583,5 +583,7 @@
   "generalPrint": "Umumiy chop etish",
   "enterPlacePercent": "Joy uchun foiz kiriting",
   "placePercent": "Joy uchun foiz",
-  "placePercentProfit": "Joy foizlaridan daromad"
+  "placePercentProfit": "Joy foizlaridan daromad",
+  "firstDecrease": "Buyurtmani yopmasdan, mahsulotlarni ayirish",
+  "deleteOrderQuestion": "Buyurtmani o'chirishni tasdiqlaysizmi? (Keyin ma'lumotlarni qayta tiklab bo'lmaydi!)"
 }

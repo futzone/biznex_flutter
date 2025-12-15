@@ -478,5 +478,7 @@
   "generalPrint": "General print",
   "enterPlacePercent": "Enter percentage for place",
   "placePercent": "Percent for place",
-  "placePercentProfit": "Profit from place percentage"
+  "placePercentProfit": "Profit from place percentage",
+  "firstDecrease": "Subtract products without closing the order",
+  "deleteOrderQuestion": "Are you sure you want to delete the order? (You can't restore the data after that!)"
 }
