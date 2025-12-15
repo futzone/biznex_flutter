@@ -586,4 +586,6 @@ abstract class AppLocales {
   static var enterPlacePercent = "enterPlacePercent";
   static var placePercent = "placePercent";
   static var placePercentProfit = "placePercentProfit";
+  static var firstDecrease = "firstDecrease";
+  static var deleteOrderQuestion = "deleteOrderQuestion";
 }

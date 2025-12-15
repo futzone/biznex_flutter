@@ -1,11 +1,17 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/controllers/order_controller.dart';
+import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/extensions/for_string.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:biznex/src/core/services/printer_services.dart';
+import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/price_percent_provider.dart';
+import 'package:biznex/src/ui/screens/order_screens/order_payment_screen.dart';
+import 'package:biznex/src/ui/widgets/custom/app_confirm_dialog.dart';
+import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
 import 'package:biznex/src/ui/widgets/custom/app_file_image.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
@@ -16,7 +22,7 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../core/extensions/color_generator.dart';
 import '../../../core/model/order_models/percent_model.dart';
 
-class OrderDetail extends StatelessWidget {
+class OrderDetail extends ConsumerWidget {
   final Order order;
 
   const OrderDetail({super.key, required this.order});
@@ -30,7 +36,8 @@ class OrderDetail extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
+    final employee = ref.watch(currentEmployeeProvider);
     return AppStateWrapper(builder: (theme, state) {
       return SingleChildScrollView(
         padding: Dis.all(context.s(16)),
@@ -109,6 +116,65 @@ class OrderDetail extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (employee.roleName.toLowerCase() == 'admin')
+                  CustomPopupMenu(
+                    theme: theme,
+                    children: [
+                      CustomPopupItem(
+                        title: AppLocales.delete.tr(),
+                        icon: Icons.delete_outline,
+                        onPressed: () {
+                          showConfirmDialog(
+                            context: context,
+                            title: AppLocales.deleteOrderQuestion.tr(),
+                            onConfirm: () {
+                              OrderController.onDeleteOrder(order.id, context)
+                                  .then((_) => AppRouter.close(context));
+                            },
+                          );
+                        },
+                      ),
+                      CustomPopupItem(
+                          title: AppLocales.paymentType.tr(),
+                          icon: Icons.payments_outlined,
+                          onPressed: () {
+                            showDesktopModal(
+                              context: context,
+                              body: OrderPaymentScreen(
+                                theme: theme,
+                                state: state,
+                                percentList: order.paymentTypes,
+                                totalSumm: order.price,
+                                onComplete: (list) {
+                                  Order newOrder = order;
+                                  newOrder.paymentTypes = list;
+                                  newOrder.updatedDate =
+                                      DateTime.now().toIso8601String();
+                                  OrderController.onUpdateOrder(
+                                          newOrder, context)
+                                      .then((_) => AppRouter.close(context));
+                                },
+                              ),
+                            );
+                          }),
+                    ],
+                    child: Container(
+                      padding: Dis.all(context.s(12)),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: colorFromStatus(order.status.toString()),
+                        ),
+                        color: colorFromStatus(order.status.toString())
+                            .withValues(alpha: 0.1),
+                      ),
+                      child: Icon(
+                        Iconsax.edit_2_copy,
+                        size: 20,
+                        color: theme.mainColor,
+                      ),
+                    ),
+                  ),
               ],
             ),
             0.h,

@@ -56,6 +56,7 @@ class AppModel {
   final bool isTablet = false;
 
   bool offline;
+  bool firstDecrease;
   bool allowCancelOrder;
 
   void console(dynamic data, {Object? error, StackTrace? stackTrace}) {
@@ -68,6 +69,7 @@ class AppModel {
 
   AppModel({
     this.offline = true,
+    this.firstDecrease = false,
     this.allowCancelOrder = false,
     this.after = true,
     this.baseUrl = '',
@@ -132,6 +134,7 @@ class AppModel {
       after: json['after'] ?? true,
       offline: json['offline'] ?? true,
       allowCancelOrder: json['allowCancelOrder'] ?? false,
+      firstDecrease: json['firstDecrease'] ?? false,
     );
   }
 
@@ -210,7 +213,8 @@ class AppModel {
       "offline": offline,
       "allowCancelOrder": allowCancelOrder,
       "generalPrintName": generalPrintName,
-      "generalPrintUrl": generalPrintUrl
+      "generalPrintUrl": generalPrintUrl,
+      "firstDecrease": firstDecrease,
     };
   }
 }

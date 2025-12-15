@@ -2,10 +2,13 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
+import 'package:biznex/src/core/database/isar_database/isar.dart';
+import 'package:biznex/src/core/database/isar_database/isar_extension.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/core/database/order_database/order_percent_database.dart';
 import 'package:biznex/src/core/database/product_database/product_database.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
+import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:biznex/src/core/model/order_models/percent_model.dart';
 import 'package:biznex/src/core/model/other_models/customer_model.dart';
@@ -20,6 +23,7 @@ import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/ui/pages/order_pages/table_choose_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
+import 'package:isar/isar.dart';
 import '../providers/recipe_providers.dart';
 
 class OrderController {
@@ -33,7 +37,41 @@ class OrderController {
     required this.employee,
   });
 
-  final OrderDatabase _database = OrderDatabase();
+  static final OrderDatabase _database = OrderDatabase();
+  static final Isar _isar = IsarDatabase.instance.isar;
+  static final ProductDatabase _productDatabase = ProductDatabase();
+
+  static Future<void> onDeleteOrder(String id, BuildContext context) async {
+    final order = await _database.getOrderIsar(id);
+    if (order != null) {
+      _isar.writeTxn(() async {
+        await _isar.orderIsars.delete(order.isarId);
+      });
+
+      for (final item in order.products) {
+        final tempProduct = await _productDatabase.getProductById(
+          item.product?.id ?? '',
+        );
+
+        if (tempProduct == null) continue;
+        tempProduct.amount = tempProduct.amount + item.amount;
+        await _productDatabase.update(key: tempProduct.id, data: tempProduct);
+      }
+    }
+  }
+
+  static Future<void> onUpdateOrder(Order order, BuildContext context) async {
+    final isarOrder = await _database.getOrderIsar(order.id);
+    if (isarOrder != null) {
+      OrderIsar orderIsar = order.toIsar();
+      orderIsar.updatedDate = DateTime.now().toIso8601String();
+      orderIsar.isarId = isarOrder.isarId;
+
+      _isar.writeTxn(() async {
+        await _isar.orderIsars.put(orderIsar);
+      });
+    }
+  }
 
   Future<void> openOrder(
     BuildContext context,

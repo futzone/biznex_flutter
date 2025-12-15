@@ -182,6 +182,12 @@ class OrderDatabase extends OrderDatabaseRepository {
     return orderIsar;
   }
 
+  Future<OrderIsar?> getOrderIsar(String orderId) async {
+    final orderIsar =
+        await isar.orderIsars.filter().idEqualTo(orderId).findFirst();
+    return orderIsar;
+  }
+
   Future<Order?> getPlaceOrder(String placeId) async {
     if ((await connectionStatus()) != null) {
       final response = await getRemote(path: 'order/$placeId');
@@ -248,6 +254,27 @@ class OrderDatabase extends OrderDatabaseRepository {
     });
 
     try {
+      final AppStateDatabase stateDatabase = AppStateDatabase();
+      final app = await stateDatabase.getApp();
+      final productDatabase = ProductDatabase();
+      if (app.firstDecrease) {
+        for (final item in data.products) {
+          final oldItem = await productDatabase.getProductById(item.product.id);
+
+          if (oldItem == null) continue;
+          if (item.amount > 0) {
+            oldItem.amount = oldItem.amount - item.amount;
+          } else {
+            oldItem.amount = oldItem.amount + item.amount;
+          }
+
+          oldItem.updatedDate = DateTime.now().toIso8601String();
+          await productDatabase.update(key: oldItem.id, data: oldItem);
+        }
+      }
+    } catch (_) {}
+
+    try {
       if (disablePrint) return;
 
       PrinterMultipleServices printerMultipleServices =
@@ -304,7 +331,29 @@ class OrderDatabase extends OrderDatabaseRepository {
       final List<OrderItem> changes =
           _onGetChanges(order.products, Order.fromIsar(orderIsar));
 
-      log('changes: ${changes.length}');
+      try {
+        final AppStateDatabase stateDatabase = AppStateDatabase();
+        final app = await stateDatabase.getApp();
+        final productDatabase = ProductDatabase();
+        if (app.firstDecrease) {
+          for (final item in changes) {
+            log("${item.amount} ${item.product.name}");
+
+            final oldItem =
+                await productDatabase.getProductById(item.product.id);
+
+            if (oldItem == null) continue;
+            if (item.amount > 0) {
+              oldItem.amount = oldItem.amount - item.amount;
+            } else {
+              oldItem.amount = oldItem.amount + (-1 * item.amount);
+            }
+
+            oldItem.updatedDate = DateTime.now().toIso8601String();
+            await productDatabase.update(key: oldItem.id, data: oldItem);
+          }
+        }
+      } catch (_) {}
 
       await printerMultipleServices.printForBack(
         order,
@@ -331,6 +380,10 @@ class OrderDatabase extends OrderDatabaseRepository {
   }
 
   Future<void> _onUpdateAmounts(Order order) async {
+    final AppStateDatabase stateDatabase = AppStateDatabase();
+    final app = await stateDatabase.getApp();
+    if (app.firstDecrease) return;
+
     try {
       ProductDatabase productDatabase = ProductDatabase();
       for (final item in order.products) {

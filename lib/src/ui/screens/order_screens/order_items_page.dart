@@ -7,6 +7,7 @@ import 'package:biznex/src/core/model/order_models/percent_model.dart';
 import 'package:biznex/src/core/model/other_models/customer_model.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
+import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/ui/pages/customer_pages/customers_page.dart';
 import 'package:biznex/src/ui/screens/order_screens/order_item_card.dart';
 import 'package:biznex/src/ui/screens/order_screens/order_payment_screen.dart';
@@ -513,6 +514,9 @@ class OrderItemsPage extends HookConsumerWidget {
                                   ///
                                   noteController.clear();
                                   AppRouter.close(context);
+
+                                  ref.refresh(productsProvider);
+                                  ref.invalidate(productsProvider);
                                 },
                                 title: AppLocales.add.tr(),
                               ),

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:biznex/src/controllers/orcer_percent_controller.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/database/changes_database/changes_database.dart';
@@ -765,6 +764,27 @@ class SettingsPageScreen extends HookConsumerWidget {
                       ),
                     );
                   },
+                ),
+                24.h,
+                Container(
+                  padding: context.s(20).all,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade200),
+                    color: Colors.white,
+                  ),
+                  child: SwitchListTile(
+                    activeThumbColor: theme.mainColor,
+                    contentPadding: Dis.only(),
+                    title: Text(AppLocales.firstDecrease.tr()),
+                    value: appState.firstDecrease,
+                    onChanged: (val) {
+                      appState.firstDecrease = val;
+                      AppStateDatabase().updateApp(appState).then((_) {
+                        ref.invalidate(appStateProvider);
+                      });
+                    },
+                  ),
                 ),
                 24.h,
                 AppLanguageBar(),
