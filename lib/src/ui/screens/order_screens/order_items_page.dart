@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/controllers/order_controller.dart';
 import 'package:biznex/src/core/config/router.dart';
@@ -8,6 +7,7 @@ import 'package:biznex/src/core/model/order_models/percent_model.dart';
 import 'package:biznex/src/core/model/other_models/customer_model.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
+import 'package:biznex/src/ui/pages/customer_pages/customers_page.dart';
 import 'package:biznex/src/ui/screens/order_screens/order_item_card.dart';
 import 'package:biznex/src/ui/screens/order_screens/order_payment_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_empty_widget.dart';
@@ -19,9 +19,9 @@ import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
+import '../../../providers/price_percent_provider.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../providers/orders_provider.dart';
-import '../../../providers/price_percent_provider.dart';
 
 class OrderItemsPage extends HookConsumerWidget {
   final Place place;
@@ -43,7 +43,6 @@ class OrderItemsPage extends HookConsumerWidget {
     // final orderItems = ref.watch(orderSetProvider);
     // final orderNotifier = ref.read(orderSetProvider.notifier);
     final currentEmployee = ref.watch(currentEmployeeProvider);
-
     final scheduledTime = useState<DateTime?>(null);
     final useCheck = useState(true);
     final paymentType = useState(AppLocales.useCash);
@@ -165,7 +164,7 @@ class OrderItemsPage extends HookConsumerWidget {
                         0.h,
 
                         Container(
-                          margin: Dis.only(top: context.h(16)),
+                          // margin: Dis.only(top: context.h(16)),
                           padding:
                               Dis.only(tb: context.h(24), lr: context.w(16)),
                           decoration: minimalistic
@@ -187,16 +186,11 @@ class OrderItemsPage extends HookConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             spacing: 8,
                             children: [
-                              SimpleButton(
-                                onPressed: () {
-                                  log("${order?.toJson().toString()}");
-                                },
-                                child: Text(
-                                  "${AppLocales.paymentType.tr()}:",
-                                  style: TextStyle(
-                                    fontSize: context.s(16),
-                                    fontFamily: mediumFamily,
-                                  ),
+                              Text(
+                                "${AppLocales.paymentType.tr()}:",
+                                style: TextStyle(
+                                  fontSize: context.s(16),
+                                  fontFamily: mediumFamily,
                                 ),
                               ),
 
@@ -278,43 +272,45 @@ class OrderItemsPage extends HookConsumerWidget {
                                 // useBorder: true,
                                 fillColor: theme.accentColor,
                               ),
-                              // Wrap(
-                              //   crossAxisAlignment: WrapCrossAlignment.start,
-                              //   runAlignment: WrapAlignment.start,
-                              //   spacing: 16,
-                              //   runSpacing: Platform.isWindows ? 16 : 8,
-                              //   children: [
-                              //     ...[
-                              //       AppLocales.useCash,
-                              //       AppLocales.useDebt,
-                              //       AppLocales.useCard,
-                              //       AppLocales.payme,
-                              //       AppLocales.click,
-                              //     ].map((type) {
-                              //       return ChoiceChip(
-                              //         backgroundColor: theme.scaffoldBgColor,
-                              //         selectedColor: theme.mainColor,
-                              //         padding: Dis.only(),
-                              //         checkmarkColor: paymentType.value == type
-                              //             ? Colors.white
-                              //             : Colors.black,
-                              //         label: Text(
-                              //           type.tr(),
-                              //           style: TextStyle(
-                              //             color: paymentType.value == type
-                              //                 ? Colors.white
-                              //                 : Colors.black,
-                              //             fontSize: context.s(14),
-                              //           ),
-                              //         ),
-                              //         selected: paymentType.value == type,
-                              //         onSelected: (_) {
-                              //           paymentType.value = type;
-                              //         },
-                              //       );
-                              //     }),
-                              //   ],
-                              // ),
+                              0.h,
+                              Text(
+                                "${AppLocales.customer.tr()}:",
+                                style: TextStyle(
+                                  fontSize: context.s(16),
+                                  fontFamily: mediumFamily,
+                                ),
+                              ),
+                              AppTextField(
+                                onlyRead: true,
+                                prefixIcon: customerNotifier.value == null
+                                    ? Icon(Iconsax.profile_2user_copy)
+                                    : SimpleButton(
+                                        onPressed: () {
+                                          customerNotifier.value = null;
+                                        },
+                                        child: Icon(
+                                          Iconsax.trash_copy,
+                                          color: Colors.redAccent,
+                                        ),
+                                      ),
+                                title: AppLocales.addCustomer.tr(),
+                                controller: TextEditingController(
+                                  text: customerNotifier.value?.name,
+                                ),
+                                theme: theme,
+                                // useBorder: true,
+                                fillColor: theme.accentColor,
+                                onTap: () {
+                                  showDesktopModal(
+                                    context: context,
+                                    body: CustomersPage(
+                                      onSelected: (customer) {
+                                        customerNotifier.value = customer;
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
 
                               Container(
                                 height: 1,
@@ -460,10 +456,11 @@ class OrderItemsPage extends HookConsumerWidget {
                                       placeOrderItems,
                                       // note: noteController.text.trim(),
                                       message: noteController.text.trim(),
-                                      customer: Customer(
-                                        name: addressController.text,
-                                        phone: phoneController.text,
-                                      ),
+                                      customer: customerNotifier.value ??
+                                          Customer(
+                                            name: addressController.text,
+                                            phone: phoneController.text,
+                                          ),
                                       scheduledDate: scheduledTime.value,
                                     );
                                     AppRouter.close(context);
@@ -477,10 +474,11 @@ class OrderItemsPage extends HookConsumerWidget {
                                     placeOrderItems,
                                     order,
                                     // note: noteController.text.trim(),
-                                    customer: Customer(
-                                      name: addressController.text,
-                                      phone: phoneController.text,
-                                    ),
+                                    customer: customerNotifier.value ??
+                                        Customer(
+                                          name: addressController.text,
+                                          phone: phoneController.text,
+                                        ),
                                     scheduledDate: scheduledTime.value,
                                   );
                                   try {
@@ -539,10 +537,11 @@ class OrderItemsPage extends HookConsumerWidget {
                                       context,
                                       ref,
                                       // note: noteController.text.trim(),
-                                      customer: Customer(
-                                        name: addressController.text,
-                                        phone: phoneController.text,
-                                      ),
+                                      customer: customerNotifier.value ??
+                                          Customer(
+                                            name: addressController.text,
+                                            phone: phoneController.text,
+                                          ),
                                       scheduledDate: scheduledTime.value,
                                       paymentType: paymentType.value,
                                       useCheck: useCheck.value,
@@ -593,10 +592,11 @@ class OrderItemsPage extends HookConsumerWidget {
                                     context,
                                     ref,
                                     // note: noteController.text.trim(),
-                                    customer: Customer(
-                                      name: addressController.text,
-                                      phone: phoneController.text,
-                                    ),
+                                    customer: customerNotifier.value ??
+                                        Customer(
+                                          name: addressController.text,
+                                          phone: phoneController.text,
+                                        ),
                                     scheduledDate: scheduledTime.value,
                                     paymentType: paymentType.value,
                                     useCheck: useCheck.value,

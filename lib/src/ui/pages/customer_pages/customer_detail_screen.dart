@@ -1,10 +1,17 @@
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/extensions/app_responsive.dart';
+import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:biznex/src/core/model/other_models/customer_model.dart';
+import 'package:biznex/src/providers/customer_provider.dart';
 import 'package:biznex/src/ui/widgets/custom/app_empty_widget.dart';
+import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_back_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
+import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:sliver_tools/sliver_tools.dart';
+
+import '../../screens/order_screens/order_card.dart';
 
 class CustomerDetailScreen extends HookConsumerWidget {
   final Customer customer;
@@ -22,17 +29,45 @@ class CustomerDetailScreen extends HookConsumerWidget {
     return CustomScrollView(
       slivers: [
         SliverPinnedHeader(
-          child: Padding(
-            padding: const EdgeInsets.only(right: 24, bottom: 12),
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.only(bottom: 12),
             child: Row(
               children: [
                 AppBackButton(),
                 24.w,
-                Text(
-                  customer.name,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontFamily: boldFamily,
+                Expanded(
+                  child: Text(
+                    customer.name,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: boldFamily,
+                    ),
+                  ),
+                ),
+                24.w,
+                SimpleButton(
+                  onPressed: () {
+                    ref.refresh(customerOrdersProvider(customer.id));
+                    ref.invalidate(customerOrdersProvider);
+                    ref.invalidate(customerDebtProvider);
+                    ref.refresh(customerOrdersProvider(customer.id));
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(48),
+                      color: Color(0xffEDFEF5),
+                      border: Border.all(color: theme.mainColor),
+                    ),
+                    height: context.s(48),
+                    width: context.s(48),
+                    child: Center(
+                      child: Icon(
+                        Iconsax.refresh_copy,
+                        color: theme.mainColor,
+                        size: context.s(24),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -187,11 +222,12 @@ class CustomerDetailScreen extends HookConsumerWidget {
           child: Container(
             padding: Dis.all(8),
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
-                color: theme.accentColor),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
+              ),
+              color: theme.accentColor,
+            ),
             child: Row(
               spacing: 16,
               children: [
@@ -233,14 +269,79 @@ class CustomerDetailScreen extends HookConsumerWidget {
           ),
         ),
         if (isOrdersScreen.value)
-          SliverToBoxAdapter(
-            child: Center(
-              child: Padding(
-                padding: 100.all,
-                child: AppEmptyWidget(),
+          ref.watch(customerOrdersProvider(customer.id)).when(
+                loading: () => SliverToBoxAdapter(child: AppLoadingScreen()),
+                error: (e, st) => SliverToBoxAdapter(child: AppErrorScreen()),
+                data: (orders) {
+                  if (orders.isEmpty) {
+                    return SliverToBoxAdapter(
+                      child: Center(
+                        child: Padding(
+                          padding: 100.all,
+                          child: AppEmptyWidget(),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return SliverGrid.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: context.w(16),
+                      // mainAxisSpacing: context.h(16),
+                      childAspectRatio: 1.2,
+                    ),
+                    itemCount: orders.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: OrderCard(
+                          color: theme.scaffoldBgColor,
+                          order: Order.fromIsar(orders[index]),
+                          theme: theme,
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
-            ),
-          )
+        if (!isOrdersScreen.value)
+          ref.watch(customerDebtProvider(customer.id)).when(
+                loading: () => SliverToBoxAdapter(child: AppLoadingScreen()),
+                error: (e, st) => SliverToBoxAdapter(child: AppErrorScreen()),
+                data: (orders) {
+                  if (orders.isEmpty) {
+                    return SliverToBoxAdapter(
+                      child: Center(
+                        child: Padding(
+                          padding: 100.all,
+                          child: AppEmptyWidget(),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return SliverGrid.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: context.w(16),
+                      // mainAxisSpacing: context.h(16),
+                      childAspectRatio: 1.2,
+                    ),
+                    itemCount: orders.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: OrderCard(
+                          color: theme.scaffoldBgColor,
+                          order: Order.fromIsar(orders[index]),
+                          theme: theme,
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
       ],
     );
   }

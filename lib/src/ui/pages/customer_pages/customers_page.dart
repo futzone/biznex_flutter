@@ -1,4 +1,5 @@
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
@@ -13,7 +14,9 @@ import '../../widgets/helpers/app_text_field.dart';
 import 'customer_detail_screen.dart';
 
 class CustomersPage extends HookConsumerWidget {
-  const CustomersPage({super.key});
+  final void Function(Customer customer)? onSelected;
+
+  const CustomersPage({super.key, this.onSelected});
 
   @override
   Widget build(BuildContext context, ref) {
@@ -21,6 +24,7 @@ class CustomersPage extends HookConsumerWidget {
 
     return AppStateWrapper(builder: (theme, state) {
       return Scaffold(
+        backgroundColor: onSelected == null ? null : Colors.white,
         floatingActionButton: WebButton(
           onPressed: () {
             showDesktopModal(context: context, body: AddCustomerScreen());
@@ -53,11 +57,13 @@ class CustomersPage extends HookConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Padding(
-              padding: Dis.only(
-                lr: context.w(24),
-                top: context.h(24),
-                bottom: context.h(8),
-              ),
+              padding: onSelected != null
+                  ? Dis.only()
+                  : Dis.only(
+                      lr: context.w(24),
+                      top: context.h(24),
+                      bottom: context.h(8),
+                    ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 spacing: context.w(16),
@@ -81,7 +87,7 @@ class CustomersPage extends HookConsumerWidget {
                       controller: searchController,
                       onChanged: (s) {},
                       theme: theme,
-                      fillColor: Colors.white,
+                      // fillColor: Colors.white,
                       // useBorder: false,
                     ),
                   ),
@@ -94,26 +100,36 @@ class CustomersPage extends HookConsumerWidget {
                 builder: (customers) {
                   customers as List<Customer>;
                   return ListView.builder(
-                    padding: Dis.only(lr: context.w(24), top: 16, bottom: 200),
+                    padding: Dis.only(
+                        lr: onSelected == null ? context.w(24) : 0,
+                        top: 16,
+                        bottom: 200),
                     itemCount: customers.length,
                     itemBuilder: (context, index) {
                       final customer = customers[index];
 
                       return SimpleButton(
                         onPressed: () {
-                          showDesktopModal(
-                            context: context,
-                            body: CustomerDetailScreen(
-                              customer: customer,
-                              theme: theme,
-                            ),
-                          );
+                          if (onSelected == null) {
+                            showDesktopModal(
+                              context: context,
+                              body: CustomerDetailScreen(
+                                customer: customer,
+                                theme: theme,
+                              ),
+                            );
+                          } else {
+                            onSelected!(customer);
+                            AppRouter.close(context);
+                          }
                         },
                         child: Container(
                           margin: Dis.only(bottom: 16),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
-                            color: theme.white,
+                            color: onSelected == null
+                                ? theme.white
+                                : theme.scaffoldBgColor,
                           ),
                           padding: Dis.only(
                             left: 16,
@@ -235,65 +251,68 @@ class CustomersPage extends HookConsumerWidget {
                                         ),
                                       ],
                                     ),
-                                    12.h,
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        SimpleButton(
-                                          onPressed: () {
-                                            showDesktopModal(
+                                    if (onSelected == null) 12.h,
+                                    if (onSelected == null)
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          SimpleButton(
+                                            onPressed: () {
+                                              showDesktopModal(
                                                 context: context,
                                                 body: AddCustomerScreen(
                                                   customer: customer,
-                                                ));
-                                          },
-                                          child: Container(
-                                            width: 36,
-                                            height: 36,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              color: theme.scaffoldBgColor,
-                                            ),
-                                            child: Icon(
-                                              Iconsax.edit_copy,
-                                              color: theme.secondaryTextColor,
-                                              size: 20,
+                                                ),
+                                              );
+                                            },
+                                            child: Container(
+                                              width: 36,
+                                              height: 36,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                color: theme.scaffoldBgColor,
+                                              ),
+                                              child: Icon(
+                                                Iconsax.edit_copy,
+                                                color: theme.secondaryTextColor,
+                                                size: 20,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        16.w,
-                                        SimpleButton(
-                                          onPressed: () {
-                                            CustomerController cc =
-                                                CustomerController(
-                                              context: context,
-                                              state: state,
-                                            );
+                                          16.w,
+                                          SimpleButton(
+                                            onPressed: () {
+                                              CustomerController cc =
+                                                  CustomerController(
+                                                context: context,
+                                                state: state,
+                                              );
 
-                                            cc.delete(customer.id);
-                                            ref.invalidate(customerProvider);
-                                            ref.refresh(customerProvider);
-                                          },
-                                          child: Container(
-                                            height: 36,
-                                            width: 36,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              color: theme.scaffoldBgColor,
-                                            ),
-                                            child: Icon(
-                                              Iconsax.trash_copy,
-                                              color: theme.red,
-                                              size: 20,
+                                              cc.delete(customer.id);
+                                              ref.invalidate(customerProvider);
+                                              ref.refresh(customerProvider);
+                                            },
+                                            child: Container(
+                                              height: 36,
+                                              width: 36,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                color: theme.scaffoldBgColor,
+                                              ),
+                                              child: Icon(
+                                                Iconsax.trash_copy,
+                                                color: theme.red,
+                                                size: 20,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    )
+                                        ],
+                                      )
                                   ],
                                 ),
                               ),
