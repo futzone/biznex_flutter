@@ -35,10 +35,13 @@ final shoppingProvider = FutureProvider((ref) async {
 final ingredientTransactionsProvider =
     FutureProvider.family((ref, String id) async {
   final isar = IsarDatabase.instance.isar;
+  final dateTime = DateTime.now().subtract(Duration(days: 1));
 
-
-  final data =
-      await isar.ingredientTransactions.filter().idEqualTo(id).findAll();
+  final data = await isar.ingredientTransactions
+      .filter()
+      .idEqualTo(id)
+      .createdDateGreaterThan(dateTime.toIso8601String())
+      .sortByCreatedDateDesc()
+      .findAll();
   return data;
 });
-

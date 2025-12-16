@@ -17,7 +17,7 @@ class AppRouter {
       MaterialPageRoute(
         builder: (context) => Consumer(
           builder: (context, ref, child) =>
-              ActivityWrapper(ref: ref, child: page),
+              ActivityWrapper(ref: ref, context: context, child: page),
         ),
       ),
       (Route<dynamic> route) => false,

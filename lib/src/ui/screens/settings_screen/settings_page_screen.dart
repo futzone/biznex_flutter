@@ -773,17 +773,35 @@ class SettingsPageScreen extends HookConsumerWidget {
                     border: Border.all(color: Colors.grey.shade200),
                     color: Colors.white,
                   ),
-                  child: SwitchListTile(
-                    activeThumbColor: theme.mainColor,
-                    contentPadding: Dis.only(),
-                    title: Text(AppLocales.firstDecrease.tr()),
-                    value: appState.firstDecrease,
-                    onChanged: (val) {
-                      appState.firstDecrease = val;
-                      AppStateDatabase().updateApp(appState).then((_) {
-                        ref.invalidate(appStateProvider);
-                      });
-                    },
+                  child: Column(
+                    spacing: 8,
+                    children: [
+                      SwitchListTile(
+                        activeThumbColor: theme.mainColor,
+                        contentPadding: Dis.only(),
+                        title: Text(AppLocales.firstDecrease.tr()),
+                        value: appState.firstDecrease,
+                        onChanged: (val) {
+                          appState.firstDecrease = val;
+                          AppStateDatabase().updateApp(appState).then((_) {
+                            ref.invalidate(appStateProvider);
+                          });
+                        },
+                      ),
+                      Divider(),
+                      SwitchListTile(
+                        activeThumbColor: theme.mainColor,
+                        contentPadding: Dis.only(),
+                        title: Text(AppLocales.allowCloseWaiter.tr()),
+                        value: appState.allowCloseWaiter,
+                        onChanged: (val) {
+                          appState.allowCloseWaiter = val;
+                          AppStateDatabase().updateApp(appState).then((_) {
+                            ref.invalidate(appStateProvider);
+                          });
+                        },
+                      ),
+                    ],
                   ),
                 ),
                 24.h,

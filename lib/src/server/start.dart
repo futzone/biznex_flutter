@@ -410,6 +410,11 @@ void startServer() async {
         body: jsonEncode([for (final item in percents) item.toJson()]));
   });
 
+  app.get('/api/v2/order-recipe/<orderId>', (Request request, String id) async {
+    await orderDatabase.printOrderRecipe(id);
+    return Response(200);
+  });
+
   app.get('/api/v2/image/<productId>',
       (Request request, String productId) async {
     final productData = await productDatabase.getProductById(productId);

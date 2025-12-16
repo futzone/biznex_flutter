@@ -59,6 +59,8 @@ class AppModel {
   bool firstDecrease;
   bool allowCancelOrder;
 
+  bool allowCloseWaiter;
+
   void console(dynamic data, {Object? error, StackTrace? stackTrace}) {
     log("$data", error: error, stackTrace: stackTrace);
   }
@@ -69,6 +71,7 @@ class AppModel {
 
   AppModel({
     this.offline = true,
+    this.allowCloseWaiter = true,
     this.firstDecrease = false,
     this.allowCancelOrder = false,
     this.after = true,
@@ -133,6 +136,7 @@ class AppModel {
       apiUrl: json['apiUrl'],
       after: json['after'] ?? true,
       offline: json['offline'] ?? true,
+      allowCloseWaiter: json['allowCloseWaiter'] ?? true,
       allowCancelOrder: json['allowCancelOrder'] ?? false,
       firstDecrease: json['firstDecrease'] ?? false,
     );
@@ -215,6 +219,7 @@ class AppModel {
       "generalPrintName": generalPrintName,
       "generalPrintUrl": generalPrintUrl,
       "firstDecrease": firstDecrease,
+      "allowCloseWaiter": allowCloseWaiter,
     };
   }
 }

@@ -480,5 +480,7 @@
   "placePercent": "Percent for place",
   "placePercentProfit": "Profit from place percentage",
   "firstDecrease": "Subtract products without closing the order",
-  "deleteOrderQuestion": "Are you sure you want to delete the order? (You can't restore the data after that!)"
+  "deleteOrderQuestion": "Are you sure you want to delete the order? (You can't restore the data after that!)",
+  "order": "Order",
+  "allowCloseWaiter": "Allow others to close order."
 }

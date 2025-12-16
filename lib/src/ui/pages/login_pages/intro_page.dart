@@ -10,9 +10,13 @@ class IntroPage extends AppStatelessWidget {
   const IntroPage({super.key});
 
   @override
-  Widget builder(BuildContext context, AppColors theme, WidgetRef ref, AppModel state) {
+  Widget builder(
+      BuildContext context, AppColors theme, WidgetRef ref, AppModel state) {
     if (state.baseUrl.isEmpty) return _IntroPage();
-    if (state.isServerApp) return ActivityWrapper(ref: ref, child: LicenseStatusWrapper());
+    if (state.isServerApp) {
+      return ActivityWrapper(
+          ref: ref, context: context, child: LicenseStatusWrapper());
+    }
     return HelperLoginPage();
   }
 }

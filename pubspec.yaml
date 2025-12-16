@@ -131,9 +131,10 @@ flutter:
     - assets/animations/
     - assets/svg/
     - assets/fonts/DejaVuSans.ttf
-    - assets/fonts/Goldman-Regular.ttf
-    - assets/fonts/Goldman-Bold.ttf
     - assets/fonts/DejaVuSans-Bold.ttf
+    - assets/fonts/NotoSansMono-Bold.ttf
+    - assets/fonts/NotoSansMono-Medium.ttf
+    - assets/fonts/NotoSansMono-Regular.ttf
 
 
 

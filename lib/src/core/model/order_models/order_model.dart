@@ -19,6 +19,7 @@ class Order {
   static const String opened = "opened";
   static const String confirmed = "confirmed";
   String id;
+  int? isarId;
   String createdDate;
   String updatedDate;
   String? scheduledDate;
@@ -47,11 +48,13 @@ class Order {
     required this.price,
     required this.products,
     this.orderNumber,
+    this.isarId,
     required this.paymentTypes,
   });
 
   factory Order.fromIsar(OrderIsar isar) {
     return Order(
+      isarId: isar.isarId,
       paymentTypes: isar.paymentTypes
           .map((el) => Percent(name: el.name, percent: el.amount))
           .toList(),
@@ -79,6 +82,7 @@ class Order {
           .toList(),
       id: json['id'] ?? '',
       createdDate: json['createdDate'] ?? '',
+      isarId: json['isarId'],
       updatedDate: json['updatedDate'] ?? '',
       customer:
           json['customer'] != null ? Customer.fromJson(json['customer']) : null,
@@ -101,6 +105,7 @@ class Order {
 
   Map<String, dynamic> toJson() {
     return {
+      'isarId': isarId,
       'place': place.toJson(),
       'id': id,
       'createdDate': createdDate,

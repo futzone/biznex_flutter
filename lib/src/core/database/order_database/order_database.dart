@@ -6,6 +6,7 @@ import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/database/changes_database/changes_database.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/isar_database/isar_extension.dart';
+import 'package:biznex/src/core/database/order_database/order_percent_database.dart';
 import 'package:biznex/src/core/database/transactions_database/transactions_database.dart';
 import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
@@ -210,6 +211,53 @@ class OrderDatabase extends OrderDatabaseRepository {
     if (orderIsar == null) return null;
 
     return Order.fromIsar(orderIsar);
+  }
+
+  Future<void> printOrderRecipe(String orderId) async {
+    if ((await connectionStatus()) != null) {
+      await getRemote(path: 'order-recipe/$orderId');
+    }
+
+    if (!Platform.isWindows) return;
+
+    final orderIsar =
+        await isar.orderIsars.filter().idEqualTo(orderId).findFirst();
+
+    if (orderIsar == null) return;
+
+    Order order = Order.fromIsar(orderIsar);
+    double productsPrice = order.products.fold(
+        0.0, (a, b) => a += (b.amount * (b.customPrice ?? b.product.price)));
+
+    double totalPrice = 0;
+
+    if ((order.place.percent ?? 0) > 0) {
+      totalPrice += (productsPrice * (order.place.percent ?? 0) * 0.01);
+      print(totalPrice);
+    }
+
+    if ((order.place.price ?? 0) > 0) {
+      productsPrice += (order.place.price ?? 0);
+    }
+
+    if (!order.place.percentNull) {
+      final percentsData = await OrderPercentDatabase().get();
+      final percents = percentsData.fold(0.0, (a, b) => a += b.percent);
+      if (percents > 0) {
+        totalPrice += (productsPrice * 0.01 * percents);
+      }
+    }
+
+    order.price = (totalPrice + productsPrice);
+
+    final AppStateDatabase stateDatabase = AppStateDatabase();
+    final model = await stateDatabase.getApp();
+    PrinterServices printerServices = PrinterServices(
+      order: order,
+      model: model,
+    );
+
+    printerServices.printOrderCheck();
   }
 
   Future<void> deletePlaceOrder(String placeId) async {

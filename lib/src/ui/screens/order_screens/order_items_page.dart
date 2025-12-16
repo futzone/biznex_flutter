@@ -93,7 +93,8 @@ class OrderItemsPage extends HookConsumerWidget {
             (totalPrice + (order?.place.price ?? 0.0)) * (totalPercents / 100);
         final finalPrice = totalPrice +
             (place.percentNull ? 0 : percentSum) +
-            (order?.place.price ?? 0.0);
+            (order?.place.price ?? 0.0) +
+            (totalPrice * 0.01 * (order?.place.percent ?? 0.0));
         final noteController = useTextEditingController(text: order?.note);
         final customerNotifier = useState<Customer?>(order?.customer);
         final addressController =
@@ -341,6 +342,33 @@ class OrderItemsPage extends HookConsumerWidget {
                                 color: theme.accentColor,
                               ),
 
+                              if ((order?.place.percent ?? 0) > 0)
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "${AppLocales.placePercent.tr()}: ${order?.place.percent?.toMeasure} %",
+                                      style: TextStyle(
+                                        fontSize: context.s(16),
+                                        fontFamily: mediumFamily,
+                                        color: theme.secondaryTextColor,
+                                      ),
+                                    ),
+                                    Text(
+                                      (totalPrice *
+                                              0.01 *
+                                              (order?.place.percent ?? 0.0))
+                                          .priceUZS,
+                                      style: TextStyle(
+                                        fontSize: context.s(16),
+                                        fontFamily: mediumFamily,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               if (order?.place.price != null)
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -521,11 +549,8 @@ class OrderItemsPage extends HookConsumerWidget {
                                 title: AppLocales.add.tr(),
                               ),
 
-                              if (!(state.apiUrl != null &&
-                                  state.apiUrl!.isNotEmpty))
-                                8.h,
-                              if (!(state.apiUrl != null &&
-                                  state.apiUrl!.isNotEmpty))
+                              if (order != null) 8.h,
+                              if (order != null)
                                 AppPrimaryButton(
                                   theme: theme,
                                   onPressed: () async {
@@ -537,21 +562,8 @@ class OrderItemsPage extends HookConsumerWidget {
                                           ref.watch(currentEmployeeProvider),
                                     );
 
-                                    await orderController.printCheck(
-                                      context,
-                                      ref,
-                                      // note: noteController.text.trim(),
-                                      customer: customerNotifier.value ??
-                                          Customer(
-                                            name: addressController.text,
-                                            phone: phoneController.text,
-                                          ),
-                                      scheduledDate: scheduledTime.value,
-                                      paymentType: paymentType.value,
-                                      useCheck: useCheck.value,
-                                      phone: phoneController.text,
-                                      address: addressController.text,
-                                    );
+                                    if (order == null) return;
+                                    await orderController.printCheck(order.id);
                                   },
                                   textColor: theme.mainColor,
                                   border: Border.all(color: theme.mainColor),
@@ -581,45 +593,49 @@ class OrderItemsPage extends HookConsumerWidget {
                                   ),
                                 ),
                               8.h,
-                              AppPrimaryButton(
-                                theme: theme,
-                                onPressed: () async {
-                                  OrderController orderController =
-                                      OrderController(
-                                    model: state,
-                                    place: place,
-                                    employee:
-                                        ref.watch(currentEmployeeProvider),
-                                  );
 
-                                  await orderController.closeOrder(
-                                    context,
-                                    ref,
-                                    // note: noteController.text.trim(),
-                                    customer: customerNotifier.value ??
-                                        Customer(
-                                          name: addressController.text,
-                                          phone: phoneController.text,
-                                        ),
-                                    scheduledDate: scheduledTime.value,
-                                    paymentType: paymentType.value,
-                                    useCheck: useCheck.value,
-                                    phone: phoneController.text,
-                                    address: addressController.text,
-                                  );
+                              if (state.allowCloseWaiter ||
+                                  currentEmployee.roleName.toLowerCase() ==
+                                      'admin')
+                                AppPrimaryButton(
+                                  theme: theme,
+                                  onPressed: () async {
+                                    OrderController orderController =
+                                        OrderController(
+                                      model: state,
+                                      place: place,
+                                      employee:
+                                          ref.watch(currentEmployeeProvider),
+                                    );
 
-                                  noteController.clear();
-                                  customerNotifier.value = null;
+                                    await orderController.closeOrder(
+                                      context,
+                                      ref,
+                                      // note: noteController.text.trim(),
+                                      customer: customerNotifier.value ??
+                                          Customer(
+                                            name: addressController.text,
+                                            phone: phoneController.text,
+                                          ),
+                                      scheduledDate: scheduledTime.value,
+                                      paymentType: paymentType.value,
+                                      useCheck: useCheck.value,
+                                      phone: phoneController.text,
+                                      address: addressController.text,
+                                    );
 
-                                  paymentType.value = '';
-                                  paymentTypes.value = [];
-                                },
-                                textColor: Colors.white,
-                                border: Border.all(color: Colors.blue),
-                                color: Colors.blue,
-                                title: AppLocales.close.tr(),
-                                // icon: Icons.close,
-                              ),
+                                    noteController.clear();
+                                    customerNotifier.value = null;
+
+                                    paymentType.value = '';
+                                    paymentTypes.value = [];
+                                  },
+                                  textColor: Colors.white,
+                                  border: Border.all(color: Colors.blue),
+                                  color: Colors.blue,
+                                  title: AppLocales.close.tr(),
+                                  // icon: Icons.close,
+                                ),
                               // ConfirmCancelButton(
                               //   onlyConfirm: true,
                               //   cancelColor: theme.scaffoldBgColor,

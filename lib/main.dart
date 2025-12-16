@@ -20,7 +20,7 @@ import 'package:toastification/toastification.dart';
 import 'package:path/path.dart' as path;
 
 bool debugMode = true;
-const appVersion = '2.5.12';
+const appVersion = '2.5.14';
 const appPageSize = 30;
 
 void main() async {
@@ -265,7 +265,8 @@ class MyApp extends ConsumerWidget {
             theme: theme.themeData,
             home: getDeviceType(context) == DeviceType.mobile
                 ? OnboardPage()
-                : ActivityWrapper(ref: ref, child: LicenseStatusWrapper()),
+                : ActivityWrapper(
+                    ref: ref, context: context, child: LicenseStatusWrapper()),
           ),
         );
       },

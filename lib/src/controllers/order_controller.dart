@@ -350,78 +350,8 @@ class OrderController {
     return changes;
   }
 
-  Future<void> printCheck(
-    BuildContext context,
-    WidgetRef ref, {
-    String? note,
-    Customer? customer,
-    DateTime? scheduledDate,
-    String? paymentType,
-    bool useCheck = true,
-    String? phone,
-    String? address,
-  }) async {
-    if (!context.mounted) return;
-    showAppLoadingDialog(context);
-
-    Order? currentOrderData = await _database.getPlaceOrder(place.id);
-    Order orderToProcess;
-
-    if (currentOrderData == null) {
-      final orderItemsFromProvider = ref.read(orderSetProvider);
-      final productsForNewOrder =
-          orderItemsFromProvider.where((e) => e.placeId == place.id).toList();
-
-      double totalPrice = productsForNewOrder.fold(0.0, (oldValue, element) {
-        return oldValue + (element.amount * element.product.price);
-      });
-
-      orderToProcess = Order(
-        paymentTypes: [],
-        place: place,
-        employee: employee,
-        price: totalPrice,
-        products: productsForNewOrder,
-        createdDate: DateTime.now().toIso8601String(),
-        updatedDate: DateTime.now().toIso8601String(),
-        orderNumber: DateTime.now().millisecondsSinceEpoch.toString(),
-      );
-    } else {
-      orderToProcess = currentOrderData;
-    }
-
-    Order finalOrder = orderToProcess.copyWith();
-
-    final percents = await OrderPercentDatabase().get();
-    if (!place.percentNull) {
-      final totalPercent =
-          percents.map((e) => e.percent).fold(0.0, (a, b) => a + b);
-      finalOrder = finalOrder.copyWith(
-        price: finalOrder.price +
-            (finalOrder.price * (finalOrder.place.percent ?? 0) * 0.01) +
-            ((finalOrder.price + (finalOrder.place.price ?? 0.0)) *
-                (totalPercent / 100)),
-      );
-    }
-
-    if (place.price != null) {
-      finalOrder = finalOrder.copyWith(price: finalOrder.price + place.price!);
-    }
-
-    if (customer != null) finalOrder = finalOrder.copyWith(customer: customer);
-    if (note != null) finalOrder = finalOrder.copyWith(note: note);
-    if (scheduledDate != null) {
-      finalOrder =
-          finalOrder.copyWith(scheduledDate: scheduledDate.toIso8601String());
-    }
-
-    finalOrder = finalOrder.copyWith(
-        status: Order.completed, updatedDate: DateTime.now().toIso8601String());
-    AppRouter.close(context);
-
-    PrinterServices printerServices =
-        PrinterServices(order: finalOrder, model: model);
-    printerServices.printOrderCheck(phone: phone, address: address);
+  Future<void> printCheck(String orderId) async {
+    await _database.printOrderRecipe(orderId);
   }
 
   Future<void> saveOrderPayments(
