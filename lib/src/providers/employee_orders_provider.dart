@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
@@ -7,9 +6,7 @@ import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
-import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
-import '../core/isolate/employee_order_filter.dart';
 
 bool isTodayOrder(DateTime dateFilter, Order order) {
   final orderDate = DateTime.parse(order.createdDate);
