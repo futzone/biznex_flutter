@@ -58,6 +58,19 @@ class OrderDatabase extends OrderDatabaseRepository {
     return uuid.v1();
   }
 
+  Future<List<Order>> getEmployeeOrders(String id) async {
+    List<Order> ordersList = [];
+
+    final response = await getRemote(path: 'employee-orders/$id');
+    if (response != null) {
+      for (final item in jsonDecode(response)) {
+        ordersList.add(Order.fromJson(item));
+      }
+    }
+
+    return ordersList;
+  }
+
   Future<List<Order>> getOrders() async {
     List<Order> ordersList = [];
     if ((await connectionStatus()) != null) {
@@ -106,7 +119,6 @@ class OrderDatabase extends OrderDatabaseRepository {
   }
 
   Future<void> saveOrder(Order order) async {
-
     if ((await connectionStatus()) != null) {
       await postRemote(path: 'orders', data: jsonEncode(order.toJson()));
       return;

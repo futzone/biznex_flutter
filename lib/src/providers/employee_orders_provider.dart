@@ -43,8 +43,9 @@ final employeeOrdersProvider = FutureProvider<List<Order>>((ref) async {
   }
 
   OrderDatabase orderDatabase = OrderDatabase();
-  final orders = await orderDatabase.getOrders();
-  return [...orders.where((e) => e.employee.id == employee.id)];
+  final orders = await orderDatabase.getEmployeeOrders(employee.id);
+
+  return [...orders.reversed];
 });
 
 final orderLengthProvider = FutureProvider((ref) async {

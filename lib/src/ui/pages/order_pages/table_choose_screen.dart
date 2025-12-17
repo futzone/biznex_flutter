@@ -18,6 +18,7 @@ import 'package:biznex/src/ui/widgets/custom/app_empty_widget.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
+import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../biznex.dart';
@@ -185,8 +186,15 @@ class TableChooseScreen extends HookConsumerWidget {
     final employee = ref.watch(currentEmployeeProvider);
     final selectedPlace = useState<Place?>(null);
     final fatherPlace = useState<Place?>(null);
-    final places = ref.watch(placesProvider).value ?? [];
+    final fatherPlaces = ref.watch(placesProvider).value ?? [];
     final mobile = getDeviceType(context) == DeviceType.mobile;
+    final searchResultList = useState(<Place>[]);
+    final searchController = useTextEditingController();
+
+    bool isSearchActive() {
+      return searchController.text.trim().length > 2;
+    }
+
     return PopScope(
       canPop: ((fatherPlace.value == null) && (selectedPlace.value == null)),
       onPopInvokedWithResult: (status, dy) {
@@ -217,7 +225,7 @@ class TableChooseScreen extends HookConsumerWidget {
                                 iconColor: theme.textColor,
                                 icon: Icons.list,
                               ),
-                              for (final item in places)
+                              for (final item in fatherPlaces)
                                 CustomPopupItem(
                                   title: item.name,
                                   onPressed: () => selectedPlace.value = item,
@@ -300,9 +308,16 @@ class TableChooseScreen extends HookConsumerWidget {
               },
               child: state.whenProviderData(
                 provider: placesProvider,
-                builder: (places) {
-                  places as List<Place>;
-                  if (places.isEmpty) {
+                builder: (kPlaces) {
+                  kPlaces as List<Place>;
+                  List<Place> places = [];
+                  if (isSearchActive()) {
+                    places = searchResultList.value;
+                  } else {
+                    places = kPlaces;
+                  }
+
+                  if (fatherPlaces.isEmpty) {
                     return Column(
                       children: [
                         Padding(
@@ -356,6 +371,44 @@ class TableChooseScreen extends HookConsumerWidget {
                                 height: context.h(mobile ? 20 : 36),
                               ),
                               Spacer(),
+                              SizedBox(
+                                width: 400,
+                                child: AppTextField(
+                                  title: AppLocales.searchBarHint.tr(),
+                                  controller: searchController,
+                                  theme: theme,
+                                  onChanged: (value) {
+                                    final query = value.trim().toLowerCase();
+
+                                    if (query.length <= 2) {
+                                      searchResultList.value = [];
+                                      return;
+                                    }
+
+                                    searchResultList.value =
+                                        fatherPlaces.where((parent) {
+                                      final parentMatch = parent.name
+                                          .trim()
+                                          .toLowerCase()
+                                          .contains(query);
+
+                                      if (parentMatch) return true;
+
+                                      final children = parent.children;
+                                      if (children == null) return false;
+
+                                      return children.any(
+                                        (child) => child.name
+                                            .trim()
+                                            .toLowerCase()
+                                            .contains(query),
+                                      );
+                                    }).toList();
+                                  },
+                                ),
+                              ),
+                              //
+
                               WebButton(
                                 onPressed: () {
                                   ref.invalidate(ordersProvider);
@@ -546,7 +599,7 @@ class TableChooseScreen extends HookConsumerWidget {
                                               onPressed: () =>
                                                   selectedPlace.value = null,
                                               icon: Icons.list),
-                                          for (final item in places)
+                                          for (final item in fatherPlaces)
                                             CustomPopupItem(
                                               title: item.name,
                                               onPressed: () =>
