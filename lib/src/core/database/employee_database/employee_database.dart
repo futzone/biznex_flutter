@@ -32,7 +32,6 @@ class EmployeeDatabase extends AppDatabase {
     final List<Employee> productInfoList = [];
 
     if ((await connectionStatus()) != null) {
-      log("connection have");
       final response = await getRemote(boxName: boxName);
       if (response != null) {
         for (final item in jsonDecode(response)) {
