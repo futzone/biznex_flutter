@@ -6,9 +6,7 @@ import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
-import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
-import '../core/isolate/employee_order_filter.dart';
 
 bool isTodayOrder(DateTime dateFilter, Order order) {
   final orderDate = DateTime.parse(order.createdDate);
@@ -29,6 +27,7 @@ final employeeOrdersProvider = FutureProvider<List<Order>>((ref) async {
   final employee = ref.watch(currentEmployeeProvider);
   final state = await AppStateDatabase().getApp();
   if (state.alwaysWaiter) {
+    print('always waiter');
     OrderDatabase orderDatabase = OrderDatabase();
     final orders = await orderDatabase.getEmployeeOrders(employee.id);
     return orders;
@@ -43,7 +42,7 @@ final employeeOrdersProvider = FutureProvider<List<Order>>((ref) async {
       .sortByCreatedDateDesc()
       .findAll();
 
-  return employeeOrders.map((l) => Order.fromIsar(l)).toList();
+  return employeeOrders.reversed.map((l) => Order.fromIsar(l)).toList();
 });
 
 final orderLengthProvider = FutureProvider((ref) async {

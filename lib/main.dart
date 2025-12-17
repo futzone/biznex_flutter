@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/utils/action_listener.dart';
-import 'package:biznex/src/core/utils/printer_fonts.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/license_status_provider.dart';
 import 'package:biznex/src/providers/places_provider.dart';
@@ -20,7 +19,7 @@ import 'package:toastification/toastification.dart';
 import 'package:path/path.dart' as path;
 
 bool debugMode = true;
-const appVersion = '2.5.14';
+const appVersion = '2.5.17';
 const appPageSize = 30;
 
 void main() async {

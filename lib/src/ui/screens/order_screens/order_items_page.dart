@@ -594,9 +594,10 @@ class OrderItemsPage extends HookConsumerWidget {
                                 ),
                               8.h,
 
-                              if (state.allowCloseWaiter ||
-                                  currentEmployee.roleName.toLowerCase() ==
-                                      'admin')
+                              if (!state.alwaysWaiter &&
+                                  (state.allowCloseWaiter ||
+                                      currentEmployee.roleName.toLowerCase() ==
+                                          'admin'))
                                 AppPrimaryButton(
                                   theme: theme,
                                   onPressed: () async {

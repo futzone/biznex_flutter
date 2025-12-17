@@ -457,6 +457,7 @@ class OrderDatabase extends OrderDatabaseRepository {
     List<Order> ordersList = [];
     if ((await connectionStatus()) != null) {
       final response = await getRemote(path: 'employee-orders/$id');
+      print("response: $response");
       if (response != null) {
         for (final item in jsonDecode(response)) {
           ordersList.add(Order.fromJson(item));
@@ -469,7 +470,9 @@ class OrderDatabase extends OrderDatabaseRepository {
     final orders = await isar.orderIsars
         .where()
         .filter()
-        .createdDateGreaterThan(DateTime.now().toIso8601String())
+        .createdDateStartsWith(
+          DateTime.now().toIso8601String().split("T").first,
+        )
         .employee((e) => e.idEqualTo(id))
         .findAll();
     for (final item in orders) {
