@@ -1,12 +1,15 @@
 import 'dart:developer';
 
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/database/app_database/app_state_database.dart';
+import 'package:biznex/src/core/database/product_database/product_database.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/orders_provider.dart';
 import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import '../core/database/order_database/order_database.dart';
 import '../core/model/order_models/order_model.dart';
+import '../core/model/product_models/product_model.dart';
 import 'employee_orders_provider.dart';
 
 final orderSetProvider =
@@ -17,8 +20,28 @@ final orderSetProvider =
 class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
   final Ref ref;
   final OrderDatabase _orderDatabase = OrderDatabase();
+  final ProductDatabase _productDatabase = ProductDatabase();
+  final AppStateDatabase _stateDatabase = AppStateDatabase();
+  AppModel? model;
 
   OrderSetNotifier(this.ref) : super([]);
+
+  void _onRestoreProduct(OrderItem orderItem) async {
+    if (model?.firstDecrease ?? false) {
+      Product? oldProduct = await _productDatabase.getProductById(
+        orderItem.product.id,
+      );
+
+      if (oldProduct == null) return;
+      oldProduct.amount = oldProduct.amount + orderItem.amount;
+      await _productDatabase.update(key: oldProduct.id, data: oldProduct);
+    }
+
+    try {
+      ref.invalidate(productsProvider);
+      ref.refresh(productsProvider);
+    } catch (_) {}
+  }
 
   Future<void> loadOrderForPlace(String placeId) async {
     if (state.any((item) => item.placeId == placeId)) {
@@ -26,6 +49,7 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
     }
 
     final order = await _orderDatabase.getPlaceOrder(placeId);
+    model = await _stateDatabase.getApp();
 
     if (order != null && order.products.isNotEmpty) {
       addMultiple(order.products, null);
@@ -49,7 +73,10 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
       if (item.product.amount >= 1) state = [...state, item];
     }
 
-    ref.invalidate(productsProvider);
+    try {
+      ref.invalidate(productsProvider);
+      ref.refresh(productsProvider);
+    } catch (_) {}
   }
 
   void removeItem(OrderItem item, AppModel model, context) {
@@ -72,13 +99,15 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
   }
 
   void deleteItem(OrderItem item, context, Order? kOrder) async {
-    if(kOrder == null) {
+    _onRestoreProduct(item);
+
+    if (kOrder == null) {
       final index = state.indexWhere(
-              (e) => e.product.id == item.product.id && e.placeId == item.placeId);
+          (e) => e.product.id == item.product.id && e.placeId == item.placeId);
       if (index != -1) {
         state = [
           ...state.where((e) =>
-          !(e.product.id == item.product.id && e.placeId == item.placeId))
+              !(e.product.id == item.product.id && e.placeId == item.placeId))
         ];
       }
 
@@ -161,6 +190,11 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
     } else {
       state = [...state, item];
     }
+
+    try {
+      ref.invalidate(productsProvider);
+      ref.refresh(productsProvider);
+    } catch (_) {}
   }
 
   List<OrderItem> getItemsByPlace(String placeId) {
@@ -231,6 +265,11 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
         .where((e) => !currentKeys.contains('${e.product.id}-${e.placeId}'))
         .toList();
     state = [...current, ...unique];
+
+    try {
+      ref.invalidate(productsProvider);
+      ref.refresh(productsProvider);
+    } catch (_) {}
   }
 
   void clear() {

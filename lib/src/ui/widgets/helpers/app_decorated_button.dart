@@ -11,6 +11,7 @@ class AppPrimaryButton extends StatelessWidget {
   final AppColors theme;
   final String? title;
   final void Function() onPressed;
+  final void Function()? onLongPressed;
   final Color? color;
   final Color? cancelColor;
   final Color? textColor;
@@ -23,6 +24,7 @@ class AppPrimaryButton extends StatelessWidget {
 
   const AppPrimaryButton({
     super.key,
+    this.onLongPressed,
     this.cancelColor,
     this.padding,
     this.child,
@@ -40,6 +42,7 @@ class AppPrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SimpleButton(
+      onLongPress: onLongPressed ?? () {},
       onPressed: onPressed,
       child: Container(
         padding: padding ?? const EdgeInsets.only(top: 12, bottom: 12),
@@ -58,7 +61,10 @@ class AppPrimaryButton extends StatelessWidget {
                     )
                   : Text(
                       title ?? '',
-                      style: TextStyle(color: textColor ?? Colors.white, fontFamily: 'Medium', fontSize: context.s(14)),
+                      style: TextStyle(
+                          color: textColor ?? Colors.white,
+                          fontFamily: 'Medium',
+                          fontSize: context.s(14)),
                     )),
         ),
       ),

@@ -493,6 +493,8 @@ class OrderItemsPage extends HookConsumerWidget {
                                       scheduledDate: scheduledTime.value,
                                     );
                                     AppRouter.close(context);
+                                    ref.refresh(productsProvider);
+                                    ref.invalidate(productsProvider);
                                     return;
                                   }
 

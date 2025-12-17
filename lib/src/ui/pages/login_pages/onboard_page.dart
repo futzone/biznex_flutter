@@ -79,6 +79,14 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                               textInputType: TextInputType.number,
                             ),
                             AppPrimaryButton(
+                              onLongPressed: () {
+                                AppModel nm = state;
+                                nm.apiUrl = null;
+                                AppStateDatabase().updateApp(nm).then((_) {
+                                  ref.invalidate(appStateProvider);
+                                  ref.invalidate(employeeProvider);
+                                });
+                              },
                               padding: Dis.only(tb: 12),
                               theme: theme,
                               onPressed: () {
@@ -98,7 +106,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                 // if(ApiBase().get(baseUrl: , path: path))
                               },
                               child: Text(
-                                AppLocales.login,
+                                AppLocales.login.tr(),
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontFamily: boldFamily,
@@ -334,11 +342,12 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                     fullname: "Admin",
                                     onPressed: () {
                                       AppRouter.go(
-                                          context,
-                                          LoginPageHarom(
-                                              model: state,
-                                              theme: theme,
-                                              fromAdmin: true));
+                                        context,
+                                        LoginPageHarom(
+                                            model: state,
+                                            theme: theme,
+                                            fromAdmin: true),
+                                      );
                                     },
                                   );
                                 }
@@ -355,7 +364,9 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                     AppRouter.go(
                                       context,
                                       LoginPageHarom(
-                                          model: state, theme: theme),
+                                        model: state,
+                                        theme: theme,
+                                      ),
                                     );
                                   },
                                 );
