@@ -1,4 +1,5 @@
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/core/model/order_models/order.dart';
@@ -26,6 +27,13 @@ bool haveInPlaces(Order order, String placeId) {
 
 final employeeOrdersProvider = FutureProvider<List<Order>>((ref) async {
   final employee = ref.watch(currentEmployeeProvider);
+  final state = await AppStateDatabase().getApp();
+  if (state.alwaysWaiter) {
+    OrderDatabase orderDatabase = OrderDatabase();
+    final orders = await orderDatabase.getEmployeeOrders(employee.id);
+    return orders;
+  }
+
   final orderDatabase = IsarDatabase.instance.isar;
   final employeeOrders = await orderDatabase.orderIsars
       .where()

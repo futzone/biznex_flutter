@@ -205,10 +205,9 @@ class PrinterServices {
             ],
           ),
         ),
-        if (order.place.percent != null && order.place.percent != 0.0)
+        if ((order.place.percent ?? 0) > 0 || (order.place.price ?? 0) > 0)
           ..._buildPlacePercentSection(productTotal, percents),
-        if ((percents.isNotEmpty && !order.place.percentNull) ||
-            order.place.price != null)
+        if ((percents.isNotEmpty && !order.place.percentNull))
           ..._buildAdditionalPercentsSection(productTotal, percents),
       ],
     );

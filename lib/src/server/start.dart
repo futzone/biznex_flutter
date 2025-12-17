@@ -406,13 +406,23 @@ void startServer() async {
   app.get('/api/v2/percents', (Request request) async {
     OrderPercentDatabase percentDatabase = OrderPercentDatabase();
     final percents = await percentDatabase.get();
-    return Response(200,
-        body: jsonEncode([for (final item in percents) item.toJson()]));
+    return Response(
+      200,
+      body: jsonEncode([for (final item in percents) item.toJson()]),
+    );
   });
 
-  app.get('/api/v2/order-recipe/<orderId>', (Request request, String id) async {
+  app.get('/api/v2/order-recipe/<id>', (Request request, String id) async {
     await orderDatabase.printOrderRecipe(id);
     return Response(200);
+  });
+
+  app.get('/api/v2/employee-orders/<id>', (Request request, String id) async {
+    final orders = await orderDatabase.getEmployeeOrders(id);
+    return Response(
+      200,
+      body: jsonEncode([for (final item in orders) item.toJson()]),
+    );
   });
 
   app.get('/api/v2/image/<productId>',

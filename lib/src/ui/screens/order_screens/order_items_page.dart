@@ -604,7 +604,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                         OrderController(
                                       model: state,
                                       place: place,
-                                      employee:
+                                      employee: order?.employee ??
                                           ref.watch(currentEmployeeProvider),
                                     );
 

@@ -22,8 +22,10 @@ class AddPlace extends HookWidget {
     final nameController = useTextEditingController(text: editCategory?.name);
     final percentNull = useState(editCategory?.percentNull ?? false);
     final numberController = useTextEditingController();
-    final priceController = useTextEditingController();
-    final percentController = useTextEditingController();
+    final priceController =
+        useTextEditingController(text: editCategory?.price?.toMeasure);
+    final percentController =
+        useTextEditingController(text: editCategory?.percent?.toMeasure);
     return AppStateWrapper(
       builder: (theme, state) {
         return SingleChildScrollView(
@@ -82,7 +84,8 @@ class AddPlace extends HookWidget {
                 onConfirm: () async {
                   final count = int.tryParse(numberController.text.trim());
                   final price = double.tryParse(priceController.text.trim());
-                  final percent = double.tryParse(percentController.text.trim());
+                  final percent =
+                      double.tryParse(percentController.text.trim());
                   PlaceController controller =
                       PlaceController(context: context, state: state);
                   if (nameController.text.trim().isEmpty) {
@@ -153,10 +156,10 @@ class AddPlace extends HookWidget {
                     } else {
                       for (int i = 1; i <= count; i++) {
                         Place category = Place(
-                            name: "$i - ${nameController.text}",
-                            percentNull: percentNull.value,
-                            father: addSubcategoryTo,
-                            price: price,
+                          name: "$i - ${nameController.text}",
+                          percentNull: percentNull.value,
+                          father: addSubcategoryTo,
+                          price: price,
                           percent: percent,
                         );
                         controller.create(category, multiple: true);

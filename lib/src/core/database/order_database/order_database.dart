@@ -453,6 +453,32 @@ class OrderDatabase extends OrderDatabaseRepository {
     }
   }
 
+  Future<List<Order>> getEmployeeOrders(String id) async {
+    List<Order> ordersList = [];
+    if ((await connectionStatus()) != null) {
+      final response = await getRemote(path: 'employee-orders/$id');
+      if (response != null) {
+        for (final item in jsonDecode(response)) {
+          ordersList.add(Order.fromJson(item));
+        }
+      }
+
+      return ordersList;
+    }
+
+    final orders = await isar.orderIsars
+        .where()
+        .filter()
+        .createdDateGreaterThan(DateTime.now().toIso8601String())
+        .employee((e) => e.idEqualTo(id))
+        .findAll();
+    for (final item in orders) {
+      ordersList.add(Order.fromIsar(item));
+    }
+
+    return ordersList;
+  }
+
   Future<Order?> getOrderById(String id) async {
     final orderIsar = await isar.orderIsars.filter().idEqualTo(id).findFirst();
     if (orderIsar == null) return null;
