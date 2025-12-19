@@ -12,6 +12,20 @@ class Percent {
     this.updatedDate = '',
   });
 
+  Percent copyWith({
+    String? id,
+    String? name,
+    double? percent,
+    String? updatedDate,
+  }) {
+    return Percent(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      percent: percent ?? this.percent,
+      updatedDate: updatedDate ?? this.updatedDate,
+    );
+  }
+
   factory Percent.fromJson(json) {
     return Percent(
       id: json['id'] ?? '',

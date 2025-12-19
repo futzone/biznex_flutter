@@ -368,8 +368,9 @@ class OrderDatabase extends OrderDatabaseRepository {
 
         newIsar.isarId = orderIsar.isarId;
         await isar.orderIsars.put(newIsar);
+      } else {
+        await isar.orderIsars.put(newIsar);
       }
-      await isar.orderIsars.put(newIsar);
     });
 
     try {

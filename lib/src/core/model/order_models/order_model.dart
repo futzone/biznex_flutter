@@ -164,6 +164,7 @@ class Order {
       orderNumber:
           setOrderNumberToNull == true ? null : orderNumber ?? this.orderNumber,
       products: products ?? this.products,
+      isarId: this.isarId,
     );
   }
 }

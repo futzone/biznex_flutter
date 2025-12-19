@@ -3,6 +3,7 @@ import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/extensions/for_date.dart';
 import 'package:biznex/src/core/model/product_models/shopping_model.dart';
+import 'package:biznex/src/core/model/product_models/recipe_item_model.dart';
 import 'package:biznex/src/providers/employee_orders_provider.dart';
 import '../../../controllers/warehouse_monitoring_controller.dart';
 
@@ -33,10 +34,13 @@ class ShoppingDatabase {
         if (itemChanges == null) continue;
 
         final decrease = itemChanges.amount - item.amount;
-        item.amount = decrease.abs();
+        // item.amount = decrease.abs();
 
         await WarehouseMonitoringController.updateFromShopping(
-          item,
+          RecipeItem(
+            ingredient: item.ingredient,
+            amount: decrease.abs(),
+          ),
           AppLocales.shoppingUpdated.tr(),
         );
       }

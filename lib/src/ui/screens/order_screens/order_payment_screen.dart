@@ -1,6 +1,7 @@
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
 import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
+import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
@@ -129,17 +130,75 @@ class OrderPaymentScreen extends HookConsumerWidget {
                     // child: Text(AppLocales.add.tr()),
                     onPressed: () {
                       if (currentType.value.isEmpty) return;
-                      if (double.tryParse(currentSum.text.trim()) == null) {
+                      final amount = double.tryParse(currentSum.text.trim());
+                      if (amount == null) {
                         return;
+                      }
+
+                      // Handle overflow by reducing Debt if possible
+                      final currentTotalPayments =
+                          payments.value.fold(0.0, (a, b) => a += b.percent);
+                      final excess =
+                          (currentTotalPayments + amount) - totalSumm;
+
+                      if (excess > 0) {
+                        final debtIndex = payments.value
+                            .indexWhere((p) => p.name == Transaction.debt);
+                        if (debtIndex != -1) {
+                          final debtItem = payments.value[debtIndex];
+                          if (debtItem.percent >= excess) {
+                            final newDebtAmount = debtItem.percent - excess;
+                            final newPayments = [...payments.value];
+
+                            // Update debt item
+                            if (newDebtAmount > 0) {
+                              newPayments[debtIndex] =
+                                  debtItem.copyWith(percent: newDebtAmount);
+                            } else {
+                              newPayments.removeAt(debtIndex);
+                            }
+
+                            // Add new payment
+                            newPayments.add(Percent(
+                              name: currentType.value,
+                              percent: amount,
+                            ));
+
+                            payments.value = newPayments;
+                            currentType.value = '';
+                            currentSum.text = (totalSumm -
+                                    newPayments.fold(
+                                        0.0, (a, b) => a + b.percent))
+                                .toMeasure;
+                            return;
+                          }
+                        }
+                      }
+
+                      if (payments.value.length == 1) {
+                        final remaining = totalSumm - amount;
+                        if (remaining >= 0) {
+                          payments.value = [
+                            payments.value.first.copyWith(percent: remaining),
+                            Percent(
+                              name: currentType.value,
+                              percent: amount,
+                            ),
+                          ];
+                          currentType.value = '';
+                          currentSum.text = (totalSumm -
+                                  (payments.value
+                                      .fold(0.0, (a, b) => a += b.percent)))
+                              .toMeasure;
+                          return;
+                        }
                       }
 
                       payments.value = [
                         ...payments.value,
                         Percent(
                           name: currentType.value,
-                          percent: double.parse(
-                            currentSum.text.tr(),
-                          ),
+                          percent: amount,
                         ),
                       ];
 
@@ -160,6 +219,12 @@ class OrderPaymentScreen extends HookConsumerWidget {
             title: AppLocales.save.tr(),
             // child: Text(AppLocales.add.tr()),
             onPressed: () {
+              final currentTotal =
+                  payments.value.fold(0.0, (a, b) => a += b.percent);
+              if (currentTotal != totalSumm) {
+                return ShowToast.error(
+                    context, AppLocales.paymentSummError.tr());
+              }
               onComplete(payments.value);
               currentType.value = '';
               currentSum.clear();

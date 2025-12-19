@@ -590,4 +590,6 @@ abstract class AppLocales {
   static var deleteOrderQuestion = "deleteOrderQuestion";
   static var order = "order";
   static var allowCloseWaiter = "allowCloseWaiter";
+  static var editDate = "editDate";
+  static var paymentSummError = "paymentSummError";
 }

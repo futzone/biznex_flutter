@@ -167,22 +167,9 @@ class OrderItemCardNew extends HookConsumerWidget {
                     onDeletePressed: () {
                       if (order == null) {
                         orderNotifier.deleteItem(item, context, order);
+                      } else {
+                        orderNotifier.deleteItem(item, context, order);
                       }
-
-                      if (!isAdmin) {
-                        ShowToast.error(
-                            context, AppLocales.doNotDecreaseText.tr());
-                        return;
-                      }
-
-                      if (OrderController.hasNegativeItem(ref,
-                          savedList: order?.products ?? [], item: item)) {
-                        ShowToast.error(
-                            context, AppLocales.doNotDecreaseText.tr());
-
-                        return;
-                      }
-                      orderNotifier.deleteItem(item, context, order);
                     },
                     onUpdateItemDetails: (amount, price) {
                       OrderItem kOrderItem = item;
@@ -208,20 +195,9 @@ class OrderItemCardNew extends HookConsumerWidget {
               onDismissed: (_) {
                 if (order == null) {
                   orderNotifier.deleteItem(item, context, order);
+                } else {
+                  orderNotifier.deleteItem(item, context, order);
                 }
-
-                if (!isAdmin) {
-                  ShowToast.error(context, AppLocales.doNotDecreaseText.tr());
-                  return;
-                }
-
-                if (OrderController.hasNegativeItem(ref,
-                    savedList: order?.products ?? [], item: item)) {
-                  ShowToast.error(context, AppLocales.doNotDecreaseText.tr());
-
-                  return;
-                }
-                orderNotifier.deleteItem(item, context, order);
               },
               background: Container(
                 color: Colors.red,
@@ -305,39 +281,22 @@ class OrderItemCardNew extends HookConsumerWidget {
                           iconSize: 20,
                         ),
                       ),
-                      if (!isAdmin)
-                        ElevatedButton.icon(
-                          icon: Icon(Icons.remove, size: 20),
-                          onPressed: () {
-                            if (OrderController.hasNegativeItem(ref,
-                                savedList: order?.products ?? [], item: item)) {
-                              ShowToast.error(
-                                  context, AppLocales.doNotDecreaseText.tr());
-
-                              return;
-                            }
-
-                            if (item.amount >= 1) updateAmount(item.amount - 1);
-                          },
-                          label: Text("1"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red.shade100,
-                            padding: Dis.only(lr: 12, tb: 8),
-                            iconSize: 20,
-                          ),
+                      ElevatedButton.icon(
+                        icon: Icon(Icons.remove, size: 20),
+                        onPressed: () {
+                          if (item.amount >= 1) updateAmount(item.amount - 1);
+                        },
+                        label: Text("1"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red.shade100,
+                          padding: Dis.only(lr: 12, tb: 8),
+                          iconSize: 20,
                         ),
+                      ),
                       if (itemIsSaved.value || isAdmin)
                         ElevatedButton.icon(
                           icon: Icon(Icons.remove, size: 20),
                           onPressed: () {
-                            if (OrderController.hasNegativeItem(ref,
-                                savedList: order?.products ?? [], item: item)) {
-                              ShowToast.error(
-                                  context, AppLocales.doNotDecreaseText.tr());
-
-                              return;
-                            }
-
                             if (item.amount >= 0.1) {
                               updateAmount(item.amount - 0.1);
                             }
@@ -369,24 +328,9 @@ class OrderItemCardNew extends HookConsumerWidget {
                     onDeletePressed: () {
                       if (order == null) {
                         orderNotifier.deleteItem(item, context, order);
+                      } else {
+                        orderNotifier.deleteItem(item, context, order);
                       }
-
-                      if (!isAdmin) {
-                        ShowToast.error(
-                            context, AppLocales.doNotDecreaseText.tr());
-
-                        return;
-                      }
-
-                      if (OrderController.hasNegativeItem(ref,
-                          savedList: order?.products ?? [], item: item)) {
-                        ShowToast.error(
-                            context, AppLocales.doNotDecreaseText.tr());
-
-                        return;
-                      }
-
-                      orderNotifier.deleteItem(item, context, order);
                     },
                     onUpdateItemDetails: (amount, price) {
                       OrderItem kOrderItem = item;
@@ -416,8 +360,9 @@ class OrderItemCardNew extends HookConsumerWidget {
           padding:
               Dis.only(lr: context.w(16), tb: context.h(minimalistic ? 16 : 8)),
           decoration: BoxDecoration(
-            borderRadius:
-                infoView ? BorderRadius.circular(infoView ? 8 : 0) : null,
+            borderRadius: infoView
+                ? BorderRadius.circular(infoView ? 12 : 0)
+                : BorderRadius.circular(12),
             color: infoView
                 ? theme.accentColor
                 : itemIsSaved.value
@@ -426,7 +371,7 @@ class OrderItemCardNew extends HookConsumerWidget {
             border: minimalistic
                 ? BorderDirectional(
                     bottom: BorderSide(
-                      color: theme.secondaryTextColor,
+                      color: theme.accentColor,
                       width: 0.8,
                     ),
                   )

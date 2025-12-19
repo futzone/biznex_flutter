@@ -127,12 +127,13 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
             floatingActionButton: !showSetIcon
                 ? null
                 : FloatingActionButton(
-              backgroundColor: theme.mainColor,
-              child: Icon(Iconsax.bag_copy, size: 32, color: Colors.white),
-              onPressed: () {
-                AppRouter.close(context);
-              },
-            ),
+                    backgroundColor: theme.mainColor,
+                    child:
+                        Icon(Iconsax.bag_copy, size: 32, color: Colors.white),
+                    onPressed: () {
+                      AppRouter.close(context);
+                    },
+                  ),
             appBar: AppBar(
               title: Padding(
                 padding: const EdgeInsets.only(bottom: 8, top: 8),
@@ -252,11 +253,12 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
 
                               if (product.amount != -1) {
                                 orderNotifier.addItem(
-                                    OrderItem(
-                                        product: product,
-                                        amount: 1,
-                                        placeId: widget.place.id),
-                                    context);
+                                  OrderItem(
+                                      product: product,
+                                      amount: 1,
+                                      placeId: widget.place.id),
+                                  context,
+                                );
 
                                 ShowToast.success(
                                     context, AppLocales.productAddedToSet.tr());
@@ -413,10 +415,10 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                                   border: focused
                                       ? Border.all(color: theme.mainColor)
                                       : Border.all(
-                                          color:
-                                              _selectedCategory?.id == category.id
-                                                  ? theme.mainColor
-                                                  : Colors.white,
+                                          color: _selectedCategory?.id ==
+                                                  category.id
+                                              ? theme.mainColor
+                                              : Colors.white,
                                         ),
                                 ),
                                 child: Row(
@@ -430,16 +432,19 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                                         width: context.s(48),
                                         padding: Dis.all(context.s(8)),
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(4),
-                                          color:
-                                              _selectedCategory?.id == category.id
-                                                  ? theme.white
-                                                  : theme.scaffoldBgColor,
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                          color: _selectedCategory?.id ==
+                                                  category.id
+                                              ? theme.white
+                                              : theme.scaffoldBgColor,
                                         ),
                                         child: Center(
                                           child: category.icon == null
                                               ? Text(
-                                                  category.name.trim().isNotEmpty
+                                                  category.name
+                                                          .trim()
+                                                          .isNotEmpty
                                                       ? category.name.trim()[0]
                                                       : "🍜",
                                                   style: TextStyle(
@@ -465,7 +470,8 @@ class _OrderHalfPageState extends ConsumerState<OrderHalfPage> {
                                     Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           category.name.trim(),
