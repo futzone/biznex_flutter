@@ -5,8 +5,6 @@ import 'package:biznex/src/core/utils/action_listener.dart';
 import 'package:biznex/src/core/utils/printer_fonts.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/license_status_provider.dart';
-import 'package:biznex/src/providers/places_provider.dart';
-import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/server/start.dart';
 import 'package:biznex/src/ui/pages/login_pages/onboard_page.dart';
 import 'package:biznex/src/ui/screens/sleep_screen/activity_wrapper.dart';
@@ -22,6 +20,9 @@ import 'package:path/path.dart' as path;
 bool debugMode = true;
 const appVersion = '2.5.9';
 const appPageSize = 30;
+
+const anonKey =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,6 +59,7 @@ void main() async {
     Hive.init(hiveDir.path);
     await IsarDatabase.instance.init(dir.path);
   }
+
 
   // await AppBackupDatabase.instance.init();
   await EasyLocalization.ensureInitialized();

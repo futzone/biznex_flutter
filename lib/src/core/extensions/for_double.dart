@@ -1,13 +1,12 @@
 import 'package:flutter/cupertino.dart';
 
-extension DoubleFormatter on num {
+extension DoubleHelpers on num {
   String get price {
-    if (isNaN || !isFinite) return '0'; // default
-    return toInt()
-        .toString()
-        .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-            (Match m) => '${m[1]} ');
+    if (isNaN || !isFinite) return '0';
+    return toInt().toString().replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]} ');
   }
+
   String get priceUZS => "$price UZS";
 
   Widget get w {
@@ -52,7 +51,6 @@ extension DoubleFormatter on num {
     }
 
     if ("$this".split(".").last.startsWith("00")) {
-
       return toInt().toString();
     }
     final str = toStringAsFixed(3);
@@ -60,3 +58,5 @@ extension DoubleFormatter on num {
     return trimmed;
   }
 }
+
+
