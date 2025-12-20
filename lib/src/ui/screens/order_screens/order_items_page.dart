@@ -4,6 +4,7 @@ import 'package:biznex/src/controllers/order_controller.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
+import 'package:biznex/src/core/extensions/for_ref.dart';
 import 'package:biznex/src/core/model/order_models/percent_model.dart';
 import 'package:biznex/src/core/model/other_models/customer_model.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
@@ -369,7 +370,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                   ],
                                 ),
                               if (order != null && !order.place.percentNull)
-                                state.whenProviderData(
+                                ref.whenProviderData(
                                   provider: orderPercentProvider,
                                   builder: (percents) {
                                     // percents as List<Percent>;
@@ -519,36 +520,24 @@ class OrderItemsPage extends HookConsumerWidget {
                                 title: AppLocales.add.tr(),
                               ),
 
-                              if (!(state.apiUrl != null &&
-                                  state.apiUrl!.isNotEmpty))
+
                                 8.h,
-                              if (!(state.apiUrl != null &&
-                                  state.apiUrl!.isNotEmpty))
+
+
+                              if (order != null)
                                 AppPrimaryButton(
+                                  padding: Dis.only(tb: 16),
                                   theme: theme,
                                   onPressed: () async {
                                     OrderController orderController =
-                                        OrderController(
+                                    OrderController(
                                       model: state,
                                       place: place,
                                       employee:
-                                          ref.watch(currentEmployeeProvider),
+                                      ref.watch(currentEmployeeProvider),
                                     );
-
-                                    await orderController.printCheck(
-                                      context,
-                                      ref,
-                                      // note: noteController.text.trim(),
-                                      customer: Customer(
-                                        name: addressController.text,
-                                        phone: phoneController.text,
-                                      ),
-                                      scheduledDate: scheduledTime.value,
-                                      paymentType: paymentType.value,
-                                      useCheck: useCheck.value,
-                                      phone: phoneController.text,
-                                      address: addressController.text,
-                                    );
+                                    await orderController
+                                        .printCheck(order.id);
                                   },
                                   textColor: theme.mainColor,
                                   border: Border.all(color: theme.mainColor),
@@ -557,65 +546,63 @@ class OrderItemsPage extends HookConsumerWidget {
                                   // icon: Icons.close,
                                   child: Row(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    spacing: 8,
+                                    CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.center,
+                                    spacing: 16,
                                     children: [
                                       Icon(
-                                        Iconsax.printer_copy,
-                                        size: context.s(20),
+                                        Ionicons.print_outline,
                                         color: theme.mainColor,
                                       ),
                                       Text(
                                         AppLocales.print.tr(),
                                         style: TextStyle(
-                                          fontSize: context.s(14),
-                                          fontFamily: mediumFamily,
-                                          color: theme.mainColor,
-                                        ),
+                                            fontSize: 16,
+                                            fontFamily: mediumFamily,
+                                            color: theme.mainColor),
                                       ),
                                     ],
                                   ),
                                 ),
-                              8.h,
-                              AppPrimaryButton(
-                                theme: theme,
-                                onPressed: () async {
-                                  OrderController orderController =
-                                      OrderController(
-                                    model: state,
-                                    place: place,
-                                    employee:
-                                        ref.watch(currentEmployeeProvider),
-                                  );
-
-                                  await orderController.closeOrder(
-                                    context,
-                                    ref,
-                                    // note: noteController.text.trim(),
-                                    customer: Customer(
-                                      name: addressController.text,
-                                      phone: phoneController.text,
-                                    ),
-                                    scheduledDate: scheduledTime.value,
-                                    paymentType: paymentType.value,
-                                    useCheck: useCheck.value,
-                                    phone: phoneController.text,
-                                    address: addressController.text,
-                                  );
-
-                                  noteController.clear();
-                                  customerNotifier.value = null;
-
-                                  paymentType.value = '';
-                                  paymentTypes.value = [];
-                                },
-                                textColor: Colors.white,
-                                border: Border.all(color: Colors.blue),
-                                color: Colors.blue,
-                                title: AppLocales.close.tr(),
-                                // icon: Icons.close,
-                              ),
+                              // AppPrimaryButton(
+                              //   theme: theme,
+                              //   onPressed: () async {
+                              //     OrderController orderController =
+                              //         OrderController(
+                              //       model: state,
+                              //       place: place,
+                              //       employee:
+                              //           ref.watch(currentEmployeeProvider),
+                              //     );
+                              //
+                              //     await orderController.closeOrder(
+                              //       context,
+                              //       ref,
+                              //       // note: noteController.text.trim(),
+                              //       customer: Customer(
+                              //         name: addressController.text,
+                              //         phone: phoneController.text,
+                              //       ),
+                              //       scheduledDate: scheduledTime.value,
+                              //       paymentType: paymentType.value,
+                              //       useCheck: useCheck.value,
+                              //       phone: phoneController.text,
+                              //       address: addressController.text,
+                              //     );
+                              //
+                              //     noteController.clear();
+                              //     customerNotifier.value = null;
+                              //
+                              //     paymentType.value = '';
+                              //     paymentTypes.value = [];
+                              //   },
+                              //   textColor: Colors.white,
+                              //   border: Border.all(color: Colors.blue),
+                              //   color: Colors.blue,
+                              //   title: AppLocales.close.tr(),
+                              //   // icon: Icons.close,
+                              // ),
                               // ConfirmCancelButton(
                               //   onlyConfirm: true,
                               //   cancelColor: theme.scaffoldBgColor,
@@ -688,3 +675,4 @@ class OrderItemsPage extends HookConsumerWidget {
     );
   }
 }
+

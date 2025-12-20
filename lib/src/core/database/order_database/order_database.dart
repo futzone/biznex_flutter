@@ -62,8 +62,8 @@ class OrderDatabase extends OrderDatabaseRepository {
     List<Order> ordersList = [];
 
     final response = await getRemote(path: 'employee-orders/$id');
-    if (response != null) {
-      for (final item in jsonDecode(response)) {
+     if (response != null) {
+       for (final item in jsonDecode(response)) {
         ordersList.add(Order.fromJson(item));
       }
     }
@@ -382,6 +382,10 @@ class OrderDatabase extends OrderDatabaseRepository {
   }
 
   getBoxName(String s) => 'orders';
+
+  Future<void> printOrderRecipe(String orderId  ) async {
+    await getRemote(path: 'order-recipe/$orderId');
+  }
 }
 
 List<OrderItem> _onGetChanges(

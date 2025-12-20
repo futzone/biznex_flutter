@@ -81,14 +81,16 @@ class MenuPage extends HookConsumerWidget {
         body: mobile
             ? RefreshIndicator(
                 onRefresh: () async {
+                  ref.invalidate(productsProvider);
+                  ref.invalidate(categoryProvider);
                   await ref
                       .refresh(ordersProvider(place.id).future)
-                      .then((order) {
+                      .then((order) async {
                     if (order != null) {
                       ref
                           .read(orderSetProvider.notifier)
                           .clearPlaceItems(place.id);
-                      Future.delayed(Duration(milliseconds: 100));
+                      await Future.delayed(Duration(milliseconds: 100));
                       ref
                           .read(orderSetProvider.notifier)
                           .addMultiple(order.products, context, order: order);
