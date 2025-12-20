@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:biznex/biznex.dart';
@@ -192,6 +193,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                                     null ||
                                                 (customerNotifier.value?.id ??
                                                         '')
+                                                    .trim()
                                                     .isEmpty)
                                               Icon(
                                                 Iconsax.profile_2user_copy,
@@ -234,15 +236,26 @@ class OrderItemsPage extends HookConsumerWidget {
                                                 ),
                                               ),
                                             Text(
-                                              customerNotifier.value == null
+                                              (customerNotifier.value == null ||
+                                                      (customerNotifier
+                                                                  .value?.id ??
+                                                              '')
+                                                          .trim()
+                                                          .isEmpty)
                                                   ? AppLocales.customer.tr()
                                                   : customerNotifier
                                                           .value?.name ??
                                                       '',
                                               style: TextStyle(
                                                 fontFamily:
-                                                    customerNotifier.value ==
-                                                            null
+                                                    (customerNotifier.value ==
+                                                                null ||
+                                                            (customerNotifier
+                                                                        .value
+                                                                        ?.id ??
+                                                                    '')
+                                                                .trim()
+                                                                .isEmpty)
                                                         ? mediumFamily
                                                         : boldFamily,
                                               ),
