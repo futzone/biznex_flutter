@@ -526,7 +526,7 @@ class OrderItemsPage extends HookConsumerWidget {
 
                               if (order != null)
                                 AppPrimaryButton(
-                                  padding: Dis.only(tb: 16),
+                                  // padding: Dis.only(tb: 16),
                                   theme: theme,
                                   onPressed: () async {
                                     OrderController orderController =

@@ -26,7 +26,9 @@ abstract class OrderDatabaseRepository {
   ApiBase apiBase = ApiBase();
 
   Future<dynamic> getRemote({required String path}) async {
-    if (path == 'percents') log("base url: $baseUrl");
+
+    await connectionStatus();
+    log("base url: $baseUrl");
     if (baseUrl == null) return null;
     final response = await apiBase.get(baseUrl: "http://$baseUrl:8080", path: '/api/v2/$path');
     if (path == 'percents') log("percents: ${response?.statusCode} | ${response?.data}");

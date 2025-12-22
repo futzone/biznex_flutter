@@ -69,13 +69,13 @@ class MobileDrawer extends HookConsumerWidget {
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.bar_chart),
-            title: Text(AppLocales.monitoring.tr()),
-            onTap: () {
-             AppRouter.go(context, Scaffold(body: EmployeeMonitoringPage(theme, employee)));
-            },
-          ),
+          // ListTile(
+          //   leading: const Icon(Icons.bar_chart),
+          //   title: Text(AppLocales.monitoring.tr()),
+          //   onTap: () {
+          //    AppRouter.go(context, Scaffold(body: EmployeeMonitoringPage(theme, employee)));
+          //   },
+          // ),
           ListTile(
             leading: const Icon(Icons.language),
             title: Text(AppLocales.changeLanguage.tr()),
