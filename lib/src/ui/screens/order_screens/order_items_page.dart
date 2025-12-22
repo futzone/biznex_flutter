@@ -1,6 +1,4 @@
-import 'dart:developer';
 import 'dart:io';
-
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/controllers/order_controller.dart';
 import 'package:biznex/src/core/config/router.dart';
@@ -46,23 +44,11 @@ class OrderItemsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, ref) {
     final mobile = getDeviceType(context) == DeviceType.mobile;
-    // final orderItems = ref.watch(orderSetProvider);
-    // final orderNotifier = ref.read(orderSetProvider.notifier);
     final currentEmployee = ref.watch(currentEmployeeProvider);
     final scheduledTime = useState<DateTime?>(null);
     final useCheck = useState(true);
     final paymentType = useState(AppLocales.useCash);
     final percents = ref.read(orderPercentProvider).value ?? [];
-
-    // final placeOrderItems = useMemoized(
-    //   () => orderItems.where((e) => e.placeId == place.id).toList(),
-    //   [orderItems, place.id],
-    // );
-    //
-    // final totalPrice = placeOrderItems.fold<double>(
-    //   0,
-    //   (sum, item) => sum + (item.customPrice ?? item.amount * item.product.price),
-    // );
 
     useEffect(() {
       Future.microtask(() {
