@@ -36,10 +36,10 @@ abstract class AppDatabase {
     return uuid.v1();
   }
 
-
   Future<String?> connectionStatus() async {
     final url = await AppStateDatabase().getApp();
     if (url.apiUrl == null || (url.apiUrl ?? '').isEmpty) return null;
+    if (int.tryParse(url.apiUrl!.replaceAll(".", "")) == null) return null;
     baseUrl = url.apiUrl;
     return url.apiUrl;
 
@@ -56,35 +56,45 @@ abstract class AppDatabase {
 
   Future<dynamic> getRemote({required String boxName}) async {
     if (baseUrl == null) return null;
-    final response = await apiBase.get(baseUrl: "http://$baseUrl:8080", path: '/api/v2/$boxName');
+    if (int.tryParse(baseUrl!.replaceAll(".", "")) == null) return null;
+    final response = await apiBase.get(
+        baseUrl: "http://$baseUrl:8080", path: '/api/v2/$boxName');
     if (response.success) return response?.data;
     return null;
   }
 
   Future<dynamic> postRemote({required String boxName, dynamic data}) async {
     if (baseUrl == null) return null;
-    final response = await apiBase.post(baseUrl: baseUrl!, path: '/api/v2/$boxName', data: data);
+    if (int.tryParse(baseUrl!.replaceAll(".", "")) == null) return null;
+    final response = await apiBase.post(
+        baseUrl: baseUrl!, path: '/api/v2/$boxName', data: data);
     if (response.success) return response?.data;
     return null;
   }
 
   Future<dynamic> putRemote({required String boxName, dynamic data}) async {
     if (baseUrl == null) return null;
-    final response = await apiBase.put(baseUrl: baseUrl!, path: '/api/v2/$boxName', data: data);
+    if (int.tryParse(baseUrl!.replaceAll(".", "")) == null) return null;
+    final response = await apiBase.put(
+        baseUrl: baseUrl!, path: '/api/v2/$boxName', data: data);
     if (response.success) return response?.data;
     return null;
   }
 
   Future<dynamic> patchRemote({required String boxName, dynamic data}) async {
     if (baseUrl == null) return null;
-    final response = await apiBase.patch(baseUrl: baseUrl!, path: '/api/v2/$boxName', data: data);
+    if (int.tryParse(baseUrl!.replaceAll(".", "")) == null) return null;
+    final response = await apiBase.patch(
+        baseUrl: baseUrl!, path: '/api/v2/$boxName', data: data);
     if (response.success) return response?.data;
     return null;
   }
 
   Future<dynamic> deleteRemote({required String boxName, dynamic data}) async {
     if (baseUrl == null) return null;
-    final response = await apiBase.delete(baseUrl: baseUrl!, path: '/api/v2/$boxName', data: data);
+    if (int.tryParse(baseUrl!.replaceAll(".", "")) == null) return null;
+    final response = await apiBase.delete(
+        baseUrl: baseUrl!, path: '/api/v2/$boxName', data: data);
     if (response.success) return response?.data;
     return null;
   }
