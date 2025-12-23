@@ -2827,18 +2827,13 @@ const OrderItemIsarSchema = Schema(
       name: r'amount',
       type: IsarType.double,
     ),
-    r'customPrice': PropertySchema(
-      id: 1,
-      name: r'customPrice',
-      type: IsarType.double,
-    ),
     r'placeId': PropertySchema(
-      id: 2,
+      id: 1,
       name: r'placeId',
       type: IsarType.string,
     ),
     r'product': PropertySchema(
-      id: 3,
+      id: 2,
       name: r'product',
       type: IsarType.object,
       target: r'ProductIsar',
@@ -2875,10 +2870,9 @@ void _orderItemIsarSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDouble(offsets[0], object.amount);
-  writer.writeDouble(offsets[1], object.customPrice);
-  writer.writeString(offsets[2], object.placeId);
+  writer.writeString(offsets[1], object.placeId);
   writer.writeObject<ProductIsar>(
-    offsets[3],
+    offsets[2],
     allOffsets,
     ProductIsarSchema.serialize,
     object.product,
@@ -2893,10 +2887,9 @@ OrderItemIsar _orderItemIsarDeserialize(
 ) {
   final object = OrderItemIsar();
   object.amount = reader.readDouble(offsets[0]);
-  object.customPrice = reader.readDoubleOrNull(offsets[1]);
-  object.placeId = reader.readString(offsets[2]);
+  object.placeId = reader.readString(offsets[1]);
   object.product = reader.readObjectOrNull<ProductIsar>(
-    offsets[3],
+    offsets[2],
     ProductIsarSchema.deserialize,
     allOffsets,
   );
@@ -2913,10 +2906,8 @@ P _orderItemIsarDeserializeProp<P>(
     case 0:
       return (reader.readDouble(offset)) as P;
     case 1:
-      return (reader.readDoubleOrNull(offset)) as P;
-    case 2:
       return (reader.readString(offset)) as P;
-    case 3:
+    case 2:
       return (reader.readObjectOrNull<ProductIsar>(
         offset,
         ProductIsarSchema.deserialize,
@@ -2986,90 +2977,6 @@ extension OrderItemIsarQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'amount',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
-      customPriceIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'customPrice',
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
-      customPriceIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'customPrice',
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
-      customPriceEqualTo(
-    double? value, {
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'customPrice',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
-      customPriceGreaterThan(
-    double? value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'customPrice',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
-      customPriceLessThan(
-    double? value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'customPrice',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<OrderItemIsar, OrderItemIsar, QAfterFilterCondition>
-      customPriceBetween(
-    double? lower,
-    double? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'customPrice',
         lower: lower,
         includeLower: includeLower,
         upper: upper,

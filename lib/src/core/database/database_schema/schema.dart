@@ -184,7 +184,6 @@ class DatabaseSchema {
               "unlimited": false
             },
             "amount": 1.0,
-            "customPrice": null
           }
         ],
         "paymentTypes": [],

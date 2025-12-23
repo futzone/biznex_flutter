@@ -52,4 +52,21 @@ class AppDateUtils {
     ];
     return months[month - 1];
   }
+
+
+  static List<DateTime> getDaysBetween(DateTime startDate, DateTime endDate) {
+    final start = DateTime(startDate.year, startDate.month, startDate.day);
+    final end = DateTime(endDate.year, endDate.month, endDate.day);
+
+    final days = <DateTime>[];
+
+    for (var date = start;
+    !date.isAfter(end);
+    date = date.add(const Duration(days: 1))) {
+      days.add(date);
+    }
+
+    return days;
+  }
+
 }

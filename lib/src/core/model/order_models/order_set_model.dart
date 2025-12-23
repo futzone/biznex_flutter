@@ -5,12 +5,10 @@ import 'order.dart';
 class OrderItem {
   Product product;
   double amount;
-  double? customPrice;
   String placeId;
 
   OrderItem({
     required this.product,
-    this.customPrice,
     required this.amount,
     required this.placeId,
   });
@@ -19,7 +17,6 @@ class OrderItem {
     return OrderItem(
       product: Product.fromIsar(isar.product ?? ProductIsar()),
       amount: isar.amount,
-      customPrice: isar.customPrice,
       placeId: isar.placeId,
     );
   }
@@ -27,13 +24,11 @@ class OrderItem {
   OrderItem copyWith({
     Product? product,
     double? amount,
-    double? customPrice,
     String? placeId,
   }) {
     return OrderItem(
       product: product ?? this.product,
       amount: amount ?? this.amount,
-      customPrice: customPrice ?? this.customPrice,
       placeId: placeId ?? this.placeId,
     );
   }
@@ -43,7 +38,6 @@ class OrderItem {
       product: Product.fromJson(json['product']),
       amount: (json['amount'] as num).toDouble(),
       placeId: (json['placeId']),
-      customPrice: json['customPrice'] != null ? (json['customPrice'] as num).toDouble() : null,
     );
   }
 
@@ -52,7 +46,6 @@ class OrderItem {
       'placeId': placeId,
       'product': product.toJson(),
       'amount': amount,
-      'customPrice': customPrice,
     };
   }
 }
@@ -108,7 +101,9 @@ class OrderModel {
       customerPhone: json['customerPhone'],
       scheduledDate: json['scheduledDate'],
       placeFatherId: json['placeFatherId'],
-      items: (json['items'] as List).map((item) => OrderItemModel.fromJson(item)).toList(),
+      items: (json['items'] as List)
+          .map((item) => OrderItemModel.fromJson(item))
+          .toList(),
     );
   }
 

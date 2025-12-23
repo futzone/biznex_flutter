@@ -47,7 +47,6 @@ class OrderIsar {
 class OrderItemIsar {
   ProductIsar? product;
   double amount = 0;
-  double? customPrice;
   String placeId = '';
 }
 

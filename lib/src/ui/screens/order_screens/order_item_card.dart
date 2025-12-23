@@ -171,10 +171,9 @@ class OrderItemCardNew extends HookConsumerWidget {
                         orderNotifier.deleteItem(item, context, order);
                       }
                     },
-                    onUpdateItemDetails: (amount, price) {
+                    onUpdateItemDetails: (amount) {
                       OrderItem kOrderItem = item;
                       kOrderItem.amount = amount;
-                      kOrderItem.customPrice = price;
 
                       if (OrderController.hasNegativeItem(ref,
                           savedList: order?.products ?? [], item: kOrderItem)) {
@@ -332,10 +331,9 @@ class OrderItemCardNew extends HookConsumerWidget {
                         orderNotifier.deleteItem(item, context, order);
                       }
                     },
-                    onUpdateItemDetails: (amount, price) {
+                    onUpdateItemDetails: (amount) {
                       OrderItem kOrderItem = item;
                       kOrderItem.amount = amount;
-                      kOrderItem.customPrice = price;
                       if (OrderController.hasNegativeItem(ref,
                           savedList: order?.products ?? [], item: kOrderItem)) {
                         ShowToast.error(

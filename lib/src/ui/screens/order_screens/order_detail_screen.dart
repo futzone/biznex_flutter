@@ -267,9 +267,7 @@ class OrderDetail extends ConsumerWidget {
                     ),
                     Center(
                       child: Text(
-                        item.customPrice == null
-                            ? (item.amount * item.product.price).priceUZS
-                            : item.customPrice!.priceUZS,
+                        (item.amount * item.product.price).priceUZS,
                         style: TextStyle(
                             fontFamily: mediumFamily,
                             fontSize: 18,
@@ -361,8 +359,7 @@ class OrderDetail extends ConsumerWidget {
                 ),
                 Text(
                   order.products.fold(0.0, (tot, el) {
-                    return tot +=
-                        (el.customPrice ?? (el.amount * el.product.price));
+                    return tot += (el.amount * el.product.price);
                   }).priceUZS,
                   style: TextStyle(
                     fontSize: context.s(16),

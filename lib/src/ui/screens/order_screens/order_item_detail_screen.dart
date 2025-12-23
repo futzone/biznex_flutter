@@ -8,7 +8,7 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../biznex.dart';
 
 class OrderItemDetailScreen extends HookConsumerWidget {
-  final void Function(double amount, double price) onUpdateItemDetails;
+  final void Function(double amount) onUpdateItemDetails;
 
   final void Function()? onDeletePressed;
   final OrderItem product;
@@ -22,12 +22,15 @@ class OrderItemDetailScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final amountController = useTextEditingController(text: product.amount.toMeasure);
-    final priceController = useTextEditingController(text: (product.product.price * product.amount).toMeasure);
+    final amountController =
+        useTextEditingController(text: product.amount.toMeasure);
+    final priceController = useTextEditingController(
+        text: (product.product.price * product.amount).toMeasure);
     final focus = useState(0);
 
     void onUpdateDetails() {
-      final price = double.tryParse(priceController.text.trim()) ?? product.product.price;
+      final price =
+          double.tryParse(priceController.text.trim()) ?? product.product.price;
       final amount = double.tryParse(amountController.text.trim()) ?? 1;
       if (focus.value == 1) {
         amountController.text = (price / product.product.price).toMeasure;
@@ -36,7 +39,7 @@ class OrderItemDetailScreen extends HookConsumerWidget {
       }
     }
 
-    final mobile  = getDeviceType(context)==DeviceType.mobile;
+    final mobile = getDeviceType(context) == DeviceType.mobile;
 
     return AppStateWrapper(builder: (theme, state) {
       return Column(
@@ -47,7 +50,7 @@ class OrderItemDetailScreen extends HookConsumerWidget {
                 product.product.name,
                 style: TextStyle(
                   fontFamily: boldFamily,
-                  fontSize: mobile?16:18,
+                  fontSize: mobile ? 16 : 18,
                 ),
               ),
               Spacer(),
@@ -55,7 +58,7 @@ class OrderItemDetailScreen extends HookConsumerWidget {
                 product.product.price.priceUZS,
                 style: TextStyle(
                   fontFamily: boldFamily,
-                  fontSize: mobile?16:18,
+                  fontSize: mobile ? 16 : 18,
                 ),
               ),
               Spacer(),
@@ -82,7 +85,11 @@ class OrderItemDetailScreen extends HookConsumerWidget {
                   padding: Dis.only(lr: context.w(16)),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: focus.value == 1 ? theme.mainColor : theme.secondaryTextColor, width: 2),
+                    border: Border.all(
+                        color: focus.value == 1
+                            ? theme.mainColor
+                            : theme.secondaryTextColor,
+                        width: 2),
                   ),
                   child: TextField(
                     onTap: () {
@@ -93,11 +100,12 @@ class OrderItemDetailScreen extends HookConsumerWidget {
                     },
                     cursorColor: theme.mainColor,
                     readOnly: true,
-                    style: TextStyle(fontSize: mobile?16:24, fontFamily: boldFamily),
+                    style: TextStyle(
+                        fontSize: mobile ? 16 : 24, fontFamily: boldFamily),
                     textAlign: TextAlign.start,
                     controller: priceController,
                     decoration: InputDecoration(
-                      contentPadding: Dis.only(tb: mobile?16:24),
+                      contentPadding: Dis.only(tb: mobile ? 16 : 24),
                       border: InputBorder.none,
                       suffix: Text(
                         'UZS',
@@ -112,7 +120,11 @@ class OrderItemDetailScreen extends HookConsumerWidget {
                   padding: Dis.only(lr: context.w(16)),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: focus.value == 2 ? theme.mainColor : theme.secondaryTextColor, width: 2),
+                    border: Border.all(
+                        color: focus.value == 2
+                            ? theme.mainColor
+                            : theme.secondaryTextColor,
+                        width: 2),
                   ),
                   child: TextField(
                     onTap: () {
@@ -123,11 +135,12 @@ class OrderItemDetailScreen extends HookConsumerWidget {
                     },
                     cursorColor: theme.mainColor,
                     readOnly: true,
-                    style: TextStyle(fontSize: mobile?16:24, fontFamily: boldFamily),
+                    style: TextStyle(
+                        fontSize: mobile ? 16 : 24, fontFamily: boldFamily),
                     textAlign: TextAlign.start,
                     controller: amountController,
                     decoration: InputDecoration(
-                      contentPadding: Dis.only(tb: mobile?16:24),
+                      contentPadding: Dis.only(tb: mobile ? 16 : 24),
                       border: InputBorder.none,
                       suffix: Text(
                         product.product.measure ?? '',
@@ -197,7 +210,9 @@ class OrderItemDetailScreen extends HookConsumerWidget {
                     spacing: 8,
                     children: [
                       Icon(Icons.close, size: 24),
-                      Text(AppLocales.close.tr(), style: TextStyle(fontSize: 16, fontFamily: boldFamily)),
+                      Text(AppLocales.close.tr(),
+                          style:
+                              TextStyle(fontSize: 16, fontFamily: boldFamily)),
                     ],
                   ),
                   onPressed: () {
@@ -224,14 +239,16 @@ class OrderItemDetailScreen extends HookConsumerWidget {
                       Icon(Icons.save, size: 24, color: Colors.white),
                       Text(
                         AppLocales.save.tr(),
-                        style: TextStyle(color: Colors.white, fontSize: 16, fontFamily: boldFamily),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontFamily: boldFamily),
                       ),
                     ],
                   ),
                   onPressed: () {
                     onUpdateItemDetails(
                       double.parse(amountController.text.trim()),
-                      double.parse(priceController.text.trim()),
                     );
 
                     AppRouter.close(context);

@@ -445,7 +445,6 @@ class OrdersRouter {
                   }
                 },
                 "amount": 1.0,
-                "customPrice": null
               }
             ],
             "orderNumber": null
@@ -523,7 +522,6 @@ class OrdersRouter {
                 }
               },
               "amount": 1.0,
-              "customPrice": null
             },
             {
               "placeId": "950708f0-19fa-11f0-80b6-5b844bb28dff",
@@ -554,7 +552,6 @@ class OrdersRouter {
                 }
               },
               "amount": 1.0,
-              "customPrice": null
             }
           ],
           "orderNumber": "1744875849287"

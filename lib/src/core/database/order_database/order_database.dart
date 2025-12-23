@@ -226,8 +226,8 @@ class OrderDatabase extends OrderDatabaseRepository {
     if (orderIsar == null) return;
 
     Order order = Order.fromIsar(orderIsar);
-    double productsPrice = order.products.fold(
-        0.0, (a, b) => a += (b.amount * (b.customPrice ?? b.product.price)));
+    double productsPrice =
+        order.products.fold(0.0, (a, b) => a += (b.amount * b.product.price));
 
     double totalPrice = 0;
 

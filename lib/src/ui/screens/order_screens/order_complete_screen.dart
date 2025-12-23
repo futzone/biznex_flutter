@@ -18,15 +18,19 @@ class OrderCompleteScreen extends HookConsumerWidget {
     final priceController = useTextEditingController();
 
     useEffect(() {
-      double newValuePrice = orders.fold(0, (oldValue, element) => oldValue += (element.customPrice ?? (element.amount * element.product.price)));
-      realPrice.value = orders.fold(0, (oldValue, element) => oldValue += (element.amount * element.product.price));
+      final total = orders.fold<double>(
+          0,
+          (oldValue, element) =>
+              oldValue += (element.amount * element.product.price));
+      realPrice.value = total;
 
-      if (priceController.text != (newValuePrice).price) {
+      if (priceController.text != total.price) {
         final cursorPosition = priceController.selection.baseOffset;
-        priceController.text = "${(newValuePrice).price} UZS";
+        priceController.text = "${total.price} UZS";
 
         priceController.selection = TextSelection.fromPosition(
-          TextPosition(offset: cursorPosition.clamp(0, priceController.text.length)),
+          TextPosition(
+              offset: cursorPosition.clamp(0, priceController.text.length)),
         );
       }
       return null;
@@ -60,7 +64,8 @@ class OrderCompleteScreen extends HookConsumerWidget {
                       ),
                       TextField(
                         readOnly: true,
-                        controller: TextEditingController(text: realPrice.value.priceUZS),
+                        controller: TextEditingController(
+                            text: realPrice.value.priceUZS),
                         textAlign: TextAlign.center,
                         keyboardType: TextInputType.number,
                         style: TextStyle(color: theme.textColor),
@@ -138,7 +143,8 @@ class OrderCompleteScreen extends HookConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (customer.value == null) Text(AppLocales.addCustomer.tr()),
+                          if (customer.value == null)
+                            Text(AppLocales.addCustomer.tr()),
                           if (customer.value != null)
                             Text(
                               AppLocales.customer.tr(),
@@ -149,7 +155,8 @@ class OrderCompleteScreen extends HookConsumerWidget {
                               ),
                             ),
                           if (customer.value != null) 4.h,
-                          if (customer.value != null) AppText.$14Bold(customer.value!.name),
+                          if (customer.value != null)
+                            AppText.$14Bold(customer.value!.name),
                         ],
                       ),
                     ],
@@ -173,7 +180,8 @@ class OrderCompleteScreen extends HookConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (employee.value == null) Text(AppLocales.selectSeller.tr()),
+                          if (employee.value == null)
+                            Text(AppLocales.selectSeller.tr()),
                           if (employee.value != null)
                             Text(
                               AppLocales.seller.tr(),
@@ -184,7 +192,8 @@ class OrderCompleteScreen extends HookConsumerWidget {
                               ),
                             ),
                           if (employee.value != null) 4.h,
-                          if (employee.value != null) AppText.$14Bold(employee.value!.fullname),
+                          if (employee.value != null)
+                            AppText.$14Bold(employee.value!.fullname),
                         ],
                       ),
                     ],
@@ -209,7 +218,10 @@ class OrderCompleteScreen extends HookConsumerWidget {
                       children: [
                         Icon(Icons.print_outlined),
                         AppText.$14Bold(AppLocales.printing.tr()),
-                        if (printing.value) Icon(Icons.check_circle, color: theme.mainColor) else Icon(Icons.circle_outlined)
+                        if (printing.value)
+                          Icon(Icons.check_circle, color: theme.mainColor)
+                        else
+                          Icon(Icons.circle_outlined)
                       ],
                     ),
                   ),

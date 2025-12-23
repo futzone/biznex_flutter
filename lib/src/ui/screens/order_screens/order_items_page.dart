@@ -68,8 +68,7 @@ class OrderItemsPage extends HookConsumerWidget {
 
     final totalPrice = placeOrderItems.fold<double>(
       0,
-      (sum, item) =>
-          sum + (item.customPrice ?? item.amount * item.product.price),
+      (sum, item) => sum + (item.amount * item.product.price),
     );
 
     final totalPercents = percents.fold(0.0, (a, b) {

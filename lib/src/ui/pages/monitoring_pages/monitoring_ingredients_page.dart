@@ -1,9 +1,8 @@
-import 'dart:developer';
-
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/model/excel_models/orders_excel_model.dart';
+import 'package:biznex/src/core/model/ingredient_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
 import 'package:biznex/src/core/services/warehouse_printer_services.dart';
 import 'package:biznex/src/core/utils/date_utils.dart';
@@ -23,8 +22,21 @@ class MonitoringIngredientsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedMonth = useState<int>(DateTime.now().month);
-    final filterType = useState<int>(DateTime.now().year);
+    final startDate = useState(
+      DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0),
+    );
+
+    final endDate = useState(
+      DateTime.now().copyWith(hour: 23, minute: 59, second: 59),
+    );
+
+    final ingredientService = useMemoized(
+      () => IngredientTransactionsService(
+        startDate.value,
+        endDate.value,
+      ),
+      [startDate.value, endDate.value],
+    );
 
     return AppStateWrapper(builder: (theme, state) {
       return Column(
@@ -42,56 +54,10 @@ class MonitoringIngredientsPage extends HookConsumerWidget {
                 ),
               ),
               Spacer(),
-              CustomPopupMenu(
-                theme: theme,
-                children: [
-                  CustomPopupItem(
-                    onPressed: () {
-                      showDatePicker(
-                        context: context,
-                        firstDate: DateTime(2025),
-                        lastDate: DateTime.now(),
-                      ).then(
-                        (selected) {
-                          if (selected != null) {
-                            WarehousePrinterServices.printIngredientUsage(
-                              ref: ref,
-                              selectedDateTime: selected,
-                              selectedDate: DateTime(
-                                filterType.value,
-                                selectedMonth.value,
-                              ),
-                            );
-                          }
-                        },
-                      );
-                    },
-                    title: AppLocales.daily.tr(),
-                  ),
-                  CustomPopupItem(
-                      title: AppLocales.monthly.tr(),
-                      onPressed: () {
-                        WarehousePrinterServices.printIngredientUsage(
-                          ref: ref,
-                          selectedDate: DateTime(
-                            filterType.value,
-                            selectedMonth.value,
-                          ),
-                        );
-                      }),
-                  CustomPopupItem(
-                      title: AppLocales.all.tr(),
-                      onPressed: () {
-                        WarehousePrinterServices.printIngredientUsage(
-                          ref: ref,
-                          selectedDate: DateTime(
-                            filterType.value,
-                            selectedMonth.value,
-                          ),
-                          allTime: true,
-                        );
-                      }),
-                ],
+              SimpleButton(
+                onPressed: () async {
+                  await ingredientService.printToCheck(ref);
+                },
                 child: Container(
                   padding: Dis.only(lr: context.w(16), tb: context.h(13)),
                   decoration: BoxDecoration(
@@ -114,21 +80,18 @@ class MonitoringIngredientsPage extends HookConsumerWidget {
                 ),
               ),
               16.w,
-              CustomPopupMenu(
-                theme: theme,
-                children: [
-                  for (final item in [
-                    DateTime.now().year - 1,
-                    DateTime.now().year,
-                    DateTime.now().year + 1
-                  ])
-                    CustomPopupItem(
-                      title: item.toString(),
-                      onPressed: () {
-                        filterType.value = item;
-                      },
-                    ),
-                ],
+              SimpleButton(
+                onPressed: () {
+                  showDateRangePicker(
+                    context: context,
+                    firstDate: DateTime(2025),
+                    lastDate: DateTime.now(),
+                  ).then((value) {
+                    if (value == null) return;
+                    startDate.value = value.start;
+                    endDate.value = value.end;
+                  });
+                },
                 child: Container(
                   padding: Dis.only(lr: context.w(16), tb: context.h(13)),
                   decoration: BoxDecoration(
@@ -136,95 +99,20 @@ class MonitoringIngredientsPage extends HookConsumerWidget {
                       color: theme.accentColor),
                   child: Row(
                     children: [
-                      Text(
-                        filterType.value.toString(),
-                        style: TextStyle(
-                          fontFamily: mediumFamily,
-                          fontSize: 16,
-                        ),
-                      ),
+                      Icon(Iconsax.calendar_1_copy, size: 20),
                       8.w,
-                      Icon(Iconsax.arrow_down_1_copy, size: 20)
-                    ],
-                  ),
-                ),
-              ),
-              16.w,
-              CustomPopupMenu(
-                theme: theme,
-                children: [
-                  for (int i = 1; i < 13; i++)
-                    CustomPopupItem(
-                      title: AppDateUtils.getMonth(i),
-                      onPressed: () {
-                        selectedMonth.value = i;
-                      },
-                    ),
-                ],
-                child: Container(
-                  padding: Dis.only(lr: context.w(16), tb: context.h(13)),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: theme.accentColor),
-                  child: Row(
-                    children: [
-                      Text(
-                        AppDateUtils.getMonth(selectedMonth.value),
-                        style:
-                            TextStyle(fontFamily: mediumFamily, fontSize: 16),
-                      ),
-                      8.w,
-                      Icon(Iconsax.arrow_down_1_copy, size: 20)
+                      Text(AppLocales.dateRange.tr()),
                     ],
                   ),
                 ),
               ),
               16.w,
               SimpleButton(
-                onPressed: () {
+                onPressed: () async {
                   showAppLoadingDialog(context);
-                  final orders = ref.watch(ingredientsProvider).value ?? [];
-                  final List<OrdersExcelModel> list = [];
-                  for (final day in AppDateUtils.getAllDaysInMonth(
-                      filterType.value, selectedMonth.value)) {
-                    final double ordersSumm =
-                        orders.fold(0.0, (value, element) {
-                      final createdDate = element.createdAt;
-
-                      if (createdDate.year == day.year &&
-                          createdDate.month == day.month &&
-                          createdDate.day == day.day) {
-                        return value += element.unitPrice ?? 0.0;
-                      }
-                      return value;
-                    });
-
-                    final int ordersCount = orders.fold(0, (value, element) {
-                      final createdDate = element.createdAt;
-
-                      if (createdDate.year == day.year &&
-                          createdDate.month == day.month &&
-                          createdDate.day == day.day) {
-                        return value += 1;
-                      }
-                      return value;
-                    });
-
-                    OrdersExcelModel excel = OrdersExcelModel(
-                      ordersCount: ordersCount,
-                      ordersSumm: ordersSumm,
-                      dateTime: DateFormat(
-                              'd-MMMM, yyyy', context.locale.languageCode)
-                          .format(day),
-                      day: DateFormat('EEEE', context.locale.languageCode)
-                          .format(day),
-                    );
-
-                    list.add(excel);
-                  }
-                  AppRouter.close(context);
-
-                  OrdersExcelModel.saveFileDialog(list);
+                  ingredientService.saveToExcel().then((_) {
+                    AppRouter.close(context);
+                  });
                 },
                 child: Container(
                   padding: Dis.only(lr: context.w(16), tb: context.h(13)),
@@ -261,23 +149,18 @@ class MonitoringIngredientsPage extends HookConsumerWidget {
                   itemBuilder: (context, index) {
                     final ingredient = orders[index];
                     return ref
-                        .watch(ingredientTransactionsProvider(ingredient.id))
+                        .watch(ingredientService.provider(ingredient.id))
                         .when(
                           error: RefErrorScreen,
                           loading: RefLoadingScreen,
-                          data: (transactions) {
-                            final amounts = transactions.fold(0.0, (a, b) {
-                              final created = DateTime.parse(b.createdDate);
-                              if (created.month == selectedMonth.value &&
-                                  created.year == filterType.value) {
-                                return a += b.amount;
-                              }
-
-                              return a;
-                            });
+                          data: (data) {
+                            final amounts = data['amount'] as double;
 
                             final totalPrice =
                                 amounts * (ingredient.unitPrice ?? 0.0);
+
+                            final transactions =
+                                data['data'] as List<IngredientTransaction>;
 
                             return SimpleButton(
                               onPressed: () {
@@ -376,7 +259,6 @@ class MonitoringIngredientsPage extends HookConsumerWidget {
                                         children: [
                                           Icon(Iconsax.wallet,
                                               color: theme.mainColor),
-
                                           Text(
                                             "${AppLocales.total.tr()}: ",
                                             style: TextStyle(

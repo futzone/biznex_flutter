@@ -84,7 +84,6 @@ extension OrderItemToIsar on OrderItem {
   OrderItemIsar toIsar() => OrderItemIsar()
     ..product = product.toIsar()
     ..amount = amount
-    ..customPrice = customPrice
     ..placeId = placeId;
 }
 
