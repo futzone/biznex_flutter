@@ -1,19 +1,13 @@
 import 'package:biznex/biznex.dart';
-import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
-import 'package:biznex/src/core/model/excel_models/products_excel_model.dart';
 import 'package:biznex/src/core/model/order_models/order_filter_model.dart';
-import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
-import 'package:biznex/src/core/utils/date_utils.dart';
-import 'package:biznex/src/providers/employee_orders_provider.dart';
 import 'package:biznex/src/providers/products_provider.dart';
-import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
-import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
+import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
-import 'package:biznex/src/ui/widgets/custom/app_text_widgets.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-
+import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
+import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import '../../widgets/helpers/app_back_button.dart';
 
 class MonitoringProductsPage extends HookConsumerWidget {
@@ -23,7 +17,12 @@ class MonitoringProductsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedDate = useState<DateTime>(DateTime.now());
+    final startDate = useState(
+      DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0),
+    );
+    final endDate = useState(
+      DateTime.now().copyWith(hour: 23, minute: 59, second: 59),
+    );
 
     return AppStateWrapper(builder: (theme, state) {
       return Column(
@@ -43,12 +42,14 @@ class MonitoringProductsPage extends HookConsumerWidget {
               16.w,
               SimpleButton(
                 onPressed: () {
-                  showDatePicker(
-                          context: context,
-                          firstDate: DateTime(2025, 1),
-                          lastDate: DateTime.now())
-                      .then((date) {
-                    if (date != null) selectedDate.value = date;
+                  showDateRangePicker(
+                    context: context,
+                    firstDate: DateTime(2025),
+                    lastDate: DateTime.now(),
+                  ).then((timeRange) {
+                    if (timeRange == null) return;
+                    startDate.value = timeRange.start;
+                    endDate.value = timeRange.end;
                   });
                 },
                 child: Container(
@@ -59,8 +60,7 @@ class MonitoringProductsPage extends HookConsumerWidget {
                   child: Row(
                     children: [
                       Text(
-                        DateFormat('d-MMMM', context.locale.languageCode)
-                            .format(selectedDate.value),
+                        AppLocales.dateRange.tr(),
                         style:
                             TextStyle(fontFamily: mediumFamily, fontSize: 16),
                       ),
@@ -72,53 +72,19 @@ class MonitoringProductsPage extends HookConsumerWidget {
               ),
               16.w,
               SimpleButton(
+                onLongPress: () {
+                  final service = ProductMonitoringService(
+                    startTime: startDate.value,
+                    endTime: endDate.value,
+                  );
+                  service.printToCheck(ref);
+                },
                 onPressed: () {
-                  showAppLoadingDialog(context);
-                  final employees = ref.watch(productsProvider).value ?? [];
-                  final orders =
-                      ref.watch(dayOrdersProvider(selectedDate.value)).value ??
-                          [];
-
-                  List<ProductsExcelModel> list = [];
-                  for (final employee in employees) {
-                    final employeeId = employee.id;
-
-                    final double ordersSumm =
-                        orders.fold(0.0, (value, element) {
-                      if (element.employee.id == employeeId &&
-                          AppDateUtils.isTodayOrder(
-                              selectedDate.value, element.createdDate)) {
-                        return value += element.price;
-                      }
-
-                      return value;
-                    });
-
-                    final int ordersCount = orders.fold(0, (value, element) {
-                      if (element.employee.id == employeeId &&
-                          AppDateUtils.isTodayOrder(
-                              selectedDate.value, element.createdDate)) {
-                        return value += 1;
-                      }
-
-                      return value;
-                    });
-
-                    final ProductsExcelModel excel = ProductsExcelModel(
-                      ordersCount: ordersCount,
-                      ordersSumm: ordersSumm,
-                      dateTime:
-                          DateFormat('d-MMMM', context.locale.languageCode)
-                              .format(selectedDate.value),
-                      price: employee.price,
-                      productName: employee.name,
-                    );
-
-                    list.add(excel);
-                  }
-
-                  AppRouter.close(context);
-                  ProductsExcelModel.saveFileDialog(list);
+                  final service = ProductMonitoringService(
+                    startTime: startDate.value,
+                    endTime: endDate.value,
+                  );
+                  service.saveToExcel();
                 },
                 child: Container(
                   padding: Dis.only(lr: context.w(16), tb: context.h(13)),
@@ -147,121 +113,15 @@ class MonitoringProductsPage extends HookConsumerWidget {
           Expanded(
             child: state.whenProviderData(
               provider: productsProvider,
-              builder: (employees) {
-                return state.whenProviderData(
-                  provider: dayOrdersProvider(selectedDate.value),
-                  builder: (orders) {
-                    orders as List<Order>;
-                    employees as List<Product>;
-
-                    return ListView.builder(
-                      itemCount: employees.length,
-                      itemBuilder: (context, index) {
-                        final employeeId = employees[index].id;
-
-                        final double ordersSumm =
-                            orders.fold(0.0, (value, element) {
-                          if (element.products
-                                  .where((el) => el.product.id == employeeId)
-                                  .isNotEmpty &&
-                              AppDateUtils.isTodayOrder(
-                                  selectedDate.value, element.createdDate)) {
-                            final kProduct = (element.products.firstWhere(
-                                (item) => item.product.id == employeeId));
-                            return value +=
-                                (kProduct.amount * kProduct.product.price);
-                          }
-
-                          return value;
-                        });
-
-                        final double ordersCount =
-                            orders.fold(0.0, (value, element) {
-                          if (element.products
-                                  .where((el) => el.product.id == employeeId)
-                                  .isNotEmpty &&
-                              AppDateUtils.isTodayOrder(
-                                  selectedDate.value, element.createdDate)) {
-                            return value += (element.products
-                                .firstWhere(
-                                    (item) => item.product.id == employeeId)
-                                .amount);
-                          }
-
-                          return value;
-                        });
-
-                        return Container(
-                          margin: 16.bottom,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            color: theme.accentColor,
-                          ),
-                          padding: 18.all,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  spacing: 8,
-                                  children: [
-                                    Icon(Iconsax.reserve,
-                                        color: theme.mainColor),
-                                    Text(employees[index].name,
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontFamily: boldFamily))
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: 8,
-                                  children: [
-                                    Icon(Iconsax.coin_1,
-                                        color: theme.mainColor),
-                                    Text(employees[index].price.priceUZS,
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontFamily: boldFamily)),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: 8,
-                                  children: [
-                                    Icon(Iconsax.bag, color: theme.mainColor),
-                                    Text(
-                                        "${AppLocales.orders.tr()}: ${ordersCount.toMeasure}",
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontFamily: boldFamily)),
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  spacing: 8,
-                                  children: [
-                                    Icon(Iconsax.wallet,
-                                        color: theme.mainColor),
-                                    Text(ordersSumm.priceUZS,
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontFamily: boldFamily))
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+              builder: (products) {
+                products as List<Product>;
+                return ListView.builder(
+                  itemCount: products.length,
+                  itemBuilder: (context, index) {
+                    return MonitoringProductCard(
+                      product: products[index],
+                      startDate: startDate.value,
+                      endDate: endDate.value,
                     );
                   },
                 );
@@ -271,5 +131,120 @@ class MonitoringProductsPage extends HookConsumerWidget {
         ],
       );
     });
+  }
+}
+
+class MonitoringProductCard extends HookConsumerWidget {
+  final Product product;
+  final DateTime startDate;
+  final DateTime endDate;
+
+  const MonitoringProductCard({
+    super.key,
+    required this.product,
+    required this.startDate,
+    required this.endDate,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appModel = ref.watch(appStateProvider).value;
+    final theme = AppColors(isDark: appModel?.isDark ?? false);
+    final filter = useMemoized(
+      () => ProductOrdersFilter(
+        end: endDate,
+        start: startDate,
+        id: product.id,
+      ),
+      [endDate, startDate, product.id],
+    );
+    final providerListener = ref.watch(productOrdersProvider(filter));
+
+    return providerListener.when(
+      error: RefErrorScreen,
+      loading: RefLoadingScreen,
+      data: (productOrderData) {
+        final ordersCount = productOrderData['count'];
+        final totalAmount = productOrderData['amount'];
+        return Container(
+          margin: 16.bottom,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: theme.accentColor,
+          ),
+          padding: 18.all,
+          child: Row(
+            children: [
+              Expanded(
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    Icon(Iconsax.reserve, color: theme.mainColor),
+                    Text(
+                      product.name,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: boldFamily,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: 8,
+                  children: [
+                    Icon(Iconsax.coin_1, color: theme.mainColor),
+                    Text(
+                      product.price.priceUZS,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: boldFamily,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: 8,
+                  children: [
+                    Icon(Iconsax.bag, color: theme.mainColor),
+                    Text(
+                      "${AppLocales.orders.tr()}: $ordersCount",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: boldFamily,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  spacing: 8,
+                  children: [
+                    Icon(Iconsax.wallet, color: theme.mainColor),
+                    Text(
+                      ((totalAmount ?? 0) * product.price).priceUZS,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: boldFamily,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

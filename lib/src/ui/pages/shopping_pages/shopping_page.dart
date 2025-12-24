@@ -15,9 +15,21 @@ class ShoppingPage extends HookConsumerWidget {
   const ShoppingPage({super.key});
 
   Widget buildBody(currentPage, theme, WidgetRef ref) {
+    final searchQuery =
+        ref.watch(warehouseSearchController).text.trim().toLowerCase();
     if (currentPage.value == 0) {
       return ref.watch(ingredientsProvider).when(
-            data: (data) => IngredientsPage(theme, ingredients: data),
+            data: (data) {
+              if (searchQuery.isNotEmpty) {
+                return IngredientsPage(
+                  theme,
+                  ingredients: data
+                      .where((e) => e.name.toLowerCase().contains(searchQuery))
+                      .toList(),
+                );
+              }
+              return IngredientsPage(theme, ingredients: data);
+            },
             error: RefErrorScreen,
             loading: RefLoadingScreen,
           );
@@ -25,14 +37,36 @@ class ShoppingPage extends HookConsumerWidget {
 
     if (currentPage.value == 1) {
       return ref.watch(recipesProvider).when(
-            data: (data) => RecipePage(theme: theme, recipe: data),
+            data: (data) {
+              if (searchQuery.isNotEmpty) {
+                return RecipePage(
+                  theme: theme,
+                  recipe: data
+                      .where((e) =>
+                          e.product.name.toLowerCase().contains(searchQuery))
+                      .toList(),
+                );
+              }
+              return RecipePage(theme: theme, recipe: data);
+            },
             error: RefErrorScreen,
             loading: RefLoadingScreen,
           );
     }
 
     return ref.watch(shoppingProvider).when(
-          data: (data) => MarketPage(theme, shoppingList: data),
+          data: (data) {
+            if (searchQuery.isNotEmpty) {
+              return MarketPage(
+                theme,
+                shoppingList: data
+                    .where((e) =>
+                        (e.note ?? '').toLowerCase().contains(searchQuery))
+                    .toList(),
+              );
+            }
+            return MarketPage(theme, shoppingList: data);
+          },
           error: RefErrorScreen,
           loading: RefLoadingScreen,
         );
@@ -41,7 +75,7 @@ class ShoppingPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentPage = useState(0);
-    final searchController = useTextEditingController();
+    useListenable(ref.watch(warehouseSearchController));
     return AppStateWrapper(
       builder: (theme, state) {
         return Scaffold(
@@ -186,8 +220,7 @@ class ShoppingPage extends HookConsumerWidget {
                             child: AppTextField(
                               prefixIcon: Icon(Iconsax.search_normal_copy),
                               title: AppLocales.search.tr(),
-                              controller: searchController,
-                              onChanged: (_) {},
+                              controller: ref.watch(warehouseSearchController),
                               theme: theme,
                               fillColor: Colors.white,
                               // useBorder: false,

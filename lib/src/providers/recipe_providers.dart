@@ -1,19 +1,18 @@
 import 'dart:io';
-
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/product_database/recipe_database.dart';
 import 'package:biznex/src/core/database/product_database/shopping_database.dart';
 import 'package:biznex/src/core/model/ingredient_models/ingredient_model.dart';
-import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/utils/date_utils.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:isar/isar.dart';
-
 import 'package:biznex/src/core/services/printer_recipe_services.dart';
-import '../core/model/excel_models/orders_excel_model.dart';
+
+final warehouseSearchController =
+    StateProvider((ref) => TextEditingController());
 
 final productRecipeProvider = FutureProvider.family((ref, String id) async {
   final RecipeDatabase recipeDatabase = RecipeDatabase();

@@ -6,6 +6,7 @@ import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/extensions/for_string.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
+import 'package:biznex/src/core/utils/cashier_utils.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/orders_provider.dart';
 import 'package:biznex/src/providers/places_provider.dart';
@@ -678,14 +679,19 @@ class TableChooseScreen extends HookConsumerWidget {
                                 builder: (order) {
                                   order as Order?;
                                   return SimpleButton(
-                                    onPressed: () {
-                                      if (order != null &&
-                                          order.employee.id != employee.id &&
-                                          employee.roleName.toLowerCase() !=
-                                              'admin') {
-                                        ShowToast.error(context,
-                                            AppLocales.otherEmployeeOrder.tr());
-                                        return;
+                                    onPressed: () async {
+                                      final cashier = await isCashier(employee);
+                                      if (!cashier) {
+                                        if (order != null &&
+                                            order.employee.id != employee.id &&
+                                            employee.roleName.toLowerCase() !=
+                                                'admin') {
+                                          ShowToast.error(
+                                              context,
+                                              AppLocales.otherEmployeeOrder
+                                                  .tr());
+                                          return;
+                                        }
                                       }
                                       selectedPlace.value = place;
 
