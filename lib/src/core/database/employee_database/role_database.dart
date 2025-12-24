@@ -1,6 +1,6 @@
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/model/employee_models/role_model.dart';
- 
+
 class RoleDatabase extends AppDatabase {
   final String boxName = 'roles';
 
@@ -40,5 +40,12 @@ class RoleDatabase extends AppDatabase {
 
     final box = await openBox(boxName);
     box.put(key, data.toJson());
+  }
+
+  Future<Role?> getRole(id) async {
+    final box = await openBox(boxName);
+    final roleData = await box.get(id);
+    if (roleData == null) return null;
+    return Role.fromJson(roleData);
   }
 }

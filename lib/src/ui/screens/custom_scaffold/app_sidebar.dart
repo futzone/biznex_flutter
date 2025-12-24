@@ -4,6 +4,7 @@ import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
+import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/ui/pages/login_pages/onboard_page.dart';
 import 'package:biznex/src/ui/screens/settings_screen/settings_button_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
@@ -81,6 +82,9 @@ class AppSidebar extends HookConsumerWidget {
   @override
   Widget build(context, ref) {
     final openedValue = useState(true);
+
+    final isAdmin =
+        ref.watch(currentEmployeeProvider).roleName.toLowerCase() == 'admin';
 
     Widget sidebarItemBuilder(dynamic icon, String name, int page) {
       final selected = (page == pageNotifier.value);
@@ -205,30 +209,46 @@ class AppSidebar extends HookConsumerWidget {
                     // sidebarItemBuilder("assets/icons/pie.svg", AppLocales.overview.tr(), 0),
                     // sidebarItemBuilder("assets/icons/shopping.svg", AppLocales.set.tr(), 1),
                     sidebarItemBuilder(Iconsax.bag, AppLocales.orders.tr(), 2),
+
+                    if(isAdmin)
                     sidebarItemBuilder(
                         Iconsax.card, AppLocales.transactions.tr(), 9),
                     sidebarItemBuilder(
                         Iconsax.reserve, AppLocales.meals.tr(), 4),
+
+                    if(isAdmin)
                     sidebarItemBuilder("assets/svg/warehouse.svg",
                         AppLocales.warehouse.tr(), 12),
+
+
                     sidebarItemBuilder(
                         Iconsax.grid_3, AppLocales.categories.tr(), 3),
                     // sidebarItemBuilder("assets/icons/verified.svg", AppLocales.promos.tr(), 3),
+
+                    if(isAdmin)
                     sidebarItemBuilder("assets/icons/dining-table.svg",
                         AppLocales.places.tr(), 10),
                     // sidebarItemBuilder(Iconsax.info_circle, AppLocales.productInformation.tr(), 5),
+
+                    if(isAdmin)
                     sidebarItemBuilder(
                         Iconsax.setting_4, AppLocales.productParams.tr(), 6),
                     // sidebarItemBuilder("assets/icons/hanger.svg", AppLocales.productSizes.tr(), 6),
+
+                    if(isAdmin)
                     sidebarItemBuilder(
                         Iconsax.chart_square, AppLocales.reports.tr(), 7),
+
+                    if(isAdmin)
                     sidebarItemBuilder(
                         Iconsax.user_square, AppLocales.employees.tr(), 8),
 
-                    sidebarItemBuilder(
-                        Iconsax.profile_2user_copy, AppLocales.customers.tr(), 13),
+                    sidebarItemBuilder(Iconsax.profile_2user_copy,
+                        AppLocales.customers.tr(), 13),
 
-                    if(!state.offline)
+
+                    if(isAdmin)
+                    if (!state.offline)
                       sidebarItemBuilder(
                           Iconsax.cloud_copy, AppLocales.cloudData.tr(), 11),
                     SimpleButton(
@@ -263,6 +283,8 @@ class AppSidebar extends HookConsumerWidget {
               ),
             ),
             // 24.w,
+
+            if(isAdmin)
             SimpleButton(
               onPressed: () {
                 pageNotifier.value = 0;

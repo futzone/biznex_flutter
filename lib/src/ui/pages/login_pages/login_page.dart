@@ -7,6 +7,7 @@ import 'package:biznex/src/core/database/changes_database/changes_database.dart'
 import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/model/app_changes_model.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
+import 'package:biznex/src/core/utils/cashier_utils.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/ui/pages/login_pages/login_half_page.dart';
@@ -103,6 +104,11 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
             itemId: employee.id,
           ),
         );
+
+        final isCashierValue = await isCashier(employee);
+        if (isCashierValue) {
+          return AppRouter.open(context, MainPage());
+        }
         return AppRouter.open(context, WaiterPage());
       }
 
