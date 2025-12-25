@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:biznex/biznex.dart';
+import 'package:biznex/main.dart';
 import 'package:biznex/src/core/database/order_database/order_percent_database.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:biznex/src/core/utils/font_utils.dart';
@@ -496,6 +497,13 @@ class PrinterServices {
           pw.SizedBox(height: 4),
           _buildFooterMessage(),
         ],
+        pw.SizedBox(height: 4),
+        pw.Center(
+          child: pw.Text(
+            "v$appVersion",
+            style: _smallStyle,
+          ),
+        ),
         pw.SizedBox(height: 8),
       ],
     );

@@ -41,6 +41,19 @@ class OrderController {
   static final Isar _isar = IsarDatabase.instance.isar;
   static final ProductDatabase _productDatabase = ProductDatabase();
 
+  Future<List<OrderItem>> _sanitizeItems(List<OrderItem> items) async {
+    final List<OrderItem> sanitized = [];
+    for (final item in items) {
+      final dbProduct = await _productDatabase.getProductById(item.product.id);
+      if (dbProduct != null) {
+        sanitized.add(item.copyWith(product: dbProduct));
+      } else {
+        sanitized.add(item);
+      }
+    }
+    return sanitized;
+  }
+
   static Future<void> onDeleteOrder(String id, BuildContext context) async {
     final order = await _database.getOrderIsar(id);
     if (order != null) {
@@ -83,7 +96,11 @@ class OrderController {
     String? message,
   }) async {
     if (!context.mounted) return;
+    if (!context.mounted) return;
     showAppLoadingDialog(context);
+
+    // Sanitize products
+    products = await _sanitizeItems(products);
 
     double totalPrice = products.fold(0.0, (oldValue, element) {
       return oldValue + (element.amount * element.product.price);
@@ -145,6 +162,9 @@ class OrderController {
     if (!context.mounted) return;
     try {
       showAppLoadingDialog(context);
+
+      // Sanitize items
+      newItemsList = await _sanitizeItems(newItemsList);
 
       Order? currentState = await _database.getPlaceOrder(place.id);
       if (currentState == null) {
@@ -210,8 +230,11 @@ class OrderController {
 
     if (currentOrderData == null) {
       final orderItemsFromProvider = ref.read(orderSetProvider);
-      final productsForNewOrder =
+      var productsForNewOrder =
           orderItemsFromProvider.where((e) => e.placeId == place.id).toList();
+
+      // Sanitize products
+      productsForNewOrder = await _sanitizeItems(productsForNewOrder);
 
       double totalPrice = productsForNewOrder.fold(0.0, (oldValue, element) {
         return oldValue + (element.amount * element.product.price);
@@ -230,6 +253,9 @@ class OrderController {
       );
     } else {
       orderToProcess = currentOrderData;
+      // Sanitize products in existing order
+      final sanitizedProducts = await _sanitizeItems(orderToProcess.products);
+      orderToProcess = orderToProcess.copyWith(products: sanitizedProducts);
     }
 
     Order finalOrder = orderToProcess;

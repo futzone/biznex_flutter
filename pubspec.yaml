@@ -92,6 +92,8 @@ dependencies:
   pocketbase: ^0.23.0+1
   shimmer: ^3.0.0
   image_compression_flutter: ^1.0.4
+  internet_connection_checker_plus: ^2.9.1+2
+  get_mac_address: ^0.0.2
 
 
 dev_dependencies:
