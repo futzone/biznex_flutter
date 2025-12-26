@@ -1,13 +1,12 @@
 import 'dart:developer';
-
+import 'package:biznex/src/core/cloud/entity_event.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/isar_database/isar_transaction.dart';
-import 'package:biznex/src/core/extensions/for_double.dart';
-import 'package:biznex/src/core/model/app_changes_model.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_isar.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
 import 'package:isar/isar.dart';
+import '../../cloud/local_changes_db.dart';
 
 class TransactionsDatabase extends AppDatabase {
   final String _boxName = 'transactions';
@@ -66,14 +65,6 @@ class TransactionsDatabase extends AppDatabase {
     final transaction = await getTransactionById(key);
     log("founded: $transaction");
     if (transaction == null) return;
-    await changesDatabase.set(
-      data: Change(
-        database: _boxName,
-        method: 'delete',
-        itemId: transaction.id,
-        data: transaction.value.priceUZS,
-      ),
-    );
 
     final old = await isar.transactionIsars.filter().idEqualTo(key).findFirst();
     if (old != null) {
@@ -109,17 +100,14 @@ class TransactionsDatabase extends AppDatabase {
 
     productInfo.id = generateID;
     productInfo.createdDate = DateTime.now().toIso8601String();
-    // productInfo.u = DateTime.now().toIso8601String();
     await isar.writeTxn(() async {
       await isar.transactionIsars.put(productInfo.toIsar());
     });
 
-    await changesDatabase.set(
-      data: Change(
-        database: _boxName,
-        method: 'create',
-        itemId: productInfo.id,
-      ),
+    await LocalChanges.instance.saveChange(
+      event: TransactionEvent.TRANSACTION_CREATED,
+      entity: Entity.TRANSACTION,
+      objectId: productInfo.id,
     );
   }
 
@@ -135,14 +123,6 @@ class TransactionsDatabase extends AppDatabase {
     await isar.writeTxn(() async {
       await isar.transactionIsars.put(transactionIsar);
     });
-
-    await changesDatabase.set(
-      data: Change(
-        database: _boxName,
-        method: 'update',
-        itemId: key,
-      ),
-    );
   }
 
   Future<Transaction?> getTransactionById(String id) async {

@@ -4,6 +4,7 @@ import 'package:biznex/src/controllers/transaction_controller.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/extensions/for_date.dart';
+import 'package:biznex/src/core/model/employee_models/employee_model.dart';
 import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_isar.dart';
 import 'package:biznex/src/ui/pages/transactions_page/add_transaction_page.dart';
@@ -28,12 +29,13 @@ class TransactionsPage extends StatefulWidget {
 }
 
 class _TransactionsPageState extends State<TransactionsPage> {
-  DateTime _selectedDate = DateTime.now();
+  DateTime? _selectedDate = DateTime.now();
   String? _paymentType;
   int _currentPage = 1;
   bool _isLoading = true;
   final List<Transaction> _transactions = [];
   final Isar isar = IsarDatabase.instance.isar;
+  Employee? _employee;
 
   Future<void> _onLoadData() async {
     if (!mounted) return;
@@ -42,17 +44,25 @@ class _TransactionsPageState extends State<TransactionsPage> {
       _transactions.clear();
     });
 
-    final datePrefix = _selectedDate.toIso8601String().split("T").first;
+    final datePrefix =
+        (_selectedDate?.toIso8601String() ?? '').split("T").first;
     final filterQuery = isar.transactionIsars
         .where()
         .filter()
-        .createdDateStartsWith(datePrefix)
+        .optional(
+          _selectedDate != null,
+          (tr) => tr.createdDateStartsWith(datePrefix),
+        )
         .optional(
           _paymentType != null,
           (tr) => tr
               .paymentTypeContains(_paymentType!)
               .or()
               .paymentTypesElement((pte) => pte.nameContains(_paymentType!)),
+        )
+        .optional(
+          _employee != null,
+          (tr) => tr.employee((e) => e.idEqualTo(_employee!.id)),
         );
 
     await filterQuery
@@ -92,7 +102,8 @@ class _TransactionsPageState extends State<TransactionsPage> {
   void _initializeIsarWatcher() async {
     isar.transactionIsars.watchLazy().listen((event) async {
       if (_isLoading) return;
-      if (!_selectedDate.isToday) return;
+      if (_selectedDate == null) return;
+      if (!_selectedDate!.isToday) return;
       await _onLoadData();
     });
   }
@@ -122,6 +133,26 @@ class _TransactionsPageState extends State<TransactionsPage> {
         body: CustomScrollView(
           slivers: [
             TransactionsFilter(
+              employee: _employee,
+              onSelectedEmployee: (emp) async {
+                if (emp == null) {
+                  setState(() {
+                    _selectedDate = null;
+                    _employee = null;
+                    _currentPage = 1;
+                  });
+
+                  await _onLoadData();
+                  return;
+                }
+                setState(() {
+                  _selectedDate = null;
+                  _currentPage = 1;
+                  _employee = emp;
+                });
+
+                await _onLoadData();
+              },
               onSelectedDate: () {
                 showDatePicker(
                   context: context,
@@ -138,7 +169,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   await _onLoadData();
                 });
               },
-              selectedDate: _selectedDate,
+              selectedDate: _selectedDate ?? DateTime.now(),
               theme: theme,
               onSelectedPaymentType: (pt) async {
                 if (pt == null) {

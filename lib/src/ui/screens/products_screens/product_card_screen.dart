@@ -79,8 +79,7 @@ class ProductCardScreen extends ConsumerWidget {
             else
               Expanded(flex: 1, child: Center(child: Text("${product.amount.price} ${product.measure ?? ''}"))),
             Expanded(flex: 1, child: Center(child: Text(product.size ?? ' - '))),
-            Expanded(flex: 1, child: Center(child: Text(product.barcode ?? ' - '))),
-            Expanded(flex: 1, child: Center(child: Text(product.tagnumber ?? ' - '))),
+
             Expanded(
               flex: 1,
               child: Row(

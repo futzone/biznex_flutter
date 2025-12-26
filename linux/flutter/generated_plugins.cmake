@@ -5,7 +5,6 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_linux
   file_selector_linux
-  get_mac_address
   image_compression_flutter
   isar_flutter_libs
   printing

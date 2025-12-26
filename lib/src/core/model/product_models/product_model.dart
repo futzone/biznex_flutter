@@ -1,5 +1,4 @@
 import 'dart:core';
-import 'dart:developer';
 import 'package:biznex/src/core/extensions/for_dynamic.dart';
 import 'package:biznex/src/core/model/category_model/category_model.dart';
 import 'package:biznex/src/core/model/product_params_models/product_info.dart';
@@ -7,24 +6,25 @@ import 'package:biznex/src/core/utils/product_utils.dart';
 import '../order_models/order.dart';
 
 class Product {
+  static const String version = "1.0.0";
+
   String name;
-  String? barcode;
-  String? tagnumber;
+
   String? cratedDate;
   String? updatedDate;
-  List<ProductInfo>? informations;
+
   String? description;
   List<String>? images;
   String? measure;
   String? color;
-  String? colorCode;
+
   String? size;
   double price;
   double amount;
   double percent;
   String id;
   String? productId;
-  List<Product>? variants;
+
   Category? category;
   bool unlimited;
 
@@ -32,11 +32,8 @@ class Product {
     this.unlimited = false,
     required this.name,
     required this.price,
-    this.barcode,
-    this.tagnumber,
     this.cratedDate,
     this.updatedDate,
-    this.informations,
     this.description,
     this.images,
     this.measure,
@@ -46,39 +43,30 @@ class Product {
     this.color,
     this.productId,
     this.amount = 1,
-    this.colorCode,
-    this.variants,
     this.category,
   });
 
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'barcode': barcode ?? ProductUtils.newBarcode,
-      'tagnumber': tagnumber ?? ProductUtils.newTagnumber,
       'cratedDate': cratedDate ?? DateTime.now().toIso8601String(),
       'updatedDate': updatedDate ?? DateTime.now().toIso8601String(),
-      'informations': informations?.map((e) => e.toJson()).toList(),
       'description': description,
       'images': images,
       'measure': measure,
       'color': color,
-      'colorCode': colorCode,
       'size': size,
       'price': price,
       'amount': amount,
       'percent': percent,
       'id': id.notNullOrEmpty(ProductUtils.generateID),
       'productId': productId,
-      'variants': variants?.map((e) => e.toJson()).toList(),
       'category': category?.toJson(),
       'unlimited': unlimited,
     };
   }
 
   factory Product.fromJson(json) {
-
-
     double safeDouble(num? value, {double fallback = 0.0}) {
       if (value == null) return fallback;
       final d = value.toDouble();
@@ -86,25 +74,17 @@ class Product {
       return d;
     }
 
-
-
     return Product(
       unlimited: json['unlimited'] ?? false,
       name: json['name'],
-      barcode: json['barcode'],
-      tagnumber: json['tagnumber'],
       cratedDate: json['cratedDate'],
       updatedDate: json['updatedDate'],
-      informations: (json['informations'] as List<dynamic>?)
-          ?.map((e) => ProductInfo.fromJson(e))
-          .toList(),
       description: json['description'],
       images: json['images'] != null
           ? List<String>.from(json['images'].map((e) => e.toString()))
           : null,
       measure: json['measure'],
       color: json['color'],
-      colorCode: json['colorCode'],
       size: json['size'],
       price: safeDouble(json['price'], fallback: 0.0),
       amount: safeDouble(json['amount'], fallback: 1.0),
@@ -113,9 +93,6 @@ class Product {
       productId: json['productId'],
       category:
           json['category'] == null ? null : Category.fromJson(json['category']),
-      variants: (json['variants'] as List<dynamic>?)
-          ?.map((e) => Product.fromJson(e))
-          .toList(),
     );
   }
 
@@ -158,30 +135,21 @@ class Product {
     return Product(
       name: name ?? this.name,
       price: price ?? this.price,
-      barcode: setBarcodeToNull == true ? null : barcode ?? this.barcode,
-      tagnumber:
-          setTagnumberToNull == true ? null : tagnumber ?? this.tagnumber,
       cratedDate:
           setCratedDateToNull == true ? null : cratedDate ?? this.cratedDate,
       updatedDate:
           setUpdatedDateToNull == true ? null : updatedDate ?? this.updatedDate,
-      informations: setInformationsToNull == true
-          ? null
-          : informations ?? this.informations,
       description:
           setDescriptionToNull == true ? null : description ?? this.description,
       images: setImagesToNull == true ? null : images ?? this.images,
       measure: setMeasureToNull == true ? null : measure ?? this.measure,
       color: setColorToNull == true ? null : color ?? this.color,
-      colorCode:
-          setColorCodeToNull == true ? null : colorCode ?? this.colorCode,
       size: setSizeToNull == true ? null : size ?? this.size,
       id: id ?? this.id,
       percent: percent ?? this.percent,
       productId:
           setProductIdToNull == true ? null : productId ?? this.productId,
       amount: amount ?? this.amount,
-      variants: setVariantsToNull == true ? null : variants ?? this.variants,
       category: setCategoryToNull == true ? null : category ?? this.category,
       unlimited: unlimited ?? this.unlimited,
     );
@@ -192,24 +160,18 @@ class Product {
     return Product(
       name: isar.name,
       unlimited: isar.unlimited,
-      barcode: isar.barcode,
-      tagnumber: isar.tagnumber,
       cratedDate: isar.cratedDate,
       updatedDate: isar.updatedDate,
-      informations:
-          isar.informations?.map((e) => ProductInfo.fromIsar(e)).toList(),
       description: isar.description,
       images: isar.images?.toList(),
       measure: isar.measure,
       color: isar.color,
-      colorCode: isar.colorCode,
       size: isar.size,
       price: isar.price,
       amount: isar.amount,
       percent: isar.percent,
       id: isar.id,
       productId: isar.productId,
-      variants: isar.variants?.map((e) => Product.fromIsar(e)).toList(),
       category:
           isar.category != null ? Category.fromIsar(isar.category!) : null,
     );

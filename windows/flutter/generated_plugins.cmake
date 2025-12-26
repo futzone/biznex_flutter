@@ -7,7 +7,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   file_selector_windows
   fullscreen_window
-  get_mac_address
   image_compression_flutter
   isar_flutter_libs
   printing

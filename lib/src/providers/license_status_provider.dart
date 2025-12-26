@@ -1,14 +1,21 @@
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/cloud/cloud_services.dart';
+import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/services/license_services.dart';
 import 'package:biznex/src/ui/pages/login_pages/login_page.dart';
 import 'package:biznex/src/ui/pages/login_pages/onboard_page.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import '../ui/screens/activation_screens/activation_code_screen.dart';
 
-final licenseStatusProvider = FutureProvider.family((ref, String key) async {
-  LicenseServices licenseServices = LicenseServices();
+final licenseStatusProvider = FutureProvider((ref) async {
+  final AppStateDatabase stateDatabase = AppStateDatabase();
+  final state = await stateDatabase.getApp();
 
-  return await licenseServices.verifyLicense(key);
+  // final BiznexCloudServices cloudServices = BiznexCloudServices();
+  // final token = await cloudServices.getTokenData();
+  // return token != null;
+
+  return await verifyLicense(state.licenseKey);
 });
 
 Future<bool> verifyLicense(String key) async {
@@ -24,7 +31,7 @@ class LicenseStatusWrapper extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return AppStateWrapper(builder: (theme, state) {
       return state.whenProviderData(
-        provider: licenseStatusProvider(state.licenseKey),
+        provider: licenseStatusProvider,
         builder: (status) {
           status as bool;
 

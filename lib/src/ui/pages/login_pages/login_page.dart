@@ -3,9 +3,7 @@ import 'dart:io';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
-import 'package:biznex/src/core/database/changes_database/changes_database.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
-import 'package:biznex/src/core/model/app_changes_model.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
 import 'package:biznex/src/core/utils/cashier_utils.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
@@ -47,8 +45,6 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
 
   AppColors get theme => widget.theme;
 
-  ChangesDatabase get changesDatabase => ChangesDatabase();
-
   void onNextPressed(String pincode, Employee employee) async {
     await Future.delayed(Duration(milliseconds: 100));
     if (_pincode.length == 4) {
@@ -62,14 +58,6 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
           return Employee(fullname: 'Admin', roleId: '-1', roleName: 'admin');
         });
 
-        changesDatabase.set(
-          data: Change(
-            database: 'app',
-            method: 'login',
-            itemId: 'admin',
-            data: enteredPin,
-          ),
-        );
         return AppRouter.open(context, MainPage());
       }
 
@@ -78,14 +66,6 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
           return Employee(fullname: 'Admin', roleId: '-1', roleName: 'admin');
         });
 
-        changesDatabase.set(
-          data: Change(
-            database: 'app',
-            method: 'login',
-            itemId: 'admin',
-            data: enteredPin,
-          ),
-        );
         return AppRouter.open(context, MainPage());
       }
 
@@ -96,14 +76,6 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
           _pincode = '';
           return setState(() {});
         }
-
-        changesDatabase.set(
-          data: Change(
-            database: 'app',
-            method: 'login',
-            itemId: employee.id,
-          ),
-        );
 
         final isCashierValue = await isCashier(employee);
         if (isCashierValue) {
@@ -121,14 +93,7 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
         ref.read(currentEmployeeProvider.notifier).update((e) {
           return Employee(fullname: 'Admin', roleId: '-1', roleName: 'admin');
         });
-        changesDatabase.set(
-          data: Change(
-            database: 'app',
-            method: 'login',
-            itemId: 'admin',
-            data: enteredPin,
-          ),
-        );
+
         return AppRouter.open(context, MainPage());
       }
 

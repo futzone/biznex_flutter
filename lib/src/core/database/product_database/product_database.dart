@@ -1,9 +1,8 @@
 import 'dart:convert';
-
+import 'package:biznex/src/core/cloud/entity_event.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
-import 'package:biznex/src/core/model/app_changes_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
-import 'package:biznex/src/core/utils/product_utils.dart';
+import '../../cloud/local_changes_db.dart';
 
 class ProductDatabase extends AppDatabase {
   final String boxName = 'products';
@@ -22,13 +21,10 @@ class ProductDatabase extends AppDatabase {
     final product = await getProductById(key);
     if (product == null) return;
 
-    await changesDatabase.set(
-      data: Change(
-        database: boxName,
-        method: 'delete',
-        itemId: key,
-        data: product.name,
-      ),
+    await LocalChanges.instance.saveChange(
+      event: ProductEvent.PRODUCT_DELETED,
+      entity: Entity.PRODUCT,
+      objectId: key,
     );
     await box.delete(key);
   }
@@ -51,22 +47,8 @@ class ProductDatabase extends AppDatabase {
     final box = await openBox(boxName);
     final boxData = box.values;
 
-    Map<String, Product> productMap = {};
-
     for (var prod in boxData) {
-      productMap[prod['id']] = Product.fromJson(prod);
-    }
-
-    for (var prod in productMap.values) {
-      if (prod.productId == null) {
-        rootCategories.add(prod);
-      } else {
-        var parent = productMap[prod.productId];
-        if (parent != null) {
-          parent.variants ??= [];
-          parent.variants!.add(prod);
-        }
-      }
+      rootCategories.add(Product.fromJson(prod));
     }
 
     return rootCategories;
@@ -79,23 +61,13 @@ class ProductDatabase extends AppDatabase {
     Product productInfo = data;
     productInfo.id = generateID;
 
-    if (productInfo.barcode == null || productInfo.barcode!.isEmpty) {
-      productInfo.barcode = ProductUtils.generateBarcode();
-    }
-
-    if (productInfo.tagnumber == null || productInfo.tagnumber!.isEmpty) {
-      productInfo.tagnumber = ProductUtils.newTagnumber;
-    }
-
     final box = await openBox(boxName);
     await box.put(productInfo.id, productInfo.toJson());
 
-    await changesDatabase.set(
-      data: Change(
-        database: boxName,
-        method: 'create',
-        itemId: productInfo.id,
-      ),
+    await LocalChanges.instance.saveChange(
+      event: ProductEvent.PRODUCT_CREATED,
+      entity: Entity.PRODUCT,
+      objectId: productInfo.id,
     );
   }
 
@@ -106,12 +78,10 @@ class ProductDatabase extends AppDatabase {
     final box = await openBox(boxName);
     box.put(key, data.toJson());
 
-    await changesDatabase.set(
-      data: Change(
-        database: boxName,
-        method: 'update',
-        itemId: key,
-      ),
+    await LocalChanges.instance.saveChange(
+      event: ProductEvent.PRODUCT_UPDATED,
+      entity: Entity.PRODUCT,
+      objectId: key,
     );
   }
 

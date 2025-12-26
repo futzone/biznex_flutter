@@ -31,17 +31,20 @@ class CloudTokenDB {
 class CloudToken {
   String token;
   String refresh;
+  String branchId;
   int expires;
 
   CloudToken({
     required this.refresh,
     required this.token,
     required this.expires,
+    required this.branchId,
   });
 
   factory CloudToken.fromJson(Map<String, dynamic> json) {
     return CloudToken(
       token: json['token'] as String,
+      branchId: json['branchId'] as String,
       refresh: json['refresh'] as String,
       expires: json['expires'] as int,
     );
@@ -50,6 +53,7 @@ class CloudToken {
   Map<String, dynamic> toJson() {
     return {
       'token': token,
+      'branchId': branchId,
       'refresh': refresh,
       'expires': expires,
     };

@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:biznex/src/core/cloud/entity_event.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
-import 'package:biznex/src/core/database/changes_database/changes_database.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/isar_database/isar_extension.dart';
 import 'package:biznex/src/core/database/order_database/order_percent_database.dart';
@@ -14,7 +14,7 @@ import 'package:isar/isar.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../biznex.dart';
 import '../../../controllers/warehouse_monitoring_controller.dart';
-import '../../model/app_changes_model.dart';
+import '../../cloud/local_changes_db.dart';
 import '../../model/product_models/product_model.dart';
 import '../../model/transaction_model/transaction_model.dart';
 import '../../services/printer_multiple_services.dart';
@@ -23,7 +23,6 @@ import '../product_database/product_database.dart';
 import 'order_db_repository.dart';
 
 class OrderDatabase extends OrderDatabaseRepository {
-  ChangesDatabase changesDatabase = ChangesDatabase();
   Isar isar = IsarDatabase.instance.isar;
 
   String boxName = "orders";
@@ -155,12 +154,10 @@ class OrderDatabase extends OrderDatabaseRepository {
     }
 
     try {
-      await changesDatabase.set(
-        data: Change(
-          database: 'orders',
-          method: 'create',
-          itemId: order.id,
-        ),
+      await LocalChanges.instance.saveChange(
+        event: OrderEvent.ORDER_CREATED,
+        entity: Entity.ORDER,
+        objectId: order.id,
       );
     } catch (_) {}
 
@@ -483,7 +480,7 @@ class OrderDatabase extends OrderDatabaseRepository {
     return ordersList;
   }
 
-  Future<Order?> getOrderById(String id) async {
+  Future<Order?>  getOrderById(String id) async {
     final orderIsar = await isar.orderIsars.filter().idEqualTo(id).findFirst();
     if (orderIsar == null) return null;
     return Order.fromIsar(orderIsar);

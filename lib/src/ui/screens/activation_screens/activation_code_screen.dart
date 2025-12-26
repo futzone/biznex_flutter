@@ -99,4 +99,112 @@ class _ActivationTestPageState extends State<ActivationCodeScreen> {
       ),
     );
   }
+
+// final BiznexCloudServices biznexCloudServices = BiznexCloudServices();
+// final TextEditingController loginController = TextEditingController();
+// final TextEditingController passwordController = TextEditingController();
+//
+// void _onLogin(WidgetRef ref) async {
+//   final password = passwordController.text.trim();
+//   final username = loginController.text.trim();
+//
+//   if (password.isEmpty) {
+//     ShowToast.error(context, AppLocales.passwordInputError.tr());
+//     return;
+//   }
+//
+//   if (username.isEmpty) {
+//     ShowToast.error(context, AppLocales.loginInputError.tr());
+//     return;
+//   }
+//
+//   showAppLoadingDialog(context);
+//   final response = await biznexCloudServices.signIn(password, username);
+//
+//   if (mounted) AppRouter.close(context);
+//
+//   if (response.success) {
+//     ref.refresh(licenseStatusProvider);
+//     ref.invalidate(licenseStatusProvider);
+//     return;
+//   }
+//
+//   if (response.unauthorized) {
+//     ShowToast.error(context, "Login yoki parol noto'g'ri kiritilgan!");
+//     return;
+//   }
+//
+//   ShowToast.error(
+//     context,
+//     response.message ?? AppLocales.internetConnectionError.tr(),
+//   );
+// }
+//
+// @override
+// Widget build(BuildContext context) {
+//   return AppStateWrapper(
+//     builder: (theme, state) {
+//       return Scaffold(
+//         body: Center(
+//           child: Container(
+//             padding: Dis.only(lr: 24, tb: 16),
+//             decoration: BoxDecoration(
+//                 borderRadius: BorderRadius.circular(16), color: theme.white),
+//             width: 480,
+//             child: Column(
+//               spacing: 16,
+//               mainAxisSize: MainAxisSize.min,
+//               children: [
+//                 Row(
+//                   crossAxisAlignment: CrossAxisAlignment.center,
+//                   mainAxisAlignment: MainAxisAlignment.center,
+//                   spacing: 16,
+//                   children: [
+//                     Icon(Ionicons.log_in_outline, size: 48),
+//                     Text(
+//                       AppLocales.login.tr(),
+//                       style: TextStyle(
+//                         fontSize: 24,
+//                         fontFamily: boldFamily,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//                 AppTextField(
+//                   prefixIcon: Icon(Icons.login),
+//                   title: AppLocales.loginHint.tr(),
+//                   controller: loginController,
+//                   theme: theme,
+//                 ),
+//                 AppTextField(
+//                   prefixIcon: Icon(Icons.password),
+//                   title: AppLocales.passwordHint.tr(),
+//                   controller: passwordController,
+//                   theme: theme,
+//                 ),
+//                 Consumer(
+//                   builder: (context, ref, child) {
+//                     return AppPrimaryButton(
+//                       theme: theme,
+//                       onPressed: () => _onLogin(ref),
+//                       title: AppLocales.login.tr(),
+//                     );
+//                   },
+//                 ),
+//                 Text(
+//                   "${AppLocales.contactWithUs.tr()}: +998 94 244 99 89",
+//                   style: TextStyle(
+//                     fontSize: 14,
+//                     fontFamily: boldFamily,
+//                     color: theme.secondaryTextColor,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//       );
+//     },
+//   );
+// }
 }

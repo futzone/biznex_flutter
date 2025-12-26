@@ -20,11 +20,9 @@ class ProductCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final orderNotifier = ref.read(orderSetProvider.notifier);
     return AppStateWrapper(builder: (theme, state) {
       return WebButton(
         onPressed: () {
-          // orderNotifier.addItem(OrderItem(product: product, amount: amount, placeId: placeId))
           ShowToast.success(context, AppLocales.productAddedToSet.tr());
         },
         builder: (focused) => AnimatedContainer(
@@ -88,14 +86,6 @@ class ProductCard extends HookConsumerWidget {
                           "${product.amount.price} ${product.measure ?? ''}"))),
               Expanded(
                   flex: 1, child: Center(child: Text(product.size ?? ' - '))),
-              if (!miniMode)
-                Expanded(
-                    flex: 1,
-                    child: Center(child: Text(product.barcode ?? ' - '))),
-              if (!miniMode)
-                Expanded(
-                    flex: 1,
-                    child: Center(child: Text(product.tagnumber ?? ' - '))),
               if (!miniMode)
                 Expanded(
                   flex: 1,

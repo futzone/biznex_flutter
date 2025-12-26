@@ -341,6 +341,26 @@ class PrinterServices {
       children: [
         pw.SizedBox(height: 4),
         _buildDottedLine(),
+        if (order.note != null && (order.note ?? '').isNotEmpty) ...[
+          pw.SizedBox(height: 4),
+          pw.Row(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            mainAxisAlignment: pw.MainAxisAlignment.start,
+            children: [
+              pw.Text("${AppLocales.note.tr()}: ", style: _boldStyle),
+              pw.SizedBox(width: 8),
+              pw.Expanded(
+                child: pw.Text(
+                  order.note ?? '',
+                  style: _pdfTheme,
+                  textAlign: pw.TextAlign.right,
+                ),
+              ),
+            ],
+          ),
+          pw.SizedBox(height: 4),
+          _buildDottedLine(),
+        ],
         pw.SizedBox(height: 4),
         pw.Row(
           children: [

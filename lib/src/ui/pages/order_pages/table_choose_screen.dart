@@ -27,6 +27,7 @@ import '../../widgets/dialogs/app_custom_dialog.dart';
 import '../../widgets/helpers/app_back_button.dart';
 import '../waiter_pages/mobile_drawer.dart';
 import 'employee_orders_page.dart';
+import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 
 class TableChooseScreen extends HookConsumerWidget {
   final void Function(Place place)? onSelected;
@@ -187,10 +188,48 @@ class TableChooseScreen extends HookConsumerWidget {
     final selectedPlace = useState<Place?>(null);
     final fatherPlace = useState<Place?>(null);
     final places = ref.watch(placesProvider).value ?? [];
+    final searchController = useTextEditingController();
+    final search = useListenable(searchController);
+
     final mobile = getDeviceType(context) == DeviceType.mobile;
+
+    final allPlaces = useMemoized(() {
+      final List<Place> all = [];
+      for (final place in places) {
+        all.add(place);
+        if (place.children != null) {
+          for (final child in place.children!) {
+            child.father = place;
+            all.add(child);
+          }
+        }
+      }
+      return all;
+    }, [places]);
+
+    final filteredPlaces = useMemoized(() {
+      if (search.text.isEmpty) return <Place>[];
+      return allPlaces
+          .where((element) =>
+              element.name.toLowerCase().contains(search.text.toLowerCase()))
+          .toList();
+    }, [search.text, allPlaces]);
+
+    final activePlaces = search.text.isNotEmpty
+        ? filteredPlaces
+        : selectedPlace.value == null
+            ? places
+            : selectedPlace.value?.children ?? [];
+
     return PopScope(
-      canPop: ((fatherPlace.value == null) && (selectedPlace.value == null)),
+      canPop: ((fatherPlace.value == null) &&
+          (selectedPlace.value == null) &&
+          search.text.isEmpty),
       onPopInvokedWithResult: (status, dy) {
+        if (search.text.isNotEmpty) {
+          search.clear();
+          return;
+        }
         fatherPlace.value = null;
         selectedPlace.value = null;
       },
@@ -357,6 +396,17 @@ class TableChooseScreen extends HookConsumerWidget {
                                 height: context.h(mobile ? 20 : 36),
                               ),
                               Spacer(),
+                              SizedBox(
+                                width: context.w(400),
+                                child: AppTextField(
+                                  prefixIcon: Icon(Iconsax.search_normal_copy),
+                                  title: AppLocales.search.tr(),
+                                  controller: searchController,
+                                  onChanged: (s) {},
+                                  theme: theme,
+                                ),
+                              ),
+                              16.w,
                               WebButton(
                                 onPressed: () {
                                   ref.invalidate(ordersProvider);
@@ -662,20 +712,12 @@ class TableChooseScreen extends HookConsumerWidget {
                               crossAxisSpacing: context.s(mobile ? 16 : 80),
                               childAspectRatio: Platform.isWindows ? 1.25 : 2,
                             ),
-                            itemCount: selectedPlace.value == null
-                                ? places.length
-                                : selectedPlace.value?.children == null
-                                    ? 0
-                                    : selectedPlace.value?.children?.length,
+                            itemCount: activePlaces.length,
                             itemBuilder: (context, index) {
-                              final place = selectedPlace.value == null
-                                  ? places[index]
-                                  : selectedPlace.value?.children == null
-                                      ? null
-                                      : selectedPlace.value?.children![index];
+                              final place = activePlaces[index];
 
                               return state.whenProviderData(
-                                provider: ordersProvider(place?.id ?? ''),
+                                provider: ordersProvider(place.id),
                                 builder: (order) {
                                   order as Order?;
                                   return SimpleButton(
@@ -695,38 +737,12 @@ class TableChooseScreen extends HookConsumerWidget {
                                       }
                                       selectedPlace.value = place;
 
-                                      if (place == null) {
-                                        Place kPlace = places[index];
-                                        kPlace.father = fatherPlace.value;
-                                        try {
-                                          ref.invalidate(
-                                              ordersProvider(kPlace.id));
-                                          ref.refresh(
-                                              ordersProvider(kPlace.id));
-                                        } catch (_) {}
-
-                                        if (onSelected != null) {
-                                          onSelected!(kPlace);
-                                          return;
-                                        }
-
-                                        AppRouter.go(
-                                                context,
-                                                MenuPage(
-                                                    place: kPlace,
-                                                    fatherPlace:
-                                                        fatherPlace.value))
-                                            .then((_) {
-                                          fatherPlace.value = null;
-                                          selectedPlace.value = null;
-                                        });
-                                        return;
-                                      }
-
                                       if (place.children == null ||
                                           place.children!.isEmpty) {
                                         Place kPlace = place;
-                                        kPlace.father = fatherPlace.value;
+                                        if (fatherPlace.value != null) {
+                                          kPlace.father = fatherPlace.value;
+                                        }
 
                                         try {
                                           ref.invalidate(
@@ -742,8 +758,10 @@ class TableChooseScreen extends HookConsumerWidget {
                                         AppRouter.go(
                                           context,
                                           MenuPage(
-                                              place: kPlace,
-                                              fatherPlace: fatherPlace.value),
+                                            place: kPlace,
+                                            fatherPlace: kPlace.father ??
+                                                fatherPlace.value,
+                                          ),
                                         ).then((_) {
                                           fatherPlace.value = null;
                                           selectedPlace.value = null;
@@ -770,7 +788,7 @@ class TableChooseScreen extends HookConsumerWidget {
                                                   MainAxisAlignment.spaceEvenly,
                                               children: [
                                                 Text(
-                                                  place?.name ?? '',
+                                                  place.name,
                                                   style: TextStyle(
                                                     fontFamily: boldFamily,
                                                     color: order == null
@@ -779,8 +797,7 @@ class TableChooseScreen extends HookConsumerWidget {
                                                     fontSize: 16,
                                                   ),
                                                 ),
-                                                if (place != null &&
-                                                    place.price != null &&
+                                                if (place.price != null &&
                                                     place.price != 0.0)
                                                   Text(
                                                     place.price!.priceUZS,
@@ -809,14 +826,14 @@ class TableChooseScreen extends HookConsumerWidget {
                                         : _buildTable(
                                             context: context,
                                             theme: theme,
-                                            name: (place?.name ?? '') +
+                                            name: place.name +
                                                 (order != null
                                                     ? "\n${order.employee.fullname}"
                                                     : ''),
                                             status:
                                                 order == null ? 'free' : 'bron',
                                             employee: order?.employee.fullname,
-                                            price: place?.price,
+                                            price: place.price,
                                           ),
                                   );
                                 },

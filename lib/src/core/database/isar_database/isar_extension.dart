@@ -59,23 +59,19 @@ extension ProductToIsar on Product {
       ..id = id
       ..unlimited = unlimited
       ..name = name
-      ..barcode = barcode
-      ..tagnumber = tagnumber
       ..cratedDate = cratedDate
       ..updatedDate = updatedDate
       ..description = description
       ..images = images?.toList()
       ..measure = measure
       ..color = color
-      ..colorCode = colorCode
       ..size = size
       ..price = price
       ..amount = amount
       ..percent = percent
       ..productId = productId
       ..category = category?.toIsar();
-    p.informations = informations?.map((i) => i.toIsar()).toList();
-    p.variants = variants?.map((v) => v.toIsar()).toList();
+
     return p;
   }
 }

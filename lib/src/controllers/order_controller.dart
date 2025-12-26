@@ -241,6 +241,7 @@ class OrderController {
       });
 
       orderToProcess = Order(
+        note: note,
         paymentTypes: [],
         place: place,
         employee: employee,
@@ -279,8 +280,9 @@ class OrderController {
     if (customer != null) finalOrder = finalOrder.copyWith(customer: customer);
     if (note != null) finalOrder = finalOrder.copyWith(note: note);
     if (scheduledDate != null) {
-      finalOrder =
-          finalOrder.copyWith(scheduledDate: scheduledDate.toIso8601String());
+      finalOrder = finalOrder.copyWith(
+        scheduledDate: scheduledDate.toIso8601String(),
+      );
     }
 
     finalOrder = finalOrder.copyWith(

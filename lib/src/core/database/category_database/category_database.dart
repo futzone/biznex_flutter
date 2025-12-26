@@ -77,6 +77,16 @@ class CategoryDatabase extends AppDatabase {
     await box.put(productInfo.id, productInfo.toJson());
   }
 
+  Future<Category?> getOne({required id}) async {
+    final box = await openBox(boxName);
+    final ctg = await box.get(id);
+    try {
+      return Category.fromJson(ctg);
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Future<void> update({required String key, required data}) async {
     if (data is! Category) return;

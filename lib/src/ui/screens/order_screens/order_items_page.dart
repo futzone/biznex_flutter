@@ -706,7 +706,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                         context,
                                         ref,
                                         placeOrderItems,
-                                        // note: noteController.text.trim(),
+                                        note: noteController.text.trim(),
                                         message: noteController.text.trim(),
                                         customer: customerNotifier.value ??
                                             Customer(
@@ -727,7 +727,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                       ref,
                                       placeOrderItems,
                                       order,
-                                      // note: noteController.text.trim(),
+                                      note: noteController.text.trim(),
                                       customer: customerNotifier.value ??
                                           Customer(
                                             name: addressController.text,

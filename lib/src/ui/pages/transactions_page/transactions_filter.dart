@@ -1,34 +1,41 @@
 import 'package:biznex/src/core/extensions/app_responsive.dart';
+import 'package:biznex/src/core/extensions/ref_extension.dart';
 import 'package:biznex/src/core/model/transaction_model/transaction_model.dart';
+import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/ui/widgets/custom/app_custom_popup_menu.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 
 import '../../../../biznex.dart';
+import '../../../core/model/employee_models/employee_model.dart';
 
-class TransactionsFilter extends StatelessWidget {
+class TransactionsFilter extends ConsumerWidget {
   final void Function() onSelectedDate;
   final DateTime selectedDate;
   final AppColors theme;
   final String? paymentType;
+  final Employee? employee;
   final void Function(String? pt) onSelectedPaymentType;
+  final void Function(Employee? pt) onSelectedEmployee;
 
   const TransactionsFilter({
     super.key,
     required this.onSelectedDate,
     required this.selectedDate,
     required this.theme,
+    this.employee,
+    required this.onSelectedEmployee,
     this.paymentType,
     required this.onSelectedPaymentType,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
     return SliverToBoxAdapter(
       child: Padding(
         padding: EdgeInsets.all(context.s(24)),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
-          spacing: context.w(16),
+          spacing: context.w(12),
           children: [
             Expanded(
               child: Text(
@@ -39,6 +46,55 @@ class TransactionsFilter extends StatelessWidget {
                   color: Colors.black,
                 ),
               ),
+            ),
+            0.w,
+            ref.whenProviderData(
+              provider: employeeProvider,
+              builder: (employees) {
+                employees as List<Employee>;
+
+                return CustomPopupMenu(
+                  theme: theme,
+                  children: [
+                    CustomPopupItem(
+                      onPressed: () {
+                        onSelectedEmployee(null);
+                      },
+                      title: AppLocales.all.tr(),
+                    ),
+                    for (final item in employees)
+                      CustomPopupItem(
+                        title: item.fullname.tr().capitalize,
+                        onPressed: () {
+                          onSelectedEmployee(item);
+                        },
+                      )
+                  ],
+                  child: Container(
+                    padding: Dis.only(lr: 16),
+                    height: 52,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      color: Colors.white,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          employee == null
+                              ? AppLocales.employees.tr()
+                              : employee?.fullname ?? '',
+                          style: TextStyle(
+                            color: theme.secondaryTextColor,
+                            fontSize: context.s(14),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
             0.w,
             CustomPopupMenu(
@@ -70,7 +126,9 @@ class TransactionsFilter extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      paymentType==null?AppLocales.paymentType.tr():paymentType!,
+                      paymentType == null
+                          ? AppLocales.paymentType.tr()
+                          : paymentType!,
                       style: TextStyle(
                         color: theme.secondaryTextColor,
                         fontSize: context.s(14),

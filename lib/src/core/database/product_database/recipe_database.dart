@@ -1,15 +1,11 @@
 import 'dart:developer';
-
 import 'package:biznex/biznex.dart';
-import 'package:biznex/src/core/database/changes_database/changes_database.dart';
-import 'package:biznex/src/core/model/app_changes_model.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/model/product_models/recipe_item_model.dart';
 import 'package:biznex/src/core/model/product_models/recipe_model.dart';
 import 'package:biznex/src/core/utils/action_listener.dart';
 import 'package:hive/hive.dart';
-
 import '../../../controllers/warehouse_monitoring_controller.dart';
 
 class RecipeDatabase {
@@ -19,8 +15,6 @@ class RecipeDatabase {
   String get recipeBox => _recipeBox;
 
   String get ingBox => _ingredientsBox;
-
-  final ChangesDatabase changesDatabase = ChangesDatabase();
 
   Future<Box> ingredientsBox() async {
     return await Hive.openBox(_recipeBox);
@@ -73,9 +67,6 @@ class RecipeDatabase {
   Future<void> deleteIngredient(id) async {
     final box = await Hive.openBox(_ingredientsBox);
     await box.delete(id);
-    changesDatabase.set(
-      data: Change(database: ingBox, method: "delete", itemId: id),
-    );
 
     ActionController.add('value');
   }
@@ -123,16 +114,6 @@ class RecipeDatabase {
       }
     }
 
-    if (old == null) {
-      await changesDatabase.set(
-        data: Change(database: ingBox, method: "create", itemId: ing.id),
-      );
-    } else {
-      await changesDatabase.set(
-        data: Change(database: ingBox, method: "update", itemId: ing.id),
-      );
-    }
-
     ActionController.add('value');
 
     await box.put(ing.id, ing.toMap());
@@ -146,10 +127,6 @@ class RecipeDatabase {
   Future<void> clearIngredients() async {
     final box = await Hive.openBox(_ingredientsBox);
     await box.clear();
-
-    await changesDatabase.set(
-      data: Change(database: ingBox, method: "clear", itemId: "all"),
-    );
 
     ActionController.add('value');
   }

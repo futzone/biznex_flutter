@@ -2,7 +2,6 @@ import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/ui/screens/order_screens/order_complete_screen.dart';
-import 'package:biznex/src/ui/screens/order_screens/order_item_card.dart';
 import 'package:biznex/src/ui/screens/products_screens/products_table_header.dart';
 import 'package:biznex/src/ui/widgets/custom/app_empty_widget.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
@@ -24,9 +23,7 @@ class OrderSetPage extends HookConsumerWidget {
       char = char.trim();
       final providerListener = ref.watch(productsProvider).value ?? [];
       searchResultList.value = providerListener.where((item) {
-        return (item.name.toLowerCase().contains(char.toLowerCase()) ||
-            item.barcode.toString().toLowerCase().contains(char.toLowerCase()) ||
-            item.tagnumber.toString().toLowerCase().contains(char.toLowerCase()));
+        return (item.name.toLowerCase().contains(char.toLowerCase()));
       }).toList();
     }
 
@@ -53,15 +50,23 @@ class OrderSetPage extends HookConsumerWidget {
                     provider: productsProvider,
                     builder: (products) {
                       products as List<Product>;
-                      if (products.isEmpty || (searchResultList.value.isEmpty && searchController.text.isNotEmpty)) {
-                        return Center(child: Padding(padding: 48.top, child: AppEmptyWidget()));
+                      if (products.isEmpty ||
+                          (searchResultList.value.isEmpty &&
+                              searchController.text.isNotEmpty)) {
+                        return Center(
+                            child: Padding(
+                                padding: 48.top, child: AppEmptyWidget()));
                       }
                       return Expanded(
                         child: ListView.builder(
-                          itemCount: searchResultList.value.isEmpty ? products.length : searchResultList.value.length,
+                          itemCount: searchResultList.value.isEmpty
+                              ? products.length
+                              : searchResultList.value.length,
                           itemBuilder: (context, index) {
                             return ProductCard(
-                              (searchResultList.value.isEmpty ? products : searchResultList.value)[index],
+                              (searchResultList.value.isEmpty
+                                  ? products
+                                  : searchResultList.value)[index],
                               miniMode: true,
                             );
                           },
@@ -93,10 +98,15 @@ class OrderSetPage extends HookConsumerWidget {
                         },
                         child: Container(
                           padding: Dis.only(lr: 12, tb: 6),
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: theme.accentColor),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              color: theme.accentColor),
                           child: Text(
                             AppLocales.clearAll.tr(),
-                            style: TextStyle(fontSize: 16, fontFamily: mediumFamily, color: Colors.red),
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: mediumFamily,
+                                color: Colors.red),
                           ),
                         ),
                       ),
@@ -107,7 +117,9 @@ class OrderSetPage extends HookConsumerWidget {
                     child: ListView.builder(
                       itemCount: setItems.length + 1,
                       itemBuilder: (context, index) {
-                        if (setItems.isEmpty) return Padding(padding: 24.top, child: AppEmptyWidget());
+                        if (setItems.isEmpty)
+                          return Padding(
+                              padding: 24.top, child: AppEmptyWidget());
                         // if (setItems.isNotEmpty && index == 0) return 0.w;
                         if (index == setItems.length) {
                           return OrderCompleteScreen();

@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:biznex/src/core/cloud/entity_event.dart';
+import 'package:biznex/src/core/cloud/local_changes_db.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
-import 'package:biznex/src/core/model/app_changes_model.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
 
 class EmployeeDatabase extends AppDatabase {
@@ -16,13 +17,10 @@ class EmployeeDatabase extends AppDatabase {
     final employee = await getOne(key);
     if (employee == null) return;
 
-    await changesDatabase.set(
-      data: Change(
-        database: boxName,
-        method: 'delete',
-        itemId: key,
-        data: "${employee.fullname} (${employee.roleName})",
-      ),
+    await LocalChanges.instance.saveChange(
+      event: EmployeeEvent.EMPLOYEE_DELETED,
+      entity: Entity.EMPLOYEE,
+      objectId: key,
     );
     await box.delete(key);
   }
@@ -63,12 +61,10 @@ class EmployeeDatabase extends AppDatabase {
     final box = await openBox(boxName);
     await box.put(productInfo.id, productInfo.toJson());
 
-    await changesDatabase.set(
-      data: Change(
-        database: boxName,
-        method: 'create',
-        itemId: productInfo.id,
-      ),
+    await LocalChanges.instance.saveChange(
+      event: EmployeeEvent.EMPLOYEE_CREATED,
+      entity: Entity.EMPLOYEE,
+      objectId: productInfo.id,
     );
   }
 
@@ -78,12 +74,10 @@ class EmployeeDatabase extends AppDatabase {
 
     final box = await openBox(boxName);
     box.put(key, data.toJson());
-    await changesDatabase.set(
-      data: Change(
-        database: boxName,
-        method: 'update',
-        itemId: key,
-      ),
+    await LocalChanges.instance.saveChange(
+      event: EmployeeEvent.EMPLOYEE_UPDATED,
+      entity: Entity.EMPLOYEE,
+      objectId: key,
     );
   }
 

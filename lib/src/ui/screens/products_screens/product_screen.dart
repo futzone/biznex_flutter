@@ -66,13 +66,10 @@ class ProductScreen extends AppStatelessWidget {
                     // spacing: 24,
                     children: [
                       if (product.size != null) AppText.$14Bold("${AppLocales.productSizeLabel.tr()}: ${product.size}"),
-                      if (product.colorCode != null) 24.w,
-                      if (product.colorCode != null) AppText.$14Bold("${AppLocales.productColorLabel.tr()}: "),
-                      if (product.colorCode != null) Icon(Icons.circle, size: 16, color: colorFromHex(product.colorCode!))
+
                     ],
                   ),
-                if (product.informations != null && product.informations!.isNotEmpty)
-                  for (final item in product.informations!) AppText.$14Bold("${item.name}: ${item.data}"),
+
                 if (product.category != null)
                   Wrap(
                     children: [
