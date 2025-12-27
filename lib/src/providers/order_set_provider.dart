@@ -2,14 +2,12 @@ import 'dart:developer';
 
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
-import 'package:biznex/src/core/database/product_database/product_database.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/orders_provider.dart';
 import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import '../core/database/order_database/order_database.dart';
 import '../core/model/order_models/order_model.dart';
-import '../core/model/product_models/product_model.dart';
 import 'employee_orders_provider.dart';
 
 final orderSetProvider =
@@ -20,28 +18,10 @@ final orderSetProvider =
 class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
   final Ref ref;
   final OrderDatabase _orderDatabase = OrderDatabase();
-  final ProductDatabase _productDatabase = ProductDatabase();
   final AppStateDatabase _stateDatabase = AppStateDatabase();
   AppModel? model;
 
   OrderSetNotifier(this.ref) : super([]);
-
-  void _onRestoreProduct(OrderItem orderItem) async {
-    if (model?.firstDecrease ?? false) {
-      Product? oldProduct = await _productDatabase.getProductById(
-        orderItem.product.id,
-      );
-
-      if (oldProduct == null) return;
-      oldProduct.amount = oldProduct.amount + orderItem.amount;
-      await _productDatabase.update(key: oldProduct.id, data: oldProduct);
-    }
-
-    try {
-      ref.invalidate(productsProvider);
-      ref.refresh(productsProvider);
-    } catch (_) {}
-  }
 
   Future<void> loadOrderForPlace(String placeId) async {
     if (state.any((item) => item.placeId == placeId)) {
@@ -99,8 +79,6 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
   }
 
   void deleteItem(OrderItem item, context, Order? kOrder) async {
-    _onRestoreProduct(item);
-
     final order = kOrder ?? ref.watch(ordersProvider(item.placeId)).value;
 
     final currentEmployee = ref.watch(currentEmployeeProvider);
@@ -165,7 +143,7 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
       }
     }
 
-    _onDeleteCache(item.placeId, ref);
+    await _onDeleteCache(item.placeId, ref);
     return;
   }
 
@@ -287,7 +265,7 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
     state = [];
   }
 
-  void _onDeleteCache(String placeId, ref) {
+  Future<void> _onDeleteCache(String placeId, ref) async {
     final list = state.where((e) => e.placeId == placeId).toList();
     if (list.isEmpty) {
       OrderDatabase orderDatabase = OrderDatabase();
@@ -296,7 +274,10 @@ class OrderSetNotifier extends StateNotifier<List<OrderItem>> {
       ref.invalidate(ordersProvider(placeId));
       ref.invalidate(ordersProvider);
       ref.invalidate(employeeOrdersProvider);
-      orderDatabase.deletePlaceOrder(placeId);
+      await orderDatabase.deletePlaceOrder(placeId);
+      try {
+        ref.invalidate(productsProvider);
+      } catch (_) {}
     }
   }
 

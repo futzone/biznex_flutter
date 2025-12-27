@@ -267,11 +267,31 @@ class OrderDatabase extends OrderDatabaseRepository {
         await isar.orderIsars.filter().closedEqualTo(false).place((pl) {
       return pl.idEqualTo(placeId);
     }).findFirst();
-    await isar.writeTxn(() async {
-      if (orderIsar != null) {
+
+    if (orderIsar != null) {
+      try {
+        final AppStateDatabase stateDatabase = AppStateDatabase();
+        final app = await stateDatabase.getApp();
+        final productDatabase = ProductDatabase();
+
+        if (app.firstDecrease) {
+          final order = Order.fromIsar(orderIsar);
+          for (final item in order.products) {
+            final oldItem =
+                await productDatabase.getProductById(item.product.id);
+
+            if (oldItem == null) continue;
+            oldItem.amount = oldItem.amount + item.amount;
+            oldItem.updatedDate = DateTime.now().toIso8601String();
+            await productDatabase.update(key: oldItem.id, data: oldItem);
+          }
+        }
+      } catch (_) {}
+
+      await isar.writeTxn(() async {
         await isar.orderIsars.delete(orderIsar.isarId);
-      }
-    });
+      });
+    }
   }
 
   Future<void> setPlaceOrder(
@@ -480,7 +500,7 @@ class OrderDatabase extends OrderDatabaseRepository {
     return ordersList;
   }
 
-  Future<Order?>  getOrderById(String id) async {
+  Future<Order?> getOrderById(String id) async {
     final orderIsar = await isar.orderIsars.filter().idEqualTo(id).findFirst();
     if (orderIsar == null) return null;
     return Order.fromIsar(orderIsar);
