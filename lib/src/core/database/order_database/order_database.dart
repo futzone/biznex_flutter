@@ -107,25 +107,50 @@ class OrderDatabase extends OrderDatabaseRepository {
       return;
     }
 
-    final placeOrder = await getPlaceOrderIsar(order.place.id);
-    if (placeOrder == null) {
-      order.id = generateID;
-      await isar.writeTxn(() async {
-        OrderIsar orderIsar = order.toIsar();
-        orderIsar.closed = true;
-        orderIsar.status = Order.completed;
-        await isar.orderIsars.put(orderIsar);
-      });
-    } else {
-      order.id = placeOrder.id;
-      await isar.writeTxn(() async {
-        OrderIsar orderIsar = order.toIsar();
-        orderIsar.closed = true;
-        orderIsar.status = Order.completed;
-        orderIsar.isarId = placeOrder.isarId;
-        await isar.orderIsars.put(orderIsar);
-      });
+    // Try to find existing order by isarId first (most reliable local ID)
+    OrderIsar? existingIsarOrder;
+    if (order.isarId != null) {
+      existingIsarOrder = await isar.orderIsars.get(order.isarId!);
     }
+
+    // If not found by isarId, try by String ID
+    if (existingIsarOrder == null && order.id.isNotEmpty) {
+      existingIsarOrder =
+          await isar.orderIsars.filter().idEqualTo(order.id).findFirst();
+    }
+
+    // If still not found, try to find an open order for this place (legacy fallback)
+    if (existingIsarOrder == null) {
+      existingIsarOrder = await getPlaceOrderIsar(order.place.id);
+    }
+
+    await isar.writeTxn(() async {
+      final OrderIsar newIsar = order.toIsar();
+      newIsar.closed = true;
+      newIsar.status = Order.completed;
+
+      if (existingIsarOrder != null) {
+        // Update existing
+        newIsar.isarId = existingIsarOrder.isarId;
+        // Ensure ID consistency if it was missing
+        if (newIsar.id.isEmpty) newIsar.id = existingIsarOrder.id;
+        await isar.orderIsars.put(newIsar);
+
+        // Update the order object in memory to match DB state
+        order.isarId = newIsar.isarId;
+        order.id = newIsar.id;
+      } else {
+        // Create new
+        if (order.id.isEmpty) order.id = generateID;
+        // Re-generate ISAR object to include the new ID
+        final createIsar = order.toIsar();
+        createIsar.closed = true;
+        createIsar.status = Order.completed;
+        await isar.orderIsars.put(createIsar);
+
+        order.isarId = createIsar.isarId;
+      }
+    });
 
     await _onUpdateAmounts(order);
 
@@ -369,33 +394,55 @@ class OrderDatabase extends OrderDatabaseRepository {
       return;
     }
 
-    final orderIsar =
-        await isar.orderIsars.filter().closedEqualTo(false).place((pl) {
-      return pl.idEqualTo(placeId);
-    }).findFirst();
+    // Try to find existing order by isarId first (most reliable local ID)
+    OrderIsar? existingIsarOrder;
+    if ((data as Order).isarId != null) {
+      existingIsarOrder = await isar.orderIsars.get(data.isarId!);
+    }
+
+    // If not found by isarId, try by String ID
+    if (existingIsarOrder == null && data.id.isNotEmpty) {
+      existingIsarOrder =
+          await isar.orderIsars.filter().idEqualTo(data.id).findFirst();
+    }
+
+    // Fallback: find by Place ID (legacy)
+    if (existingIsarOrder == null) {
+      existingIsarOrder =
+          await isar.orderIsars.filter().closedEqualTo(false).place((pl) {
+        return pl.idEqualTo(placeId);
+      }).findFirst();
+    }
 
     Order order = data;
     OrderIsar newIsar = order.toIsar();
 
     await isar.writeTxn(() async {
-      if (orderIsar != null) {
-        // for(final item in orderIsar.products) {
-        // newIsar.products.
-        // }
+      if (existingIsarOrder != null) {
+        newIsar.isarId = existingIsarOrder.isarId;
+        // Keep ID consistent
+        if (newIsar.id.isEmpty) newIsar.id = existingIsarOrder.id;
 
-        newIsar.isarId = orderIsar.isarId;
         await isar.orderIsars.put(newIsar);
+
+        // Sync memory object
+        order.isarId = newIsar.isarId;
+        order.id = newIsar.id;
       } else {
-        await isar.orderIsars.put(newIsar);
+        // Create new if absolutely no trace found (rare for update, but safer than crashing)
+        if (order.id.isEmpty) order.id = generateID;
+        final createIsar = order.toIsar();
+        await isar.orderIsars.put(createIsar);
+        order.isarId = createIsar.isarId;
       }
     });
 
     try {
-      if (orderIsar == null) return;
+      if (existingIsarOrder == null) return;
       PrinterMultipleServices printerMultipleServices =
           PrinterMultipleServices();
       final List<OrderItem> changes =
-          _onGetChanges(order.products, Order.fromIsar(orderIsar));
+          _onGetChanges(order.products, Order.fromIsar(existingIsarOrder!));
 
       try {
         final AppStateDatabase stateDatabase = AppStateDatabase();

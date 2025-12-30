@@ -221,11 +221,13 @@ class OrderController {
     bool useCheck = true,
     String? address,
     String? phone,
+    Order? existingOrder,
   }) async {
     if (!context.mounted) return;
     showAppLoadingDialog(context);
 
-    Order? currentOrderData = await _database.getPlaceOrder(place.id);
+    Order? currentOrderData =
+        existingOrder ?? await _database.getPlaceOrder(place.id);
     Order orderToProcess;
 
     if (currentOrderData == null) {

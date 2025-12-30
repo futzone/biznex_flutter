@@ -865,6 +865,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                         useCheck: useCheck.value,
                                         phone: phoneController.text,
                                         address: addressController.text,
+                                        existingOrder: order,
                                       );
 
                                       noteController.clear();
