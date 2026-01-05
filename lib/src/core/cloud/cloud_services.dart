@@ -1,3 +1,4 @@
+import 'package:biznex/src/core/cloud/local_changes_db.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/cloud/cloud_response.dart';
@@ -17,7 +18,11 @@ class BiznexCloudServices {
 
   Future<bool> hasConnection() async {
     final bool isConnected = await InternetConnection().hasInternetAccess;
+
+    log("internet connection: $isConnected");
     final state = await _stateDatabase.getApp();
+
+    log("app online/offline status: ${state.offline}");
     return isConnected && !state.offline;
   }
 
@@ -48,6 +53,9 @@ class BiznexCloudServices {
           token: response.data['accessToken'],
           expires: response.data['expiresIn'],
           branchId: response.data['branchId'],
+          subscriptionExpiresAt:
+              DateTime.tryParse(response.data['subscriptionExpiresAt']) ??
+                  DateTime.now(),
         );
 
         await _tokenDB.saveToken(tokenObject);
@@ -85,6 +93,7 @@ class BiznexCloudServices {
       if (!response.success) return null;
       final tokenObject = CloudToken(
         refresh: response.data['refreshToken'],
+        subscriptionExpiresAt: tokenData.subscriptionExpiresAt,
         token: response.data['accessToken'],
         expires: response.data['expiresIn'],
         branchId: tokenData.branchId,
@@ -109,6 +118,11 @@ class BiznexCloudServices {
 
     if (sizeUnder) return CloudResponse(success: false, sizeUnder: true);
 
+    log('\n\n\n');
+    log(jsonEncode(requestBody));
+    log('\n\n\n');
+
+
     try {
       final response = await dio.post(
         batchIngest,
@@ -123,6 +137,7 @@ class BiznexCloudServices {
         message: response.data['error'],
       );
     } on DioException catch (error) {
+      log("error on ingest event: ${error.response?.data}", error: error);
       return CloudResponse(
         success: false,
         unauthorized: error.response?.statusCode == 401,
@@ -132,6 +147,18 @@ class BiznexCloudServices {
   }
 
   bool checkRequestSize(dynamic data, int size) {
+    if (data is List<Change>) {
+      final jsonList = [];
+      for (final item in data) {
+        jsonList.add(item.toJson());
+      }
+
+      final jsonString = jsonEncode(jsonList);
+      final sizeInBytes = utf8.encode(jsonString).length;
+
+      return sizeInBytes > (1024 * size);
+    }
+
     final jsonString = jsonEncode(data);
     final sizeInBytes = utf8.encode(jsonString).length;
 

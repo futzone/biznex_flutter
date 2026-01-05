@@ -87,6 +87,17 @@ class RecipeDatabase {
     }
   }
 
+  Future<Recipe?> getOneRecipe(String id) async {
+    final box = await Hive.openBox(_recipeBox);
+    final data = await box.get(id);
+    if (data == null) return null;
+    try {
+      return Recipe.fromJson(data);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> saveRecipe(Recipe recipe) async {
     final box = await Hive.openBox(_recipeBox);
     await box.put(recipe.id, recipe.toJson());

@@ -57,17 +57,12 @@ class SettingsPageScreen extends HookConsumerWidget {
 
     return AppStateWrapper(
       builder: (theme, state) {
-        final decoded = JWT.decode(state.licenseKey).payload;
-
         String? expireText;
 
-        if (decoded.containsKey("exp")) {
-          int exp = decoded["exp"];
-          DateTime expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
-          expireText = DateFormat(
-            'yyyy, dd-MMMM, HH:mm',
-            context.locale.languageCode,
-          ).format(expiryDate);
+        if (state.cloudToken != null) {
+          expireText = DateFormat("yyyy, dd-MMMM, HH:mm").format(
+            state.cloudToken!.subscriptionExpiresAt.toLocal(),
+          );
         }
 
         return Scaffold(

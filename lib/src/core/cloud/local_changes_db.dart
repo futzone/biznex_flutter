@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:biznex/src/core/cloud/change_versions_db.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
@@ -44,6 +46,7 @@ class LocalChanges {
     List<Change> changesList = [];
     for (final item in box.values) {
       if (changesList.length < 50) {
+        log("change data: \n$item");
         changesList.add(Change.fromJson(item));
       } else {
         return changesList;
@@ -73,7 +76,7 @@ class Change {
     required this.eventSeq,
   });
 
-  factory Change.fromJson(Map<String, dynamic> json) {
+  factory Change.fromJson(json) {
     return Change(
       id: json['id'] as String,
       entityType: Entity.values.byName(json['entityType'] as String),

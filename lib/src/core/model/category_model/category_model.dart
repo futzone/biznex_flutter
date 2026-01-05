@@ -25,7 +25,6 @@ class Category {
   });
 
   factory Category.fromJson(json) {
-    log(json['index'].toString());
     return Category(
       name: json['name'],
       index: json['index'] ?? 9999,

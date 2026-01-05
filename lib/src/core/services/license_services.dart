@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:biznex/src/core/cloud/cloud_token_db.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/services/device_id_service.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
@@ -27,11 +28,10 @@ class LicenseServices {
 
   Future<int> getJwtDaysLeft() async {
     try {
-      final token = await AppStateDatabase().getApp();
-      final decoded = JWT.decode(token.licenseKey).payload;
-      if (decoded.containsKey("exp")) {
-        int exp = decoded["exp"];
-        DateTime expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+      final CloudTokenDB cloudTokenDB = CloudTokenDB();
+      final cloudToken = await cloudTokenDB.getToken();
+      if (cloudToken != null) {
+        DateTime expiryDate = cloudToken.subscriptionExpiresAt;
         Duration diff = expiryDate.difference(DateTime.now());
         return diff.inDays;
       }

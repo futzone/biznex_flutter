@@ -5,12 +5,15 @@ import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../cloud/cloud_token_db.dart';
+
 const boldFamily = "Extra-Bold";
 const regularFamily = "Regular";
 const mediumFamily = "Medium";
 const bool appRoleState = false;
 
 class AppModel {
+  CloudToken? cloudToken;
   bool after;
   bool isServerApp;
   String baseUrl;
@@ -70,7 +73,7 @@ class AppModel {
   }
 
   AppModel({
-    this.offline = true,
+    this.offline = false,
     this.allowCloseWaiter = true,
     this.firstDecrease = false,
     this.allowCancelOrder = false,
@@ -104,6 +107,7 @@ class AppModel {
     this.apiUrl,
     this.generalPrintUrl,
     this.generalPrintName,
+    this.cloudToken,
   });
 
   factory AppModel.fromJson(dynamic json) {

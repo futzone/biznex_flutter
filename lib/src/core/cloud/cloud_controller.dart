@@ -1,14 +1,24 @@
+import 'dart:developer';
+
 import 'package:biznex/src/core/cloud/change_versions_db.dart';
 import 'package:biznex/src/core/cloud/cloud_event.dart';
 import 'package:biznex/src/core/cloud/cloud_services.dart';
 import 'package:biznex/src/core/cloud/entity_event.dart';
 import 'package:biznex/src/core/cloud/local_changes_db.dart';
+import 'package:biznex/src/core/cloud/migrations/migration_status.dart';
 import 'package:biznex/src/core/database/category_database/category_database.dart';
+import 'package:biznex/src/core/database/customer_database/customer_database.dart';
 import 'package:biznex/src/core/database/employee_database/employee_database.dart';
+import 'package:biznex/src/core/database/employee_database/role_database.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
+import 'package:biznex/src/core/database/order_database/order_percent_database.dart';
+import 'package:biznex/src/core/database/place_database/place_database.dart';
 import 'package:biznex/src/core/database/product_database/product_database.dart';
+import 'package:biznex/src/core/database/product_database/recipe_database.dart';
+import 'package:biznex/src/core/database/product_database/shopping_database.dart';
 import 'package:biznex/src/core/database/transactions_database/transactions_database.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:async';
 
 class EventResult {
   final List<Map<String, dynamic>> eventData;
@@ -22,99 +32,212 @@ class BiznexCloudController {
   final ChangeVersionsDB _versionsDB = ChangeVersionsDB();
   final Uuid uuid = Uuid();
   final LocalChanges localChanges = LocalChanges();
-  final ProductDatabase _productDatabase = ProductDatabase();
-  final EmployeeDatabase _employeeDatabase = EmployeeDatabase();
-  final OrderDatabase _orderDatabase = OrderDatabase();
-  final CategoryDatabase _categoryDatabase = CategoryDatabase();
-  final TransactionsDatabase _transactionsDatabase = TransactionsDatabase();
+  final MigrationStatus _migrationStatus = MigrationStatus();
 
-  Future<EventResult> _getEvents({int size = 1023}) async {
-    List<Map<String, dynamic>> eventsList = [];
-    List<String> eventDataIds = [];
+  late final Map<String, Future<dynamic> Function(String id)> _dbFetchers;
+  final pDb = ProductDatabase();
+  final eDb = EmployeeDatabase();
+  final oDb = OrderDatabase();
+  final cDb = CategoryDatabase();
+  final tDb = TransactionsDatabase();
+  final rDb = RecipeDatabase();
+  final custDb = CustomerDatabase();
+  final plDb = PlaceDatabase();
+  final roleDb = RoleDatabase();
+  final shopDb = ShoppingDatabase();
+  final perDb = OrderPercentDatabase();
+
+  BiznexCloudController() {
+    _dbFetchers = {
+      Entity.PRODUCT.name: (id) async =>
+          (await pDb.getProductById(id))?.toJson(),
+      Entity.ORDER.name: (id) async => (await oDb.getOrderById(id))?.toJson(),
+      Entity.EMPLOYEE.name: (id) async => (await eDb.getOne(id))?.toJson(),
+      Entity.CATEGORY.name: (id) async => (await cDb.getOne(id: id))?.toJson(),
+      Entity.TRANSACTION.name: (id) async =>
+          (await tDb.getTransactionById(id))?.toJson(),
+      Entity.INGREDIENT.name: (id) async =>
+          (await rDb.getIngredient(id))?.toMap(),
+      Entity.RECIPE.name: (id) async => (await rDb.getOneRecipe(id))?.toJson(),
+      Entity.CUSTOMER.name: (id) async =>
+          (await custDb.getCustomer(id))?.toJson(),
+      Entity.PLACE.name: (id) async => (await plDb.getOne(id))?.toJson(),
+      Entity.ROLE.name: (id) async => (await roleDb.getRole(id))?.toJson(),
+      Entity.PERCENT.name: (id) async =>
+          (await perDb.getPercentById(id))?.toJson(),
+      Entity.SHOPPING.name: (id) async =>
+          (await shopDb.getShopping(id))?.toMap(),
+    };
+  }
+
+  bool _isDeleteEvent(String eventType) {
+    return eventType.endsWith('_DELETED');
+  }
+
+  Future<EventResult> _getEvents({int maxSize = 1023}) async {
+    final List<Map<String, dynamic>> eventsList = [];
+    final List<String> eventDataIds = [];
     final changes = await localChanges.getChanges();
-    for (final item in changes) {
-      Map<String, dynamic>? eventData;
 
-      if (item.entityType == Entity.PRODUCT) {
-        final product = await _productDatabase.getProductById(item.entityId);
-        if (product == null && item.eventType != ProductEvent.PRODUCT_DELETED) {
-          continue;
-        }
-        eventData = product?.toJson();
-      } else if (item.entityType == Entity.ORDER) {
-        final order = await _orderDatabase.getOrderById(item.entityId);
-        if (order == null) continue;
-        eventData = order.toJson();
-      } else if (item.entityType == Entity.EMPLOYEE) {
-        final employee = await _employeeDatabase.getOne(item.entityId);
-        if (employee == null &&
-            item.eventType != EmployeeEvent.EMPLOYEE_DELETED) {
-          continue;
-        }
-        eventData = employee?.toJson();
-      } else if (item.entityType == Entity.CATEGORY) {
-        final category = await _categoryDatabase.getOne(id: item.entityId);
-        if (category == null &&
-            item.eventType != CategoryEvent.CATEGORY_DELETED) {
-          continue;
-        }
-        eventData = category?.toJson();
-      } else if (item.entityType == Entity.TRANSACTION) {
-        final transaction = await _transactionsDatabase.getTransactionById(
-          item.entityId,
-        );
-        if (transaction == null) continue;
-        eventData = transaction.toJson();
+    for (final item in changes) {
+      final fetcher = _dbFetchers[item.entityType.name];
+
+      final results = await Future.wait([
+        fetcher != null ? fetcher(item.entityId) : Future.value(null),
+        _versionsDB.getEntityVersion(item.entityId),
+        _versionsDB.getEventSeq(),
+      ]);
+
+      final dbData = results[0] as Map<String, dynamic>?;
+      final entityVersion = results[1] as int;
+      final eventSeq = results[2] as int;
+
+      if (dbData == null && !_isDeleteEvent(item.eventType.getName())) {
+        continue;
       }
+
+      final payloadData = dbData ?? {};
 
       final CloudEvent cloudEvent = CloudEvent(
         entityType: item.entityType,
         eventType: item.eventType,
         entityId: item.entityId,
-        entityVersion: await _versionsDB.getEntityVersion(item.entityId),
+        entityVersion: entityVersion,
         payloadVersion: _versionsDB.payloadVersion,
-        data: eventData ?? {},
-        eventSeq: await _versionsDB.getEventSeq(),
+        data: payloadData,
+        eventSeq: eventSeq,
       );
 
-      final newList = [...eventsList, cloudEvent.toJson()];
-      if (cloudServices.checkRequestSize(newList, size)) {
+      final eventJson = cloudEvent.toJson();
+      eventsList.add(eventJson);
+
+      if (cloudServices.checkRequestSize(eventsList, maxSize)) {
+        eventsList.removeLast();
         return EventResult(eventData: eventsList, eventIds: eventDataIds);
       }
 
-      eventsList.add(cloudEvent.toJson());
       eventDataIds.add(item.id);
     }
 
     return EventResult(eventData: eventsList, eventIds: eventDataIds);
   }
 
-  int _size = 1023;
+  Future<void> _runMigrations() async {
+    final status = await _migrationStatus.getStatus();
+    log("Migration status: $status");
+
+    if (status) return;
+
+    try {
+      await _migrateEntity(
+        pDb.getAll,
+        Entity.PRODUCT,
+        ProductEvent.PRODUCT_CREATED,
+      );
+
+      await _migrateEntity(
+        custDb.get,
+        Entity.CUSTOMER,
+        CustomerEvent.CUSTOMER_CREATED,
+      );
+
+      await _migrateEntity(
+        cDb.get,
+        Entity.CATEGORY,
+        CategoryEvent.CATEGORY_CREATED,
+      );
+
+      await _migrateEntity(
+        plDb.get,
+        Entity.PLACE,
+        PlaceEvent.PLACE_CREATED,
+      );
+
+      await _migrateEntity(
+        perDb.get,
+        Entity.PERCENT,
+        PercentEvent.PERCENT_CREATED,
+      );
+
+      await _migrateEntity(
+        eDb.get,
+        Entity.EMPLOYEE,
+        EmployeeEvent.EMPLOYEE_CREATED,
+      );
+
+      await _migrateEntity(
+        roleDb.get,
+        Entity.ROLE,
+        RoleEvent.ROLE_CREATED,
+      );
+
+      await _migrateEntity(
+        rDb.getIngredients,
+        Entity.INGREDIENT,
+        IngredientEvent.INGREDIENT_CREATED,
+      );
+
+      await _migrateEntity(
+        rDb.getRecipe,
+        Entity.RECIPE,
+        RecipeEvent.RECIPE_CREATED,
+      );
+
+      await _migrateEntity(
+        shopDb.get,
+        Entity.SHOPPING,
+        ShoppingEvent.SHOPPING_CREATED,
+      );
+
+      await _migrationStatus.saveStatus(true);
+    } catch (error, st) {
+      log('Error in migrations:', error: error, stackTrace: st);
+    }
+  }
+
+  Future<void> _migrateEntity(
+    Future<List<dynamic>> Function() fetcher,
+    Entity entityType,
+    EntityEvent eventType,
+  ) async {
+    final items = await fetcher();
+    if (items.isEmpty) return;
+
+    for (final item in items) {
+      await localChanges.saveChange(
+        event: eventType,
+        entity: entityType,
+        objectId: item.id,
+      );
+    }
+  }
 
   Future<void> sync() async {
     final connection = await cloudServices.hasConnection();
     if (!connection) return;
+    log("started sync to => Biznex Cloud");
+    await _runMigrations();
 
-    final changes = await localChanges.getChanges();
-    if (changes.isEmpty) return;
+    while (true) {
+      final changes = await localChanges.getChanges();
+      if (changes.isEmpty) break;
+      final eventsResult = await _getEvents(maxSize: 1023);
 
-    final eventsData = await _getEvents(size: _size);
-    final response = await cloudServices.ingestEvent(
-      CloudEventIngestion(
-        events: eventsData.eventData,
-        batchId: uuid.v7(),
-      ),
-    );
+      if (eventsResult.eventData.isEmpty) break;
 
-    if (response.sizeUnder) {
-      _size--;
-      await sync();
-      return;
-    }
+      final response = await cloudServices.ingestEvent(
+        CloudEventIngestion(
+          events: eventsResult.eventData,
+          batchId: uuid.v7(),
+        ),
+      );
 
-    if (response.success) {
-      for (final id in eventsData.eventIds) {
-        await localChanges.deleteChange(id);
+      if (response.success) {
+        await Future.wait(
+          eventsResult.eventIds.map((id) => localChanges.deleteChange(id)),
+        );
+      } else {
+        break;
       }
     }
   }

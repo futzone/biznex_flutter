@@ -1,4 +1,8 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/cloud/cloud_controller.dart';
 import 'package:biznex/src/core/utils/font_utils.dart';
 
 class ActivityWrapper extends StatefulWidget {
@@ -18,17 +22,35 @@ class ActivityWrapper extends StatefulWidget {
 }
 
 class _ActivityWrapperState extends State<ActivityWrapper> {
+  Timer? _timer;
+  final BiznexCloudController _cloudController = BiznexCloudController();
+
+  void _syncUpdates() async {
+    log('syncUpdates() initialized!');
+    if (_timer == null || !(_timer?.isActive ?? false)) {
+      _timer = Timer.periodic(Duration(seconds: 30), (_) async {
+        try {
+          await _cloudController.sync();
+        } catch (error) {
+          log('sync error: $error', error: error);
+        }
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     FontUtils.instance.saveContext(widget.context);
     _initFonts();
+    _syncUpdates();
   }
 
   void _initFonts() async => await FontUtils.instance.init();
 
   @override
   void dispose() {
+    _timer?.cancel();
     super.dispose();
   }
 

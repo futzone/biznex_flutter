@@ -1,6 +1,6 @@
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/model/other_models/customer_model.dart';
- 
+
 class CustomerDatabase extends AppDatabase {
   final String boxName = 'customer';
 
@@ -23,6 +23,15 @@ class CustomerDatabase extends AppDatabase {
     }
 
     return productInfoList;
+  }
+
+   Future<Customer?> getCustomer(String id) async {
+    final box = await openBox(boxName);
+    try {
+      return Customer.fromJson(box.get(id));
+    } catch (_) {
+      return null;
+    }
   }
 
   @override

@@ -29,6 +29,15 @@ class PlaceDatabase extends AppDatabase {
     }
   }
 
+  Future<Place?> getOne(String id) async {
+    final box = await openBox(boxName);
+    try {
+      return Place.fromJson(box.get(id));
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Future<List<Place>> get() async {
     final List<Place> productInfoList = [];

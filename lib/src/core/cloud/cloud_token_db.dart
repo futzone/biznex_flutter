@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:hive/hive.dart';
 
 class CloudTokenDB {
@@ -12,7 +14,8 @@ class CloudTokenDB {
 
     try {
       return CloudToken.fromJson(cloudData);
-    } catch (_) {
+    } catch (error) {
+      log('error on get token: $error', error: error);
       return null;
     }
   }
@@ -33,20 +36,24 @@ class CloudToken {
   String refresh;
   String branchId;
   int expires;
+  DateTime subscriptionExpiresAt;
 
   CloudToken({
     required this.refresh,
     required this.token,
     required this.expires,
     required this.branchId,
+    required this.subscriptionExpiresAt,
   });
 
-  factory CloudToken.fromJson(Map<String, dynamic> json) {
+  factory CloudToken.fromJson(dynamic json) {
     return CloudToken(
       token: json['token'] as String,
       branchId: json['branchId'] as String,
       refresh: json['refresh'] as String,
       expires: json['expires'] as int,
+      subscriptionExpiresAt:
+          DateTime.tryParse(json['subscriptionExpiresAt']) ?? DateTime.now(),
     );
   }
 
@@ -56,6 +63,7 @@ class CloudToken {
       'branchId': branchId,
       'refresh': refresh,
       'expires': expires,
+      'subscriptionExpiresAt': subscriptionExpiresAt.toIso8601String(),
     };
   }
 }
