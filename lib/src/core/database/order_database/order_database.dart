@@ -146,6 +146,7 @@ class OrderDatabase extends OrderDatabaseRepository {
         final createIsar = order.toIsar();
         createIsar.closed = true;
         createIsar.status = Order.completed;
+
         await isar.orderIsars.put(createIsar);
 
         order.isarId = createIsar.isarId;
@@ -184,6 +185,8 @@ class OrderDatabase extends OrderDatabaseRepository {
         entity: Entity.ORDER,
         objectId: order.id,
       );
+
+
     } catch (_) {}
 
     try {

@@ -10,6 +10,17 @@ class EmployeeDatabase extends AppDatabase {
 
   String get endpoint => '/api/v2/$boxName';
 
+  static Future<void> saveCurrent(String id) async {
+    final box = await Hive.openBox('currentEmployee');
+    await box.put('key', id);
+  }
+
+  static Future<String> getCurrent() async {
+    final box = await Hive.openBox('currentEmployee');
+    final id = await box.get('key');
+    return "$id";
+  }
+
   @override
   Future delete({required String key}) async {
     final box = await openBox(boxName);

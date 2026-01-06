@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
+import 'package:biznex/src/core/database/employee_database/employee_database.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/providers/app_state_provider.dart';
 import 'package:biznex/src/providers/category_provider.dart';
@@ -344,9 +345,10 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                       AppRouter.go(
                                         context,
                                         LoginPageHarom(
-                                            model: state,
-                                            theme: theme,
-                                            fromAdmin: true),
+                                          model: state,
+                                          theme: theme,
+                                          fromAdmin: true,
+                                        ),
                                       );
                                     },
                                   );
@@ -357,10 +359,12 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                   theme: theme,
                                   roleName: employee.roleName,
                                   fullname: employee.fullname,
-                                  onPressed: () {
+                                  onPressed: () async {
                                     ref
                                         .read(currentEmployeeProvider.notifier)
                                         .update((state) => employee);
+
+                                    await EmployeeDatabase.saveCurrent(employee.id);
                                     AppRouter.go(
                                       context,
                                       LoginPageHarom(

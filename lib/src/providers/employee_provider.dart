@@ -21,8 +21,9 @@ final roleProvider = FutureProvider<List<Role>>((ref) async {
 final currentEmployeeProvider = StateProvider((ref) {
   final model = ref.watch(appStateProvider).value;
   return Employee(
-      fullname: "Admin",
-      roleId: "0",
-      roleName: "Admin",
-      pincode: model?.pincode ?? '0000');
+    fullname: "Admin",
+    roleId: "0",
+    roleName: "Admin",
+    pincode: model?.pincode ?? '0000',
+  );
 });

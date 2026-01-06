@@ -34,6 +34,7 @@ class LocalChanges {
 
     final box = await Hive.openBox(_changesBox);
     await box.put(change.id, change.toJson());
+    log('Saved change for: ${entity.name}, event: ${event.getName()}');
   }
 
   Future<void> deleteChange(String id) async {
@@ -46,7 +47,7 @@ class LocalChanges {
     List<Change> changesList = [];
     for (final item in box.values) {
       if (changesList.length < 50) {
-        log("change data: \n$item");
+        // log("change data: \n$item");
         changesList.add(Change.fromJson(item));
       } else {
         return changesList;

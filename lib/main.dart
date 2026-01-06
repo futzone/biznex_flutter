@@ -265,7 +265,10 @@ class MyApp extends ConsumerWidget {
             home: getDeviceType(context) == DeviceType.mobile
                 ? OnboardPage()
                 : ActivityWrapper(
-                    ref: ref, context: context, child: LicenseStatusWrapper()),
+                    ref: ref,
+                    context: context,
+                    child: LicenseStatusWrapper(),
+                  ),
           ),
         );
       },

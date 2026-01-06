@@ -79,11 +79,17 @@ class BiznexCloudServices {
   Future<CloudToken?> getTokenData() async {
     final tokenData = await _tokenDB.getToken();
     if (tokenData == null) return null;
+
+    log("$tokenData");
+
     try {
       bool isExpired = JwtDecoder.isExpired(tokenData.token);
       if (!isExpired) return tokenData;
 
-      if (JwtDecoder.isExpired(tokenData.refresh)) return null;
+      if (JwtDecoder.isExpired(tokenData.refresh)) {
+        log("refresh expired");
+        return null;
+      }
 
       final response = await dio.post(
         refresh,
@@ -118,10 +124,9 @@ class BiznexCloudServices {
 
     if (sizeUnder) return CloudResponse(success: false, sizeUnder: true);
 
-    log('\n\n\n');
-    log(jsonEncode(requestBody));
-    log('\n\n\n');
-
+    // log('\n\n\n');
+    // log(jsonEncode(requestBody));
+    // log('\n\n\n');
 
     try {
       final response = await dio.post(
@@ -136,12 +141,16 @@ class BiznexCloudServices {
         unauthorized: response.statusCode == 401,
         message: response.data['error'],
       );
-    } on DioException catch (error) {
-      log("error on ingest event: ${error.response?.data}", error: error);
+    } on DioException catch (error, st) {
+      log(
+        "error on ingest event: ${error.response?.data} ${error.message}",
+        error: error,
+        stackTrace: st,
+      );
       return CloudResponse(
         success: false,
         unauthorized: error.response?.statusCode == 401,
-        message: error.response?.data['error'],
+        message: error.response?.data.toString(),
       );
     }
   }

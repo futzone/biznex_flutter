@@ -31,7 +31,6 @@ class BiznexCloudController {
   final BiznexCloudServices cloudServices = BiznexCloudServices();
   final ChangeVersionsDB _versionsDB = ChangeVersionsDB();
   final Uuid uuid = Uuid();
-  final LocalChanges localChanges = LocalChanges();
   final MigrationStatus _migrationStatus = MigrationStatus();
 
   late final Map<String, Future<dynamic> Function(String id)> _dbFetchers;
@@ -75,6 +74,8 @@ class BiznexCloudController {
   }
 
   Future<EventResult> _getEvents({int maxSize = 1023}) async {
+    final LocalChanges localChanges = LocalChanges();
+
     final List<Map<String, dynamic>> eventsList = [];
     final List<String> eventDataIds = [];
     final changes = await localChanges.getChanges();
@@ -203,6 +204,7 @@ class BiznexCloudController {
     final items = await fetcher();
     if (items.isEmpty) return;
 
+    final LocalChanges localChanges = LocalChanges();
     for (final item in items) {
       await localChanges.saveChange(
         event: eventType,
@@ -213,13 +215,14 @@ class BiznexCloudController {
   }
 
   Future<void> sync() async {
+    final LocalChanges localChanges = LocalChanges();
     final connection = await cloudServices.hasConnection();
     if (!connection) return;
-    log("started sync to => Biznex Cloud");
-    await _runMigrations();
+     await _runMigrations();
 
     while (true) {
       final changes = await localChanges.getChanges();
+      log("Local changes count: ${changes.length}");
       if (changes.isEmpty) break;
       final eventsResult = await _getEvents(maxSize: 1023);
 

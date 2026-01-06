@@ -1,3 +1,4 @@
+import 'package:biznex/src/core/database/audit_log_database/audit_log.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/core/database/transactions_database/transactions_database.dart';
 import 'package:biznex/src/core/model/ingredient_models/ingredient_model.dart';
@@ -20,6 +21,7 @@ class IsarDatabase {
         OrderIsarSchema,
         IngredientTransactionSchema,
         TransactionIsarSchema,
+        AuditLogIsarSchema
       ],
       inspector: true,
       directory: dir,

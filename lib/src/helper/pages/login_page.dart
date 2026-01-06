@@ -14,6 +14,7 @@ import 'package:biznex/src/ui/widgets/custom/app_text_widgets.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 
+import '../../core/database/employee_database/employee_database.dart';
 import '../screens/enter_url_screen.dart';
 
 class HelperLoginPage extends ConsumerStatefulWidget {
@@ -43,9 +44,12 @@ class _LoginPageState extends ConsumerState<HelperLoginPage> {
       HelperApiServices helperApiServices = HelperApiServices();
       final response = await helperApiServices.getMe(enteredPin);
       if (response.isSuccess) {
+        final employee =  Employee.fromJson(jsonDecode(response.data));
         ref.read(currentEmployeeProvider.notifier).update((state) {
-          return Employee.fromJson(jsonDecode(response.data));
+           return employee;
         });
+
+        await EmployeeDatabase.saveCurrent(employee.id);
         AppRouter.open(context, WaiterHelperPage());
         return;
       }

@@ -16,6 +16,7 @@ import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:flutter/services.dart';
 import 'package:pin_keyboard/pin_keyboard.dart';
+import '../../../core/database/employee_database/employee_database.dart';
 import '../../widgets/dialogs/app_custom_dialog.dart';
 import 'api_address_screen.dart';
 
@@ -58,6 +59,8 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
           return Employee(fullname: 'Admin', roleId: '-1', roleName: 'admin');
         });
 
+        await EmployeeDatabase.saveCurrent(employee.id);
+
         return AppRouter.open(context, MainPage());
       }
 
@@ -65,6 +68,7 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
         ref.read(currentEmployeeProvider.notifier).update((e) {
           return Employee(fullname: 'Admin', roleId: '-1', roleName: 'admin');
         });
+        await EmployeeDatabase.saveCurrent(employee.id);
 
         return AppRouter.open(context, MainPage());
       }
@@ -78,6 +82,7 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
         }
 
         final isCashierValue = await isCashier(employee);
+        await EmployeeDatabase.saveCurrent(employee.id);
         if (isCashierValue) {
           return AppRouter.open(context, MainPage());
         }
@@ -86,6 +91,7 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
 
       if (model.pincode == enteredPin && widget.onSuccessEnter != null) {
         widget.onSuccessEnter!();
+        await EmployeeDatabase.saveCurrent(employee.id);
         return AppRouter.close(context);
       }
 
@@ -94,11 +100,13 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
           return Employee(fullname: 'Admin', roleId: '-1', roleName: 'admin');
         });
 
+        await EmployeeDatabase.saveCurrent(employee.id);
         return AppRouter.open(context, MainPage());
       }
 
       ShowToast.error(context, AppLocales.incorrectPincode.tr());
       _pincode = '';
+      await EmployeeDatabase.saveCurrent(employee.id);
       return setState(() {});
     }
   }

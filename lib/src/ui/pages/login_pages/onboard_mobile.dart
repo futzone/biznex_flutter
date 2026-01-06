@@ -5,6 +5,7 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../../biznex.dart';
 import '../../../core/config/router.dart';
 import '../../../core/database/app_database/app_state_database.dart';
+import '../../../core/database/employee_database/employee_database.dart';
 import '../../../providers/app_state_provider.dart';
 import '../../../providers/employee_provider.dart';
 import 'login_page.dart';
@@ -79,9 +80,10 @@ class OnboardMobile extends ConsumerWidget {
                     )
                   ],
                 ),
-                onPressed: () {
+                onPressed: ()async  {
                   ref.read(currentEmployeeProvider.notifier).update((state) => employee);
                   AppRouter.go(context, LoginPageHarom(model: state, theme: theme));
+                  await EmployeeDatabase.saveCurrent(employee.id);
                 },
               ),
           ],

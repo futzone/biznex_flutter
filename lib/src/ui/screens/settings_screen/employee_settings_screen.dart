@@ -16,6 +16,7 @@ import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_back_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
+import '../../../core/database/employee_database/employee_database.dart';
 import '../../widgets/dialogs/app_custom_dialog.dart';
 import 'app_updater_screen.dart';
 
@@ -184,6 +185,8 @@ class EmployeeSettingsScreen extends HookConsumerWidget {
                     .read(currentEmployeeProvider.notifier)
                     .update((state) => updateEmployee);
                 employeeController.update(updateEmployee, employee.id);
+
+                await EmployeeDatabase.saveCurrent(employee.id);
               },
             ),
           ],

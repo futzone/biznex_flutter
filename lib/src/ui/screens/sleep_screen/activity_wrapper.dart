@@ -26,13 +26,12 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
   final BiznexCloudController _cloudController = BiznexCloudController();
 
   void _syncUpdates() async {
-    log('syncUpdates() initialized!');
-    if (_timer == null || !(_timer?.isActive ?? false)) {
-      _timer = Timer.periodic(Duration(seconds: 30), (_) async {
+     if (_timer == null || !(_timer?.isActive ?? false)) {
+      _timer = Timer.periodic(Duration(seconds: 60), (_) async {
         try {
           await _cloudController.sync();
-        } catch (error) {
-          log('sync error: $error', error: error);
+        } catch (error, st) {
+          log('sync error: $error', error: error, stackTrace: st);
         }
       });
     }
