@@ -276,6 +276,10 @@ class AppSidebar extends HookConsumerWidget {
                             Iconsax.logout_copy, AppLocales.logout.tr(), -1),
                       ),
                     ),
+
+                    if(isAdmin)
+                      sidebarItemBuilder(
+                          Iconsax.activity_copy, AppLocales.actions.tr(), 14),
                     // sidebarItemBuilder("assets/icons/printer-svgrepo-com.svg", AppLocales.printing.tr(), 9),
                     // sidebarItemBuilder("assets/icons/delivery.svg", AppLocales.delivery.tr(), 10),
                   ],

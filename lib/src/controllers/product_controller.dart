@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:biznex/biznex.dart';
@@ -11,6 +12,7 @@ import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/providers/recipe_providers.dart';
 import 'package:biznex/src/ui/widgets/custom/app_confirm_dialog.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
+import 'package:biznex/src/core/database/audit_log_database/logger_service.dart';
 
 class ProductController extends AppController {
   final void Function()? onClose;
@@ -64,7 +66,14 @@ class ProductController extends AppController {
     //   await sizeDatabase.set(data: data);
     // }
 
-    await sizeDatabase.set(data: kProduct).then((_) {
+    await sizeDatabase.set(data: kProduct).then((_) async {
+      await LoggerService.save(
+        logType: LogType.product,
+        actionType: ActionType.create,
+        itemId: kProduct.id,
+        newValue: jsonEncode(kProduct.toJson()),
+      );
+
       state.ref!.invalidate(productsProvider);
       closeLoading();
       if (onClose != null) onClose!();
@@ -80,6 +89,12 @@ class ProductController extends AppController {
         showAppLoadingDialog(context);
         ProductDatabase sizeDatabase = ProductDatabase();
         await sizeDatabase.delete(key: key).then((_) async {
+          await LoggerService.save(
+            logType: LogType.product,
+            actionType: ActionType.delete,
+            itemId: key,
+          );
+
           await RecipeDatabase().deleteRecipe(key);
           state.ref!.invalidate(productsProvider);
           state.ref!.invalidate(recipesProvider);
@@ -113,6 +128,13 @@ class ProductController extends AppController {
     kProduct.images = kImages;
     ProductDatabase sizeDatabase = ProductDatabase();
     await sizeDatabase.update(data: kProduct, key: data.id).then((_) async {
+      await LoggerService.save(
+        logType: LogType.product,
+        actionType: ActionType.update,
+        itemId: kProduct.id,
+        newValue: jsonEncode(kProduct.toJson()),
+      );
+
       await _onUpdateChanges(kProduct);
       state.ref!.invalidate(productsProvider);
       closeLoading();

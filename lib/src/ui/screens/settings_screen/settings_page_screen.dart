@@ -13,10 +13,11 @@ import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_list_tile.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
+import 'package:biznex/src/core/database/audit_log_database/logger_service.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
-import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
@@ -432,16 +433,21 @@ class SettingsPageScreen extends HookConsumerWidget {
                                             CustomPopupItem(
                                               icon: Icons.cancel_outlined,
                                               title: AppLocales.cancel.tr(),
-                                              onPressed: () {
+                                              onPressed: () async {
                                                 AppModel kApp = state;
                                                 kApp.generalPrintName = null;
                                                 kApp.generalPrintUrl = null;
-                                                AppStateDatabase()
-                                                    .updateApp(kApp)
-                                                    .then((_) {
-                                                  ref.invalidate(
-                                                      appStateProvider);
-                                                });
+                                                await AppStateDatabase()
+                                                    .updateApp(kApp);
+                                                await LoggerService.save(
+                                                  logType: LogType.printer,
+                                                  actionType: ActionType.update,
+                                                  itemId: "general_printer",
+                                                  newValue:
+                                                      "url: null, name: null",
+                                                );
+                                                ref.invalidate(
+                                                    appStateProvider);
 
                                                 managerPrinter.value =
                                                     Printer(url: '');
@@ -456,8 +462,25 @@ class SettingsPageScreen extends HookConsumerWidget {
                                               CustomPopupItem(
                                                 title: device.name,
                                                 icon: Iconsax.printer_copy,
-                                                onPressed: () {
+                                                onPressed: () async {
                                                   managerPrinter.value = device;
+                                                  AppModel settings = state;
+                                                  settings.generalPrintUrl =
+                                                      device.url;
+                                                  settings.generalPrintName =
+                                                      device.name;
+                                                  await AppStateDatabase()
+                                                      .updateApp(settings);
+                                                  await LoggerService.save(
+                                                    logType: LogType.printer,
+                                                    actionType:
+                                                        ActionType.update,
+                                                    itemId: "general_printer",
+                                                    newValue:
+                                                        "url: ${device.url}, name: ${device.name}",
+                                                  );
+                                                  ref.invalidate(
+                                                      appStateProvider);
                                                 },
                                               ),
                                           ],
@@ -485,7 +508,7 @@ class SettingsPageScreen extends HookConsumerWidget {
                                 ConfirmCancelButton(
                                   onlyConfirm: true,
                                   confirmText: AppLocales.save.tr(),
-                                  onConfirm: () {
+                                  onConfirm: () async {
                                     AppModel newState = state;
 
                                     newState.shopName =
@@ -506,15 +529,19 @@ class SettingsPageScreen extends HookConsumerWidget {
                                           managerPrinter.value.name;
                                     }
 
-                                    AppStateDatabase()
-                                        .updateApp(newState)
-                                        .then((_) {
-                                      ref.refresh(appStateProvider);
-                                      ref.invalidate(appStateProvider);
+                                    await AppStateDatabase()
+                                        .updateApp(newState);
+                                    await LoggerService.save(
+                                      logType: LogType.app,
+                                      actionType: ActionType.update,
+                                      itemId: "app_settings",
+                                      newValue: jsonEncode(newState.toJson()),
+                                    );
+                                    ref.refresh(appStateProvider);
+                                    ref.invalidate(appStateProvider);
 
-                                      ShowToast.success(context,
-                                          AppLocales.savedSuccessfully.tr());
-                                    });
+                                    ShowToast.success(context,
+                                        AppLocales.savedSuccessfully.tr());
                                   },
                                 ),
                               ],
@@ -599,7 +626,7 @@ class SettingsPageScreen extends HookConsumerWidget {
                             child: ConfirmCancelButton(
                               onlyConfirm: true,
                               confirmText: AppLocales.save.tr(),
-                              onConfirm: () {
+                              onConfirm: () async {
                                 AppModel newState = state;
                                 if (newPincodeController.text
                                         .trim()
@@ -618,17 +645,20 @@ class SettingsPageScreen extends HookConsumerWidget {
                                       newPincodeController.text.trim();
                                 }
 
-                                AppStateDatabase()
-                                    .updateApp(newState)
-                                    .then((_) async {
-                                  ref.refresh(appStateProvider);
-                                  ref.invalidate(appStateProvider);
-                                  ShowToast.success(context,
-                                      AppLocales.savedSuccessfully.tr());
+                                await AppStateDatabase().updateApp(newState);
+                                await LoggerService.save(
+                                  logType: LogType.app,
+                                  actionType: ActionType.update,
+                                  itemId: "app_settings",
+                                  newValue: jsonEncode(newState.toJson()),
+                                );
+                                ref.refresh(appStateProvider);
+                                ref.invalidate(appStateProvider);
+                                ShowToast.success(
+                                    context, AppLocales.savedSuccessfully.tr());
 
-                                  newPincodeController.clear();
-                                  oldPincodeController.clear();
-                                });
+                                newPincodeController.clear();
+                                oldPincodeController.clear();
                               },
                             ),
                           ),

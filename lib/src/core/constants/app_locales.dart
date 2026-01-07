@@ -592,4 +592,13 @@ abstract class AppLocales {
   static var allowCloseWaiter = "allowCloseWaiter";
   static var editDate = "editDate";
   static var paymentSummError = "paymentSummError";
+  static var product = "product";
+  static var employee = "employee";
+  static var app = "app";
+  static var transaction = "transaction";
+  static var percent = "percent";
+  static var ingredient = "ingredient";
+  static var printer = "printer";
+  static var actionType = "actionType";
+  static var action = 'action';
 }

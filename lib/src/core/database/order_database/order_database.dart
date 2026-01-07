@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:biznex/src/core/cloud/entity_event.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
+import 'package:biznex/src/core/database/audit_log_database/logger_service.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/isar_database/isar_extension.dart';
 import 'package:biznex/src/core/database/order_database/order_percent_database.dart';
@@ -186,7 +187,11 @@ class OrderDatabase extends OrderDatabaseRepository {
         objectId: order.id,
       );
 
-
+      await LoggerService.save(
+        logType: LogType.order,
+        actionType: ActionType.create,
+        itemId: order.id,
+      );
     } catch (_) {}
 
     try {
@@ -445,7 +450,7 @@ class OrderDatabase extends OrderDatabaseRepository {
       PrinterMultipleServices printerMultipleServices =
           PrinterMultipleServices();
       final List<OrderItem> changes =
-          _onGetChanges(order.products, Order.fromIsar(existingIsarOrder!));
+          _onGetChanges(order.products, Order.fromIsar(existingIsarOrder));
 
       try {
         final AppStateDatabase stateDatabase = AppStateDatabase();

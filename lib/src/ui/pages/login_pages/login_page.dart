@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
+import 'package:biznex/src/core/database/audit_log_database/logger_service.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
 import 'package:biznex/src/core/utils/cashier_utils.dart';
@@ -59,8 +60,10 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
           return Employee(fullname: 'Admin', roleId: '-1', roleName: 'admin');
         });
 
-        await EmployeeDatabase.saveCurrent(employee.id);
+        await EmployeeDatabase.saveCurrent('employee.id');
 
+        await LoggerService.save(
+            logType: LogType.app, actionType: ActionType.enter);
         return AppRouter.open(context, MainPage());
       }
 
@@ -68,8 +71,10 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
         ref.read(currentEmployeeProvider.notifier).update((e) {
           return Employee(fullname: 'Admin', roleId: '-1', roleName: 'admin');
         });
-        await EmployeeDatabase.saveCurrent(employee.id);
+        await EmployeeDatabase.saveCurrent('employee.id');
 
+        await LoggerService.save(
+            logType: LogType.app, actionType: ActionType.enter);
         return AppRouter.open(context, MainPage());
       }
 
@@ -78,11 +83,17 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
           log("$pincode!= $enteredPin");
           ShowToast.error(context, AppLocales.incorrectPincode.tr());
           _pincode = '';
+
+          await LoggerService.save(
+              logType: LogType.app, actionType: ActionType.fail);
           return setState(() {});
         }
 
         final isCashierValue = await isCashier(employee);
         await EmployeeDatabase.saveCurrent(employee.id);
+
+        await LoggerService.save(
+            logType: LogType.app, actionType: ActionType.enter);
         if (isCashierValue) {
           return AppRouter.open(context, MainPage());
         }
@@ -100,13 +111,22 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
           return Employee(fullname: 'Admin', roleId: '-1', roleName: 'admin');
         });
 
-        await EmployeeDatabase.saveCurrent(employee.id);
+        await EmployeeDatabase.saveCurrent('employee.id');
+
+        await LoggerService.save(
+          logType: LogType.app,
+          actionType: ActionType.enter,
+        );
+
         return AppRouter.open(context, MainPage());
       }
 
       ShowToast.error(context, AppLocales.incorrectPincode.tr());
       _pincode = '';
       await EmployeeDatabase.saveCurrent(employee.id);
+
+      await LoggerService.save(
+          logType: LogType.app, actionType: ActionType.fail);
       return setState(() {});
     }
   }

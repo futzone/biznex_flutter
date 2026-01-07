@@ -13,6 +13,8 @@ import 'package:uuid/uuid.dart';
 import '../core/model/product_models/product_model.dart';
 import '../core/model/product_models/recipe_item_model.dart';
 import '../core/model/product_models/shopping_model.dart';
+import 'package:biznex/src/core/database/audit_log_database/logger_service.dart';
+import 'dart:convert';
 
 class RecipeController {
   final BuildContext context;
@@ -63,6 +65,21 @@ class RecipeController {
 
     await recipeDatabase.saveIngredient(ingredient);
     await recipeDatabase.saveRecipe(recipe);
+
+    await LoggerService.save(
+      logType: LogType.ingredient,
+      actionType: ActionType.create,
+      itemId: ingredient.id,
+      newValue: ingredient.toMap().toString(),
+    );
+
+    await LoggerService.save(
+      logType: LogType.recipe,
+      actionType: ActionType.create,
+      itemId: recipe.id,
+      newValue: recipe.toJson().toString(),
+    );
+
     ref.invalidate(ingredientsProvider);
     ref.invalidate(recipesProvider);
   }
@@ -98,6 +115,14 @@ class RecipeController {
         if (measure != null) old.measure = measure;
 
         await recipeDatabase.saveIngredient(old);
+
+        await LoggerService.save(
+          logType: LogType.ingredient,
+          actionType: ActionType.update,
+          itemId: old.id,
+          newValue: jsonEncode(old.toMap()),
+        );
+
         ref.invalidate(ingredientsProvider);
         return;
       }
@@ -116,6 +141,14 @@ class RecipeController {
     );
 
     await recipeDatabase.saveIngredient(ingredient);
+
+    await LoggerService.save(
+      logType: LogType.ingredient,
+      actionType: ActionType.create,
+      itemId: ingredient.id,
+      newValue: jsonEncode(ingredient.toMap()),
+    );
+
     ref.invalidate(ingredientsProvider);
   }
 
@@ -134,6 +167,14 @@ class RecipeController {
       old.items = items;
       old.updatedDate = DateTime.now();
       await recipeDatabase.saveRecipe(old);
+
+      await LoggerService.save(
+        logType: LogType.recipe,
+        actionType: ActionType.update,
+        itemId: old.id,
+        newValue: jsonEncode(old.toJson()),
+      );
+
       ref.invalidate(productRecipeProvider);
       ref.invalidate(productRecipeProvider(product.id));
       ref.invalidate(recipesProvider);
@@ -149,6 +190,14 @@ class RecipeController {
     );
 
     await recipeDatabase.saveRecipe(recipe);
+
+    await LoggerService.save(
+      logType: LogType.recipe,
+      actionType: ActionType.create,
+      itemId: recipe.id,
+      newValue: recipe.toJson().toString(),
+    );
+
     ref.invalidate(productRecipeProvider);
     ref.invalidate(productRecipeProvider(product.id));
     ref.invalidate(recipesProvider);
@@ -182,6 +231,16 @@ class RecipeController {
           if (item.price != null) ingredient.unitPrice = item.price;
           await recipeDatabase.saveIngredient(ingredient);
         }
+
+        await LoggerService.save(
+          logType: LogType
+              .ingredient, // Using ingredient as it relates to stock/shopping
+          actionType: ActionType.update,
+          itemId: old.id,
+          newValue: jsonEncode(old
+              .toMap()), // Shopping doesn't have a dedicated log type yet, falling back or using ingredient/other
+        );
+
         ref.invalidate(shoppingProvider);
         ref.invalidate(ingredientsProvider);
         return;
@@ -208,6 +267,13 @@ class RecipeController {
       if (item.price != null) ingredient.unitPrice = item.price;
       await recipeDatabase.saveIngredient(ingredient);
     }
+
+    await LoggerService.save(
+      logType: LogType.ingredient,
+      actionType: ActionType.create,
+      itemId: shopping.id,
+      newValue: jsonEncode(shopping.toMap()),
+    );
 
     ref.invalidate(shoppingProvider);
     ref.invalidate(ingredientsProvider);

@@ -588,5 +588,17 @@
   "deleteOrderQuestion": "Buyurtmani o'chirishni tasdiqlaysizmi? (Keyin ma'lumotlarni qayta tiklab bo'lmaydi!)",
   "order": "Buyurtma",
   "allowCloseWaiter": "Buyurtmani boshqalar ham yopsin.",
-  "paymentSummError": "To'lovlar buyurtmaning summasi bilan teng emas. Iltimos, batafsil kiriting!"
+  "paymentSummError": "To'lovlar buyurtmaning summasi bilan teng emas. Iltimos, batafsil kiriting!",
+  "product": "Mahsulot",
+  "employee": "Xodim",
+  "app": "Tizim",
+  "transaction": "Tranzaksiya",
+  "percent": "Foiz",
+  "ingredient": "Masalliq",
+  "printer": "Printer",
+  "actionType": "Turi",
+  "action": "Amal",
+  "enter": "Ilovaga kirish",
+  "fail": "Xatolik",
+  "open": "Ochildi"
 }

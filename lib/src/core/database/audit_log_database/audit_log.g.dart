@@ -74,17 +74,32 @@ int _auditLogIsarEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  bytesCount += 3 + object.actionType.length * 3;
-  bytesCount += 3 +
-      EmployeeIsarSchema.estimateSize(
-          object.employee, allOffsets[EmployeeIsar]!, allOffsets);
+  {
+    final value = object.actionType;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.employee;
+    if (value != null) {
+      bytesCount += 3 +
+          EmployeeIsarSchema.estimateSize(
+              value, allOffsets[EmployeeIsar]!, allOffsets);
+    }
+  }
   {
     final value = object.itemId;
     if (value != null) {
       bytesCount += 3 + value.length * 3;
     }
   }
-  bytesCount += 3 + object.logType.length * 3;
+  {
+    final value = object.logType;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   {
     final value = object.newValue;
     if (value != null) {
@@ -127,17 +142,16 @@ AuditLogIsar _auditLogIsarDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = AuditLogIsar();
-  object.actionType = reader.readString(offsets[0]);
-  object.createdDate = reader.readDateTime(offsets[1]);
+  object.actionType = reader.readStringOrNull(offsets[0]);
+  object.createdDate = reader.readDateTimeOrNull(offsets[1]);
   object.employee = reader.readObjectOrNull<EmployeeIsar>(
-        offsets[2],
-        EmployeeIsarSchema.deserialize,
-        allOffsets,
-      ) ??
-      EmployeeIsar();
+    offsets[2],
+    EmployeeIsarSchema.deserialize,
+    allOffsets,
+  );
   object.id = id;
   object.itemId = reader.readStringOrNull(offsets[3]);
-  object.logType = reader.readString(offsets[4]);
+  object.logType = reader.readStringOrNull(offsets[4]);
   object.newValue = reader.readStringOrNull(offsets[5]);
   object.oldValue = reader.readStringOrNull(offsets[6]);
   return object;
@@ -151,20 +165,19 @@ P _auditLogIsarDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 1:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
       return (reader.readObjectOrNull<EmployeeIsar>(
-            offset,
-            EmployeeIsarSchema.deserialize,
-            allOffsets,
-          ) ??
-          EmployeeIsar()) as P;
+        offset,
+        EmployeeIsarSchema.deserialize,
+        allOffsets,
+      )) as P;
     case 3:
       return (reader.readStringOrNull(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 5:
       return (reader.readStringOrNull(offset)) as P;
     case 6:
@@ -269,8 +282,26 @@ extension AuditLogIsarQueryWhere
 extension AuditLogIsarQueryFilter
     on QueryBuilder<AuditLogIsar, AuditLogIsar, QFilterCondition> {
   QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
+      actionTypeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'actionType',
+      ));
+    });
+  }
+
+  QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
+      actionTypeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'actionType',
+      ));
+    });
+  }
+
+  QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
       actionTypeEqualTo(
-    String value, {
+    String? value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -284,7 +315,7 @@ extension AuditLogIsarQueryFilter
 
   QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
       actionTypeGreaterThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -300,7 +331,7 @@ extension AuditLogIsarQueryFilter
 
   QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
       actionTypeLessThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -316,8 +347,8 @@ extension AuditLogIsarQueryFilter
 
   QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
       actionTypeBetween(
-    String lower,
-    String upper, {
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -405,7 +436,25 @@ extension AuditLogIsarQueryFilter
   }
 
   QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
-      createdDateEqualTo(DateTime value) {
+      createdDateIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'createdDate',
+      ));
+    });
+  }
+
+  QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
+      createdDateIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'createdDate',
+      ));
+    });
+  }
+
+  QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
+      createdDateEqualTo(DateTime? value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'createdDate',
@@ -416,7 +465,7 @@ extension AuditLogIsarQueryFilter
 
   QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
       createdDateGreaterThan(
-    DateTime value, {
+    DateTime? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -430,7 +479,7 @@ extension AuditLogIsarQueryFilter
 
   QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
       createdDateLessThan(
-    DateTime value, {
+    DateTime? value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -444,8 +493,8 @@ extension AuditLogIsarQueryFilter
 
   QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
       createdDateBetween(
-    DateTime lower,
-    DateTime upper, {
+    DateTime? lower,
+    DateTime? upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
@@ -456,6 +505,24 @@ extension AuditLogIsarQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
+      employeeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'employee',
+      ));
+    });
+  }
+
+  QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
+      employeeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'employee',
       ));
     });
   }
@@ -667,8 +734,26 @@ extension AuditLogIsarQueryFilter
   }
 
   QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
+      logTypeIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'logType',
+      ));
+    });
+  }
+
+  QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
+      logTypeIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'logType',
+      ));
+    });
+  }
+
+  QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
       logTypeEqualTo(
-    String value, {
+    String? value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -682,7 +767,7 @@ extension AuditLogIsarQueryFilter
 
   QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
       logTypeGreaterThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -698,7 +783,7 @@ extension AuditLogIsarQueryFilter
 
   QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
       logTypeLessThan(
-    String value, {
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -714,8 +799,8 @@ extension AuditLogIsarQueryFilter
 
   QueryBuilder<AuditLogIsar, AuditLogIsar, QAfterFilterCondition>
       logTypeBetween(
-    String lower,
-    String upper, {
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -1342,19 +1427,20 @@ extension AuditLogIsarQueryProperty
     });
   }
 
-  QueryBuilder<AuditLogIsar, String, QQueryOperations> actionTypeProperty() {
+  QueryBuilder<AuditLogIsar, String?, QQueryOperations> actionTypeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'actionType');
     });
   }
 
-  QueryBuilder<AuditLogIsar, DateTime, QQueryOperations> createdDateProperty() {
+  QueryBuilder<AuditLogIsar, DateTime?, QQueryOperations>
+      createdDateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'createdDate');
     });
   }
 
-  QueryBuilder<AuditLogIsar, EmployeeIsar, QQueryOperations>
+  QueryBuilder<AuditLogIsar, EmployeeIsar?, QQueryOperations>
       employeeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'employee');
@@ -1367,7 +1453,7 @@ extension AuditLogIsarQueryProperty
     });
   }
 
-  QueryBuilder<AuditLogIsar, String, QQueryOperations> logTypeProperty() {
+  QueryBuilder<AuditLogIsar, String?, QQueryOperations> logTypeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'logType');
     });

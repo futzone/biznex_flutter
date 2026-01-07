@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:convert';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
@@ -25,6 +26,7 @@ import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:isar/isar.dart';
 import '../providers/recipe_providers.dart';
+import 'package:biznex/src/core/database/audit_log_database/logger_service.dart';
 
 class OrderController {
   final Employee employee;
@@ -70,6 +72,13 @@ class OrderController {
         tempProduct.amount = tempProduct.amount + item.amount;
         await _productDatabase.update(key: tempProduct.id, data: tempProduct);
       }
+
+      await LoggerService.save(
+        logType: LogType.order,
+        actionType: ActionType.delete,
+        itemId: id,
+        oldValue: jsonEncode(Order.fromIsar(order).toJson()),
+      );
     }
   }
 
@@ -143,6 +152,13 @@ class OrderController {
     } catch (_) {}
     ShowToast.success(context, AppLocales.orderCreatedSuccessfully.tr());
 
+    await LoggerService.save(
+      logType: LogType.order,
+      actionType: ActionType.create,
+      itemId: order.id,
+      newValue: jsonEncode(order.toJson()),
+    );
+
     // PrinterMultipleServices printerMultipleServices = PrinterMultipleServices();
     // printerMultipleServices.printForBack(order, products);
     if (!context.mounted) return;
@@ -195,6 +211,14 @@ class OrderController {
 
       await _database.updatePlaceOrder(
           data: updatedOrder, placeId: place.id, message: message);
+
+      await LoggerService.save(
+        logType: LogType.order,
+        actionType: ActionType.update,
+        itemId: updatedOrder.id,
+        oldValue: jsonEncode(currentState.toJson()),
+        newValue: jsonEncode(updatedOrder.toJson()),
+      );
     } catch (_) {}
 
     if (!context.mounted) return;
@@ -318,6 +342,14 @@ class OrderController {
       final notifier = ref.read(orderSetProvider.notifier);
       notifier.clearPlaceItemsCloser(place.id);
       ShowToast.success(context, AppLocales.orderClosedSuccessfully.tr());
+
+      await LoggerService.save(
+        logType: LogType.order,
+        actionType: ActionType.close,
+        itemId: finalOrder.id,
+        newValue: jsonEncode(finalOrder.toJson()),
+        oldValue: currentOrderData?.toJson().toString(),
+      );
     } catch (_) {}
 
     if (Navigator.canPop(context)) {
@@ -402,6 +434,14 @@ class OrderController {
       data: newOrder,
       placeId: place.id,
       message: null,
+    );
+
+    await LoggerService.save(
+      logType: LogType.order,
+      actionType: ActionType.update,
+      itemId: newOrder.id,
+      oldValue: jsonEncode(order.toJson()),
+      newValue: jsonEncode(newOrder.toJson()),
     );
 
     if (!context.mounted) return;

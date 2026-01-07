@@ -7,6 +7,8 @@ import 'package:biznex/src/core/model/employee_models/role_model.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/ui/widgets/custom/app_confirm_dialog.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
+import 'package:biznex/src/core/database/audit_log_database/logger_service.dart';
+import 'dart:convert';
 
 class EmployeeController extends AppController {
   EmployeeController({required super.context, required super.state});
@@ -17,7 +19,13 @@ class EmployeeController extends AppController {
     if (data.fullname.isEmpty) return error(AppLocales.nameInputError.tr());
     showAppLoadingDialog(context);
     EmployeeDatabase sizeDatabase = EmployeeDatabase();
-    await sizeDatabase.set(data: data).then((_) {
+    await sizeDatabase.set(data: data).then((_) async {
+      await LoggerService.save(
+        logType: LogType.employee,
+        actionType: ActionType.create,
+        itemId: data.id,
+        newValue: jsonEncode(data.toJson()),
+      );
       state.ref!.invalidate(employeeProvider);
       closeLoading();
       closeLoading();
@@ -32,7 +40,12 @@ class EmployeeController extends AppController {
       onConfirm: () async {
         showAppLoadingDialog(context);
         EmployeeDatabase sizeDatabase = EmployeeDatabase();
-        await sizeDatabase.delete(key: key).then((_) {
+        await sizeDatabase.delete(key: key).then((_) async {
+          await LoggerService.save(
+            logType: LogType.employee,
+            actionType: ActionType.delete,
+            itemId: key,
+          );
           state.ref!.invalidate(employeeProvider);
           closeLoading();
         });
@@ -46,7 +59,13 @@ class EmployeeController extends AppController {
     if (data.fullname.isEmpty) return error(AppLocales.nameInputError.tr());
     showAppLoadingDialog(context);
     EmployeeDatabase sizeDatabase = EmployeeDatabase();
-    await sizeDatabase.update(data: data, key: data.id).then((_) {
+    await sizeDatabase.update(data: data, key: data.id).then((_) async {
+      await LoggerService.save(
+        logType: LogType.employee,
+        actionType: ActionType.update,
+        itemId: data.id,
+        newValue: jsonEncode(data.toJson()),
+      );
       state.ref!.invalidate(employeeProvider);
       closeLoading();
       closeLoading();
@@ -58,7 +77,13 @@ class EmployeeController extends AppController {
     if (data.name.isEmpty) return error(AppLocales.nameInputError.tr());
     showAppLoadingDialog(context);
     RoleDatabase sizeDatabase = RoleDatabase();
-    await sizeDatabase.set(data: data).then((_) {
+    await sizeDatabase.set(data: data).then((_) async {
+      await LoggerService.save(
+        logType: LogType.employee, // Using employee log type for roles as well
+        actionType: ActionType.create,
+        itemId: data.id,
+        newValue: jsonEncode(data.toJson()),
+      );
       state.ref!.invalidate(roleProvider);
       closeLoading();
       closeLoading();
@@ -72,7 +97,12 @@ class EmployeeController extends AppController {
       onConfirm: () async {
         showAppLoadingDialog(context);
         RoleDatabase sizeDatabase = RoleDatabase();
-        await sizeDatabase.delete(key: key).then((_) {
+        await sizeDatabase.delete(key: key).then((_) async {
+          await LoggerService.save(
+            logType: LogType.employee,
+            actionType: ActionType.delete,
+            itemId: key,
+          );
           state.ref!.invalidate(roleProvider);
           closeLoading();
         });
@@ -85,7 +115,13 @@ class EmployeeController extends AppController {
     if (data.name.isEmpty) return error(AppLocales.nameInputError.tr());
     showAppLoadingDialog(context);
     RoleDatabase sizeDatabase = RoleDatabase();
-    await sizeDatabase.update(data: data, key: data.id).then((_) {
+    await sizeDatabase.update(data: data, key: data.id).then((_) async {
+      await LoggerService.save(
+        logType: LogType.employee,
+        actionType: ActionType.update,
+        itemId: data.id,
+        newValue: jsonEncode(data.toJson()),
+      );
       state.ref!.invalidate(roleProvider);
       closeLoading();
       closeLoading();
