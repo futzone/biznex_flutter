@@ -20,6 +20,7 @@ class CloudEvent {
   final String payloadVersion;
   final Map<String, dynamic> data;
   final int eventSeq;
+  final String id;
 
   CloudEvent({
     required this.entityType,
@@ -29,6 +30,7 @@ class CloudEvent {
     required this.payloadVersion,
     required this.data,
     required this.eventSeq,
+    required this.id,
   });
 
   Map<String, dynamic> toJson() {
@@ -41,6 +43,7 @@ class CloudEvent {
       'data': data,
       'deviceTimestamp': DateTime.now().toIso8601String(),
       'eventSeq': eventSeq,
+      'id':id,
     };
   }
 }

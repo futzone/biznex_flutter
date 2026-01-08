@@ -133,7 +133,6 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                   );
                 }
 
-                final random = mth.Random();
 
                 return Scaffold(
                   body: Container(
@@ -156,7 +155,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                             provider: appExpireProvider,
                             builder: (data) {
                               log(data.toString());
-                              if (data <= 3 && showWarning) {
+                              if (data <= 3 && showWarning && !state.alwaysWaiter) {
                                 return Container(
                                   padding: Dis.only(lr: 16, tb: 16),
                                   decoration: BoxDecoration(

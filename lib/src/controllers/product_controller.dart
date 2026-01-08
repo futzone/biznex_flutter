@@ -4,6 +4,9 @@ import 'dart:developer';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/controllers/app_controller.dart';
 import 'package:biznex/src/controllers/warehouse_monitoring_controller.dart';
+import 'package:biznex/src/core/cloud/cloud_services.dart';
+import 'package:biznex/src/core/cloud/entity_event.dart';
+import 'package:biznex/src/core/cloud/local_changes_db.dart';
 import 'package:biznex/src/core/database/product_database/product_database.dart';
 import 'package:biznex/src/core/database/product_database/recipe_database.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
@@ -13,10 +16,12 @@ import 'package:biznex/src/providers/recipe_providers.dart';
 import 'package:biznex/src/ui/widgets/custom/app_confirm_dialog.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/core/database/audit_log_database/logger_service.dart';
+import 'package:uuid/uuid.dart';
 
 class ProductController extends AppController {
   final void Function()? onClose;
   final RecipeDatabase recipeDatabase = RecipeDatabase();
+  final BiznexCloudServices cloudServices = BiznexCloudServices();
 
   ProductController({
     this.onClose,
@@ -60,11 +65,10 @@ class ProductController extends AppController {
     }
 
     kProduct.images = kImages;
-
+    kProduct.oldImage = kImages.firstOrNull;
+    Uuid uuid = Uuid();
     ProductDatabase sizeDatabase = ProductDatabase();
-    // for (int i = 0; i < 5000; i++) {
-    //   await sizeDatabase.set(data: data);
-    // }
+    kProduct.id = uuid.v4();
 
     await sizeDatabase.set(data: kProduct).then((_) async {
       await LoggerService.save(
@@ -78,6 +82,12 @@ class ProductController extends AppController {
       closeLoading();
       if (onClose != null) onClose!();
     });
+
+    await LocalChanges.instance.saveChange(
+      event: ProductEvent.PRODUCT_IMAGE_UPDATED,
+      entity: Entity.PRODUCT,
+      objectId: kProduct.id,
+    );
   }
 
   @override
@@ -126,6 +136,17 @@ class ProductController extends AppController {
     }
 
     kProduct.images = kImages;
+    final newImage = kProduct.images?.firstOrNull;
+    if (newImage != data.oldImage && newImage != null) {
+      await LocalChanges.instance.saveChange(
+        event: ProductEvent.PRODUCT_IMAGE_UPDATED,
+        entity: Entity.PRODUCT,
+        objectId: kProduct.id,
+      );
+
+      kProduct.oldImage = kImages.firstOrNull;
+    }
+
     ProductDatabase sizeDatabase = ProductDatabase();
     await sizeDatabase.update(data: kProduct, key: data.id).then((_) async {
       await LoggerService.save(

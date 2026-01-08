@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/core/database/order_database/order_percent_database.dart';
 import 'package:biznex/src/core/database/place_database/place_database.dart';
 import 'package:biznex/src/core/database/product_database/product_database.dart';
 import 'package:biznex/src/core/model/employee_models/employee_model.dart';
+import 'package:biznex/src/core/model/order_models/order.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:biznex/src/core/model/order_models/order_set_model.dart';
 import 'package:biznex/src/core/model/other_models/customer_model.dart';
@@ -18,6 +20,7 @@ import 'package:biznex/src/server/constants/api_endpoints.dart';
 import 'package:biznex/src/server/constants/response_messages.dart';
 import 'package:biznex/src/server/database_middleware.dart';
 import 'package:biznex/src/server/docs.dart';
+import 'package:isar/isar.dart';
 import 'package:shelf/src/request.dart';
 
 class OrdersRouter {
@@ -35,8 +38,9 @@ class OrdersRouter {
   Future<AppResponse> getEmployeeOrders() async {
     final employee = await databaseMiddleware(orderDatabase.getBoxName('all'))
         .employeeState();
-    if (employee == null)
+    if (employee == null) {
       return AppResponse(statusCode: 403, error: ResponseMessages.unauthorized);
+    }
     final box =
         await databaseMiddleware(orderDatabase.getBoxName('all')).openBox();
     List responseList = [];
@@ -47,6 +51,22 @@ class OrdersRouter {
     }
 
     return AppResponse(statusCode: 200, data: responseList);
+  }
+
+  Future<AppResponse> getOrdersPaginated({int page = 1, int limit = 20}) async {
+    final ordersMapList = [];
+    final ordersList = await IsarDatabase.instance.isar.orderIsars
+        .where()
+        .sortByCreatedDateDesc()
+        .offset((page - 1) * limit)
+        .limit(limit)
+        .findAll();
+
+    for (final item in ordersList) {
+      ordersMapList.add(Order.fromIsar(item).toJson());
+    }
+
+    return AppResponse(statusCode: 200, data: ordersMapList);
   }
 
   Future<AppResponse> getPlaceState(String id) async {

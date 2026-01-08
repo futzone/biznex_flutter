@@ -15,7 +15,11 @@ class AddPlace extends HookWidget {
   final Place? editCategory;
   final Place? addSubcategoryTo;
 
-  const AddPlace({super.key, this.editCategory, this.addSubcategoryTo});
+  const AddPlace({
+    super.key,
+    this.editCategory,
+    this.addSubcategoryTo,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -146,6 +150,7 @@ class AddPlace extends HookWidget {
                   if (editCategory == null) {
                     if (count == null) {
                       Place category = Place(
+                        id: '',
                         name: nameController.text,
                         percentNull: percentNull.value,
                         father: addSubcategoryTo,
@@ -156,6 +161,7 @@ class AddPlace extends HookWidget {
                     } else {
                       for (int i = 1; i <= count; i++) {
                         Place category = Place(
+                          id: '',
                           name: "$i - ${nameController.text}",
                           percentNull: percentNull.value,
                           father: addSubcategoryTo,

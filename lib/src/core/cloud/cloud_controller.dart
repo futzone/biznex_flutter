@@ -6,6 +6,7 @@ import 'package:biznex/src/core/cloud/cloud_services.dart';
 import 'package:biznex/src/core/cloud/entity_event.dart';
 import 'package:biznex/src/core/cloud/local_changes_db.dart';
 import 'package:biznex/src/core/cloud/migrations/migration_status.dart';
+import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/database/category_database/category_database.dart';
 import 'package:biznex/src/core/database/customer_database/customer_database.dart';
 import 'package:biznex/src/core/database/employee_database/employee_database.dart';
@@ -22,9 +23,8 @@ import 'dart:async';
 
 class EventResult {
   final List<Map<String, dynamic>> eventData;
-  final List<String> eventIds;
 
-  EventResult({required this.eventData, required this.eventIds});
+  EventResult({required this.eventData});
 }
 
 class BiznexCloudController {
@@ -100,6 +100,7 @@ class BiznexCloudController {
       final payloadData = dbData ?? {};
 
       final CloudEvent cloudEvent = CloudEvent(
+        id: item.id,
         entityType: item.entityType,
         eventType: item.eventType,
         entityId: item.entityId,
@@ -114,13 +115,13 @@ class BiznexCloudController {
 
       if (cloudServices.checkRequestSize(eventsList, maxSize)) {
         eventsList.removeLast();
-        return EventResult(eventData: eventsList, eventIds: eventDataIds);
+        return EventResult(eventData: eventsList);
       }
 
       eventDataIds.add(item.id);
     }
 
-    return EventResult(eventData: eventsList, eventIds: eventDataIds);
+    return EventResult(eventData: eventsList);
   }
 
   Future<void> _runMigrations() async {
@@ -215,15 +216,15 @@ class BiznexCloudController {
   }
 
   Future<void> sync() async {
+    final state = await AppStateDatabase().getApp();
+    if (state.alwaysWaiter) return;
+
     final LocalChanges localChanges = LocalChanges();
     final connection = await cloudServices.hasConnection();
     if (!connection) return;
-     await _runMigrations();
+    await _runMigrations();
 
     while (true) {
-      final changes = await localChanges.getChanges();
-      log("Local changes count: ${changes.length}");
-      if (changes.isEmpty) break;
       final eventsResult = await _getEvents(maxSize: 1023);
 
       if (eventsResult.eventData.isEmpty) break;
@@ -236,9 +237,26 @@ class BiznexCloudController {
       );
 
       if (response.success) {
-        await Future.wait(
-          eventsResult.eventIds.map((id) => localChanges.deleteChange(id)),
-        );
+        for (final item in eventsResult.eventData) {
+          try {
+            if (item['eventType'] == ProductEvent.PRODUCT_CREATED.name ||
+                item['eventType'] == ProductEvent.PRODUCT_IMAGE_UPDATED.name) {
+              final productId = item['entityId'];
+              final product = await pDb.getProductById(productId);
+              if (product == null) {
+                await localChanges.deleteChange(item['id']);
+                continue;
+              }
+              await cloudServices.uploadProductImage(
+                product.images?.firstOrNull ?? '',
+                productId: product.id,
+              );
+            }
+            await localChanges.deleteChange(item['id']);
+          } catch (error, st) {
+            log("ERROR ON K9: $item ", error: error, stackTrace: st);
+          }
+        }
       } else {
         break;
       }

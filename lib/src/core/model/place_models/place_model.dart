@@ -17,7 +17,7 @@ class Place {
     required this.name,
     this.image,
     this.children,
-    this.id = '',
+    required this.id ,
     this.percentNull = false,
     this.price,
     this.percent,
@@ -59,7 +59,7 @@ class Place {
 
   Map<String, dynamic> toJson() {
     return {
-      'updatedDate':'updatedDate',
+      'updatedDate': updatedDate,
       'name': name,
       'price': price,
       'id': id,

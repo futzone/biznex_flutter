@@ -15,6 +15,7 @@ class Product {
 
   String? description;
   List<String>? images;
+  String? oldImage;
   String? measure;
   String? color;
 
@@ -44,6 +45,7 @@ class Product {
     this.productId,
     this.amount = 1,
     this.category,
+    this.oldImage,
   });
 
   Map<String, dynamic> toJson() {
@@ -63,6 +65,7 @@ class Product {
       'productId': productId,
       'category': category?.toJson(),
       'unlimited': unlimited,
+      'oldImage': oldImage,
     };
   }
 
@@ -90,6 +93,7 @@ class Product {
       amount: safeDouble(json['amount'], fallback: 1.0),
       percent: safeDouble(json['percent'], fallback: 0.0),
       id: json['id'] ?? '',
+      oldImage: json['oldImage'],
       productId: json['productId'],
       category:
           json['category'] == null ? null : Category.fromJson(json['category']),
@@ -131,6 +135,7 @@ class Product {
     bool? setProductIdToNull,
     bool? setVariantsToNull,
     bool? setCategoryToNull,
+    String? oldImage,
   }) {
     return Product(
       name: name ?? this.name,
@@ -152,6 +157,7 @@ class Product {
       amount: amount ?? this.amount,
       category: setCategoryToNull == true ? null : category ?? this.category,
       unlimited: unlimited ?? this.unlimited,
+      oldImage: oldImage ?? this.oldImage,
     );
   }
 

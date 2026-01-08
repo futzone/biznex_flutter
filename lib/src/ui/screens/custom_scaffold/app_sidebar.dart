@@ -161,7 +161,7 @@ class AppSidebar extends HookConsumerWidget {
                     ),
             ),
 
-            if (openedValue.value)
+            if (openedValue.value && !state.alwaysWaiter)
               state.whenProviderData(
                   provider: appExpireProvider,
                   builder: (data) {

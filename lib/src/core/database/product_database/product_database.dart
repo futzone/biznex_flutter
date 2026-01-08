@@ -59,7 +59,6 @@ class ProductDatabase extends AppDatabase {
     if (data is! Product) return;
 
     Product productInfo = data;
-    productInfo.id = generateID;
 
     final box = await openBox(boxName);
     await box.put(productInfo.id, productInfo.toJson());
@@ -69,6 +68,8 @@ class ProductDatabase extends AppDatabase {
       entity: Entity.PRODUCT,
       objectId: productInfo.id,
     );
+
+
   }
 
   @override

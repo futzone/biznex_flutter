@@ -601,4 +601,5 @@ abstract class AppLocales {
   static var printer = "printer";
   static var actionType = "actionType";
   static var action = 'action';
+  static var ifRemoteDevice = "ifRemoteDevice";
 }

@@ -264,11 +264,13 @@ class MyApp extends ConsumerWidget {
             theme: theme.themeData,
             home: getDeviceType(context) == DeviceType.mobile
                 ? OnboardPage()
-                : ActivityWrapper(
-                    ref: ref,
-                    context: context,
-                    child: LicenseStatusWrapper(),
-                  ),
+                : app.alwaysWaiter
+                    ? OnboardPage()
+                    : ActivityWrapper(
+                        ref: ref,
+                        context: context,
+                        child: LicenseStatusWrapper(),
+                      ),
           ),
         );
       },

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:biznex/src/core/cloud/local_changes_db.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
@@ -33,6 +35,8 @@ class BiznexCloudServices {
   static final String batchIngest = "/api/v1/pos/events/ingest";
   static final String recoveryData = "/api/v1/pos/sync/bootstrap";
   static final String checkWatermark = "/api/v1/pos/sync/watermark";
+
+  static String uploadImage(String id) => "/api/v1/pos/products/$id/image";
 
   static String deltaSync(int limit, dynamic watermark) =>
       "/api/v1/pos/sync/delta?since=$watermark&limit=$limit";
@@ -172,5 +176,32 @@ class BiznexCloudServices {
     final sizeInBytes = utf8.encode(jsonString).length;
 
     return sizeInBytes > (1024 * size);
+  }
+
+  Future<void> uploadProductImage(String path, {String? productId}) async {
+    final file = File(path);
+    if (!(await file.exists())) return;
+
+    final token = await getTokenData();
+    if (token == null) return;
+
+    try {
+      final response = await dio.post(
+        uploadImage(productId ?? ''),
+        data: FormData.fromMap(
+          {
+            "file": await MultipartFile.fromFile(path),
+          },
+        ),
+      );
+
+      if (response.success) return;
+    } on DioException catch (error, st) {
+      log(
+        'upload product image: ${error.response?.data}',
+        error: error,
+        stackTrace: st,
+      );
+    }
   }
 }

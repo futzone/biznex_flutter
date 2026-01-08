@@ -18,14 +18,15 @@ class CategoryCard extends AppStatelessWidget {
   final int? count;
   final bool reordable;
 
-  const CategoryCard(this.category, {super.key, this.count, this.reordable = false});
+  const CategoryCard(this.category,
+      {super.key, this.count, this.reordable = false});
 
   @override
   Widget builder(
       BuildContext context, AppColors theme, WidgetRef ref, AppModel state) {
     return Container(
-      padding: Dis.only(left: 12, right: reordable?36: 12, tb: 12),
-      margin: Dis.only(tb: 8, left: 24, right: reordable?0:24),
+      padding: Dis.only(left: 12, right: reordable ? 36 : 12, tb: 12),
+      margin: Dis.only(tb: 8, left: 24, right: reordable ? 0 : 24),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: theme.white,
@@ -82,6 +83,8 @@ class CategoryCard extends AppStatelessWidget {
               ],
             ),
           ),
+
+          if(!state.alwaysWaiter)
           SimpleButton(
             onPressed: () {
               CategoryPage.onEditCategory(context, category);
@@ -100,6 +103,7 @@ class CategoryCard extends AppStatelessWidget {
               ),
             ),
           ),
+          if(!state.alwaysWaiter)
           SimpleButton(
             onPressed: () {
               CategoryPage.onDeleteCategory(context, category, state);
@@ -118,6 +122,7 @@ class CategoryCard extends AppStatelessWidget {
               ),
             ),
           ),
+          if(!state.alwaysWaiter)
           state.whenProviderData(
             provider: printerDevicesProvider,
             builder: (devices) {

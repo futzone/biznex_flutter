@@ -327,11 +327,12 @@ class OrderDatabase extends OrderDatabaseRepository {
     }
   }
 
-  Future<void> setPlaceOrder(
-      {required data,
-      required String placeId,
-      required String? message,
-      bool disablePrint = false}) async {
+  Future<void> setPlaceOrder({
+    required data,
+    required String placeId,
+    required String? message,
+    bool disablePrint = false,
+  }) async {
     if (data is! Order) return;
 
     final connStatus = (await connectionStatus());

@@ -111,8 +111,21 @@ class _ActivationTestPageState extends State<ActivationCodeScreen> {
   final BiznexCloudServices biznexCloudServices = BiznexCloudServices();
   final TextEditingController loginController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
 
   void _onLogin(WidgetRef ref) async {
+    if (int.tryParse(addressController.text.trim().replaceAll(".", "")) !=
+        null) {
+      final AppStateDatabase stateDatabase = AppStateDatabase();
+      AppModel model = widget.state;
+      model.apiUrl = addressController.text.trim();
+      await stateDatabase.updateApp(model);
+      try {
+        ref.invalidate(appStateProvider);
+      } catch (_) {}
+      return;
+    }
+
     final password = passwordController.text.trim();
     final username = loginController.text.trim();
 
@@ -189,6 +202,13 @@ class _ActivationTestPageState extends State<ActivationCodeScreen> {
                     prefixIcon: Icon(Icons.password),
                     title: AppLocales.passwordHint.tr(),
                     controller: passwordController,
+                    theme: theme,
+                  ),
+                  Text(AppLocales.ifRemoteDevice.tr()),
+                  AppTextField(
+                    prefixIcon: Icon(Icons.desktop_windows_outlined, size: 20),
+                    title: "192.168.X.X",
+                    controller: addressController,
                     theme: theme,
                   ),
                   Consumer(

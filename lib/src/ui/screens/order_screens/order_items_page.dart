@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/controllers/order_controller.dart';
@@ -8,6 +9,7 @@ import 'package:biznex/src/core/extensions/ref_extension.dart';
 import 'package:biznex/src/core/model/order_models/percent_model.dart';
 import 'package:biznex/src/core/model/other_models/customer_model.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
+import 'package:biznex/src/core/utils/cashier_utils.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
 import 'package:biznex/src/providers/products_provider.dart';
 import 'package:biznex/src/ui/pages/customer_pages/customers_page.dart';
@@ -74,6 +76,8 @@ class OrderItemsPage extends HookConsumerWidget {
     final totalPercents = percents.fold(0.0, (a, b) {
       return a += b.percent;
     });
+
+
 
     return orderAsyncValue.when(
       loading: () => AppLoadingScreen(),
@@ -835,11 +839,11 @@ class OrderItemsPage extends HookConsumerWidget {
                                     ),
                                   ),
                                 8.h,
-                                if (!state.alwaysWaiter &&
+                                if (isCashierSync(currentEmployee) || (!state.alwaysWaiter &&
                                     (state.allowCloseWaiter ||
                                         currentEmployee.roleName
-                                                .toLowerCase() ==
-                                            'admin'))
+                                            .toLowerCase() ==
+                                            'admin')))
                                   AppPrimaryButton(
                                     theme: theme,
                                     onPressed: () async {
@@ -1356,11 +1360,11 @@ class OrderItemsPage extends HookConsumerWidget {
                                   ),
                                 8.h,
 
-                                if (!state.alwaysWaiter &&
+                                if (isCashierSync(currentEmployee) || (!state.alwaysWaiter &&
                                     (state.allowCloseWaiter ||
                                         currentEmployee.roleName
-                                                .toLowerCase() ==
-                                            'admin'))
+                                            .toLowerCase() ==
+                                            'admin')))
                                   AppPrimaryButton(
                                     theme: theme,
                                     onPressed: () async {

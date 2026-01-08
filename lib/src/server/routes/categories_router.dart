@@ -4,6 +4,7 @@ import 'package:biznex/src/server/constants/api_endpoints.dart';
 import 'package:biznex/src/server/constants/response_messages.dart';
 import 'package:biznex/src/server/database_middleware.dart';
 import 'package:biznex/src/server/docs.dart';
+import 'package:hive/hive.dart';
 import 'package:shelf/src/request.dart';
 
 class CategoriesRouter {
@@ -17,9 +18,13 @@ class CategoriesRouter {
       );
 
   Future<AppResponse> getCategories() async {
-    final employee = await databaseMiddleware.employeeState();
-    if (employee == null) return AppResponse(statusCode: 403, error: ResponseMessages.unauthorized);
-    final box = await databaseMiddleware.openBox();
+    final box = await Hive.openBox(CategoryDatabase().boxName);
+    return AppResponse(statusCode: 200, data: box.values.toList());
+  }
+
+  Future<AppResponse> getCategoriesPaginated(
+      {int page = 1, int limit = 20}) async {
+    final box = await Hive.openBox(CategoryDatabase().boxName);
     return AppResponse(statusCode: 200, data: box.values.toList());
   }
 

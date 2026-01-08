@@ -4,7 +4,6 @@ enum Entity {
   ORDER,
   TRANSACTION,
   INGREDIENT_TRANSACTION,
-
   PRODUCT,
   CATEGORY,
   EMPLOYEE,
@@ -68,7 +67,8 @@ enum OrderEvent implements EntityEvent {
 enum ProductEvent implements EntityEvent {
   PRODUCT_CREATED,
   PRODUCT_DELETED,
-  PRODUCT_UPDATED;
+  PRODUCT_UPDATED,
+  PRODUCT_IMAGE_UPDATED;
 
   @override
   String getName() => name;

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:biznex/src/core/cloud/cloud_services.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/database/category_database/category_database.dart';
 import 'package:biznex/src/core/database/customer_database/customer_database.dart';
@@ -24,6 +25,8 @@ import 'package:biznex/src/server/routes/places_router.dart';
 import 'package:biznex/src/server/routes/products_router.dart';
 import 'package:biznex/src/server/routes/stats_router.dart';
 import 'package:biznex/src/server/services/authorization_services.dart';
+import 'package:biznex/src/server/routes/customers_router.dart';
+import 'package:biznex/src/core/utils/cashier_utils.dart';
 import 'package:path/path.dart' as p;
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
@@ -42,11 +45,10 @@ void startServer() async {
   final app = Router();
   final AuthorizationServices authorizationServices = AuthorizationServices();
 
-  final appDatabase = AppStateDatabase();
-  final appState = await appDatabase.getApp();
-  final licenseStatus = await verifyLicense(appState.licenseKey);
+  final BiznexCloudServices cloudServices = BiznexCloudServices();
+  final tokenData = await cloudServices.getTokenData();
 
-  if (!licenseStatus) {
+  if (tokenData == null) {
     log("server disabled. reason: access key expired");
     return;
   }
@@ -458,6 +460,113 @@ void startServer() async {
 
   ///
   ///
+
+  ///
+  /// New Conditional APIs
+  ///
+
+  Future<bool> checkAccess(Request request) async {
+    return true;
+  }
+
+  app.get('/api/v2/products/list', (Request request) async {
+    final status = authorizationServices.requestAuthChecker(request);
+    if (!status) {
+      return Response(403,
+          body: jsonEncode({"error": ResponseMessages.unauthorized}));
+    }
+
+    if (await checkAccess(request)) {
+      final page =
+          int.tryParse(request.url.queryParameters['page'] ?? '1') ?? 1;
+      final limit =
+          int.tryParse(request.url.queryParameters['limit'] ?? '20') ?? 20;
+
+      ProductsRouter router = ProductsRouter(request);
+      final result =
+          await router.getProductsPaginated(page: page, limit: limit);
+      return result.toResponse();
+    }
+    return Response(403,
+        body: jsonEncode({
+          "error":
+              "Access Denied: Condition not met (alwaysWaiter && isCashier)"
+        }));
+  });
+
+  app.get('/api/v2/orders/list', (Request request) async {
+    final status = authorizationServices.requestAuthChecker(request);
+    if (!status) {
+      return Response(403,
+          body: jsonEncode({"error": ResponseMessages.unauthorized}));
+    }
+
+    if (await checkAccess(request)) {
+      final page =
+          int.tryParse(request.url.queryParameters['page'] ?? '1') ?? 1;
+      final limit =
+          int.tryParse(request.url.queryParameters['limit'] ?? '20') ?? 20;
+
+      OrdersRouter router = OrdersRouter(request);
+      final result = await router.getOrdersPaginated(page: page, limit: limit);
+      return result.toResponse();
+    }
+    return Response(403,
+        body: jsonEncode({
+          "error":
+              "Access Denied: Condition not met (alwaysWaiter && isCashier)"
+        }));
+  });
+
+  app.get('/api/v2/customers/list', (Request request) async {
+    final status = authorizationServices.requestAuthChecker(request);
+    if (!status) {
+      return Response(403,
+          body: jsonEncode({"error": ResponseMessages.unauthorized}));
+    }
+
+    if (await checkAccess(request)) {
+      final page =
+          int.tryParse(request.url.queryParameters['page'] ?? '1') ?? 1;
+      final limit =
+          int.tryParse(request.url.queryParameters['limit'] ?? '20') ?? 20;
+
+      CustomersRouter router = CustomersRouter(request);
+      final result =
+          await router.getCustomersPaginated(page: page, limit: limit);
+      return result.toResponse();
+    }
+    return Response(403,
+        body: jsonEncode({
+          "error":
+              "Access Denied: Condition not met (alwaysWaiter && isCashier)"
+        }));
+  });
+
+  app.get('/api/v2/categories/list', (Request request) async {
+    final status = authorizationServices.requestAuthChecker(request);
+    if (!status) {
+      return Response(403,
+          body: jsonEncode({"error": ResponseMessages.unauthorized}));
+    }
+
+    if (await checkAccess(request)) {
+      final page =
+          int.tryParse(request.url.queryParameters['page'] ?? '1') ?? 1;
+      final limit =
+          int.tryParse(request.url.queryParameters['limit'] ?? '20') ?? 20;
+
+      CategoriesRouter router = CategoriesRouter(request);
+      final result =
+          await router.getCategoriesPaginated(page: page, limit: limit);
+      return result.toResponse();
+    }
+    return Response(403,
+        body: jsonEncode({
+          "error":
+              "Access Denied: Condition not met (alwaysWaiter && isCashier)"
+        }));
+  });
 
   final handler = Pipeline().addMiddleware(logRequests()).addHandler(app.call);
   await io.serve(handler, '0.0.0.0', 8080);

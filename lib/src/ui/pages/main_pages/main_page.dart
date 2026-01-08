@@ -15,6 +15,10 @@ import '../action_pages/actions_page.dart';
 import '../employee_pages/employee_page.dart';
 import '../monitoring_pages/monitoring_page.dart';
 import '../product_pages/products_page.dart';
+import 'package:biznex/src/ui/pages/remote_pages/category_remote_page.dart';
+import 'package:biznex/src/ui/pages/remote_pages/order_remote_page.dart';
+import 'package:biznex/src/ui/pages/remote_pages/product_remote_page.dart';
+import 'package:biznex/src/ui/pages/remote_pages/customer_remote_page.dart';
 
 class MainPage extends HookConsumerWidget {
   const MainPage({super.key});
@@ -50,9 +54,13 @@ class MainPage extends HookConsumerWidget {
               builder: (context) {
                 if (pageValue.value == 0) return SettingsPageScreen();
                 if (pageValue.value == 1) return OrderSetPage();
-                if (pageValue.value == 2) return OrdersPage();
+                if (pageValue.value == 2) {
+                  return state.alwaysWaiter ? OrderRemotePage() : OrdersPage();
+                }
                 if (pageValue.value == 3) {
-                  return CategoryPage(appbar: appbar, fab);
+                  return state.alwaysWaiter
+                      ? CategoryRemotePage()
+                      : CategoryPage(appbar: appbar, fab);
                 }
                 if (pageValue.value == 10) {
                   return PlacesPage(appbar: appbar, fab);
@@ -68,8 +76,13 @@ class MainPage extends HookConsumerWidget {
                 }
                 if (pageValue.value == 11) return CloudPage();
                 if (pageValue.value == 12) return ShoppingPage();
-                if (pageValue.value == 13) return CustomersPage();
+                if (pageValue.value == 13) {
+                  return state.alwaysWaiter
+                      ? CustomerRemotePage()
+                      : CustomersPage();
+                }
                 if (pageValue.value == 14) return ActionsPage();
+                if (state.alwaysWaiter) return ProductRemotePage();
                 return ProductsPage(fab, appbar: appbar);
               },
             ),

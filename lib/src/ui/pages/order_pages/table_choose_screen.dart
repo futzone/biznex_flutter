@@ -352,6 +352,12 @@ class TableChooseScreen extends HookConsumerWidget {
                               if (onSelected == null)
                                 AppBackButton(
                                   onPressed: () {
+                                    if (isCashierSync(
+                                        ref.watch(currentEmployeeProvider))) {
+                                      return AppRouter.open(
+                                          context, MainPage());
+                                    }
+
                                     AppRouter.open(context, OnboardPage());
                                   },
                                 ),
@@ -379,11 +385,11 @@ class TableChooseScreen extends HookConsumerWidget {
                             children: [
                               AppBackButton(
                                 onPressed: () {
-                                  if (ref
-                                          .watch(currentEmployeeProvider)
-                                          .roleName
-                                          .toLowerCase() ==
-                                      'admin') {
+                                  final employee =
+                                      ref.watch(currentEmployeeProvider);
+                                  if (employee.roleName.toLowerCase() ==
+                                          'admin' ||
+                                      isCashierSync(employee)) {
                                     AppRouter.open(context, MainPage());
                                     return;
                                   }
