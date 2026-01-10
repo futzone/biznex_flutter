@@ -4,6 +4,8 @@ import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
 import 'package:biznex/src/core/extensions/for_string.dart';
 import 'package:biznex/src/providers/employee_provider.dart';
+import 'package:biznex/src/ui/pages/employee_pages/employee_salary_reports.dart';
+import 'package:biznex/src/ui/pages/monitoring_pages/monitoring_employees_page.dart';
 import 'package:biznex/src/ui/screens/employee_screens/add_employee.dart';
 import 'package:biznex/src/ui/screens/employee_screens/add_role.dart';
 import 'package:biznex/src/ui/widgets/custom/app_empty_widget.dart';
@@ -15,12 +17,14 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../core/model/employee_models/employee_model.dart';
 import '../../../core/model/employee_models/role_model.dart';
 import '../../widgets/helpers/app_text_field.dart';
+import 'employee_monitoring_page.dart';
 
 class EmployeePage extends HookConsumerWidget {
   final ValueNotifier<AppBar> appbar;
   final ValueNotifier<FloatingActionButton?> floatingActionButton;
 
-  const EmployeePage(this.floatingActionButton, {super.key, required this.appbar});
+  const EmployeePage(this.floatingActionButton,
+      {super.key, required this.appbar});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -136,7 +140,8 @@ class EmployeePage extends HookConsumerWidget {
                           padding: 12.all,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
-                            color: employeesScreen.value ? theme.mainColor : null,
+                            color:
+                                employeesScreen.value ? theme.mainColor : null,
                           ),
                           child: Center(
                             child: Text(
@@ -144,7 +149,9 @@ class EmployeePage extends HookConsumerWidget {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontFamily: mediumFamily,
-                                color: employeesScreen.value ? Colors.white : theme.secondaryTextColor,
+                                color: employeesScreen.value
+                                    ? Colors.white
+                                    : theme.secondaryTextColor,
                               ),
                             ),
                           ),
@@ -158,7 +165,8 @@ class EmployeePage extends HookConsumerWidget {
                           padding: 12.all,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
-                            color: !employeesScreen.value ? theme.mainColor : null,
+                            color:
+                                !employeesScreen.value ? theme.mainColor : null,
                           ),
                           child: Center(
                             child: Text(
@@ -166,7 +174,9 @@ class EmployeePage extends HookConsumerWidget {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontFamily: mediumFamily,
-                                color: !employeesScreen.value ? Colors.white : theme.secondaryTextColor,
+                                color: !employeesScreen.value
+                                    ? Colors.white
+                                    : theme.secondaryTextColor,
                               ),
                             ),
                           ),
@@ -176,7 +186,9 @@ class EmployeePage extends HookConsumerWidget {
                   ],
                 ),
               ),
-              if (searchResultList.value.isEmpty && searchController.text.trim().isNotEmpty) Expanded(child: AppEmptyWidget()),
+              if (searchResultList.value.isEmpty &&
+                  searchController.text.trim().isNotEmpty)
+                Expanded(child: AppEmptyWidget()),
               if (employeesScreen.value)
                 Expanded(
                   child: state.whenProviderData(
@@ -184,7 +196,9 @@ class EmployeePage extends HookConsumerWidget {
                     builder: (emp) {
                       List<Employee> employees = [];
                       if (searchController.text.trim().isNotEmpty) {
-                        employees = [...searchResultList.value.whereType<Employee>()];
+                        employees = [
+                          ...searchResultList.value.whereType<Employee>()
+                        ];
                       } else {
                         employees = emp;
                       }
@@ -221,7 +235,8 @@ class EmployeePage extends HookConsumerWidget {
                                 ),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     spacing: 4,
                                     children: [
@@ -246,8 +261,47 @@ class EmployeePage extends HookConsumerWidget {
                                   ),
                                 ),
                                 SimpleButton(
+                                  onPressed: () => showDesktopModal(
+                                    context: context,
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.8,
+                                    body: EmployeeSalaryReports(
+                                      employee: employee,
+                                      theme: theme,
+                                    ),
+                                  ),
+                                  child: Container(
+                                    height: 36,
+                                    // width: 36,
+                                    padding: 12.lr,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      color: theme.scaffoldBgColor,
+                                    ),
+                                    child: Row(
+
+                                      spacing: 8,
+                                      children: [
+                                        Icon(
+                                          Iconsax.chart_1,
+                                          color: theme.mainColor,
+                                          size: 20,
+                                        ),
+                                        Text(
+                                          AppLocales.reports.tr(),
+                                          style: TextStyle(
+                                              color: theme.mainColor,
+                                              fontFamily: boldFamily),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                SimpleButton(
                                   onPressed: () {
-                                    showDesktopModal(context: context, body: AddEmployee(employee: employee));
+                                    showDesktopModal(
+                                        context: context,
+                                        body: AddEmployee(employee: employee));
                                   },
                                   child: Container(
                                     height: 36,
@@ -265,7 +319,8 @@ class EmployeePage extends HookConsumerWidget {
                                 ),
                                 SimpleButton(
                                   onPressed: () {
-                                    EmployeeController ec = EmployeeController(context: context, state: state);
+                                    EmployeeController ec = EmployeeController(
+                                        context: context, state: state);
                                     ec.delete(employee.id);
                                   },
                                   child: Container(
@@ -297,7 +352,9 @@ class EmployeePage extends HookConsumerWidget {
                     builder: (roles) {
                       List<Role> employees = [];
                       if (searchController.text.trim().isNotEmpty) {
-                        employees = [...searchResultList.value.whereType<Role>()];
+                        employees = [
+                          ...searchResultList.value.whereType<Role>()
+                        ];
                       } else {
                         employees = roles;
                       }
@@ -333,7 +390,8 @@ class EmployeePage extends HookConsumerWidget {
                                 ),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     spacing: 4,
                                     children: [
@@ -346,7 +404,9 @@ class EmployeePage extends HookConsumerWidget {
                                         ),
                                       ),
                                       Text(
-                                        employee.permissions.join(", ").capitalize,
+                                        employee.permissions
+                                            .join(", ")
+                                            .capitalize,
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontFamily: regularFamily,
@@ -359,7 +419,9 @@ class EmployeePage extends HookConsumerWidget {
                                 ),
                                 SimpleButton(
                                   onPressed: () {
-                                    showDesktopModal(context: context, body: AddRole(role: employee));
+                                    showDesktopModal(
+                                        context: context,
+                                        body: AddRole(role: employee));
                                   },
                                   child: Container(
                                     height: 36,
@@ -377,7 +439,8 @@ class EmployeePage extends HookConsumerWidget {
                                 ),
                                 SimpleButton(
                                   onPressed: () {
-                                    EmployeeController ec = EmployeeController(context: context, state: state);
+                                    EmployeeController ec = EmployeeController(
+                                        context: context, state: state);
                                     ec.deleteRole(employee.id);
                                   },
                                   child: Container(

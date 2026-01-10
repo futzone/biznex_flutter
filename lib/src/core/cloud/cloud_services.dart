@@ -9,6 +9,7 @@ import 'package:biznex/src/core/cloud/device_info.dart';
 import 'package:biznex/src/core/network/response.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:dio/dio.dart';
+import 'package:mime/mime.dart';
 import 'cloud_event.dart';
 import 'dart:developer';
 import 'dart:convert';
@@ -185,14 +186,22 @@ class BiznexCloudServices {
     final token = await getTokenData();
     if (token == null) return;
 
+    String? mimeType = lookupMimeType(path);
+    mimeType ??= "";
+
+    final splitMimeType = mimeType.split('/');
+
     try {
       final response = await dio.post(
         uploadImage(productId ?? ''),
-        data: FormData.fromMap(
-          {
-            "file": await MultipartFile.fromFile(path),
-          },
-        ),
+        data: FormData.fromMap({
+          "file": await MultipartFile.fromFile(
+            path,
+            filename: "$productId.${path.split('.').last}",
+            contentType: DioMediaType(splitMimeType[0], splitMimeType[1]),
+          )
+        }),
+        options: Options(headers: {"Authorization": "Bearer ${token.token}"}),
       );
 
       if (response.success) return;

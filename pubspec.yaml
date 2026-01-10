@@ -94,6 +94,7 @@ dependencies:
   image_compression_flutter: ^1.0.4
   internet_connection_checker_plus: ^2.9.1+2
   jwt_decoder: ^2.0.1
+  mime: ^1.0.6
 #  get_mac_address: ^0.0.2
 
 

@@ -602,4 +602,5 @@ abstract class AppLocales {
   static var actionType = "actionType";
   static var action = 'action';
   static var ifRemoteDevice = "ifRemoteDevice";
+  static var serviceFeePercent = "serviceFeePercent";
 }

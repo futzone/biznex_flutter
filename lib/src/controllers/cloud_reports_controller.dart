@@ -88,7 +88,10 @@ class CloudReportsController {
         data: reports,
       );
 
-      await _network.put(ApiEndpoints.reportOne(deviceId), body: cloudReportModel.toJson()).then((value) async {
+      await _network
+          .put(ApiEndpoints.reportOne(deviceId),
+              body: cloudReportModel.toJson())
+          .then((value) async {
         if (!value) {
           return;
         }
@@ -114,7 +117,9 @@ class CloudReportsController {
       data: reports,
     );
 
-    await _network.post(ApiEndpoints.report, body: cloudReportModel.toJson()).then((value) async {
+    await _network
+        .post(ApiEndpoints.report, body: cloudReportModel.toJson())
+        .then((value) async {
       if (!value) {
         return;
       }
@@ -154,7 +159,9 @@ class CloudReportsController {
 
       for (final order in orders) {
         final productOldPrice = order.products.fold(0.0, (value, product) {
-          final kPrice = (product.amount * (product.product.price * (1 - (100 / (100 + product.product.percent)))));
+          final kPrice = (product.amount *
+              (product.product.price *
+                  (1 - (100 / (100 + product.product.percent)))));
 
           return value += kPrice;
         });
@@ -164,6 +171,8 @@ class CloudReportsController {
         if (!order.place.percentNull) {
           totalProfitPercents_ += (order.price * (1 - (100 / (100 + percent))));
         }
+        totalProfitPercents_ += (order.price -
+            (order.price / (1 + ((order.feePercent ?? 0) * 0.01))));
 
         totalProfit_ = totalProfitProducts_ + totalProfitPercents_;
       }
@@ -192,17 +201,23 @@ class CloudReportsController {
       int productCount = 0;
       int transactionCount = 0;
 
-      for (DateTime date = oneMonthAgo; !date.isAfter(now); date = date.add(Duration(days: 1))) {
+      for (DateTime date = oneMonthAgo;
+          !date.isAfter(now);
+          date = date.add(Duration(days: 1))) {
         progress.value += 1;
         final dayOrders = orders.where((order) {
           final orderDate = DateTime.parse(order.createdDate);
-          return orderDate.year == date.year && date.month == orderDate.month && date.day == orderDate.day;
+          return orderDate.year == date.year &&
+              date.month == orderDate.month &&
+              date.day == orderDate.day;
         }).toList();
         day = date.toIso8601String();
         orderCount = dayOrders.length;
         for (final order in dayOrders) {
           final productOldPrice = order.products.fold(0.0, (value, product) {
-            final kPrice = (product.amount * (product.product.price * (1 - (100 / (100 + product.product.percent)))));
+            final kPrice = (product.amount *
+                (product.product.price *
+                    (1 - (100 / (100 + product.product.percent)))));
 
             return value += kPrice;
           });
@@ -210,15 +225,20 @@ class CloudReportsController {
           totalOrdersSumm += order.price;
           totalProfitProducts += productOldPrice;
           if (!order.place.percentNull) {
-            totalProfitPercents += (order.price * (1 - (100 / (100 + percent))));
+            totalProfitPercents +=
+                (order.price * (1 - (100 / (100 + percent))));
           }
+          totalProfitPercents += (order.price -
+              (order.price / (1 + ((order.feePercent ?? 0) * 0.01))));
 
           totalProfit = totalProfitProducts + totalProfitPercents;
         }
 
         final dayTransactions = transactions.where((el) {
           final orderDate = DateTime.parse(el.createdDate);
-          return orderDate.year == date.year && date.month == orderDate.month && date.day == orderDate.day;
+          return orderDate.year == date.year &&
+              date.month == orderDate.month &&
+              date.day == orderDate.day;
         }).toList();
 
         transactionCount = dayTransactions.length;

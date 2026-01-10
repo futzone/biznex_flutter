@@ -7,7 +7,6 @@ import 'package:biznex/src/core/model/employee_models/employee_model.dart';
 import 'package:biznex/src/core/model/order_models/order_model.dart';
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
-
 import '../core/database/order_database/order_database.dart';
 import '../core/model/transaction_model/transaction_model.dart';
 import '../core/services/printer_monitoring_services.dart';
@@ -107,7 +106,11 @@ class MonitoringController {
       EM employeeMonitoring = EM(
         ordersCount: orders.length,
         percentSumm: percentOrders.fold(
-            0.0, (a, el) => a += (el.price * (allPercents / 100))),
+                0.0, (a, el) => a += (el.price * (allPercents / 100))) +
+            orders.fold(
+                0.0,
+                (a, el) => a += (el.price -
+                    (el.price / (1 + ((el.feePercent ?? 0) * 0.01))))),
         totalSumm: orders.fold(0.0, (a, el) => a += el.price),
         employee: item,
       );
@@ -122,7 +125,11 @@ class MonitoringController {
     EM employeeMonitoring = EM(
       ordersCount: orders.length,
       percentSumm: percentOrders.fold(
-          0.0, (a, el) => a += (el.price * (allPercents / 100))),
+              0.0, (a, el) => a += (el.price * (allPercents / 100))) +
+          orders.fold(
+              0.0,
+              (a, el) => a += (el.price -
+                  (el.price / (1 + ((el.feePercent ?? 0) * 0.01))))),
       totalSumm: orders.fold(0.0, (a, el) => a += el.price),
       employee: Employee(
           fullname: "Admin", roleId: "", roleName: "Admin", id: "admin"),
@@ -177,13 +184,17 @@ class MonitoringController {
 
     final percents = await percentDatabase.get();
     final orderPrecent = percents.fold(0.0, (a, pr) => a += pr.percent);
-    final orderPercentSumm = orderPrecent <= 0
-        ? 0.0
-        : dayOrders.fold(0.0, (a, order) {
-            return a += (order.place.percentNull
-                ? 0.0
-                : ((order.price * (1 - (100 / (100 + orderPrecent))))));
-          });
+    final orderPercentSumm = (orderPrecent <= 0
+            ? 0.0
+            : dayOrders.fold(0.0, (a, order) {
+                return a += (order.place.percentNull
+                    ? 0.0
+                    : ((order.price * (1 - (100 / (100 + orderPrecent))))));
+              })) +
+        dayOrders.fold(
+            0.0,
+            (a, el) => a +=
+                (el.price - (el.price / (1 + ((el.feePercent ?? 0) * 0.01)))));
 
     PrinterMonitoringServices pms = PrinterMonitoringServices(
       model: state,

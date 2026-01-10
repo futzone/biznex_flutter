@@ -33,6 +33,7 @@ class OrderIsar {
   late EmployeeIsar employee;
 
   double? realPrice;
+  double? feePercent;
   late double price;
   String? note;
 

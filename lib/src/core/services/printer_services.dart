@@ -210,8 +210,45 @@ class PrinterServices {
           ..._buildPlacePercentSection(productTotal, percents),
         if ((percents.isNotEmpty && !order.place.percentNull))
           ..._buildAdditionalPercentsSection(productTotal, percents),
+        if (order.feePercent != null && order.feePercent! > 0)
+          ..._buildFeePercentSection(productTotal),
       ],
     );
+  }
+
+  List<pw.Widget> _buildFeePercentSection(double productTotal) {
+    return [
+      pw.SizedBox(height: 4),
+      _buildDottedLine(),
+      pw.SizedBox(height: 4),
+      pw.Padding(
+        padding: const pw.EdgeInsets.symmetric(vertical: 2),
+        child: pw.Row(
+          children: [
+            pw.Expanded(
+              child: pw.Text(
+                "${AppLocales.serviceFeePercent.tr()}: ${order.feePercent} %",
+                style: _pdfTheme,
+                maxLines: 2,
+              ),
+            ),
+            pw.SizedBox(width: 8),
+            pw.Text(
+              // The logic here is order.price is FINAL. We need to display the difference or calculate it.
+              // Logic: feeAmount = totalBeforeFee * (feePercent * 0.01)
+              // But we can simplify printing: directly calculate form previous total or just derive it.
+              // A safer bet is to use the formula logic:
+              // total_before_fee = order.price / (1 + fee * 0.01)
+              // fee_value = order.price - total_before_fee
+              (order.price -
+                      (order.price / (1 + ((order.feePercent ?? 0) * 0.01))))
+                  .priceUZS,
+              style: _boldStyle,
+            ),
+          ],
+        ),
+      ),
+    ];
   }
 
   List<pw.Widget> _buildPlacePercentSection(

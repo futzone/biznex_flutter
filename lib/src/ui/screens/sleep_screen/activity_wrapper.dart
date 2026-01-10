@@ -27,7 +27,7 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
 
   void _syncUpdates() async {
      if (_timer == null || !(_timer?.isActive ?? false)) {
-      _timer = Timer.periodic(Duration(seconds: 60), (_) async {
+      _timer = Timer.periodic(Duration(seconds: 10), (_) async {
         try {
           await _cloudController.sync();
         } catch (error, st) {

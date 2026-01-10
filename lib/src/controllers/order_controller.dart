@@ -303,6 +303,13 @@ class OrderController {
       finalOrder = finalOrder.copyWith(price: finalOrder.price + place.price!);
     }
 
+    // Apply feePercent if it exists
+    if (finalOrder.feePercent != null && finalOrder.feePercent! > 0) {
+      finalOrder = finalOrder.copyWith(
+        price: finalOrder.price * (1 + (finalOrder.feePercent! * 0.01)),
+      );
+    }
+
     if (customer != null) finalOrder = finalOrder.copyWith(customer: customer);
     if (note != null) finalOrder = finalOrder.copyWith(note: note);
     if (scheduledDate != null) {

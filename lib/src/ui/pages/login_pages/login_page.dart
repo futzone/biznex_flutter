@@ -64,7 +64,11 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
 
         await LoggerService.save(
             logType: LogType.app, actionType: ActionType.enter);
-        return AppRouter.open(context, MainPage());
+        try {
+          return AppRouter.open(context, MainPage());
+        } catch (_) {
+          return;
+        }
       }
 
       if (widget.fromAdmin && model.pincode == enteredPin) {

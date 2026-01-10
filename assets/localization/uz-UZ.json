@@ -600,5 +600,7 @@
   "action": "Amal",
   "enter": "Ilovaga kirish",
   "fail": "Xatolik",
-  "open": "Ochildi"
+  "open": "Ochildi",
+  "ifRemoteDevice": "Agar yordamchi qurilma bo'lsa:",
+  "serviceFeePercent": "Xizmat haqi"
 }

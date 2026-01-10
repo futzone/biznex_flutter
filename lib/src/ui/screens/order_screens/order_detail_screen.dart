@@ -457,6 +457,39 @@ class OrderDetail extends ConsumerWidget {
                   );
                 },
               ),
+            if ((order.feePercent ?? 0) > 0) ...[
+              if (order.paymentTypes.isNotEmpty)
+                Container(
+                  height: 1,
+                  color: Colors.grey.shade200,
+                  width: double.infinity,
+                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "${AppLocales.serviceFeePercent.tr()}: ${order.feePercent} %",
+                    style: TextStyle(
+                      fontSize: context.s(16),
+                      fontFamily: mediumFamily,
+                      color: theme.secondaryTextColor,
+                    ),
+                  ),
+                  Text(
+                    (order.price -
+                            (order.price /
+                                (1 + ((order.feePercent ?? 0) * 0.01))))
+                        .priceUZS,
+                    style: TextStyle(
+                      fontSize: context.s(16),
+                      fontFamily: mediumFamily,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ],
             if (order.paymentTypes.isNotEmpty) ...[
               Container(
                 height: 1,

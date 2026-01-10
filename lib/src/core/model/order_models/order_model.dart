@@ -28,6 +28,7 @@ class Order {
   String? status;
   double? realPrice;
   double price;
+  double? feePercent;
   String? note;
   Place place;
   String? orderNumber;
@@ -36,6 +37,7 @@ class Order {
 
   Order({
     this.note,
+    this.feePercent,
     required this.place,
     this.id = '',
     this.createdDate = '',
@@ -55,6 +57,7 @@ class Order {
   factory Order.fromIsar(OrderIsar isar) {
     return Order(
       isarId: isar.isarId,
+      feePercent: isar.feePercent,
       paymentTypes: isar.paymentTypes
           .map((el) => Percent(name: el.name, percent: el.amount))
           .toList(),
@@ -98,6 +101,9 @@ class Order {
       place: Place.fromJson(json['place']),
       note: json['note'],
       scheduledDate: json['scheduledDate'],
+      feePercent: json['feePercent'] != null
+          ? (json['feePercent'] as num).toDouble()
+          : null,
       orderNumber:
           json['orderNumber'] ?? '${DateTime.now().millisecondsSinceEpoch}',
     );
@@ -106,6 +112,7 @@ class Order {
   Map<String, dynamic> toJson() {
     return {
       'isarId': isarId,
+      'feePercent': feePercent,
       'place': place.toJson(),
       'id': id,
       'createdDate': createdDate,
@@ -135,6 +142,7 @@ class Order {
     double? price,
     String? note,
     Place? place,
+    double? feePercent,
     String? orderNumber,
     List<OrderItem>? products,
     bool? setCustomerToNull,
@@ -146,6 +154,7 @@ class Order {
     List<Percent>? paymentTypes, // Helper to explicitly set orderNumber to null
   }) {
     return Order(
+      feePercent: feePercent ?? this.feePercent,
       paymentTypes: paymentTypes ?? this.paymentTypes,
       id: id ?? this.id,
       createdDate: createdDate ?? this.createdDate,

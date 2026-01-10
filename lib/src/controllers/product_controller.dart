@@ -83,11 +83,13 @@ class ProductController extends AppController {
       if (onClose != null) onClose!();
     });
 
-    await LocalChanges.instance.saveChange(
-      event: ProductEvent.PRODUCT_IMAGE_UPDATED,
-      entity: Entity.PRODUCT,
-      objectId: kProduct.id,
-    );
+    if (kImages.isNotEmpty) {
+      await LocalChanges.instance.saveChange(
+        event: ProductEvent.PRODUCT_IMAGE_UPDATED,
+        entity: Entity.PRODUCT,
+        objectId: kProduct.id,
+      );
+    }
   }
 
   @override

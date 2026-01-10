@@ -117,6 +117,7 @@ extension OrderToIsar on Order {
   OrderIsar toIsar() {
     final o = OrderIsar()
       ..id = id
+      ..feePercent = feePercent
       ..createdDate = createdDate
       ..updatedDate = updatedDate
       ..scheduledDate = scheduledDate

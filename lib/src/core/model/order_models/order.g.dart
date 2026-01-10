@@ -39,61 +39,66 @@ const OrderIsarSchema = CollectionSchema(
       type: IsarType.object,
       target: r'EmployeeIsar',
     ),
-    r'id': PropertySchema(
+    r'feePercent': PropertySchema(
       id: 4,
+      name: r'feePercent',
+      type: IsarType.double,
+    ),
+    r'id': PropertySchema(
+      id: 5,
       name: r'id',
       type: IsarType.string,
     ),
     r'note': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'note',
       type: IsarType.string,
     ),
     r'orderNumber': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'orderNumber',
       type: IsarType.string,
     ),
     r'paymentTypes': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'paymentTypes',
       type: IsarType.objectList,
       target: r'PercentIsar',
     ),
     r'place': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'place',
       type: IsarType.object,
       target: r'PlaceIsar',
     ),
     r'price': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'price',
       type: IsarType.double,
     ),
     r'products': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'products',
       type: IsarType.objectList,
       target: r'OrderItemIsar',
     ),
     r'realPrice': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'realPrice',
       type: IsarType.double,
     ),
     r'scheduledDate': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'scheduledDate',
       type: IsarType.string,
     ),
     r'status': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'status',
       type: IsarType.string,
     ),
     r'updatedDate': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'updatedDate',
       type: IsarType.string,
     )
@@ -292,32 +297,33 @@ void _orderIsarSerialize(
     EmployeeIsarSchema.serialize,
     object.employee,
   );
-  writer.writeString(offsets[4], object.id);
-  writer.writeString(offsets[5], object.note);
-  writer.writeString(offsets[6], object.orderNumber);
+  writer.writeDouble(offsets[4], object.feePercent);
+  writer.writeString(offsets[5], object.id);
+  writer.writeString(offsets[6], object.note);
+  writer.writeString(offsets[7], object.orderNumber);
   writer.writeObjectList<PercentIsar>(
-    offsets[7],
+    offsets[8],
     allOffsets,
     PercentIsarSchema.serialize,
     object.paymentTypes,
   );
   writer.writeObject<PlaceIsar>(
-    offsets[8],
+    offsets[9],
     allOffsets,
     PlaceIsarSchema.serialize,
     object.place,
   );
-  writer.writeDouble(offsets[9], object.price);
+  writer.writeDouble(offsets[10], object.price);
   writer.writeObjectList<OrderItemIsar>(
-    offsets[10],
+    offsets[11],
     allOffsets,
     OrderItemIsarSchema.serialize,
     object.products,
   );
-  writer.writeDouble(offsets[11], object.realPrice);
-  writer.writeString(offsets[12], object.scheduledDate);
-  writer.writeString(offsets[13], object.status);
-  writer.writeString(offsets[14], object.updatedDate);
+  writer.writeDouble(offsets[12], object.realPrice);
+  writer.writeString(offsets[13], object.scheduledDate);
+  writer.writeString(offsets[14], object.status);
+  writer.writeString(offsets[15], object.updatedDate);
 }
 
 OrderIsar _orderIsarDeserialize(
@@ -340,35 +346,36 @@ OrderIsar _orderIsarDeserialize(
         allOffsets,
       ) ??
       EmployeeIsar();
-  object.id = reader.readString(offsets[4]);
+  object.feePercent = reader.readDoubleOrNull(offsets[4]);
+  object.id = reader.readString(offsets[5]);
   object.isarId = id;
-  object.note = reader.readStringOrNull(offsets[5]);
-  object.orderNumber = reader.readStringOrNull(offsets[6]);
+  object.note = reader.readStringOrNull(offsets[6]);
+  object.orderNumber = reader.readStringOrNull(offsets[7]);
   object.paymentTypes = reader.readObjectList<PercentIsar>(
-        offsets[7],
+        offsets[8],
         PercentIsarSchema.deserialize,
         allOffsets,
         PercentIsar(),
       ) ??
       [];
   object.place = reader.readObjectOrNull<PlaceIsar>(
-        offsets[8],
+        offsets[9],
         PlaceIsarSchema.deserialize,
         allOffsets,
       ) ??
       PlaceIsar();
-  object.price = reader.readDouble(offsets[9]);
+  object.price = reader.readDouble(offsets[10]);
   object.products = reader.readObjectList<OrderItemIsar>(
-        offsets[10],
+        offsets[11],
         OrderItemIsarSchema.deserialize,
         allOffsets,
         OrderItemIsar(),
       ) ??
       [];
-  object.realPrice = reader.readDoubleOrNull(offsets[11]);
-  object.scheduledDate = reader.readStringOrNull(offsets[12]);
-  object.status = reader.readStringOrNull(offsets[13]);
-  object.updatedDate = reader.readStringOrNull(offsets[14]);
+  object.realPrice = reader.readDoubleOrNull(offsets[12]);
+  object.scheduledDate = reader.readStringOrNull(offsets[13]);
+  object.status = reader.readStringOrNull(offsets[14]);
+  object.updatedDate = reader.readStringOrNull(offsets[15]);
   return object;
 }
 
@@ -397,12 +404,14 @@ P _orderIsarDeserializeProp<P>(
           ) ??
           EmployeeIsar()) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 5:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
       return (reader.readStringOrNull(offset)) as P;
     case 7:
+      return (reader.readStringOrNull(offset)) as P;
+    case 8:
       return (reader.readObjectList<PercentIsar>(
             offset,
             PercentIsarSchema.deserialize,
@@ -410,16 +419,16 @@ P _orderIsarDeserializeProp<P>(
             PercentIsar(),
           ) ??
           []) as P;
-    case 8:
+    case 9:
       return (reader.readObjectOrNull<PlaceIsar>(
             offset,
             PlaceIsarSchema.deserialize,
             allOffsets,
           ) ??
           PlaceIsar()) as P;
-    case 9:
-      return (reader.readDouble(offset)) as P;
     case 10:
+      return (reader.readDouble(offset)) as P;
+    case 11:
       return (reader.readObjectList<OrderItemIsar>(
             offset,
             OrderItemIsarSchema.deserialize,
@@ -427,13 +436,13 @@ P _orderIsarDeserializeProp<P>(
             OrderItemIsar(),
           ) ??
           []) as P;
-    case 11:
-      return (reader.readDoubleOrNull(offset)) as P;
     case 12:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readDoubleOrNull(offset)) as P;
     case 13:
       return (reader.readStringOrNull(offset)) as P;
     case 14:
+      return (reader.readStringOrNull(offset)) as P;
+    case 15:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1084,6 +1093,86 @@ extension OrderIsarQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNotNull(
         property: r'customer',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition> feePercentIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'feePercent',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      feePercentIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'feePercent',
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition> feePercentEqualTo(
+    double? value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'feePercent',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition>
+      feePercentGreaterThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'feePercent',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition> feePercentLessThan(
+    double? value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'feePercent',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterFilterCondition> feePercentBetween(
+    double? lower,
+    double? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'feePercent',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
       ));
     });
   }
@@ -2407,6 +2496,18 @@ extension OrderIsarQuerySortBy on QueryBuilder<OrderIsar, OrderIsar, QSortBy> {
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> sortByFeePercent() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'feePercent', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> sortByFeePercentDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'feePercent', Sort.desc);
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> sortById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -2527,6 +2628,18 @@ extension OrderIsarQuerySortThenBy
   QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> thenByCreatedDateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdDate', Sort.desc);
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> thenByFeePercent() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'feePercent', Sort.asc);
+    });
+  }
+
+  QueryBuilder<OrderIsar, OrderIsar, QAfterSortBy> thenByFeePercentDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'feePercent', Sort.desc);
     });
   }
 
@@ -2654,6 +2767,12 @@ extension OrderIsarQueryWhereDistinct
     });
   }
 
+  QueryBuilder<OrderIsar, OrderIsar, QDistinct> distinctByFeePercent() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'feePercent');
+    });
+  }
+
   QueryBuilder<OrderIsar, OrderIsar, QDistinct> distinctById(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2739,6 +2858,12 @@ extension OrderIsarQueryProperty
   QueryBuilder<OrderIsar, EmployeeIsar, QQueryOperations> employeeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'employee');
+    });
+  }
+
+  QueryBuilder<OrderIsar, double?, QQueryOperations> feePercentProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'feePercent');
     });
   }
 

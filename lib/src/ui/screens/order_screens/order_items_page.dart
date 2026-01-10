@@ -28,6 +28,7 @@ import 'package:flex_color_picker/flex_color_picker.dart';
 import '../../../providers/price_percent_provider.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../providers/orders_provider.dart';
+import 'orders_widgets/order_percent_fee.dart';
 
 class OrderItemsPage extends HookConsumerWidget {
   final Place place;
@@ -77,18 +78,21 @@ class OrderItemsPage extends HookConsumerWidget {
       return a += b.percent;
     });
 
-
-
     return orderAsyncValue.when(
       loading: () => AppLoadingScreen(),
       error: RefErrorScreen,
       data: (order) {
         final percentSum =
             (totalPrice + (order?.place.price ?? 0.0)) * (totalPercents / 100);
-        final finalPrice = totalPrice +
+        var finalPrice = totalPrice +
             (place.percentNull ? 0 : percentSum) +
             (order?.place.price ?? 0.0) +
             (totalPrice * 0.01 * (order?.place.percent ?? 0.0));
+
+        if (order?.feePercent != null && order!.feePercent! > 0) {
+          finalPrice = finalPrice * (1 + (order.feePercent! * 0.01));
+        }
+
         final noteController = useTextEditingController(text: order?.note);
         final customerNotifier = useState<Customer?>(order?.customer);
         final addressController =
@@ -499,20 +503,47 @@ class OrderItemsPage extends HookConsumerWidget {
                                               ],
                                             ),
                                           ),
-                                          // PopupMenuItem(
-                                          //   child: Row(
-                                          //     spacing: 12,
-                                          //     children: [
-                                          //       Icon(Iconsax.calendar_1_copy),
-                                          //       Text(
-                                          //         AppLocales.editDate.tr(),
-                                          //         style: TextStyle(
-                                          //           fontFamily: regularFamily,
-                                          //         ),
-                                          //       ),
-                                          //     ],
-                                          //   ),
-                                          // ),
+                                          PopupMenuItem(
+                                            onTap: () {
+                                              showDesktopModal(
+                                                width: 600,
+                                                context: context,
+                                                body: OrderPercentFee(
+                                                  theme: theme,
+                                                  orderPercent:
+                                                      order?.feePercent,
+                                                  onSavePercent: (fee) async {
+                                                    if (order == null) return;
+
+                                                    var okOrder = order;
+                                                    okOrder.feePercent = fee;
+                                                    await OrderController
+                                                        .onUpdateOrder(
+                                                      okOrder,
+                                                      context,
+                                                    );
+                                                    await ref.refresh(
+                                                        ordersProvider(
+                                                            place.id));
+                                                  },
+                                                ),
+                                              );
+                                            },
+                                            child: Row(
+                                              spacing: 12,
+                                              children: [
+                                                Icon(Iconsax
+                                                    .percentage_circle_copy),
+                                                Text(
+                                                  AppLocales.serviceFeePercent
+                                                      .tr(),
+                                                  style: TextStyle(
+                                                    fontFamily: regularFamily,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ];
                                       },
                                       child: Container(
@@ -669,6 +700,38 @@ class OrderItemsPage extends HookConsumerWidget {
                                         ],
                                       );
                                     },
+                                  ),
+                                if (order?.feePercent != null &&
+                                    order!.feePercent! > 0)
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "${AppLocales.serviceFeePercent.tr()}: ${order.feePercent} %",
+                                        style: TextStyle(
+                                          fontSize: context.s(16),
+                                          fontFamily: mediumFamily,
+                                          color: theme.secondaryTextColor,
+                                        ),
+                                      ),
+                                      Text(
+                                        (finalPrice -
+                                                (finalPrice /
+                                                    (1 +
+                                                        ((order.feePercent ??
+                                                                0.0) *
+                                                            0.01))))
+                                            .priceUZS,
+                                        style: TextStyle(
+                                          fontSize: context.s(16),
+                                          fontFamily: mediumFamily,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -839,11 +902,12 @@ class OrderItemsPage extends HookConsumerWidget {
                                     ),
                                   ),
                                 8.h,
-                                if (isCashierSync(currentEmployee) || (!state.alwaysWaiter &&
-                                    (state.allowCloseWaiter ||
-                                        currentEmployee.roleName
-                                            .toLowerCase() ==
-                                            'admin')))
+                                if (isCashierSync(currentEmployee) ||
+                                    (!state.alwaysWaiter &&
+                                        (state.allowCloseWaiter ||
+                                            currentEmployee.roleName
+                                                    .toLowerCase() ==
+                                                'admin')))
                                   AppPrimaryButton(
                                     theme: theme,
                                     onPressed: () async {
@@ -1208,6 +1272,39 @@ class OrderItemsPage extends HookConsumerWidget {
                                     },
                                   ),
 
+                                if (order?.feePercent != null &&
+                                    order!.feePercent! > 0)
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "${AppLocales.serviceFeePercent.tr()}: ${order.feePercent} %",
+                                        style: TextStyle(
+                                          fontSize: context.s(16),
+                                          fontFamily: mediumFamily,
+                                          color: theme.secondaryTextColor,
+                                        ),
+                                      ),
+                                      Text(
+                                        (finalPrice -
+                                                (finalPrice /
+                                                    (1 +
+                                                        ((order.feePercent ??
+                                                                0) *
+                                                            0.01))))
+                                            .priceUZS,
+                                        style: TextStyle(
+                                          fontSize: context.s(16),
+                                          fontFamily: mediumFamily,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment:
@@ -1333,8 +1430,6 @@ class OrderItemsPage extends HookConsumerWidget {
                                     textColor: theme.mainColor,
                                     border: Border.all(color: theme.mainColor),
                                     color: theme.white,
-                                    // title: AppLocales.print.tr(),
-                                    // icon: Icons.close,
                                     child: Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
@@ -1360,11 +1455,12 @@ class OrderItemsPage extends HookConsumerWidget {
                                   ),
                                 8.h,
 
-                                if (isCashierSync(currentEmployee) || (!state.alwaysWaiter &&
-                                    (state.allowCloseWaiter ||
-                                        currentEmployee.roleName
-                                            .toLowerCase() ==
-                                            'admin')))
+                                if (isCashierSync(currentEmployee) ||
+                                    (!state.alwaysWaiter &&
+                                        (state.allowCloseWaiter ||
+                                            currentEmployee.roleName
+                                                    .toLowerCase() ==
+                                                'admin')))
                                   AppPrimaryButton(
                                     theme: theme,
                                     onPressed: () async {
