@@ -29,6 +29,18 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'api_address_screen.dart';
 import 'onboard_mobile.dart';
 
+const backgroundImages = [
+  'assets/images/0307ca967f3a160c45813e6188ae5bf31a7a7ecf.png',
+  'assets/images/AdobeStock_232385090-1536x1024.jpg',
+  'assets/images/Lead.jpg',
+  'assets/images/nXHUbYV-OModsZH-oLiCelC_cOJ.jpg',
+  'assets/images/Traditional-Uzbek-dish-served-with-rice-and-vegetables.webp',
+  'assets/images/header2.webp',
+  'assets/images/Manchester-Food-Drink-offers.jpg',
+  'assets/images/maxresdefault.jpg',
+  'assets/images/mulranny-park-hotel-new-food-24.jpg'
+];
+
 class OnboardPage extends ConsumerStatefulWidget {
   const OnboardPage({super.key});
 
@@ -133,6 +145,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                   );
                 }
 
+                final random = mth.Random();
 
                 return Scaffold(
                   body: Container(
@@ -141,7 +154,8 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         image: AssetImage(
-                          'assets/images/0307ca967f3a160c45813e6188ae5bf31a7a7ecf.png',
+                          backgroundImages[
+                              random.nextInt(backgroundImages.length)],
                         ),
                         filterQuality: FilterQuality.low,
                         fit: BoxFit.cover,
@@ -155,7 +169,9 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                             provider: appExpireProvider,
                             builder: (data) {
                               log(data.toString());
-                              if (data <= 3 && showWarning && !state.alwaysWaiter) {
+                              if (data <= 3 &&
+                                  showWarning &&
+                                  !state.alwaysWaiter) {
                                 return Container(
                                   padding: Dis.only(lr: 16, tb: 16),
                                   decoration: BoxDecoration(
@@ -363,7 +379,8 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                         .read(currentEmployeeProvider.notifier)
                                         .update((state) => employee);
 
-                                    await EmployeeDatabase.saveCurrent(employee.id);
+                                    await EmployeeDatabase.saveCurrent(
+                                        employee.id);
                                     AppRouter.go(
                                       context,
                                       LoginPageHarom(

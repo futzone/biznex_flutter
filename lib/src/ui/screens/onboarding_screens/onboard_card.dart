@@ -1,9 +1,6 @@
 import 'dart:ui';
-
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
-import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
-import 'package:biznex/src/ui/widgets/custom/app_text_widgets.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 class OnboardCard extends StatelessWidget {
