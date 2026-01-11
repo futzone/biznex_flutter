@@ -8,6 +8,7 @@ class MigrationStatus {
     try {
       final box = await Hive.openBox(_boxName);
       final status = await box.get(_key) ?? false;
+      // await saveStatus(false);
       return status;
     } catch (_) {
       return false;

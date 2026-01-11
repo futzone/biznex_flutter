@@ -603,4 +603,6 @@ abstract class AppLocales {
   static var action = 'action';
   static var ifRemoteDevice = "ifRemoteDevice";
   static var serviceFeePercent = "serviceFeePercent";
+  static var qrMenuAbout = "qrMenuAbout";
+  static var dashboardAbout = "dashboardAbout";
 }

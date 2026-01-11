@@ -125,6 +125,7 @@ class BiznexCloudController {
   }
 
   Future<void> _runMigrations() async {
+
     final status = await _migrationStatus.getStatus();
     log("Migration status: $status");
 

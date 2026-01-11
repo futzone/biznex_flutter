@@ -33,7 +33,11 @@ class CategoryController extends AppController {
         showAppLoadingDialog(context);
         CategoryDatabase sizeDatabase = CategoryDatabase();
         await sizeDatabase.delete(key: key).then((_) {
-          state.ref!.invalidate(categoryProvider);
+          try {
+            state.ref!.invalidate(categoryProvider);
+          } catch (e) {
+            log("Error invalidating categoryProvider: $e");
+          }
           closeLoading();
         });
       },

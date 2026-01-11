@@ -602,5 +602,7 @@
   "fail": "Xatolik",
   "open": "Ochildi",
   "ifRemoteDevice": "Agar yordamchi qurilma bo'lsa:",
-  "serviceFeePercent": "Xizmat haqi"
+  "serviceFeePercent": "Xizmat haqi",
+  "qrMenuAbout": "Onlayn menyu uchun QR kod",
+  "dashboardAbout": "Hisobotlar va statistikalar sahifasi"
 }
