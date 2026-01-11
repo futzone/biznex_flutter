@@ -482,5 +482,22 @@
   "firstDecrease": "Subtract products without closing the order",
   "deleteOrderQuestion": "Are you sure you want to delete the order? (You can't restore the data after that!)",
   "order": "Order",
-  "allowCloseWaiter": "Allow others to close order."
+  "allowCloseWaiter": "Allow others to close order.",
+  "paymentSummError": "Payments do not equal the order amount. Please enter details!",
+  "product": "Product",
+  "employee": "Employee",
+  "app": "System",
+  "transaction": "Transaction",
+  "percent": "Percent",
+  "ingredient": "Ingredient",
+  "printer": "Printer",
+  "actionType": "Type",
+  "action": "Action",
+  "enter": "Enter the application",
+  "fail": "Error",
+  "open": "Opened",
+  "ifRemoteDevice": "If there is an auxiliary device:",
+  "serviceFeePercent": "Service fee",
+  "qrMenuAbout": "QR code for online menu",
+  "dashboardAbout": "Reports and statistics page"
 }
