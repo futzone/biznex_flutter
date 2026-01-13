@@ -7,8 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
+import 'package:flutter/material.dart';
+import 'package:biznex/src/core/model/monitoring/employee_monitoring_model.dart';
 import 'package:intl/intl.dart';
-import '../../controllers/monitoring_controller.dart';
 
 class PrinterMonitoringServices {
   final AppModel model;
@@ -20,11 +21,13 @@ class PrinterMonitoringServices {
   final double ordersTotalProductSumm;
   final double placesTotalSumm;
   final double orderPercentSumm;
-  final DateTime dateTime;
+  final DateTimeRange? range;
+  final DateTime? dateTime;
 
   PrinterMonitoringServices({
     required this.model,
-    required this.dateTime,
+    this.dateTime,
+    this.range,
     required this.employeesMonitoring,
     required this.ordersCount,
     required this.orderPercentSumm,
@@ -62,7 +65,9 @@ class PrinterMonitoringServices {
         if (image != null) pw.Center(child: pw.Image(pw.MemoryImage(image))),
         if (image != null) pw.SizedBox(height: 2),
         pw.Text(
-          DateFormat("yyyy.MM.dd").format(dateTime),
+          range != null
+              ? "${DateFormat("yyyy.MM.dd").format(range!.start)} - ${DateFormat("yyyy.MM.dd").format(range!.end)}"
+              : DateFormat("yyyy.MM.dd").format(dateTime!),
           style: headerStyle,
         ),
         pw.SizedBox(height: 8),
@@ -159,7 +164,10 @@ class PrinterMonitoringServices {
                     ),
                   ),
                   pw.Text(
-                    (ordersTotalProductSumm + orderPercentSumm).priceUZS,
+                    (ordersTotalProductSumm +
+                            orderPercentSumm +
+                            placesTotalSumm)
+                        .priceUZS,
                     style: pdfTheme,
                     overflow: pw.TextOverflow.clip,
                     maxLines: 2,

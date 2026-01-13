@@ -19,6 +19,7 @@ import 'package:biznex/src/ui/screens/monitoring_screen/monitoring_page_items.da
 import 'package:biznex/src/ui/widgets/custom/app_loading.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:isar/isar.dart';
@@ -28,6 +29,7 @@ import '../../../core/isolate/time_range_filter.dart';
 import '../../../core/model/order_models/order_model.dart';
 import '../../screens/chart_screens/monitoring_chart_screen.dart';
 import '../../widgets/helpers/app_decorated_button.dart';
+import 'monitoring_categories_page.dart';
 import 'monitoring_ingredients_page.dart';
 import 'monitoring_payments_page.dart';
 
@@ -187,7 +189,7 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
     }
 
     double getTotalProfit() {
-      return getTotalSumm() + getPercentsSumm();
+      return getTotalSumm() + getPercentsSumm() + getPlacePriceSumm();
     }
 
     for (final kOrder in data) {
@@ -244,6 +246,7 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                         onPressed: () {
                           showDatePicker(
                             context: context,
+                            initialDate: DateTime.now(),
                             firstDate: DateTime(2025),
                             lastDate: DateTime.now(),
                           ).then((date) async {
@@ -258,7 +261,6 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                           });
                         },
                         color: theme.mainColor,
-                        // border: Border.all(color: Colors.white),
                         padding: Dis.only(lr: context.w(20), tb: context.h(12)),
                         theme: theme,
                         child: Row(
@@ -268,6 +270,42 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                                 color: Colors.white, size: 20),
                             Text(
                               AppLocales.monitoringCheckPrint.tr(),
+                              style: TextStyle(
+                                fontFamily: mediumFamily,
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      AppPrimaryButton(
+                        onPressed: () {
+                          showDateRangePicker(
+                            context: context,
+                            firstDate: DateTime(2025),
+                            lastDate: DateTime.now(),
+                          ).then((range) async {
+                            if (range == null) return;
+
+                            MonitoringController mc = MonitoringController(
+                              state: state,
+                              context: context,
+                              ref: ref,
+                            );
+                            await mc.onPrintRangeMonitoring(range);
+                          });
+                        },
+                        color: theme.mainColor,
+                        padding: Dis.only(lr: context.w(20), tb: context.h(12)),
+                        theme: theme,
+                        child: Row(
+                          spacing: 8,
+                          children: [
+                            Icon(Iconsax.printer_copy,
+                                color: Colors.white, size: 20),
+                            Text(
+                              AppLocales.reportsForRange.tr().capitalize,
                               style: TextStyle(
                                 fontFamily: mediumFamily,
                                 color: Colors.white,
@@ -613,7 +651,27 @@ class _MonitoringPageState extends ConsumerState<MonitoringPage> {
                               },
                             ),
                           ),
-                          Expanded(child: SizedBox())
+                          Expanded(
+                            child: state.whenProviderData(
+                              provider: todayOrdersProvider,
+                              builder: (trs) {
+                                return MonitoringCard(
+                                  icon: Iconsax.category_2_copy,
+                                  theme: theme,
+                                  title: AppLocales.categories.tr(),
+                                  onPressed: () {
+                                    showDesktopModal(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.8,
+                                      context: context,
+                                      body: MonitoringCategoriesPage(theme),
+                                    );
+                                  },
+                                  count: trs.length,
+                                );
+                              },
+                            ),
+                          ),
                         ],
                       )
                     ],
