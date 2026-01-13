@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:biznex/src/core/cloud/entity_event.dart';
+import 'package:biznex/src/core/cloud/local_changes_db.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/model/category_model/category_model.dart';
 
@@ -17,6 +19,15 @@ class CategoryDatabase extends AppDatabase {
   @override
   Future delete({required String key}) async {
     final box = await openBox(boxName);
+
+    final category = await getOne(id: key);
+    if (category == null) return;
+
+    await LocalChanges.instance.saveChange(
+      event: CategoryEvent.CATEGORY_DELETED,
+      entity: Entity.CATEGORY,
+      objectId: key,
+    );
     await box.delete(key);
   }
 
@@ -75,6 +86,12 @@ class CategoryDatabase extends AppDatabase {
 
     final box = await openBox(boxName);
     await box.put(productInfo.id, productInfo.toJson());
+
+    await LocalChanges.instance.saveChange(
+      event: CategoryEvent.CATEGORY_CREATED,
+      entity: Entity.CATEGORY,
+      objectId: productInfo.id,
+    );
   }
 
   Future<Category?> getOne({required id}) async {
@@ -94,6 +111,12 @@ class CategoryDatabase extends AppDatabase {
 
     final box = await openBox(boxName);
     box.put(key, data.toJson());
+
+    await LocalChanges.instance.saveChange(
+      event: CategoryEvent.CATEGORY_UPDATED,
+      entity: Entity.CATEGORY,
+      objectId: key,
+    );
   }
 
   Future<List<Category>> getAll() async {

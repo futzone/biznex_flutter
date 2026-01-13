@@ -1,5 +1,7 @@
 import 'dart:developer';
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/cloud/entity_event.dart';
+import 'package:biznex/src/core/cloud/local_changes_db.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/extensions/for_date.dart';
 import 'package:biznex/src/core/model/product_models/shopping_model.dart';
@@ -48,6 +50,14 @@ class ShoppingDatabase {
 
     final box = await Hive.openBox(_boxName);
     await box.put(shopping.id, shopping.toMap());
+
+    await LocalChanges.instance.saveChange(
+      event: oldShopping == null
+          ? ShoppingEvent.SHOPPING_CREATED
+          : ShoppingEvent.SHOPPING_UPDATED,
+      entity: Entity.SHOPPING,
+      objectId: shopping.id,
+    );
   }
 
   Future<List<Shopping>> get() async {

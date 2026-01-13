@@ -1,3 +1,5 @@
+import 'package:biznex/src/core/cloud/entity_event.dart';
+import 'package:biznex/src/core/cloud/local_changes_db.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/model/other_models/customer_model.dart';
 
@@ -9,6 +11,15 @@ class CustomerDatabase extends AppDatabase {
   @override
   Future delete({required String key}) async {
     final box = await openBox(boxName);
+
+    final customer = await getCustomer(key);
+    if (customer == null) return;
+
+    await LocalChanges.instance.saveChange(
+      event: CustomerEvent.CUSTOMER_DELETED,
+      entity: Entity.CUSTOMER,
+      objectId: key,
+    );
     await box.delete(key);
   }
 
@@ -25,7 +36,7 @@ class CustomerDatabase extends AppDatabase {
     return productInfoList;
   }
 
-   Future<Customer?> getCustomer(String id) async {
+  Future<Customer?> getCustomer(String id) async {
     final box = await openBox(boxName);
     try {
       return Customer.fromJson(box.get(id));
@@ -43,6 +54,12 @@ class CustomerDatabase extends AppDatabase {
 
     final box = await openBox(boxName);
     await box.put(productInfo.id, productInfo.toJson());
+
+    await LocalChanges.instance.saveChange(
+      event: CustomerEvent.CUSTOMER_CREATED,
+      entity: Entity.CUSTOMER,
+      objectId: productInfo.id,
+    );
   }
 
   @override
@@ -51,5 +68,11 @@ class CustomerDatabase extends AppDatabase {
 
     final box = await openBox(boxName);
     box.put(key, data.toJson());
+
+    await LocalChanges.instance.saveChange(
+      event: CustomerEvent.CUSTOMER_UPDATED,
+      entity: Entity.CUSTOMER,
+      objectId: key,
+    );
   }
 }

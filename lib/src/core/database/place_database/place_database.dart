@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:biznex/src/core/cloud/entity_event.dart';
+import 'package:biznex/src/core/cloud/local_changes_db.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/model/place_models/place_model.dart';
 
@@ -17,6 +19,15 @@ class PlaceDatabase extends AppDatabase {
   @override
   Future delete({required String key, Place? father}) async {
     final box = await openBox(boxName);
+
+    final place = await getOne(key);
+    if (place != null) {
+      await LocalChanges.instance.saveChange(
+        event: PlaceEvent.PLACE_DELETED,
+        entity: Entity.PLACE,
+        objectId: key,
+      );
+    }
     await box.delete(key);
 
     if (father != null) {
@@ -83,6 +94,12 @@ class PlaceDatabase extends AppDatabase {
       return;
     }
     await box.put(productInfo.id, productInfo.toJson());
+
+    await LocalChanges.instance.saveChange(
+      event: PlaceEvent.PLACE_CREATED,
+      entity: Entity.PLACE,
+      objectId: productInfo.id,
+    );
   }
 
   @override
@@ -92,5 +109,11 @@ class PlaceDatabase extends AppDatabase {
 
     final box = await openBox(boxName);
     box.put(key, data.toJson());
+
+    await LocalChanges.instance.saveChange(
+      event: PlaceEvent.PLACE_UPDATED,
+      entity: Entity.PLACE,
+      objectId: key,
+    );
   }
 }

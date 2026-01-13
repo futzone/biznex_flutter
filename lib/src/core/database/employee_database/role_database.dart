@@ -1,3 +1,5 @@
+import 'package:biznex/src/core/cloud/entity_event.dart';
+import 'package:biznex/src/core/cloud/local_changes_db.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/model/employee_models/role_model.dart';
 
@@ -7,6 +9,15 @@ class RoleDatabase extends AppDatabase {
   @override
   Future delete({required String key}) async {
     final box = await openBox(boxName);
+
+    final role = await getRole(key);
+    if (role == null) return;
+
+    await LocalChanges.instance.saveChange(
+      event: RoleEvent.ROLE_DELETED,
+      entity: Entity.ROLE,
+      objectId: key,
+    );
     await box.delete(key);
   }
 
@@ -32,6 +43,12 @@ class RoleDatabase extends AppDatabase {
 
     final box = await openBox(boxName);
     await box.put(productInfo.id, productInfo.toJson());
+
+    await LocalChanges.instance.saveChange(
+      event: RoleEvent.ROLE_CREATED,
+      entity: Entity.ROLE,
+      objectId: productInfo.id,
+    );
   }
 
   @override
@@ -40,6 +57,12 @@ class RoleDatabase extends AppDatabase {
 
     final box = await openBox(boxName);
     box.put(key, data.toJson());
+
+    await LocalChanges.instance.saveChange(
+      event: RoleEvent.ROLE_UPDATED,
+      entity: Entity.ROLE,
+      objectId: key,
+    );
   }
 
   Future<Role?> getRole(id) async {

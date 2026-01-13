@@ -1,5 +1,7 @@
 import 'dart:developer';
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/cloud/entity_event.dart';
+import 'package:biznex/src/core/cloud/local_changes_db.dart';
 import 'package:biznex/src/core/model/product_models/ingredient_model.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/core/model/product_models/recipe_item_model.dart';
@@ -66,6 +68,16 @@ class RecipeDatabase {
 
   Future<void> deleteIngredient(id) async {
     final box = await Hive.openBox(_ingredientsBox);
+
+    final ingredient = await getIngredient(id);
+    if (ingredient != null) {
+      await LocalChanges.instance.saveChange(
+        event: IngredientEvent.INGREDIENT_DELETED,
+        entity: Entity.INGREDIENT,
+        objectId: id,
+      );
+    }
+
     await box.delete(id);
 
     ActionController.add('value');
@@ -73,6 +85,16 @@ class RecipeDatabase {
 
   Future<void> deleteRecipe(id) async {
     final box = await Hive.openBox(_recipeBox);
+
+    final recipe = await getOneRecipe(id);
+    if (recipe != null) {
+      await LocalChanges.instance.saveChange(
+        event: RecipeEvent.RECIPE_DELETED,
+        entity: Entity.RECIPE,
+        objectId: id,
+      );
+    }
+
     await box.delete(id);
   }
 
@@ -100,6 +122,15 @@ class RecipeDatabase {
 
   Future<void> saveRecipe(Recipe recipe) async {
     final box = await Hive.openBox(_recipeBox);
+
+    final old = await getOneRecipe(recipe.id);
+    await LocalChanges.instance.saveChange(
+      event:
+          old != null ? RecipeEvent.RECIPE_UPDATED : RecipeEvent.RECIPE_CREATED,
+      entity: Entity.RECIPE,
+      objectId: recipe.id,
+    );
+
     await box.put(recipe.id, recipe.toJson());
   }
 
@@ -126,6 +157,14 @@ class RecipeDatabase {
     }
 
     ActionController.add('value');
+
+    await LocalChanges.instance.saveChange(
+      event: old != null
+          ? IngredientEvent.INGREDIENT_UPDATED
+          : IngredientEvent.INGREDIENT_CREATED,
+      entity: Entity.INGREDIENT,
+      objectId: ing.id,
+    );
 
     await box.put(ing.id, ing.toMap());
   }

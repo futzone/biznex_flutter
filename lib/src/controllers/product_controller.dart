@@ -4,8 +4,7 @@ import 'dart:developer';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/controllers/app_controller.dart';
 import 'package:biznex/src/controllers/warehouse_monitoring_controller.dart';
-import 'package:biznex/src/core/cloud/cloud_services.dart';
-import 'package:biznex/src/core/cloud/entity_event.dart';
+ import 'package:biznex/src/core/cloud/entity_event.dart';
 import 'package:biznex/src/core/cloud/local_changes_db.dart';
 import 'package:biznex/src/core/database/product_database/product_database.dart';
 import 'package:biznex/src/core/database/product_database/recipe_database.dart';
@@ -21,7 +20,6 @@ import 'package:uuid/uuid.dart';
 class ProductController extends AppController {
   final void Function()? onClose;
   final RecipeDatabase recipeDatabase = RecipeDatabase();
-  final BiznexCloudServices cloudServices = BiznexCloudServices();
 
   ProductController({
     this.onClose,

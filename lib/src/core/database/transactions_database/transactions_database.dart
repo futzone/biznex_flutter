@@ -68,6 +68,12 @@ class TransactionsDatabase extends AppDatabase {
 
     final old = await isar.transactionIsars.filter().idEqualTo(key).findFirst();
     if (old != null) {
+      await LocalChanges.instance.saveChange(
+        event: TransactionEvent.TRANSACTION_DELETED,
+        entity: Entity.TRANSACTION,
+        objectId: key,
+      );
+
       await isar.writeTxn(() async {
         await isar.transactionIsars.delete(old.isarId);
       });
@@ -123,6 +129,12 @@ class TransactionsDatabase extends AppDatabase {
     await isar.writeTxn(() async {
       await isar.transactionIsars.put(transactionIsar);
     });
+
+    await LocalChanges.instance.saveChange(
+      event: TransactionEvent.TRANSACTION_UPDATED,
+      entity: Entity.TRANSACTION,
+      objectId: key,
+    );
   }
 
   Future<Transaction?> getTransactionById(String id) async {

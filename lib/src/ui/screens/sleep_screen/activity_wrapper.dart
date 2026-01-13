@@ -26,7 +26,7 @@ class _ActivityWrapperState extends State<ActivityWrapper> {
   final BiznexCloudController _cloudController = BiznexCloudController();
 
   void _syncUpdates() async {
-     if (_timer == null || !(_timer?.isActive ?? false)) {
+    if (_timer == null || !(_timer?.isActive ?? false)) {
       _timer = Timer.periodic(Duration(seconds: 10), (_) async {
         try {
           await _cloudController.sync();

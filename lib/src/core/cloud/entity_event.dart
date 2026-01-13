@@ -58,6 +58,7 @@ enum Unknown implements EntityEvent {
 enum OrderEvent implements EntityEvent {
   ORDER_CREATED,
   ORDER_UPDATED,
+  ORDER_DELETED,
   ORDER_CLOSED;
 
   @override
@@ -94,6 +95,7 @@ enum EmployeeEvent implements EntityEvent {
 
 enum RoleEvent implements EntityEvent {
   ROLE_CREATED,
+  ROLE_DELETED,
   ROLE_UPDATED;
 
   @override
@@ -102,6 +104,7 @@ enum RoleEvent implements EntityEvent {
 
 enum CustomerEvent implements EntityEvent {
   CUSTOMER_CREATED,
+  CUSTOMER_DELETED,
   CUSTOMER_UPDATED;
 
   @override
@@ -110,6 +113,7 @@ enum CustomerEvent implements EntityEvent {
 
 enum PlaceEvent implements EntityEvent {
   PLACE_CREATED,
+  PLACE_DELETED,
   PLACE_UPDATED;
 
   @override
@@ -118,6 +122,7 @@ enum PlaceEvent implements EntityEvent {
 
 enum IngredientEvent implements EntityEvent {
   INGREDIENT_CREATED,
+  INGREDIENT_DELETED,
   INGREDIENT_UPDATED;
 
   @override
@@ -126,6 +131,7 @@ enum IngredientEvent implements EntityEvent {
 
 enum RecipeEvent implements EntityEvent {
   RECIPE_CREATED,
+  RECIPE_DELETED,
   RECIPE_UPDATED;
 
   @override
@@ -134,6 +140,7 @@ enum RecipeEvent implements EntityEvent {
 
 enum ShoppingEvent implements EntityEvent {
   SHOPPING_CREATED,
+  SHOPPING_DELETED,
   SHOPPING_UPDATED;
 
   @override
@@ -142,6 +149,7 @@ enum ShoppingEvent implements EntityEvent {
 
 enum PercentEvent implements EntityEvent {
   PERCENT_CREATED,
+  PERCENT_DELETED,
   PERCENT_UPDATED;
 
   @override
@@ -151,6 +159,7 @@ enum PercentEvent implements EntityEvent {
 enum TransactionEvent implements EntityEvent {
   TRANSACTION_CREATED,
   TRANSACTION_UPDATED,
+  TRANSACTION_DELETED,
   TRANSACTION_RECORDED;
 
   @override

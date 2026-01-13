@@ -97,6 +97,11 @@ class OrderDatabase extends OrderDatabaseRepository {
       final orderIsar =
           await isar.orderIsars.filter().idEqualTo(id).findFirst();
       if (orderIsar != null) {
+        await LocalChanges.instance.saveChange(
+          event: OrderEvent.ORDER_DELETED,
+          entity: Entity.ORDER,
+          objectId: id,
+        );
         await isar.orderIsars.delete(orderIsar.isarId);
       }
     });
@@ -182,7 +187,9 @@ class OrderDatabase extends OrderDatabaseRepository {
 
     try {
       await LocalChanges.instance.saveChange(
-        event: OrderEvent.ORDER_CREATED,
+        event: (existingIsarOrder != null)
+            ? OrderEvent.ORDER_UPDATED
+            : OrderEvent.ORDER_CREATED,
         entity: Entity.ORDER,
         objectId: order.id,
       );
@@ -324,6 +331,12 @@ class OrderDatabase extends OrderDatabaseRepository {
       await isar.writeTxn(() async {
         await isar.orderIsars.delete(orderIsar.isarId);
       });
+
+      await LocalChanges.instance.saveChange(
+        event: OrderEvent.ORDER_DELETED,
+        entity: Entity.ORDER,
+        objectId: orderIsar.id,
+      );
     }
   }
 
@@ -351,6 +364,12 @@ class OrderDatabase extends OrderDatabaseRepository {
     await isar.writeTxn(() async {
       await isar.orderIsars.put(productInfo.toIsar());
     });
+
+    await LocalChanges.instance.saveChange(
+      event: OrderEvent.ORDER_CREATED,
+      entity: Entity.ORDER,
+      objectId: productInfo.id,
+    );
 
     try {
       final AppStateDatabase stateDatabase = AppStateDatabase();
@@ -445,6 +464,12 @@ class OrderDatabase extends OrderDatabaseRepository {
         order.isarId = createIsar.isarId;
       }
     });
+
+    await LocalChanges.instance.saveChange(
+      event: OrderEvent.ORDER_UPDATED,
+      entity: Entity.ORDER,
+      objectId: order.id,
+    );
 
     try {
       if (existingIsarOrder == null) return;

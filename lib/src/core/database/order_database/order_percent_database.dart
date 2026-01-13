@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:biznex/src/core/cloud/entity_event.dart';
+import 'package:biznex/src/core/cloud/local_changes_db.dart';
 import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/database/order_database/order_database.dart';
 import 'package:biznex/src/core/model/order_models/percent_model.dart';
@@ -14,6 +16,12 @@ class OrderPercentDatabase extends AppDatabase {
 
     final box = await openBox(boxName);
     await box.delete(key);
+
+    await LocalChanges.instance.saveChange(
+      event: PercentEvent.PERCENT_DELETED,
+      entity: Entity.PERCENT,
+      objectId: key,
+    );
   }
 
   @override
@@ -50,6 +58,12 @@ class OrderPercentDatabase extends AppDatabase {
 
     final box = await openBox(boxName);
     await box.put(productInfo.id, productInfo.toJson());
+
+    await LocalChanges.instance.saveChange(
+      event: PercentEvent.PERCENT_CREATED,
+      entity: Entity.PERCENT,
+      objectId: productInfo.id,
+    );
   }
 
   @override
@@ -58,6 +72,12 @@ class OrderPercentDatabase extends AppDatabase {
 
     final box = await openBox(boxName);
     box.put(key, data.toJson());
+
+    await LocalChanges.instance.saveChange(
+      event: PercentEvent.PERCENT_UPDATED,
+      entity: Entity.PERCENT,
+      objectId: key,
+    );
   }
 
   Future<Percent?> getPercentById(String id) async {

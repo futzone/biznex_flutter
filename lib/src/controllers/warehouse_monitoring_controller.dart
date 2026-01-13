@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/core/cloud/entity_event.dart';
+import 'package:biznex/src/core/cloud/local_changes_db.dart';
 import 'package:biznex/src/core/database/isar_database/isar.dart';
 import 'package:biznex/src/core/database/isar_database/isar_extension.dart';
 import 'package:biznex/src/core/database/product_database/product_database.dart';
@@ -82,6 +84,12 @@ class WarehouseMonitoringController {
       await isarDatabase.writeTxn(() async {
         await isarDatabase.ingredientTransactions.put(ingredientTransaction);
       });
+
+      await LocalChanges.instance.saveChange(
+        event: IngredientTransactionEvent.INGREDIENT_TRANSACTION_CREATED,
+        entity: Entity.INGREDIENT_TRANSACTION,
+        objectId: ingredientTransaction.id,
+      );
 
       await recipeDatabase.saveIngredient(updatedIngredient, product: product);
     }

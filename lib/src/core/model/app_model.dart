@@ -73,7 +73,7 @@ class AppModel {
   }
 
   AppModel({
-    this.offline = false,
+    this.offline = true,
     this.allowCloseWaiter = true,
     this.firstDecrease = false,
     this.allowCancelOrder = false,
