@@ -260,43 +260,43 @@ class EmployeePage extends HookConsumerWidget {
                                     ],
                                   ),
                                 ),
-                                SimpleButton(
-                                  onPressed: () => showDesktopModal(
-                                    context: context,
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.8,
-                                    body: EmployeeSalaryReports(
-                                      employee: employee,
-                                      theme: theme,
-                                    ),
-                                  ),
-                                  child: Container(
-                                    height: 36,
-                                    // width: 36,
-                                    padding: 12.lr,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                      color: theme.scaffoldBgColor,
-                                    ),
-                                    child: Row(
-
-                                      spacing: 8,
-                                      children: [
-                                        Icon(
-                                          Iconsax.chart_1,
-                                          color: theme.mainColor,
-                                          size: 20,
-                                        ),
-                                        Text(
-                                          AppLocales.reports.tr(),
-                                          style: TextStyle(
-                                              color: theme.mainColor,
-                                              fontFamily: boldFamily),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                // SimpleButton(
+                                //   onPressed: () => showDesktopModal(
+                                //     context: context,
+                                //     width:
+                                //         MediaQuery.of(context).size.width * 0.8,
+                                //     body: EmployeeSalaryReports(
+                                //       employee: employee,
+                                //       theme: theme,
+                                //     ),
+                                //   ),
+                                //   child: Container(
+                                //     height: 36,
+                                //     // width: 36,
+                                //     padding: 12.lr,
+                                //     decoration: BoxDecoration(
+                                //       borderRadius: BorderRadius.circular(12),
+                                //       color: theme.scaffoldBgColor,
+                                //     ),
+                                //     child: Row(
+                                //
+                                //       spacing: 8,
+                                //       children: [
+                                //         Icon(
+                                //           Iconsax.chart_1,
+                                //           color: theme.mainColor,
+                                //           size: 20,
+                                //         ),
+                                //         Text(
+                                //           AppLocales.reports.tr(),
+                                //           style: TextStyle(
+                                //               color: theme.mainColor,
+                                //               fontFamily: boldFamily),
+                                //         ),
+                                //       ],
+                                //     ),
+                                //   ),
+                                // ),
                                 SimpleButton(
                                   onPressed: () {
                                     showDesktopModal(

@@ -55,7 +55,9 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
       if (model.pincode.isEmpty && employee.roleName.toLowerCase() == 'admin') {
         final app = model..pincode = enteredPin;
         await AppStateDatabase().updateApp(app);
-        model.ref!.invalidate(appStateProvider);
+        try {
+          ref.invalidate(appStateProvider);
+        } catch (_) {}
         ref.read(currentEmployeeProvider.notifier).update((e) {
           return Employee(fullname: 'Admin', roleId: '-1', roleName: 'admin');
         });

@@ -46,7 +46,9 @@ class PlaceController extends AppController {
             actionType: ActionType.delete,
             itemId: key,
           );
-          state.ref!.invalidate(placesProvider);
+          try {
+            state.ref!.invalidate(placesProvider);
+          } catch (_) {}
           closeLoading();
           if (father == null) return;
           AppRouter.close(context);

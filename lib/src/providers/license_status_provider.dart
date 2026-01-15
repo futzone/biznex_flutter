@@ -8,12 +8,9 @@ import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import '../ui/screens/activation_screens/activation_code_screen.dart';
 
 final licenseStatusProvider = FutureProvider((ref) async {
-  // final AppStateDatabase stateDatabase = AppStateDatabase();
-  // final state = await stateDatabase.getApp();
-
   final BiznexCloudServices cloudServices = BiznexCloudServices();
   final token = await cloudServices.getTokenData();
-  return token != null;
+  return (token != null && token.subscriptionExpiresAt.isAfter(DateTime.now()));
 
   // return await verifyLicense(state.licenseKey);
 });

@@ -8,32 +8,34 @@ class DeviceCloudService {
   final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
 
   Future<Map<String, dynamic>> getDeviceInfo() async {
-    if (Platform.isWindows) {
-      WindowsDeviceInfo windowsInfo = await _deviceInfo.windowsInfo;
+    try {
+      if (Platform.isWindows) {
+        WindowsDeviceInfo windowsInfo = await _deviceInfo.windowsInfo;
 
-      String deviceName = windowsInfo.computerName;
+        String deviceName = windowsInfo.computerName;
 
-      String machineId = windowsInfo.deviceId;
+        String machineId = windowsInfo.deviceId;
 
-      String osInfo =
-          "${windowsInfo.productName} ${windowsInfo.displayVersion}";
+        String osInfo =
+            "${windowsInfo.productName} ${windowsInfo.displayVersion}";
 
-      String diskSerial = await getDiskSerial();
-      String macAddress = await getMacAddress();
+        String diskSerial = await getDiskSerial();
+        String macAddress = await getMacAddress();
 
-      var bytes = utf8.encode("$machineId-$diskSerial-$macAddress");
-      String deviceFingerprint = sha256.convert(bytes).toString();
+        var bytes = utf8.encode("$machineId-$diskSerial-$macAddress");
+        String deviceFingerprint = sha256.convert(bytes).toString();
 
-      return {
-        "deviceFingerprint": deviceFingerprint,
-        "machineId": machineId,
-        "diskSerial": diskSerial,
-        "macAddress": macAddress,
-        "deviceName": deviceName,
-        "appVersion": appVersion,
-        "osInfo": osInfo
-      };
-    }
+        return {
+          "deviceFingerprint": deviceFingerprint,
+          "machineId": machineId,
+          "diskSerial": diskSerial,
+          "macAddress": macAddress,
+          "deviceName": deviceName,
+          "appVersion": appVersion,
+          "osInfo": osInfo
+        };
+      }
+    } catch (_) {}
     return {};
   }
 

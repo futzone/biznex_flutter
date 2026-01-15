@@ -53,14 +53,16 @@ class BiznexCloudServices {
       final response = await dio.post(login, data: requestBody);
 
       if (response.success) {
+        log("\n\n${response.data}\n\n");
+
         final tokenObject = CloudToken(
           refresh: response.data['refreshToken'],
           token: response.data['accessToken'],
           expires: response.data['expiresIn'],
           branchId: response.data['branchId'],
-          subscriptionExpiresAt:
-              DateTime.tryParse(response.data['subscriptionExpiresAt']) ??
-                  DateTime.now(),
+          subscriptionExpiresAt: DateTime.tryParse(
+                  (response.data['subscriptionExpiresAt']) ?? '') ??
+              DateTime.now().add(Duration(days: 30)),
         );
 
         await _tokenDB.saveToken(tokenObject);
@@ -132,6 +134,8 @@ class BiznexCloudServices {
     // log('\n\n\n');
     // log(jsonEncode(requestBody));
     // log('\n\n\n');
+
+    // return CloudResponse();
 
     try {
       final response = await dio.post(
