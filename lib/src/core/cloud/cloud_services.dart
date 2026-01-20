@@ -29,7 +29,7 @@ class BiznexCloudServices {
     return isConnected && !state.offline;
   }
 
-  static final String baseUrl = "https://dev.api.biznex.uz";
+  static final String baseUrl = "https://prod-api.biznex.uz";
   static final String login = "/api/v1/pos/auth/login";
   static final String refresh = "/api/v1/pos/auth/refresh";
   static final String logout = "/api/v1/pos/auth/logout";
