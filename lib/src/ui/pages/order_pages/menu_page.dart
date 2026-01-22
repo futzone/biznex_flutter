@@ -31,7 +31,7 @@ class MenuPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mobile = getDeviceType(context) == DeviceType.mobile;
+    final mobile = context.notDesktop;
     final employee = ref.watch(currentEmployeeProvider);
     final minimalistic = ref.watch(minimalisticMenuProvider).value ?? false;
     return AppStateWrapper(builder: (theme, state) {
@@ -101,11 +101,7 @@ class MenuPage extends HookConsumerWidget {
 
                   return await Future.value();
                 },
-                child: Column(
-                  children: [
-                    OrderItemsPage(place: place, theme: theme, state: state),
-                  ],
-                ),
+                child: OrderItemsPage(place: place, theme: theme, state: state),
               )
             : Column(
                 children: [
@@ -326,7 +322,9 @@ class MenuPage extends HookConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        OrderHalfPage(place, minimalistic: minimalistic),
+                        Expanded(
+                            flex: 8,
+                            child: OrderHalfPage(place, minimalistic: minimalistic)),
                         Container(
                           height: double.infinity,
                           width: 2,

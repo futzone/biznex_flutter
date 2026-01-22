@@ -1,9 +1,6 @@
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/services/license_services.dart';
-import 'package:biznex/src/ui/pages/login_pages/login_page.dart';
 import 'package:biznex/src/ui/pages/login_pages/onboard_page.dart';
-import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
-import '../ui/screens/activation_screens/activation_code_screen.dart';
 
 final licenseStatusProvider = FutureProvider.family((ref, String key) async {
   LicenseServices licenseServices = LicenseServices();
@@ -22,25 +19,6 @@ class LicenseStatusWrapper extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return AppStateWrapper(builder: (theme, state) {
-      return state.whenProviderData(
-        provider: licenseStatusProvider(state.licenseKey),
-        builder: (status) {
-          status as bool;
-
-          if (status) {
-            if (state.alwaysWaiter) {
-              return OnboardPage();
-            }
-
-            return state.pincode.isEmpty
-                ? LoginPageHarom(model: state, theme: theme, fromAdmin: true)
-                : OnboardPage();
-          }
-
-          return ActivationCodeScreen(ref: ref, state: state);
-        },
-      );
-    });
+    return OnboardPage();
   }
 }

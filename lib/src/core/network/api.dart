@@ -19,7 +19,7 @@ class ApiBase {
       final response = await dio.post(path, queryParameters: params, data: jsonEncode(data));
       return response;
     } on DioException catch (error, stackTrace) {
-      log("Error on $path:\n${error.response?.data}", error: error, stackTrace: stackTrace);
+      // log("Error on $path:\n${error.response?.data}", error: error, stackTrace: stackTrace);
       return error.response;
     }
   }
@@ -36,7 +36,7 @@ class ApiBase {
       final response = await dio.put(path, queryParameters: params, data: data);
       return response;
     } on DioException catch (error, stackTrace) {
-      log("Error on $path:\n${error.response?.data}", error: error, stackTrace: stackTrace);
+      // log("Error on $path:\n${error.response?.data}", error: error, stackTrace: stackTrace);
       return error.response;
     }
   }
@@ -48,7 +48,7 @@ class ApiBase {
       final response = await dio.delete(path, queryParameters: params, data: data);
       return response;
     } on DioException catch (error, stackTrace) {
-      log("Error on $path:\n${error.response?.data}", error: error, stackTrace: stackTrace);
+      // log("Error on $path:\n${error.response?.data}", error: error, stackTrace: stackTrace);
       return error.response;
     }
   }
@@ -59,7 +59,7 @@ class ApiBase {
       final response = await dio.get(path, queryParameters: params, data: data);
       return response;
     } on DioException catch (error, stackTrace) {
-      log("Error on $path:\n${error.response?.data}", error: error, stackTrace: stackTrace);
+      // log("Error on $path:\n${error.response?.data}", error: error, stackTrace: stackTrace);
       return error.response;
     }
   }
@@ -70,7 +70,7 @@ class ApiBase {
       final response = await dio.patch(path, queryParameters: params, data: data);
       return response;
     } on DioException catch (error, stackTrace) {
-      log("Error on $path:", error: error, stackTrace: stackTrace);
+      // log("Error on $path:", error: error, stackTrace: stackTrace);
       return error.response;
     }
   }

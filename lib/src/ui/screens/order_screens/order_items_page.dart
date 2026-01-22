@@ -40,7 +40,7 @@ class OrderItemsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final mobile = getDeviceType(context) == DeviceType.mobile;
+    final mobile = context.notDesktop;
     // final orderItems = ref.watch(orderSetProvider);
     // final orderNotifier = ref.read(orderSetProvider.notifier);
     final currentEmployee = ref.watch(currentEmployeeProvider);
@@ -104,13 +104,12 @@ class OrderItemsPage extends HookConsumerWidget {
         final paymentTypes =
             useState(<Percent>[...(order?.paymentTypes ?? [])]);
 
-        return Expanded(
-          flex: getDeviceType(context) == DeviceType.tablet ? 6 : 4,
-          child: placeOrderItems.isEmpty
+        Widget buildBody() {
+          return placeOrderItems.isEmpty
               ? AppEmptyWidget()
               : Container(
                   margin: mobile
-                      ? Dis.only()
+                      ? Dis.only(lr: context.getSize(0, t: 0, d: 16), tb: 16)
                       : Dis.only(right: context.w(32), top: context.h(24)),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -128,31 +127,11 @@ class OrderItemsPage extends HookConsumerWidget {
                             theme: theme,
                             order: order,
                           ),
-                        // OrderDetailsScreen(
-                        //   theme: theme,
-                        //   noteController: noteController,
-                        //   customerNotifier: customerNotifier,
-                        // ),
-                        // OrderParamButtons(
-                        //   scheduleNotifier: scheduledTime,
-                        //   theme: theme,
-                        //   state: state,
-                        //   onScheduleOrder: onSchedule,
-                        //   onOpenSettings: () {
-                        //     showDesktopModal(context: context, body: OrderSettingsScreen(state));
-                        //   },
-                        //   onClearAll: order != null ? null : () => orderNotifier.clear(),
-                        // ),
 
-                        // Container(
-                        //   height: 1,
-                        //   margin: 16.tb,
-                        //   color: theme.accentColor,
-                        // ),
 
                         Padding(
                           padding: Dis.only(lr: 16, top: 16),
-                          // padding: const EdgeInsets.all(16),
+
                           child: AppTextField(
                             prefixIcon: Icon(Iconsax.note_1_copy),
                             title: AppLocales.enterNoteForOrder.tr(),
@@ -520,9 +499,7 @@ class OrderItemsPage extends HookConsumerWidget {
                                 title: AppLocales.add.tr(),
                               ),
 
-
-                                8.h,
-
+                              8.h,
 
                               if (order != null)
                                 AppPrimaryButton(
@@ -530,14 +507,13 @@ class OrderItemsPage extends HookConsumerWidget {
                                   theme: theme,
                                   onPressed: () async {
                                     OrderController orderController =
-                                    OrderController(
+                                        OrderController(
                                       model: state,
                                       place: place,
                                       employee:
-                                      ref.watch(currentEmployeeProvider),
+                                          ref.watch(currentEmployeeProvider),
                                     );
-                                    await orderController
-                                        .printCheck(order.id);
+                                    await orderController.printCheck(order.id);
                                   },
                                   textColor: theme.mainColor,
                                   border: Border.all(color: theme.mainColor),
@@ -546,9 +522,8 @@ class OrderItemsPage extends HookConsumerWidget {
                                   // icon: Icons.close,
                                   child: Row(
                                     crossAxisAlignment:
-                                    CrossAxisAlignment.center,
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.center,
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     spacing: 16,
                                     children: [
                                       Icon(
@@ -669,10 +644,12 @@ class OrderItemsPage extends HookConsumerWidget {
                       ],
                     ),
                   ),
-                ),
-        );
+                );
+        }
+
+        if (context.notDesktop) return buildBody();
+        return Expanded(flex: 6, child: buildBody());
       },
     );
   }
 }
-

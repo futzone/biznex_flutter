@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/extensions/app_responsive.dart';
+import 'package:biznex/src/core/extensions/for_string.dart';
 import 'package:biznex/src/core/model/product_models/product_model.dart';
 import 'package:biznex/src/ui/screens/products_screens/product_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_file_image.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/custom/app_toast.dart';
 import 'package:biznex/src/ui/widgets/dialogs/app_custom_dialog.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import '../../../core/extensions/device_type.dart';
@@ -154,7 +156,7 @@ class ProductCardNew extends ConsumerWidget {
     return SimpleButton(
       onPressed: onPressed,
       child: Container(
-        padding: minimalistic ? null : EdgeInsets.all(context.s(8)),
+        padding: EdgeInsets.all(context.s(8)),
         decoration: BoxDecoration(
           color: colors.white,
           borderRadius: BorderRadius.circular(context.s(12)),
@@ -164,250 +166,124 @@ class ProductCardNew extends ConsumerWidget {
                 )
               : null,
         ),
-        child: minimalistic
-            ? Stack(
+        child: Column(
+          spacing: context.h(8),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Stack(
                 children: [
-                  Center(
-                    child: Padding(
-                      padding: !mobile
-                          ? Dis.only(top: context.s(28))
-                          : const EdgeInsets.only(top: 24, bottom: 8),
-                      child: Text(
-                        product.name,
-                        style: TextStyle(
-                          fontSize: context.s(mobile ? 16 : 20),
-                          fontFamily: boldFamily,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: colors.mainColor,
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(context.s(12)),
-                          bottomLeft: Radius.circular(context.s(12)),
-                        ),
-                      ),
-                      padding: Dis.only(lr: context.w(12), tb: context.h(8)),
-                      child: Text(
-                        product.price.priceUZS,
-                        style: TextStyle(
-                          fontSize: context.s(14),
-                          color: Colors.white,
-                          fontFamily: mediumFamily,
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (mobile && amountText != null)
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: product.amount == 0
-                              ? colors.red
-                              : colors.secondaryColor,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(context.s(12)),
-                            bottomRight: Radius.circular(context.s(12)),
+                  ProductImageWrapper(
+                    id: product.id,
+                    onUrlHasDone: (url) {
+                      if (url != null) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color:
+                            Theme.of(context).scaffoldBackgroundColor,
                           ),
-                        ),
-                        padding: Dis.only(lr: context.w(12), tb: context.h(8)),
-                        child: Text(
-                          amountText ?? '',
-                          style: TextStyle(
-                            fontSize: context.s(14),
-                            color: product.amount == 0
-                                ? colors.white
-                                : Colors.black,
-                            fontFamily: mediumFamily,
+                          child: Center(
+                            child: Text(
+                              product.name.initials,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontFamily: boldFamily,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                  if (!mobile)
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: product.amount == 0
-                              ? colors.red
-                              : colors.secondaryColor,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(context.s(12)),
-                            bottomRight: Radius.circular(context.s(12)),
-                          ),
-                        ),
-                        padding: Dis.only(lr: context.w(12), tb: context.h(8)),
-                        child: Text(
-                          product.amount == 0
-                              ? AppLocales.productEnded.tr()
-                              : "${product.amount.toMeasure} ${product.measure ?? ''}",
-                          style: TextStyle(
-                            fontSize: context.s(14),
-                            color: product.amount == 0
-                                ? colors.white
-                                : Colors.black,
-                            fontFamily: mediumFamily,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              )
-            : Column(
-                spacing: context.h(8),
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (minimalistic)
-                    ...[]
-                  else ...[
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          AppFileImage(
-                            id: product.id,
-                            name: product.name,
-                            path: product.images?.firstOrNull,
-                            color: colors.scaffoldBgColor,
-                          ),
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: Container(
-                              padding: context.s(8).all,
-                              margin: context.s(8).all,
+                        );
+                      }
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          url ?? '',
+                          errorBuilder: (_, __, ___) {
+                            return Container(
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: Colors.black.withValues(alpha: 0.36),
+                                borderRadius: BorderRadius.circular(12),
+                                color:
+                                    Theme.of(context).scaffoldBackgroundColor,
                               ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                spacing: context.w(8),
-                                children: [
-                                  Icon(Iconsax.reserve_copy,
-                                      color: Colors.white, size: context.s(24)),
-                                  Text(
-                                    "${product.amount.toMeasure} ${product.measure ?? ''}"
-                                        .toLowerCase(),
-                                    style: TextStyle(
-                                      fontSize: context.s(16),
-                                      fontFamily: boldFamily,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                ],
+
+                              child: Center(
+                                child: Text(
+                                  product.name.initials,
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontFamily: boldFamily,
+                                  ),
+                                ),
                               ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Container(
+                      padding: context.getSize(4, t: 8, d: 8).all,
+                      margin: context.getSize(4, t: 8, d: 8).all,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.black.withValues(alpha: 0.36),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: context.getSize(4, t: 8, d: 8),
+                        children: [
+                          Icon(
+                            Iconsax.reserve_copy,
+                            color: Colors.white,
+                            size: context.getSize(18, t: 20, d: 24),
+                          ),
+                          Text(
+                            "${product.amount.toMeasure} ${product.measure ?? ''}"
+                                .toLowerCase(),
+                            style: TextStyle(
+                              fontSize: context.getSize(14, t: 16, d: 16),
+                              fontFamily: boldFamily,
+                              color: Colors.white,
                             ),
                           )
                         ],
                       ),
                     ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            product.name,
-                            style: TextStyle(
-                              fontSize: context.s(mobile ? 16 : 20),
-                              fontFamily: boldFamily,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        12.w,
-                        Text(
-                          product.price.priceUZS,
-                          style: TextStyle(
-                            fontSize: context.s(mobile ? 12 : 16),
-                            fontFamily: boldFamily,
-                            color: colors.mainColor,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                    if (product.description != null &&
-                        (product.description ?? '').isNotEmpty)
-                      Text(
-                        product.description ?? '',
-                        style: TextStyle(
-                          fontSize: context.s(12),
-                          fontFamily: regularFamily,
-                          color: colors.secondaryTextColor,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    // Row(
-                    //   spacing: context.w(8),
-                    //   children: [
-                    //     Expanded(
-                    //       child: Container(
-                    //         decoration: BoxDecoration(
-                    //           color: colors.scaffoldBgColor,
-                    //           borderRadius: BorderRadius.circular(8),
-                    //         ),
-                    //         padding: context.s(8).all,
-                    //         child: Row(
-                    //           spacing: context.w(4),
-                    //           children: [
-                    //             Icon(Icons.numbers,
-                    //                 size: context.s(18), color: Colors.black),
-                    //             Expanded(
-                    //               child: Text(
-                    //                 product.barcode.toString(),
-                    //                 style: TextStyle(
-                    //                     fontFamily: mediumFamily,
-                    //                     color: Colors.black,
-                    //                     fontSize: context.s(14)),
-                    //                 maxLines: 1,
-                    //                 overflow: TextOverflow.ellipsis,
-                    //               ),
-                    //             )
-                    //           ],
-                    //         ),
-                    //       ),
-                    //     ),
-                    //     Container(
-                    //       decoration: BoxDecoration(
-                    //         color: colors.scaffoldBgColor,
-                    //         borderRadius: BorderRadius.circular(8),
-                    //       ),
-                    //       padding: context.s(8).all,
-                    //       child: Row(
-                    //         spacing: context.w(4),
-                    //         children: [
-                    //           Icon(Ionicons.receipt_outline,
-                    //               size: context.s(18), color: Colors.black),
-                    //           Text(
-                    //             product.tagnumber.toString(),
-                    //             style: TextStyle(
-                    //               fontFamily: mediumFamily,
-                    //               color: Colors.black,
-                    //               fontSize: context.s(14),
-                    //             ),
-                    //             maxLines: 1,
-                    //             overflow: TextOverflow.ellipsis,
-                    //           )
-                    //         ],
-                    //       ),
-                    //     ),
-                    //   ],
-                    // )
-                  ]
+                  )
                 ],
               ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  product.name.capitalize,
+                  style: TextStyle(
+                    fontSize: context.getSize(14, t: 16, d: 16),
+                    fontFamily: boldFamily,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                12.w,
+                Text(
+                  product.price.priceUZS,
+                  style: TextStyle(
+                    fontSize: context.getSize(13, t: 16, d: 16),
+                    fontFamily: boldFamily,
+                    color: colors.mainColor,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,7 +1,9 @@
 import 'dart:developer';
+import 'dart:io';
 import 'dart:ui';
 import 'package:biznex/biznex.dart';
 import 'package:biznex/src/core/config/router.dart';
+import 'package:biznex/src/core/database/app_database/app_database.dart';
 import 'package:biznex/src/core/database/app_database/app_state_database.dart';
 import 'package:biznex/src/core/extensions/device_type.dart';
 import 'package:biznex/src/core/network/api.dart';
@@ -18,7 +20,6 @@ import 'package:biznex/src/ui/widgets/helpers/app_decorated_button.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_text_field.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fullscreen_window/fullscreen_window.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../core/database/app_database/app_screen_database.dart';
 import '../../screens/onboarding_screens/onboard_card.dart';
@@ -48,12 +49,17 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
               loading: () => AppLoadingScreen(),
               data: (employees) {
                 log("$employees");
-                if ((employees.isEmpty &&
+                if (state.apiUrl == null ||
+                    (state.apiUrl ?? '').isEmpty ||
+                    (employees.isEmpty &&
                         getDeviceType(context) == DeviceType.mobile) ||
                     (employees.isEmpty && state.alwaysWaiter)) {
                   return Scaffold(
                     body: Center(
-                      child: Padding(
+                      child: Container(
+                        constraints: BoxConstraints(
+                          maxWidth: 480
+                        ),
                         padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -80,13 +86,14 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                               theme: theme,
                               onPressed: () {
                                 if (_controller.text.trim().isEmpty) {
-                                  ShowToast.error(
-                                      context, AppLocales.enterAddress.tr());
+                                  ShowToast.error(context,
+                                      AppLocales.enterAddress.tr());
                                   return;
                                 }
 
                                 final baseUrl = _controller.text.trim();
-                                if (int.tryParse(baseUrl.replaceAll(".", "")) ==
+                                if (int.tryParse(
+                                        baseUrl.replaceAll(".", "")) ==
                                     null) {
                                   ShowToast.error(context,
                                       "Noto'g'ri formatda kiritilgan!");
@@ -126,7 +133,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                 //   return LoginPageHarom(
                 //       model: state, theme: theme, fromAdmin: true);
                 // }
-                if (getDeviceType(context) == DeviceType.mobile) {
+                if (!Platform.isWindows) {
                   return OnboardMobile(
                     employees: employees,
                     theme: theme,
@@ -180,15 +187,16 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                         ),
                                       ),
                                       SimpleButton(
-                                        onPressed: () =>
-                                            setState(() => showWarning = false),
+                                        onPressed: () => setState(
+                                            () => showWarning = false),
                                         child: Container(
                                           padding: Dis.only(lr: 12, tb: 4),
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(20),
                                             border: Border.all(
-                                              color: theme.secondaryTextColor,
+                                              color:
+                                                  theme.secondaryTextColor,
                                             ),
                                           ),
                                           child: Row(
@@ -197,15 +205,16 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                               Icon(
                                                 Icons.close,
                                                 size: 16,
-                                                color: theme.secondaryTextColor,
+                                                color: theme
+                                                    .secondaryTextColor,
                                               ),
                                               Text(
                                                 AppLocales.close.tr(),
                                                 style: TextStyle(
                                                   fontFamily: regularFamily,
                                                   fontSize: 12,
-                                                  color:
-                                                      theme.secondaryTextColor,
+                                                  color: theme
+                                                      .secondaryTextColor,
                                                 ),
                                               ),
                                             ],
@@ -299,15 +308,7 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                     // ),
                                     IconButton(
                                       // onLongPress: ,
-                                      onPressed: () async {
-                                        final isFullScreen =
-                                            await ScreenDatabase.get();
-                                        await FullScreenWindow.setFullScreen(
-                                                !isFullScreen)
-                                            .then((_) async {
-                                          await ScreenDatabase.set();
-                                        });
-                                      },
+                                      onPressed: () async {},
                                       icon: Icon(
                                         Icons.fullscreen,
                                         size: 32,
@@ -351,14 +352,17 @@ class _OnboardPageState extends ConsumerState<OnboardPage> {
                                   );
                                 }
                                 final employee = employees[
-                                    state.apiUrl == null ? (index - 1) : index];
+                                    state.apiUrl == null
+                                        ? (index - 1)
+                                        : index];
                                 return OnboardCard(
                                   theme: theme,
                                   roleName: employee.roleName,
                                   fullname: employee.fullname,
                                   onPressed: () {
                                     ref
-                                        .read(currentEmployeeProvider.notifier)
+                                        .read(currentEmployeeProvider
+                                            .notifier)
                                         .update((state) => employee);
                                     AppRouter.go(
                                       context,

@@ -187,7 +187,6 @@ class TableChooseScreen extends HookConsumerWidget {
     final selectedPlace = useState<Place?>(null);
     final fatherPlace = useState<Place?>(null);
     final fatherPlaces = ref.watch(placesProvider).value ?? [];
-    final mobile = getDeviceType(context) == DeviceType.mobile;
     final searchResultList = useState(<Place>[]);
     final searchController = useTextEditingController();
 
@@ -207,7 +206,7 @@ class TableChooseScreen extends HookConsumerWidget {
         builder: (theme, state) {
           return Scaffold(
             drawer: MobileDrawer(theme),
-            appBar: !mobile
+            appBar: Platform.isWindows
                 ? null
                 : AppBar(
                     // leading: Icon(Ionicons.menu_outline),
@@ -342,7 +341,7 @@ class TableChooseScreen extends HookConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      if (onSelected == null && !mobile)
+                      if (onSelected == null && Platform.isWindows)
                         Container(
                           color: Colors.white,
                           padding:
@@ -368,7 +367,8 @@ class TableChooseScreen extends HookConsumerWidget {
                               0.w,
                               SvgPicture.asset(
                                 'assets/images/Vector.svg',
-                                height: context.h(mobile ? 20 : 36),
+                                height:
+                                    context.h(!Platform.isWindows ? 20 : 36),
                               ),
                               Spacer(),
                               SizedBox(
@@ -496,7 +496,7 @@ class TableChooseScreen extends HookConsumerWidget {
                             ],
                           ),
                         ),
-                      if (mobile)
+                      if (!Platform.isWindows)
                         Container(
                           color: theme.scaffoldBgColor,
                           padding:
@@ -509,7 +509,7 @@ class TableChooseScreen extends HookConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 if (onSelected != null) AppBackButton(),
-                                if (!mobile)
+                                if (Platform.isWindows)
                                   Text(
                                     AppLocales.choosePlace.tr(),
                                     style: TextStyle(
@@ -587,112 +587,16 @@ class TableChooseScreen extends HookConsumerWidget {
                                     // ),
                                   ],
                                 ),
-                                if (!mobile)
-                                  Row(
-                                    spacing: context.w(16),
-                                    children: [
-                                      CustomPopupMenu(
-                                        theme: theme,
-                                        children: [
-                                          CustomPopupItem(
-                                              title: AppLocales.all.tr(),
-                                              onPressed: () =>
-                                                  selectedPlace.value = null,
-                                              icon: Icons.list),
-                                          for (final item in fatherPlaces)
-                                            CustomPopupItem(
-                                              title: item.name,
-                                              onPressed: () =>
-                                                  selectedPlace.value = item,
-                                              icon: Icons.present_to_all,
-                                            ),
-                                        ],
-                                        child: Container(
-                                          height: context.h(52),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            color: Colors.white,
-                                            border: Border.all(
-                                                color: theme.secondaryTextColor
-                                                    .withValues(alpha: 0.4)),
-                                          ),
-                                          padding: Dis.only(
-                                              lr: context.w(14),
-                                              tb: context.h(8)),
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            spacing: context.w(8),
-                                            children: [
-                                              Text(
-                                                selectedPlace.value == null
-                                                    ? AppLocales.choosePlace
-                                                        .tr()
-                                                    : selectedPlace.value!.name,
-                                                style: TextStyle(
-                                                    fontSize: context.s(16),
-                                                    fontFamily: mediumFamily),
-                                              ),
-                                              Icon(Iconsax.arrow_down_1_copy,
-                                                  size: context.s(20)),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      // CustomPopupMenu(
-                                      //   theme: theme,
-                                      //   children: [
-                                      //     CustomPopupItem(
-                                      //         title: AppLocales.all.tr(), onPressed: () => selectedFilter.value = null, icon: Ionicons.list_outline),
-                                      //     CustomPopupItem(
-                                      //         title: AppLocales.freeTables.tr(),
-                                      //         onPressed: () {
-                                      //           selectedFilter.value = AppLocales.freeTables;
-                                      //           if (selectedPlace.value != null && selectedPlace.value?.children != null) {
-                                      //             filteredPlaces.value = selectedPlace.value.children.where((el)=> ).toList();
-                                      //           }
-                                      //         }),
-                                      //     CustomPopupItem(
-                                      //       title: AppLocales.bronTables.tr(),
-                                      //     ),
-                                      //   ],
-                                      //   child: Container(
-                                      //     height: context.h(52),
-                                      //     decoration: BoxDecoration(
-                                      //       borderRadius: BorderRadius.circular(8),
-                                      //       color: Colors.white,
-                                      //       border: Border.all(color: theme.secondaryTextColor.withValues(alpha: 0.4)),
-                                      //     ),
-                                      //     padding: Dis.only(lr: context.w(14), tb: context.h(8)),
-                                      //     child: Row(
-                                      //       crossAxisAlignment: CrossAxisAlignment.center,
-                                      //       mainAxisAlignment: MainAxisAlignment.center,
-                                      //       spacing: 8,
-                                      //       children: [
-                                      //         Text(
-                                      //           AppLocales.all.tr(),
-                                      //           style: TextStyle(fontSize: 16, fontFamily: mediumFamily),
-                                      //         ),
-                                      //         Icon(Iconsax.arrow_down_1_copy, size: 20),
-                                      //       ],
-                                      //     ),
-                                      //   ),
-                                      // ),
-                                    ],
-                                  )
                               ],
                             ),
                           ),
                         ),
                       Expanded(
                         child: Container(
-                          padding: mobile
+                          padding: !Platform.isWindows
                               ? Dis.only(lr: 16)
                               : Dis.only(lr: context.w(40)),
-                          margin: mobile
+                          margin: !Platform.isWindows
                               ? Dis.only(lr: 0)
                               : Dis.only(lr: context.w(32)),
                           decoration: BoxDecoration(
@@ -709,10 +613,13 @@ class TableChooseScreen extends HookConsumerWidget {
                             padding: Dis.only(tb: context.h(40)),
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: mobile ? 2 : 5,
-                              mainAxisSpacing: context.s(mobile ? 16 : 80),
-                              crossAxisSpacing: context.s(mobile ? 16 : 80),
-                              childAspectRatio: Platform.isWindows ? 1.25 : 2,
+                              crossAxisCount:
+                                  getDeviceType(context) == DeviceType.mobile
+                                      ? 2
+                                      : 4,
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: 16,
+                              childAspectRatio: 2,
                             ),
                             itemCount: selectedPlace.value == null
                                 ? places.length
@@ -800,7 +707,7 @@ class TableChooseScreen extends HookConsumerWidget {
 
                                       fatherPlace.value = place;
                                     },
-                                    child: mobile
+                                    child: !Platform.isWindows
                                         ? Container(
                                             padding: 4.all,
                                             decoration: BoxDecoration(
@@ -823,7 +730,11 @@ class TableChooseScreen extends HookConsumerWidget {
                                                     color: order == null
                                                         ? Colors.white
                                                         : theme.textColor,
-                                                    fontSize: 16,
+                                                    fontSize: getDeviceType(
+                                                                context) ==
+                                                            DeviceType.mobile
+                                                        ? 16
+                                                        : 20,
                                                   ),
                                                 ),
                                                 if (place != null &&
@@ -836,7 +747,11 @@ class TableChooseScreen extends HookConsumerWidget {
                                                       color: order == null
                                                           ? Colors.white
                                                           : theme.textColor,
-                                                      fontSize: 14,
+                                                      fontSize: getDeviceType(
+                                                          context) ==
+                                                          DeviceType.mobile
+                                                          ? 14
+                                                          : 16,
                                                     ),
                                                   ),
                                                 if (order != null &&
@@ -847,7 +762,11 @@ class TableChooseScreen extends HookConsumerWidget {
                                                     style: TextStyle(
                                                       fontFamily: mediumFamily,
                                                       color: theme.textColor,
-                                                      fontSize: 14,
+                                                      fontSize: getDeviceType(
+                                                          context) ==
+                                                          DeviceType.mobile
+                                                          ? 14
+                                                          : 16,
                                                     ),
                                                   ),
                                               ],

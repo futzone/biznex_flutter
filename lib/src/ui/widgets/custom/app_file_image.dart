@@ -1,6 +1,8 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:biznex/biznex.dart';
+import 'package:biznex/src/ui/widgets/custom/app_error_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:biznex/src/ui/widgets/helpers/app_loading_screen.dart';
 
@@ -12,6 +14,27 @@ final _fileImageProvider = FutureProvider.family((ref, dynamic path) async {
   if (await file.exists()) return file;
   return null;
 });
+
+class ProductImageWrapper extends ConsumerWidget {
+  final String id;
+  final Widget Function(String? url) onUrlHasDone;
+
+  const ProductImageWrapper({
+    super.key,
+    required this.id,
+    required this.onUrlHasDone,
+  });
+
+  @override
+  Widget build(BuildContext context, ref) {
+    final providerListener = ref.watch(appImageProvider(id));
+    return providerListener.when(
+      data: onUrlHasDone,
+      error: RefErrorScreen,
+      loading: RefLoadingScreen,
+    );
+  }
+}
 
 class AppFileImage extends ConsumerWidget {
   final dynamic path;
@@ -33,20 +56,10 @@ class AppFileImage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (!Platform.isWindows) return SizedBox();
-
     return AppStateWrapper(
       builder: (theme, state) {
-        if (state.alwaysWaiter && id != null) {
+        if (id != null) {
           final imageUrl = ref.watch(appImageProvider(id ?? '')).value;
-
-          if (imageUrl == null) {
-            return AppFileImage(
-              name: name,
-              path: path,
-              color: color,
-            );
-          }
 
           return Container(
             height: size,
@@ -56,7 +69,7 @@ class AppFileImage extends ConsumerWidget {
               color: color ?? theme.scaffoldBgColor,
               border: Border.all(color: theme.accentColor),
               image: DecorationImage(
-                image: NetworkImage(imageUrl),
+                image: NetworkImage(imageUrl ?? ''),
                 fit: BoxFit.cover,
               ),
             ),

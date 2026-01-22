@@ -8,7 +8,6 @@ import 'package:biznex/src/ui/pages/login_pages/onboard_page.dart';
 import 'package:biznex/src/ui/screens/settings_screen/settings_button_screen.dart';
 import 'package:biznex/src/ui/widgets/custom/app_state_wrapper.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fullscreen_window/fullscreen_window.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 
 import '../../../core/database/app_database/app_screen_database.dart';
@@ -225,22 +224,16 @@ class AppSidebar extends HookConsumerWidget {
                     sidebarItemBuilder(
                         Iconsax.profile_2user, AppLocales.employees.tr(), 8),
 
-                    if(!state.offline)
-                    state.whenProviderData(
-                      provider: clientStateProvider,
-                      builder: (data) {
-                        return sidebarItemBuilder(
-                            Iconsax.cloud_copy, AppLocales.cloudData.tr(), 11);
-                      },
-                    ),
+                    if (!state.offline)
+                      state.whenProviderData(
+                        provider: clientStateProvider,
+                        builder: (data) {
+                          return sidebarItemBuilder(Iconsax.cloud_copy,
+                              AppLocales.cloudData.tr(), 11);
+                        },
+                      ),
                     SimpleButton(
-                      onPressed: () async {
-                        final isFullScreen = await ScreenDatabase.get();
-                        await FullScreenWindow.setFullScreen(!isFullScreen)
-                            .then((_) async {
-                          await ScreenDatabase.set();
-                        });
-                      },
+                      onPressed: () async {},
                       child: IgnorePointer(
                         ignoring: true,
                         child: sidebarItemBuilder("assets/icons/fullscreen.svg",

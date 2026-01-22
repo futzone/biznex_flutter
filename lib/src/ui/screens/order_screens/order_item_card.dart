@@ -62,7 +62,7 @@ class OrderItemCardNew extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mobile = getDeviceType(context) == DeviceType.mobile;
+    final mobile = context.notDesktop;
 
     final product = item.product;
     final amountController =

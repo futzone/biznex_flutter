@@ -169,8 +169,7 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
       child: Scaffold(
         body: Row(
           children: [
-            if (getDeviceType(context) != DeviceType.mobile)
-              LoginHalfPage(model),
+            if (!context.notDesktop) LoginHalfPage(model),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(32),
@@ -214,10 +213,18 @@ class _LoginPageState extends ConsumerState<LoginPageHarom> {
                       }),
                     ),
                     PinKeyboard(
-                      maxWidth: getDeviceType(context) != DeviceType.mobile
-                          ? MediaQuery.of(context).size.width * 0.3
-                          : double.infinity,
-                      space: MediaQuery.of(context).size.height * 0.1,
+                      maxWidth: context.notDesktop
+                          ? context.getSize(
+                              MediaQuery.of(context).size.width * 0.9,
+                              t: MediaQuery.of(context).size.width * 0.7,
+                        d: MediaQuery.of(context).size.width*0.8,
+                            )
+                          : MediaQuery.of(context).size.width*0.3,
+                      space: context.getSize(
+                        MediaQuery.of(context).size.height * 0.09,
+                        t: MediaQuery.of(context).size.height * 0.1,
+                        d: MediaQuery.of(context).size.height * 0.1,
+                      ),
                       textColor: widget.theme.textColor,
                       length: 4,
                       enableBiometric: false,
